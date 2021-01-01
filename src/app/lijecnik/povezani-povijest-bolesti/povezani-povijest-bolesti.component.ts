@@ -134,15 +134,15 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                 }
                                 //Za svaku povijest bolesti, dodaj cijeli form array u formu 
                                 for(let povijest of this.povijestiBolesti){
-                                    console.log(povijest);
                                     this.addControls(povijest);
                                 }
+                                
                                 //Za svaku iteraciju povijesti bolesti, u polje sekundarnih dijagnoza dodaj form control u kojemu će se nalaziti sekundarne dijagnoze te povijesti bolesti
                                 for(let i = 0;i< this.getControls().length;i++){
                                     //Ako šifra sekundarne dijagnoze nije prazna
-                                    if(this.povijestiBolesti[i].mkbSifraSekundarna !== null){
+                                    if(this.getControls()[i].value.mkbSifraSekundarna !== null){
                                         //Pretplaćujem se na Observable u kojemu se nalaze NAZIVI SEKUNDARNIH DIJAGNOZA za određene šifre sekundarnih dijagnoza
-                                        this.subsNazivSekundarna = this.povezaniPovijestBolestiService.getNazivSekundarna(this.povijestiBolesti[i].mkbSifraSekundarna).subscribe(
+                                        this.subsNazivSekundarna = this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna).subscribe(
                                             //Dohvaćam naziv sekundarne dijagnoze
                                             (nazivSekundarna) => {
                                                 console.log(nazivSekundarna);
@@ -166,7 +166,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                     else{
                                         (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
                                             //U form control sekundarne dijagnoze ubaci null
-                                            new FormControl(this.povijestiBolesti[i].mkbSifraSekundarna)
+                                            new FormControl(this.getControls()[i].value.mkbSifraSekundarna)
                                         ); 
                                     }
                                 }
@@ -175,7 +175,6 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                             else{
                                 //Spremam poruku servera 
                                 this.porukaPovijestBolestiPretraga = odgovor["message"];
-                                console.log(this.porukaPovijestBolestiPretraga);
                             }
                         }
                     );
@@ -205,13 +204,16 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     for(let povijest of this.povijestiBolesti){
                         this.addControls(povijest);
                     }
-
+                    /* for(let i = 0; i< this.getControls().length;i++){
+                        console.log(this.getControls()[i].value);
+                    }  */
+                    //console.log(this.povijestiBolesti);
                     //Za svaku iteraciju povijesti bolesti, u polje sekundarnih dijagnoza dodaj form control u kojemu će se nalaziti sekundarne dijagnoze te povijesti bolesti
                     for(let i = 0;i< this.getControls().length;i++){
                         //Ako šifra sekundarne dijagnoze nije prazna
-                        if(this.povijestiBolesti[i].mkbSifraSekundarna !== null){
+                        if(this.getControls()[i].value.mkbSifraSekundarna !== null){
                             //Pretplaćujem se na Observable u kojemu se nalaze NAZIVI SEKUNDARNIH DIJAGNOZA za određene šifre sekundarnih dijagnoza
-                            this.subsNazivSekundarna = this.povezaniPovijestBolestiService.getNazivSekundarna(this.povijestiBolesti[i].mkbSifraSekundarna).subscribe(
+                            this.subsNazivSekundarna = this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna).subscribe(
                                 //Dohvaćam naziv sekundarne dijagnoze
                                 (nazivSekundarna) => {
                                     console.log(nazivSekundarna);
@@ -235,7 +237,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         else{
                             (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
                                 //U form control sekundarne dijagnoze ubaci null
-                                new FormControl(this.povijestiBolesti[i].mkbSifraSekundarna)
+                                new FormControl(this.getControls()[i].value.mkbSifraSekundarna)
                             ); 
                         }
                     }
@@ -274,6 +276,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
               'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
               'mkbSifraPrimarna': new FormControl(povijestBolesti.mkbSifraPrimarna),
               'nazivPrimarna': new FormControl(povijestBolesti.NazivPrimarna),
+              'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
               'sekundarneDijagnoze': new FormArray([])
             }) 
         );
