@@ -1,0 +1,271 @@
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1">
+        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+        <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="nositeljOsiguranja">Nositelj osiguranja</label><br>
+                                <div style="margin-left:150px;margin-top:-25px;">
+                                    <label>
+                                        <input 
+                                            type="radio" 
+                                            value="nositelj"
+                                            formControlName="nositeljOsiguranja">Nositelj osiguranja 
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <label>
+                                    <input 
+                                        type="radio"
+                                        value="clan"
+                                        formControlName="nositeljOsiguranja">Član obitelji
+                                </label>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="drzavaOsiguranja">Država osiguranja</label>
+                                <select  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="drzavaOsiguranja"
+                                    style="width:250px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite državu osiguranja</option>
+                                    <option *ngFor="let drzava of drzave" value="{{drzava.nazivDrzave}}">{{drzava.nazivDrzave}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(drzavaOsiguranja.touched || drzavaOsiguranja.dirty) && !drzavaOsiguranja.valid">
+                                    <span *ngIf="drzavaOsiguranja.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="drzavaOsiguranja.errors['drzaveIsForbidden'] && !drzavaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="kategorijaOsiguranja">Kategorija osiguranja</label>
+                                <select  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="kategorijaOsiguranja"
+                                    style="width:250px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite kategoriju osiguranja</option>
+                                    <option *ngFor="let kategorija of katOsiguranja" value="{{kategorija.oznakaOsiguranika}}">{{kategorija.oznakaOsiguranika}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(kategorijaOsiguranja.touched || kategorijaOsiguranja.dirty) && !kategorijaOsiguranja.valid">
+                                    <span *ngIf="kategorijaOsiguranja.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="kategorijaOsiguranja.errors['oznakaIsForbidden'] && !kategorijaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="podrucniUred">Područni ured</label>
+                                <select  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="podrucniUred"
+                                    style="width:250px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite područni ured</option>
+                                    <option *ngFor="let ured of podrucniUredi" value="{{ured.nazivSluzbe}}">{{ured.nazivSluzbe}}</option>
+                                </select>
+                                <input
+                                    type="text"
+                                    formControlName="sifUred"
+                                    class="form-control"
+                                    style="width:50px;margin-left:255px;margin-top:-35px;">
+                                <span class="help-block" *ngIf="(podrucniUred.touched || podrucniUred.dirty) && !podrucniUred.valid">
+                                    <span *ngIf="podrucniUred.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="podrucniUred.errors['oznakaIsForbidden'] && !podrucniUred.errors['required']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                            <label for="mbo">Matični broj pacijenta</label>
+                            <input
+                                type="text"
+                                class="form-control" 
+                                formControlName="mbo"
+                                style="width:270px;"
+                                placeholder="Unesite matični broj pacijenta...">
+                            <span class="help-block" *ngIf="(mbo.touched || mbo.dirty) && !mbo.valid">
+                                <span *ngIf="mbo.errors['pattern']">Morate unijeti ispravan format MBO-a!</span>
+                                <span *ngIf="mbo.errors['required']">Ovo polje je obavezno za unos!</span>
+                            </span>
+                            </td>
+                            <td>
+                                <div style="margin-top:30px;">
+                                    <input  
+                                        type="checkbox" 
+                                        formControlName="trajnoOsnovno"
+                                        value="trajnoOsnovno"
+                                        style="margin-top:5px;"
+                                        (change)="onChecked($event)">
+                                    <label for="trajnoOsnovno" style="margin-left:5px;">Trajno osnovno osiguranje</label> 
+                                    <span class="help-block" *ngIf="(trajnoOsnovno.touched || trajnoOsnovno.dirty) && !trajnoOsnovno.valid">
+                                        <span *ngIf="trajnoOsnovno.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    </span>
+                                    <span class="help-block" *ngIf="forma.hasError('baremJedanOsnovno')">Morate unijeti ili trajno osiguranje ili datume osnovnog osiguranja!</span>
+                                    <span class="help-block" *ngIf="forma.errors?.bothForbiddenOsnovno">Trajno osiguranje ILI datumi osiguranja!</span>
+                                </div>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr formGroupName="datumiOsnovno">
+                            <td>
+                                <label for="osnovnoOd">Osnovno osiguranje od</label>
+                                <input 
+                                    type="date"
+                                    class="form-control"
+                                    formControlName="osnovnoOd"
+                                    style="width:250px;">
+                                <span class="help-block" *ngIf="(osnovnoOd.touched || osnovnoOd.dirty) && !osnovnoOd.valid">
+                                    <span *ngIf="osnovnoOd.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="osnovnoOd.errors?.pattern">Morate unijeti ispravan format datuma!</span>
+                                </span>
+                                <span class="help-block" *ngIf="datumiOsnovno.errors?.neValjaDatumOsnovno">Početni datum mora biti manji od završnog!</span>
+                            </td>
+                            <td>
+                                <label for="osnovnoDo">Osnovno osiguranje do</label>
+                                <input 
+                                    type="date"
+                                    class="form-control"
+                                    formControlName="osnovnoDo"
+                                    style="width:250px;">
+                                <span class="help-block" *ngIf="(osnovnoDo.touched || osnovnoDo.dirty) && !osnovnoDo.valid">
+                                    <span *ngIf="osnovnoDo.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="osnovnoDo.errors?.pattern">Morate unijeti ispravan format datuma!</span>
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><h4>Dopunsko osiguranje</h4></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="brIskDopunsko">Broj iskaznice dopunskog osiguranja</label>
+                                <input  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="brIskDopunsko"
+                                    style="width:320px;" 
+                                    placeholder="Unesite broj iskaznice dopunskog osiguranja...">
+                                <span class="help-block" *ngIf="(brIskDopunsko.touched || brIskDopunsko.dirty) && !brIskDopunsko.valid">
+                                    <span *ngIf="brIskDopunsko.errors['pattern']">Morate unijeti ispravan format broja iskaznice!</span>
+                                </span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr formGroupName="datumiDopunsko">
+                            <td>
+                                <label for="dopunskoOd">Dopunsko osiguranje od</label>
+                                <input 
+                                    type="date"
+                                    class="form-control"
+                                    formControlName="dopunskoOd"
+                                    style="width:250px;">
+                                <span class="help-block" *ngIf="(dopunskoOd.touched || dopunskoOd.dirty) && !dopunskoOd.valid">
+                                    <span *ngIf="dopunskoOd.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="dopunskoOd.errors?.pattern">Morate unijeti ispravan format datuma!</span>
+                                </span>
+                                <span class="help-block" *ngIf="datumiDopunsko.errors?.neValjaDatumDopunsko">Početni datum mora biti manji od završnog!</span>
+                            </td>
+                            <td>
+                                <label for="dopunskoDo">Dopunsko osiguranje do</label>
+                                <input 
+                                    type="date"
+                                    class="form-control"
+                                    formControlName="dopunskoDo"
+                                    style="width:250px;">
+                                <span class="help-block" *ngIf="(dopunskoDo.touched || dopunskoDo.dirty) && !dopunskoDo.valid">
+                                    <span *ngIf="dopunskoDo.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="dopunskoDo.errors?.pattern">Morate unijeti ispravan format datuma!</span>
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input  
+                                    type="checkbox" 
+                                    formControlName="oslobodenParticipacije"
+                                    value="oslobodenParticipacije"
+                                    style="margin-top:5px;"
+                                    (change)="onCheckedParticipacija($event)">
+                                <label for="oslobodenParticipacije" style="margin-left:5px;">Oslobođen participacije</label>
+                                <span class="help-block" *ngIf="forma.errors?.mustBeCheckedParticipacija">Oslobođen participacije mora biti upisan!</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr formGroupName="participacija">
+                           <td>
+                               <label for="clanakParticipacija">Prema članku Zakona</label>
+                               <select  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="clanakParticipacija"
+                                    style="width:250px;height:35px;"
+                                    (change)="onSelected($event)">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite članak participacije</option>
+                                    <option *ngFor="let participacija of participacije" value="{{participacija.razlogParticipacija}}">{{participacija.razlogParticipacija}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(clanakParticipacija.touched || clanakParticipacija.dirty) && !clanakParticipacija.valid">
+                                    <span *ngIf="clanakParticipacija.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="clanakParticipacija.errors?.participacijaIsForbidden && !clanakParticipacija.errors?.required">Morate unijeti ispravni članak!</span>
+                                </span>
+                           </td>
+                           <td>
+                                <div style="margin-top:30px;">
+                                    <input   
+                                        type="checkbox"
+                                        formControlName="trajnoParticipacija"
+                                        value="trajnoParticipacija"
+                                        style="margin-top:5px;" 
+                                        (change)="onCheckedTrajnaParticipacija($event)">
+                                    <label for="trajnoParticipacija" style="margin-left:5px;">Trajno participacija</label>
+                                </div>
+                                <span *ngIf="(participacija.touched || participacija.dirty) && !participacija.valid">
+                                    <span class="help-block" *ngIf="participacija.errors?.bothForbidden">Samo jedan unos je dozvoljen!</span>
+                                </span>
+                                <span class="help-block" *ngIf="forma.errors?.baremJedan">Morate unijeti ili trajnu participaciju ili datum završetka oslobođenja od participacije!</span>
+                           </td>
+                           <td>
+                                <label for="participacijaDo">Participacija do</label>
+                                <input 
+                                    type="date"
+                                    class="form-control"
+                                    formControlName="participacijaDo"
+                                    style="width:250px;">
+                                <span class="help-block" *ngIf="(participacijaDo.touched || participacijaDo.dirty) && !participacijaDo.valid">
+                                    <span *ngIf="participacijaDo.errors?.required">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="participacijaDo.errors?.pattern">Morate unijeti ispravan format datuma!</span>
+                                </span>
+                           </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button 
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    [disabled]="!forma.valid">Potvrdi zdravstvene podatke</button>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>

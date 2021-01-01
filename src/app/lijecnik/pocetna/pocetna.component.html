@@ -1,0 +1,66 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <div>
+                <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
+            </div>
+            <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+            <h1 style="text-align: center;"><img src="../../../assets/images/search.png" width="40px" height="40px"> Pretraga pacijenta</h1>
+            <form #forma="ngForm" (ngSubmit)="onSubmit(forma)">
+                    <br><div class="form-group">
+                        <label for="izbor">Pretraga po:</label>
+                        <select class="form-control" name="izbor" ngModel #izbor required (change)="onChange(izbor.value)">
+                            <option value="ime/prezime">Ime/prezime</option>
+                            <option value="mbo">MBO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="ime" 
+                            class="form-control" 
+                            ngModel
+                            #ime
+                            placeholder="Unesite ime pacijenta"
+                            [readonly]="!isImePrezime"
+                            [required]="izbor.value == 'ime/prezime' ? 'required' : null">
+                    </div>
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="prezime" 
+                            class="form-control" 
+                            ngModel
+                            #prezime
+                            placeholder="Unesite prezime pacijenta"
+                            [readonly]="!isImePrezime"
+                            [required]="izbor.value == 'ime/prezime' ? 'required' : null">
+                    </div>
+                    <div class="form-group">
+                        <input 
+                            type="number" 
+                            name="mbo" 
+                            class="form-control" 
+                            ngModel
+                            #mbo
+                            placeholder="Unesite MBO"
+                            [readonly]="!isMBO"
+                            [required]="izbor.value == 'mbo' ? 'required' : null">
+                    </div>
+                    <div>
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary" 
+                            [disabled]="!forma.valid" 
+                            style="margin-left:110px;width:100px">Pretraži</button>
+                        | <button type="button" class="btn btn-info" style="cursor: pointer;" (click)="onDodajPacijenta()">Dodaj pacijenta</button>
+                        | <button type="button" class="btn btn-primary" style="cursor: pointer;" (click)="onPrikaziSve()">Prikaži sve</button>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row" *ngIf="isIspis">
+    <hr>
+    <app-lijecnik-ispis-pacijenata (closeTablica)="onCloseTablica()"></app-lijecnik-ispis-pacijenata>
+</div>

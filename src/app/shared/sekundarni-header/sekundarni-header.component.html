@@ -1,0 +1,39 @@
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <button 
+        class="navbar-toggler ml-auto"
+        data-toggle="collapse"
+        data-target="#collapse_target1">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapse_target1">
+        <ul class="nav navbar-nav">
+            <li routerLinkActive="active" class="nav-item" *ngIf="isMedSestra">
+                <a  style="cursor: pointer;" 
+                    routerLink="/med-sestra/obrada/opciPodatci" 
+                    class="nav-link">
+                    Opći podatci pregleda</a>
+            </li>
+            <li routerLinkActive="active" class="nav-item" *ngIf="isLijecnik">
+                <a  style="cursor: pointer;" 
+                    routerLink="/lijecnik/obrada/povijestBolesti" 
+                    class="nav-link">
+                    Povijest bolesti</a>
+            </li>
+            <li routerLinkActive="active" class="dropdown nav-item" appDropdown>
+                <a style="cursor: pointer;" 
+                    class="dropdown-toggle nav-link"
+                    role="button">Osobni podatci</a>
+                <ul class="dropdown-menu">
+                    <li><a style="cursor: pointer;" routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a></li>
+                    <li><a style="cursor: pointer;" routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a></li>
+                </ul>
+            </li>
+            <li routerLinkActive="active" class="nav-item">
+                <a style="cursor: pointer;" class="nav-link">Pregledi</a>
+            </li>
+            <li routerLinkActive="active" class="nav-item">
+                <a style="cursor: pointer;" class="nav-link">Slučajevi</a>
+            </li>
+        </ul>
+    </div>
+</nav>

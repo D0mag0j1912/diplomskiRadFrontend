@@ -1,0 +1,210 @@
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1">
+        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+        <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="ime">Ime</label>
+                                <input
+                                    type="text"
+                                    class="form-control" 
+                                    formControlName="ime"
+                                    style="width:270px;"
+                                    placeholder="Unesite ime...">
+                                <span class="help-block" *ngIf="(ime.touched || ime.dirty) && !ime.valid" style="margin-left:40px;">
+                                    <span *ngIf="ime.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="ime.errors?.neispravanZnak">Samo slova su dozvoljena!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="mobitel">Mobitel</label>
+                                <input
+                                    type="text"
+                                    class="form-control" 
+                                    formControlName="mobitel"
+                                    style="width:300px;"
+                                    placeholder="Unesite broj mobitela (+385...)">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="prezime">Prezime</label>
+                                <input  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="prezime"
+                                    style="width:240px;"
+                                    placeholder="Unesite prezime...">
+                                <span class="help-block" *ngIf="(prezime.touched || prezime.dirty) && !prezime.valid" style="margin-left:70px;">
+                                    <span *ngIf="prezime.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="prezime.errors?.neispravanZnak">Samo slova su dozvoljena!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="bracnoStanje">Bračno stanje</label>
+                                <select
+                                    type="text"
+                                    class="form-control" 
+                                    formControlName="bracnoStanje"
+                                    style="width:256px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite bračno stanje</option>
+                                    <option *ngFor="let stanje of bracnaStanja" value="{{stanje.nazivBracnoStanje}}">{{stanje.nazivBracnoStanje}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(bracnoStanje.touched || bracnoStanje.dirty) && !bracnoStanje.valid" style="margin-left:110px;">
+                                    <span *ngIf="bracnoStanje.errors['bracnaStanjaIsForbidden']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="datRod">Datum rođenja</label>
+                                <input  
+                                    type="date"
+                                    class="form-control"
+                                    formControlName="datRod"
+                                    style="width:195px;">
+                                <span class="help-block" *ngIf="(datRod.touched || datRod.dirty) && !datRod.valid" style="margin-left:100px;">
+                                    <span *ngIf="datRod.errors['pattern']">Morate unijeti ispravan format datuma!</span>
+                                    <span *ngIf="datRod.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="radniStatus">Radni status</label>
+                                <select
+                                    type="text"
+                                    class="form-control" 
+                                    formControlName="radniStatus"
+                                    style="width:265px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite radni status</option>
+                                    <option *ngFor="let status of radniStatusi" value="{{status.nazivRadniStatus}}">{{status.nazivRadniStatus}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(radniStatus.touched || radniStatus.dirty) && !radniStatus.valid" style="margin-left:110px;">
+                                    <span *ngIf="radniStatus.errors['radniStatusIsForbidden']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="adresa">Adresa</label>
+                                <input  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="adresa"
+                                    style="width:245px;"
+                                    placeholder="Unesite adresu...">
+                                <span class="help-block" *ngIf="(adresa.touched || adresa.dirty) && !adresa.valid" style="margin-left:70px;">
+                                    <span *ngIf="adresa.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="status">Status pacijenta</label>
+                                <select
+                                    type="text"
+                                    class="form-control" 
+                                    formControlName="status"
+                                    style="width:245px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite status pacijenta</option>
+                                    <option *ngFor="let status of statusiPacijenta" value="{{status.nazivStatusPacijent}}">{{status.nazivStatusPacijent}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(status.touched || status.dirty) && !status.valid" style="margin-left:120px;">
+                                    <span *ngIf="status.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="status.errors['statusPacijentIsForbidden']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="pbr">Poštanski broj</label>
+                                <input  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="pbr"
+                                    style="width:195px;"
+                                    placeholder="Unesite poštanski broj...">
+                                <span class="help-block" *ngIf="(pbr.touched || pbr.dirty) && !pbr.valid" style="margin-left:100px;">
+                                    <span *ngIf="pbr.errors['pbrIsForbidden'] && !pbr.errors['required']">Unesena vrijednost nije dozvoljena!</span>
+                                    <span *ngIf="pbr.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="oib">OIB</label>
+                                <input  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="oib"
+                                    style="width:330px;"
+                                    placeholder="Unesite OIB...">
+                                <span class="help-block" *ngIf="(oib.touched || oib.dirty) && !oib.valid" style="margin-left:40px;">
+                                    <span *ngIf="oib.errors['pattern']">Morate unijeti ispravan format OIB-a!</span>
+                                    <span *ngIf="oib.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="mjesto">Mjesto</label>
+                                <select  
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="mjesto"
+                                    style="width:250px;height:35px;">
+                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite mjesto stanovanja</option>
+                                    <option *ngFor="let mjesto of mjesta" value="{{mjesto.nazivMjesto}}">{{mjesto.nazivMjesto}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="forma.errors?.krivaKombinacija">Kriva kombinacija poštanskog broja i naziva mjesta!</span>
+                                <span class="help-block" *ngIf="(mjesto.touched || mjesto.dirty) && !mjesto.valid" style="margin-left:60px;">
+                                    <span *ngIf="mjesto.errors['mjestaIsForbidden']">Ova vrijednost nije dozvoljena!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="email">Email</label>
+                                <input  
+                                    type="email"
+                                    class="form-control"
+                                    formControlName="email"
+                                    style="width:316px;"
+                                    placeholder="Unesite email...">
+                                <span class="help-block" *ngIf="(email.touched || email.dirty) && !email.valid" style="margin-left:50px;">
+                                    <span *ngIf="email.errors['email']">Morate unijeti ispravan format email-a!</span>
+                                    <span *ngIf="email.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="spol">Spol</label><br>
+                                <label>
+                                    <input 
+                                        type="radio" 
+                                        name="spol" 
+                                        value="male"
+                                        formControlName="spol">Muško
+                                    <input 
+                                        type="radio" 
+                                        name="spol" 
+                                        value="female"
+                                        formControlName="spol">Žensko
+                                </label>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button 
+                                type="submit"
+                                class="btn btn-primary"
+                                [disabled]="!forma.valid">Potvrdi podatke pacijenta</button>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+<hr>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <h3>Ažuriraj osobne podatke</h3>
+            <h3>Profil </h3>
+            <p><strong>Datum registracije profila: {{osobniPodatci[0].datKreirMedSestra}}</strong></p>
+            <div>
+                <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
+            </div>
+            <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+            <form #forma="ngForm" (ngSubmit)="onSubmit(forma)">
+                <div class="form-group">
+                    <label for="ime">Ime</label>
+                    <input 
+                        type="text" 
+                        name="ime" 
+                        class="form-control" 
+                        [(ngModel)]="osobniPodatci[0].imeMedSestra"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="prezime">Prezime</label>
+                    <input 
+                        type="text" 
+                        name="prezime" 
+                        class="form-control" 
+                        [(ngModel)]="osobniPodatci[0].prezMedSestra"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        class="form-control"
+                        [(ngModel)]="osobniPodatci[0].email"
+                        email 
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="adresa">Adresa</label>
+                    <input 
+                        type="text" 
+                        name="adresa" 
+                        class="form-control" 
+                        [(ngModel)]="osobniPodatci[0].adrMedSestra" 
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="specijalizacija">Specijalizacija</label>
+                    <input 
+                        type="text" 
+                        name="specijalizacija" 
+                        class="form-control" 
+                        [(ngModel)]="osobniPodatci[0].nazSpecMedSestra"
+                        required>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary" [disabled]="!forma.valid">Ažuriraj</button>
+                </div>
+            </form>  
+        </div>   
+    </div>
+</div>

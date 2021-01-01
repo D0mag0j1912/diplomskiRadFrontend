@@ -1,0 +1,103 @@
+<div class="container">
+    <div class="row">
+        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert> 
+        <!--Prikaziva se prozor sa tablicom pacijenata-->
+        <app-pretraga-pacijent *ngIf="isPretraga && !response" (close)="onCloseTablica()" (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
+        <app-brisanje-pacijenta-alert 
+            *ngIf="isBrisanje"
+            (close)="onCloseBrisanje()" 
+            (brisanje)="onBrisanje()" 
+            #childComponent></app-brisanje-pacijenta-alert>
+        <div class="col-xs-12 col-md-12">
+            <h2 style="text-align: center;">Popis pacijenata u čekaonici</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 center_div">
+            <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+                <div class="table-responsive-sm">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                <input 
+                                    type="text"
+                                    name="ime"
+                                    placeholder="Unesite ime..."
+                                    class="form-control"
+                                    style="width:200px;"
+                                    formControlName="ime">
+                                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
+                                    <span *ngIf="forma.hasError('error')">Morate unijeti barem jedno od polja!</span>
+                                </span>
+                                </td>
+                                <td>
+                                <input 
+                                    type="text"
+                                    name="prezime"
+                                    placeholder="Unesite prezime..."
+                                    class="form-control"
+                                    style="width:200px;"
+                                    formControlName="prezime">
+                                </td>
+                                <td>
+                                <button 
+                                    type="submit"
+                                    class="btn btn-info"
+                                    style="cursor: pointer;"
+                                    style="width:100px;height:34px;"
+                                    [disabled]="!forma.valid">Pretraži</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-12" *ngIf="!isPrazna">
+            <div class="text-center">
+                <div class="form-check form-check-inline" *ngFor="let control of getControlsStatusi(); let i = index">
+                    <input type="checkbox"  class="form-check-input" [formControl]="control" id="inlineCheckBox{{i}}" (change)="getSelectedStatusValues()">
+                    <label class="form-check-label" for="inlineCheckBox{{i}}">{{statusi[i]}}</label>
+                </div>
+            </div>
+            <h4>Tablica pacijenata</h4>
+            <button type="button" class="btn btn-info" style="float: right;margin-top:-30px;" (click)="prikazi10zadnjih()">Prikaži 10 zadnjih</button>
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Ime</th>
+                            <th scope="col">Prezime</th>
+                            <th scope="col">Datum dodavanja</th>
+                            <th scope="col">Vrijeme dodavanja</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Akcija</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let pacijent of pacijenti;let i = index">
+                            <td>{{pacijent.imePacijent}}</td>
+                            <td>{{pacijent.prezPacijent}}</td>
+                            <td>{{pacijent.DatumDodavanja}}</td>
+                            <td>{{pacijent.vrijemeDodavanja}}</td>
+                            <td>{{pacijent.statusCekaonica}}</td>
+                            <td><button type="button" class="btn btn-primary btn-sm" (click)="onDodajObrada(pacijent.idPacijent)" [disabled]="pacijent.statusCekaonica != 'Čeka na pregled'">Dodaj u obradu</button>
+                                || <button 
+                                        type="button" 
+                                        class="btn btn-danger btn-sm" 
+                                        (click)="onGetTableData(pacijent.idPacijent,pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,pacijent.DatumDodavanja,pacijent.vrijemeDodavanja,pacijent.statusCekaonica)"
+                                        >Izbriši iz čekaonice</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-12" *ngIf="isPrazna">
+            <h2 style="text-align: center;">Čekaonica je prazna!</h2>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <app-alert *ngIf="response" [message]="responsePoruka" (close)="onCloseAlert()"></app-alert>
+    <div class="table-responsive-sm">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Ime</th>
+                    <th scope="col">Prezime</th>
+                    <th scope="col">Datum rođenja</th>
+                    <th scope="col">Adresa</th>
+                    <th scope="col">Akcija</th>
+                </tr>   
+            </thead>
+            <tbody>
+                <tr *ngFor="let pacijent of pacijenti">
+                    <td>{{pacijent.idPacijent}}</td>
+                    <td>{{pacijent.imePacijent}}</td>
+                    <td>{{pacijent.prezPacijent}}</td>
+                    <td>{{pacijent.datRodPacijent}}</td>
+                    <td>{{pacijent.adresaPacijent}}</td>
+                    <td><button type="button" class="btn btn-info" (click)="onDodajCekaonica(pacijent.idPacijent)">Dodaj u čekaonicu</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <!--Prethodna se prikazuje samo ako je broj trenutne stranice veći od 1-->
+        <a class="btn btn-info" *ngIf="stranica > 1" (click)="setPage(stranica-1)" style="margin-right:5px;">Prethodna</a>
+        <div *ngFor="let item of fakeArray; let i = index;" style="display: inline-block;">
+            <!--Prikazuju se brojevi stranica-->
+            <a class="btn btn-primary" (click)="setPage(i+1)" style="margin-right:5px;">{{i+1}}</a>
+        </div> 
+        <!--Sljedeća se prikazuje ako je i+1 > stranica-->
+        <a class="btn btn-info" (click)="setPage(stranica+1)" *ngIf="stranica < brojStranica">Sljedeća</a> 
+    </div> 
+    <div class="alert-box-actions">
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div> 

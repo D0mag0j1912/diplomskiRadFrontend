@@ -1,0 +1,67 @@
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <button 
+        class="navbar-toggler ml-auto"
+        data-toggle="collapse"
+        data-target="#collapse_target">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    
+
+    <div class="collapse navbar-collapse" id="collapse_target">
+        <ul class="nav navbar-nav">
+            <div class="navbar-header">
+                <a routerLink="/" class="navbar-brand" (click)="onClearStorage()">Ordinacija opće/obiteljske medicine</a> 
+            </div>
+            <li routerLinkActive="active" *ngIf="!prijavljen" class="nav-item">
+                <a routerLink="/login" style="cursor: pointer;" class="nav-link">Prijava</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isLijecnik" class="nav-item">
+                <a routerLink="/lijecnik/obrada/povijestBolesti" style="cursor: pointer;" class="nav-link">Obrada</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isLijecnik" class="nav-item">
+                <a routerLink="/lijecnik/cekaonica" style="cursor: pointer;" class="nav-link">Čekaonica</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isMedSestra" class="nav-item">
+                <a routerLink="/med-sestra/obrada/opciPodatci" style="cursor: pointer;" class="nav-link">Obrada</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isMedSestra" class="nav-item">
+                <a routerLink="/med-sestra/cekaonica" style="cursor: pointer;" class="nav-link">Čekaonica</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isMedSestra" class="nav-item">
+                <a routerLink="/med-sestra/narucivanje" style="cursor: pointer;" class="nav-link">Naručivanje</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isMedSestra" class="nav-item">
+                <a routerLink="/med-sestra/pacijentiNaDan" style="cursor: pointer;" class="nav-link">Pacijenti iz ordinacije na dan</a>
+            </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isMedSestra" class="nav-item">
+                <a routerLink="/med-sestra/cijepljenja" style="cursor: pointer;" class="nav-link">Cijepljenja</a>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li *ngIf="!prijavljen" routerLinkActive="active" class="nav-item">
+                <a routerLink="/signup" style="cursor:pointer;" class="nav-link">Registracija</a>
+            </li>
+            <!--Ovaj dropdown se prikazuje samo ako je korisnik prijavljen i ako je korisnik tipa "lijecnik"-->
+            <li class="dropdown nav-item" *ngIf="prijavljen && isLijecnik" appDropdown>
+                <a style="cursor:pointer;" class="dropdown-toggle nav-link" role="button">Postavke</a>
+                <ul class="dropdown-menu">
+                    <li><a style="cursor:pointer;" routerLink="/lijecnik/editPersonalData">Ažuriranje osobnih podataka</a></li>
+                    <li><a style="cursor:pointer;" [routerLink]="['/lijecnik/editPassword', idLijecnik]">Ažuriranje lozinke</a></li>
+                </ul>
+            </li>
+            <!--Ovaj dropdown se prikazuje samo ako je korisnik prijavljen i ako je korisnik tipa "lijecnik"-->
+            <li class="dropdown nav-item" *ngIf="prijavljen && isMedSestra" appDropdown>
+                <a style="cursor:pointer;" class="dropdown-toggle nav-link" role="button">Postavke</a>
+                <ul class="dropdown-menu">
+                    <li><a style="cursor:pointer;" routerLink="/med-sestra/editPersonalData">Ažuriranje osobnih podataka</a></li>
+                    <li><a style="cursor:pointer;" [routerLink]="['/med-sestra/editPassword', idMedSestra]">Ažuriranje lozinke</a></li>
+                </ul>
+            </li>
+            <!--Prikazati samo ako smo prijavljeni-->
+            <li *ngIf="prijavljen" class="nav-item">
+                <a style="cursor:pointer;" (click)="onLogout()" class="nav-link">Odjava</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+   

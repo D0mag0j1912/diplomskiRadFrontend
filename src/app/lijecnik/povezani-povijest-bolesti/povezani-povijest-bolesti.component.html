@@ -1,0 +1,121 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <h4 style="text-align: center;">Povežite povijest bolesti</h4>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <form [formGroup]="forma" *ngIf="forma">
+                <div class="form-group">
+                    <input 
+                        type="text"
+                        class="form-control"
+                        placeholder="Unesite parametar pretrage..." 
+                        formControlName="parametar"
+                        style="width:350px;">
+                    <span class="help-block" *ngIf="porukaPovijestBolestiPretraga">{{porukaPovijestBolestiPretraga}}</span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-12">
+        <form [formGroup]="glavnaForma" *ngIf="isAktivan && isPovijestBolesti && !porukaPovijestBolestiPretraga">
+            <!--AKO JE PACIJENT AKTIVAN U OBRADI-->
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tbody>
+                        <div formArrayName="povijestBolesti" *ngFor="let control of getControls();let i = index">
+                            <div [formGroupName]="i">
+                                <!--Prikaži ovaj red samo ako je godina jedinstvena-->
+                                <tr *ngIf="control.value.godina !== null">
+                                    <td style="background-color: #337ab7;">
+                                        <input 
+                                            type="text"
+                                            formControlName="godina"
+                                            style="border:0;background-color:#337ab7;
+                                            width:700px;height:15px;font-weight: bold;text-align: center; 
+                                            font-family: Verdana, sans-serif;" 
+                                            readonly>
+                                    </td> 
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button 
+                                            type="button"
+                                            class="btn btn-info">Poveži</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Datum: </strong>
+                                        <input 
+                                            type="text"
+                                            formControlName="datum"
+                                            style="border:0;width:630px;height:20px; 
+                                            font-family: Verdana, sans-serif;" 
+                                            readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p><strong>Razlog dolaska: </strong></p>
+                                        <textarea 
+                                            type="text"
+                                            formControlName="razlogDolaska"
+                                            readonly 
+                                            rows="3" 
+                                            style="width:700px"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>MKB šifra primarne dijagnoze: </strong>
+                                        <input 
+                                            type="text"
+                                            formControlName="mkbSifraPrimarna"
+                                            style="border:0;width:450px;height:20px; 
+                                            font-family: Verdana, sans-serif;" 
+                                            readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Naziv primarne dijagnoze: </strong>
+                                        <input 
+                                            type="text"
+                                            formControlName="nazivPrimarna"
+                                            style="border:0;width:500px;height:20px; 
+                                            font-family: Verdana, sans-serif;" 
+                                            readonly>
+                                    </td>
+                                </tr>
+                                <tr class="border_bottom" formArrayName="sekundarneDijagnoze" *ngFor="let sekundarna of getControlsSekundarna(i);let j = index">
+                                    <td>
+                                        <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value != null"><strong>Sekundarne dijagnoze:</strong></p>
+                                        <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value == null"><strong>Nema sekundarnih dijagnoza!</strong></p>
+                                        <textarea
+                                            type="text"
+                                            [formControlName]="j"
+                                            style="border:0;width:400px;resize:none;margin-left:200px;
+                                            margin-top:-30px;font-family: Verdana, sans-serif" 
+                                            readonly 
+                                            *ngIf="sekundarna.value != null" 
+                                            rows="4"></textarea>
+                                    </td>
+                                </tr>
+                            </div>
+                        </div>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+    <!--AKO PACIJENT NIJE AKTIVAN U OBRADI-->
+    <div *ngIf="!isAktivan">
+        <h3 style="text-align: center;color:#a94442;">{{porukaAktivan}}</h3>
+    </div>
+    <div *ngIf="!isPovijestBolesti">
+        <h3 style="text-align: center;color:#a94442;">{{porukaPovijestBolesti}}</h3>
+    </div>
+    <div class="alert-box-actions">
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

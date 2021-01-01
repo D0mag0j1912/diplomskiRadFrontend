@@ -1,0 +1,76 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <h4 style="text-align: center;">Otvoreni slučajevi</h4>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-4">
+            <form [formGroup]="forma" *ngIf="forma">
+                <div class="form-group">
+                    <input 
+                        type="text"
+                        class="form-control"
+                        placeholder="Unesite parametar pretrage..." 
+                        formControlName="parametar"
+                        style="width:350px;">
+                    <span class="help-block" *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--AKO JE PACIJENT AKTIVAN U OBRADI-->
+    <div class="table-responsive-sm" *ngIf="isAktivan && isDijagnoza && isDijagnozaPretraga">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="col-xs-1"></th>
+                    <th class="col-xs-2">Datum pregleda</th>
+                    <th class="col-xs-2">Odgovorna osoba</th>
+                    <th class="col-xs-1">MKB šifra</th>
+                    <th class="col-xs-3">Naziv primarne dijagnoze</th>
+                    <th class="col-xs-3">Sekundarne dijagnoze</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let slucaj of otvoreniSlucaj">
+                    <td>
+                        <button 
+                            type="button"
+                            class="btn btn-info"
+                            style="float:right"
+                            (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.datumPregled,slucaj.OdgovornaOsoba)">Poveži</button>    
+                    </td>
+                    <td>{{slucaj.datumPregled}}</td>
+                    <td>{{slucaj.OdgovornaOsoba}}</td>
+                    <td>{{slucaj.mkbSifraPrimarna}}</td>
+                    <td>{{slucaj.NazivPrimarna}}</td>
+                    <td>
+                        <div *ngFor="let dijagnoza of dijagnoze">
+                            <!--Ispiši sve njene sekundarne dijagnoze-->
+                            <p 
+                                *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna 
+                                && dijagnoza.mkbSifraSekundarna !== null 
+                                && slucaj.OdgovornaOsoba === dijagnoza.OdgovornaOsoba 
+                                && slucaj.datumPregled === dijagnoza.Datum" 
+                                style="display:inline;">
+                                <strong>{{dijagnoza.mkbSifraSekundarna}}</strong> | {{dijagnoza.NazivSekundarna}}
+                            </p>
+                            <!--Ako je primarna dijagnoza iz prvog polja jednaka primarnoj dijagnozi drugog polja te ako ta primarna dijagnoza nema sekundarnih dijagnoza, ispiši poruku-->
+                            <p *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna && dijagnoza.mkbSifraSekundarna === null" style="display:inline;">
+                                <strong>Nema sekundarnih dijagnoza!</strong>
+                            </p>
+                        </div> 
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!--AKO PACIJENT NIJE AKTIVAN U OBRADI-->
+    <div *ngIf="!isAktivan">
+        <h3 style="text-align: center;color:#a94442;">{{porukaAktivan}}</h3>
+    </div>
+    <div *ngIf="!isDijagnoza">
+        <h3 style="text-align: center;color:#a94442;">{{porukaDijagnoza}}</h3>
+    </div>
+    <div class="alert-box-actions">
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

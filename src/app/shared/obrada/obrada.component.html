@@ -1,0 +1,96 @@
+<div class="container">
+    <div class="row">
+        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert> 
+        <!--Prikaziva se prozor sa tablicom pacijenata-->
+        <app-pretraga-pacijent *ngIf="isPretraga && !response" (close)="onCloseTablica()" (sljedeciPacijent)="onSljedeciPacijent()"></app-pretraga-pacijent>
+        <div class="col-xs-12 col-md-10">
+            <div class="table-responsive-sm">
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <tr>
+                            <td><h4>{{!isAktivan ? 'Nema aktivnih pacijenata' : 'Aktivni pacijent: ' + getImePrezime()}}</h4></td>
+                            <td><h4>{{isSljedeciPacijent ? 'Sljedeći pacijent: ' + sljedeciPacijent : porukaSljedeciPacijent}}</h4></td>
+                            <td *ngIf="isAktivan"><button 
+                                    type="button" 
+                                    class="btn btn-primary"
+                                    (click)="zavrsiPregled()" 
+                                    style="margin-top:5px;">Završi pregled</button></td>
+                        </tr>
+                    </tbody>   
+                </table> 
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+                <div class="table-responsive-sm">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                <p><strong>Dodaj u čekaonicu</strong></p>
+                                <input 
+                                    type="text"
+                                    name="ime"
+                                    placeholder="Unesite ime..."
+                                    class="form-control"
+                                    style="width:200px;"
+                                    formControlName="ime">
+                                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
+                                    <span *ngIf="forma.hasError('error')">Morate unijeti barem jedno od polja!</span>
+                                </span>
+                                </td>
+                                <td>
+                                <input 
+                                    type="text"
+                                    name="prezime"
+                                    placeholder="Unesite prezime..."
+                                    class="form-control"
+                                    style="width:200px;margin-top:29px;"
+                                    formControlName="prezime">
+                                </td>
+                                <td>
+                                <button 
+                                    type="submit"
+                                    class="btn btn-info"
+                                    style="cursor: pointer;"
+                                    style="width:100px;height:34px;margin-top:29px;"
+                                    [disabled]="!forma.valid">Pretraži</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" *ngIf="isAktivan">
+        <div class="col-xs-12 col-md-12">
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-hover table-bordered">
+                    <tbody>
+                        <tr>
+                            <td><img src="../../assets/images/patient.jpg" width="100px" height="100px" class="responsive" style="margin-top: 5px;"></td>
+                            <td>
+                                <h3>{{!isAktivan ? '' : getImePrezime()}}</h3> 
+                                <h4>{{!isAktivan ? '' :'Datum rođenja: ' + getDatRod()}}</h4> 
+                                <h4>{{!isAktivan ? '' :'Adresa: ' + getAdresa()}}</h4>
+                            </td>
+                            <td>
+                                <h4>{{isNarucen ? 'Naručen u: ' + narucenU : porukaNarucen}}</h4>
+                                <h4>{{isLijecnik ? isObradenOpciPodatci ? 'Medicinska sestra je obradila pacijenta!' : 'Medicinska sestra nije obradila pacijenta!' 
+                                    : isObradenPovijestBolesti ? 'Liječnik je obradio pacijenta!' : 'Liječnik nije obradio pacijenta!'}}</h4>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <app-sekundarni-header></app-sekundarni-header>
+    <router-outlet></router-outlet>
+</div>
+
+

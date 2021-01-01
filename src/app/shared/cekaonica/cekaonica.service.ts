@@ -1,0 +1,96 @@
+import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { combineLatest, throwError } from "rxjs";
+import { Cekaonica } from "../modeli/cekaonica.model";
+import { catchError } from 'rxjs/operators';
+import { ObradaService } from "../obrada/obrada.service";
+
+@Injectable({
+    providedIn: 'root'
+})
+export class CekaonicaService{
+    //Kreiram varijablu koja pohranjuje baseUrl
+    baseUrl: string = "http://localhost:8080/angularPHP/";
+
+    constructor(
+        //Dohvaćam http
+        private http: HttpClient,
+        private obradaService: ObradaService
+    ){}
+
+    //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u čekaonicu te vraća Observable u kojemu se nalazi odgovor servera
+    addToWaitingRoom(id: number){
+
+        return this.http.post<any>(this.baseUrl + 'cekaonica/cekaonica.php',
+        {   
+            id: id
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja šalje zahtjev serveru za dohvaćanje pacijenata iz čekaonice te vraća Observable u kojemu se nalaze pronađeni pacijenti
+    getPatientsWaitingRoom(){
+
+        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/cekaonica.php').pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    //Metoda koja šalje zahtjev serveru za prikazom 10 pacijenata iz čekaonice
+    getTenLast(){
+
+        //Vraćam Observable u kojemu se nalazi odgovor servera na dohvat 10 zadnjih pacijenata
+        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/getTenLastWaitingRoom.php').pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalaze pacijenti onoga statusa kojega korisnik klikne
+    getPatientByStatus(statusi: string[]){
+
+        return this.http.post<Cekaonica[]>(this.baseUrl + 'cekaonica/getPatientByStatus.php',
+        {   
+            statusi: statusi
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
+    onDeleteCekaonica(idPacijent: number,idCekaonica: number){
+        //Uz DELETE metodu šaljem dodatni parametar ID čekaonice
+        const options = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json'
+            }),
+            body: {
+                idPacijent: idPacijent,
+                idCekaonica: idCekaonica
+            }
+        };
+        //Kreiram i vraćam Observable za brisanje pacijenta 
+        return this.http.delete(this.baseUrl + 'cekaonica/izbrisiPacijentCekaonica.php', options).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi odgovor servera koliko ima još pacijenata u čekaonici
+    checkCountCekaonica(){
+
+        return this.http.get<number>(this.baseUrl + 'cekaonica/checkCountCekaonica.php').pipe(catchError(this.handleError));
+    }
+
+    //Metoda za errore
+    private handleError(error: HttpErrorResponse){
+        if(error.error instanceof ErrorEvent){
+            console.error("An error occured: "+error.error.message);
+        }
+        else{
+            // The backend returned an unsuccessful response code.
+            // The response body may contain clues as to what went wrong.
+            console.error(
+            `Backend returned code ${error.status}, ` +
+            `body was: ${error.error}`);
+        }
+        // Return an observable with a user-facing error message.
+        return throwError(
+            'Something bad happened; please try again later.');
+    }
+}

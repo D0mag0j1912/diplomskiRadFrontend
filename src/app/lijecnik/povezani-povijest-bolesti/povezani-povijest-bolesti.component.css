@@ -1,0 +1,42 @@
+.backdrop{
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.75);
+    z-index: 50;
+}
+.alert-box{
+    position:fixed;
+    top:10vh;
+    left: 30vw;
+    width: 40vw;
+    height:40vw;
+    padding: 16px;
+    z-index: 100;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.26);
+    overflow-y:scroll;
+}
+
+.alert-box-actions{
+    text-align:right;   
+}
+span{
+    color:#a94442;
+}
+table td{
+    padding:5px;
+    margin:5px;
+    position: relative;
+}
+textarea{
+    border:0;
+    width:100%; 
+    font-family: Verdana, sans-serif;
+    resize:none;
+}
+.border_bottom{
+    border-bottom:1px solid black;
+}

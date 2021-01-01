@@ -1,0 +1,182 @@
+<div class="row">
+    <div class="col-xs-12 col-md-10 col-md-offset-1">
+        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+        <!--Prikaziva se prozor sa otvorenim povijestima bolesti-->
+        <app-povezani-povijest-bolesti *ngIf="otvorenPovijestBolesti" (close)="onClosePovezanPovijestBolesti()"></app-povezani-povijest-bolesti>
+        <!--Prikaziva se prozor sa otvorenim slučajevima-->
+        <app-otvoreni-slucaj *ngIf="otvoren" (close)="onCloseCase()" (podatciRetka)="onPoveziOtvoreniSlucaj($event)"></app-otvoreni-slucaj>
+        <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td><a 
+                                (click)="onPoveziPovijestBolesti()"
+                                style="float:right;color:#337ab7;cursor: pointer;font-weight: bold;">Poveži povijest bolesti</a></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="razlogDolaska">Razlog dolaska</label>
+                                <textarea 
+                                    class="form-control"
+                                    placeholder="Unesite razlog dolaska..."
+                                    rows="3"
+                                    formControlName="razlogDolaska"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="anamneza">Anamneza</label>
+                                <textarea 
+                                    class="form-control"
+                                    formControlName="anamneza" 
+                                    placeholder="Unesite anamnezu..."
+                                    rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="status">Status pacijenta</label>
+                                <textarea 
+                                    class="form-control"
+                                    formControlName="status" 
+                                    placeholder="Unesite status pacijenta..."
+                                    rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="nalaz">Nalaz</label>
+                                <a style="float:right;color:#337ab7;cursor: pointer;font-weight: bold;" (click)="onPoveziNalaz()">Poveži nalaz</a>
+                                <textarea 
+                                    class="form-control"
+                                    formControlName="nalaz" 
+                                    placeholder="Unesite nalaz..."
+                                    rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div style="margin-left:200px;">
+                                    <label for="primarnaDijagnoza">Primarna dijagnoza:</label>
+                                    <select 
+                                        class="form-control" 
+                                        style="width:400px;height:35px;" 
+                                        formControlName="primarnaDijagnoza">
+                                        <option value=""  [ngValue]="null">Odaberite dijagnozu</option>
+                                        <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr> 
+                        <tr formArrayName="sekundarnaDijagnoza" *ngFor="let dijagnozaCtrl of getControlsSekundarna(); let i = index">
+                            <td colspan="2">
+                                <div style="margin-left:200px;">
+                                    <label for="sekundarnaDijagnoza" *ngIf="i<1">Sekundarna dijagnoza:</label>
+                                    <select class="form-control" style="width:400px;height:35px" [formControlName]="i">
+                                        <option value="" [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
+                                        <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
+                                    </select>
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-danger" 
+                                        (click)="onDeleteDiagnosis(i)" 
+                                        style="margin-left:410px;margin-top:-58px;">X</button>
+                                    <span class="help-block" *ngIf="(sekundarnaDijagnoza.touched || sekundarnaDijagnoza.dirty) && !sekundarnaDijagnoza.valid">
+                                        <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
+                                        <span *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value === sekDijagnoza">Duplikati nisu dozvoljeni!</span>
+                                    </span>
+                                    <span class="help-block" *ngIf="(sekundarnaDijagnoza.touched || sekundarnaDijagnoza.dirty) && !forma.valid"> 
+                                        <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value === dijagnoza">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr> 
+                        <tr>
+                            <!--BUTTON JE DISABLED AKO DIJAGNOZE NISU ISPRAVNE-->
+                            <td colspan="2">
+                            <div style="margin-left:200px;">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-info" 
+                                    (click)="onAddDiagnosis()" 
+                                    [disabled]="sekundarnaDijagnoza.errors?.duplikat || forma.errors?.primarnaJeIstaKaoSekundarna || !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button>
+                            </div>
+                            </td>
+                        </tr>
+                        <tr formGroupName="tipSlucaj">
+                            <td>
+                                <div style="margin-left:200px;">
+                                    <input  
+                                        type="checkbox" 
+                                        formControlName="noviSlucaj"
+                                        value="noviSlucaj" 
+                                        *ngIf="!ponistiPovezaniSlucaj">
+                                    <label for="noviSlucaj" style="margin-left:2px;" *ngIf="!ponistiPovezaniSlucaj">Novi slučaj</label>
+                                    <input  
+                                        type="checkbox" 
+                                        formControlName="povezanSlucaj"
+                                        value="povezanSlucaj" 
+                                        *ngIf="ponistiPovezaniSlucaj">
+                                    <label for="povezanSlucaj" style="margin-left:2px;" *ngIf="ponistiPovezaniSlucaj">Povezani slučaj</label>
+                                    <a 
+                                        *ngIf="!ponistiPovezaniSlucaj"
+                                        (click)="onOpenCase()" 
+                                        style="margin-left: 50px;color:#337ab7;cursor: pointer;font-weight: bold;">Otvoreni slučaj</a>
+                                    <a  
+                                        *ngIf="ponistiPovezaniSlucaj"
+                                        (click)="onPonistiPovezaniSlucaj()"
+                                        style="margin-left: 50px;color:#337ab7;cursor: pointer;font-weight: bold;">Poništi povezani slučaj</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="terapija">Terapija</label>
+                                <a style="float:right;color:#337ab7;cursor: pointer;font-weight: bold;" (click)="onPoveziTerapija()">Poveži terapiju</a>
+                                <textarea 
+                                    class="form-control"
+                                    formControlName="terapija" 
+                                    placeholder="Unesite terapiju..."
+                                    rows="3"></textarea>
+                            </td>    
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="preporukaLijecnik">Preporuka liječnika</label>
+                                <textarea 
+                                    class="form-control"
+                                    formControlName="preporukaLijecnik" 
+                                    placeholder="Unesite preporuku liječnika..."
+                                    rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <label for="napomena">Napomena</label>
+                                <textarea 
+                                    class="form-control"
+                                    formControlName="napomena" 
+                                    placeholder="Unesite napomenu..."
+                                    rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <!--Sve dok podatci u formi nisu ispravno uneseni, button se neće moći stisnuti-->
+                            <td>
+                                <div style="margin-left:200px;">
+                                    <button 
+                                        type="submit" 
+                                        class="btn btn-primary" 
+                                        [disabled]="!forma.valid" 
+                                        style="float:left">Potvrdi povijest bolesti</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>

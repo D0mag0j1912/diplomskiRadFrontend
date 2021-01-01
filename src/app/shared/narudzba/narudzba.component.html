@@ -1,0 +1,87 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <h4 style="text-align: center;">Narudžba</h4>
+    <div class="row">
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onCloseAlert()"></app-alert>
+        <form [formGroup]="forma" *ngIf="forma">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="vrijeme">Vrijeme</label>
+                                <input 
+                                    type="time"
+                                    formControlName="vrijeme"
+                                    class="form-control">
+                                <span class="help-block" *ngIf="(vrijeme.touched || vrijeme.dirty) && !vrijeme.valid">
+                                    <span *ngIf="vrijeme.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span> 
+                            </td>
+                            <td>
+                                <label for="vrstaPregleda">Vrsta pregleda</label>
+                                <select class="form-control" style="width:300px;" formControlName="vrstaPregleda">
+                                    <option [value]="null" [disabled]="true">Odaberite vrstu pregleda</option>
+                                    <option *ngFor="let vrsta of razliciteVrstePregleda" [value]="vrsta.nazivVrstaPregled">{{vrsta.nazivVrstaPregled}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(vrstaPregleda.touched || vrstaPregleda.dirty) && !vrstaPregleda.valid">
+                                    <span *ngIf="vrstaPregleda.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="vrstaPregleda.errors['vrstaIsForbidden'] && !vrstaPregleda.errors['required']">Nedozvoljen unos!</span>
+                                </span>
+                            </td>
+                            <td>
+                                <label for="datum">Datum</label>
+                                <input 
+                                    type="date"
+                                    formControlName="datum"
+                                    class="form-control">
+                                <span class="help-block" *ngIf="(datum.touched || datum.dirty) && !datum.valid">
+                                    <span *ngIf="datum.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="datum.errors['pattern'] && !datum.errors['required']">Neispravan format datuma!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <select class="form-control" style="width:300px;" formControlName="pacijenti">
+                                    <option [value]="null" [disabled]="true">Odaberite pacijenta</option>
+                                    <option *ngFor="let pacijent of pacijenti" [value]="pacijent.Pacijent">{{pacijent.Pacijent}}</option>
+                                </select>
+                                <span class="help-block" *ngIf="(pacijentiForm.touched || pacijentiForm.dirty) && !pacijentiForm.valid">
+                                    <span *ngIf="pacijentiForm.errors['required']">Ovo polje je obavezno za unos!</span>
+                                    <span *ngIf="pacijentiForm.errors['pacijentIsForbidden'] && !pacijentiForm.errors['required']">Nedozvoljen unos!</span>
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <label for="napomena">Napomena</label>
+                                <textarea
+                                    rows="3" 
+                                    class="form-control" 
+                                    formControlName="napomena" 
+                                    placeholder="Unesite napomenu...">
+                                </textarea>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><button class="btn btn-success" *ngIf="!isPacijent" [disabled]="!forma.valid" (click)="onNaruciPacijenta()">Naruči pacijenta</button>
+                                <button class="btn btn-info" *ngIf="isPacijent" (click)="onAzurirajNarudzbu()" [disabled]="!forma.valid">Ažuriraj narudžbu</button>
+                                <button class="btn btn-danger" *ngIf="isPacijent" style="margin-left:5px;" [disabled]="!forma.valid" (click)="onOtkaziNarudzbu()">Otkaži narudžbu</button>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>   
+    </div>
+    <div class="alert-box-actions">
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

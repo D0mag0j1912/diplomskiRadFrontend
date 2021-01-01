@@ -1,0 +1,18 @@
+span{
+    color:#a94442;
+}
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948; /* green */
+}
+.ng-invalid:not(form)  {
+    border-left: 5px solid #a94442; /* red */
+}
+
+.table-striped>thead>tr>th, .table-striped>tbody>tr>th, .table-striped>tfoot>tr>th, .table-striped>thead>tr>td, .table-striped>tbody>tr>td, .table-striped>tfoot>tr>td {
+    padding: 4px;
+    }
+
+.center_div{
+    margin: 0 auto;
+    width:70%;
+}

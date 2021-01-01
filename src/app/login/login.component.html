@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-xs-12 col-md-6 col-md-offset-3">
+        <!--Prikaz spinnera između akcija-->
+        <div *ngIf="isLoading" style="text-align: center;">
+            <app-spinner></app-spinner>
+        </div>
+        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+        <form (ngSubmit)="onSubmit(forma)" #forma="ngForm" *ngIf="!isLoading">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    class="form-control" 
+                    ngModel 
+                    #email="ngModel"
+                    email 
+                    required
+                    placeholder="Email">
+                <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
+                <span class="help-block" *ngIf="!email.valid && email.touched">Unos email-a je obavezan!</span>
+            </div>
+            <div class="form-group">
+                <label for="lozinka">Lozinka</label>
+                <input 
+                    type="password" 
+                    name="lozinka" 
+                    class="form-control" 
+                    ngModel
+                    #lozinka="ngModel"
+                    required
+                    placeholder="Lozinka" 
+                    minlength="6">
+                <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
+                <span class="help-block" *ngIf="!lozinka.valid && lozinka.touched">Unos lozinke je obavezan!</span>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary" [disabled]="!forma.valid">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
