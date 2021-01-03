@@ -110,11 +110,26 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
               }
               //Ako je pacijent AKTIVAN te ako NEMA AKTIVNIH primarnih dijagnoza
               else if(podatci !== "Nema aktivnih pacijenata!" && podatci[0]["success"] === "false"){
+                  //Dohvaćam glavni div
+                  const alertBox = document.getElementById("alert-box");
+                  const unutarnjiDiv = document.getElementById("promjenaKlase");
+                  //Mijenjam klasu unuturanjem divu
+                  unutarnjiDiv.className = "col-xs-12 col-md-6 col-md-offset-2";
+                  //Ažuriram visinu prozora
+                  alertBox.style.height = "10vw";
+                  alertBox.style.width = "30vw";
+                  alertBox.style.left = "35vw";
                   //Spremam neuspješnu poruku (da nema aktivnih dijagnoza) u svoju varijablu
                   this.porukaDijagnoza = podatci[0]["message"];
               }
               //Ako pacijent NIJE AKTIVAN
               else if(podatci === "Nema aktivnih pacijenata!"){
+                  //Dohvaćam glavni div
+                  const alertBox = document.getElementById("alert-box");
+                  //Ažuriram visinu prozora
+                  alertBox.style.height = "10vw";
+                  alertBox.style.width = "30vw";
+                  alertBox.style.left = "35vw";
                   this.porukaAktivan = podatci;
               }
           }
