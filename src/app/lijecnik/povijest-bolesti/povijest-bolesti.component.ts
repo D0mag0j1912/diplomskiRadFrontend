@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { PovezaniPovijestBolestiService} from '../povezani-povijest-bolesti/povezani-povijest-bolesti.service';
 import { Subscription } from 'rxjs';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
@@ -18,6 +19,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Spremam pretplate
       subsResolver: Subscription;
       subsOtvoreniSlucaj: Subscription;
+      subsPovezanaPovijestBolesti: Subscription;
       subsPrimarnaDijagnoza: Subscription;
       subsAktivniLijecnik: Subscription;
       subsZavrsenPregled: Subscription;
@@ -52,6 +54,11 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Spremam dijagnoze otvorenog slučaja
       primarnaDijagnozaOtvoreniSlucaj: string;
       sekundarnaDijagnozaOtvoreniSlucaj: string[] = [];
+
+      //Spremam dijagnoze povezane povijesti bolesti
+      primarnaDijagnozaPovijestBolesti: string;
+      sekundarnaDijagnozaPovijestBolesti: string[] = [];
+
       constructor(
           //Dohvaćam trenutni route da dohvatim podatke iz Resolvera
           private route: ActivatedRoute,
@@ -62,7 +69,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           //Dohvaćam servis obrade
           private obradaService: ObradaService,
           //Dohvaćam servis povijesti bolesti
-          private povijestBolestiService: PovijestBolestiService
+          private povijestBolestiService: PovijestBolestiService,
+          //Dohvaćam servis povezane povijesti bolesti
+          private povezaniPovijestBolestiService: PovezaniPovijestBolestiService
       ) { }
 
       //Metoda koja se izvodi kada se komponenta inicijalizira
@@ -224,7 +233,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           }
       }
 
-      //Metoda koja se aktivira kada komponenta primi informaciju da se EVENT AKTIVIRAO ($event je šifra primarne dijagnoze pojedinog retka otvorenog slučaja)
+      //Metoda koja se aktivira kada komponenta primi informaciju da se EVENT AKTIVIRAO ($event su podatci pojedinog retka otvorenog slučaja)
       onPoveziOtvoreniSlucaj($event){
         console.log($event);
         //Ako je pacijent aktivan
@@ -284,6 +293,59 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               this.ponistiPovezaniSlucaj = false;
               //Resetiram checkbox povezanog slučaja
               this.povezanSlucaj.reset();
+          }
+      }
+
+      //Metoda koja se izvodi kada se event aktivirao (Kada je komponenta "PovezaniPovijestBolesti" poslala podatke retka)
+      onPoveziPodatciRetka($event){
+          //Ako je pacijent aktivan
+          if(this.isAktivan){
+              this.subsPovezanaPovijestBolesti = this.povezaniPovijestBolestiService.getPovijestBolestiPovezanSlucaj($event,this.idPacijent).subscribe(
+                  //Dohvaćam odgovor
+                  (odgovor) => {
+                      console.log(odgovor);
+                      //Popuni polja povijesti bolesti sa rezultatima sa servera
+                      this.razlogDolaska.patchValue(odgovor[0].razlogDolaska);
+                      this.anamneza.patchValue(odgovor[0].anamneza);
+                      this.status.patchValue(odgovor[0].statusPacijent);
+                      this.nalaz.patchValue(odgovor[0].nalaz);
+                      this.terapija.patchValue(odgovor[0].terapija);
+                      this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik);
+                      this.napomena.patchValue(odgovor[0].napomena);
+                      //Resetiram formu sekundarnih dijagnoza
+                      this.sekundarnaDijagnoza.clear();
+                      //Resetiram svoje polje sekundarnih dijagnoza
+                      this.sekundarnaDijagnozaPovijestBolesti = [];
+                      //Dodaj jedan form control da inicijalno bude 1
+                      this.onAddDiagnosis();
+                      //Prolazim poljem odgovora servera
+                      for(let dijagnoza of odgovor){
+                        console.log(dijagnoza);
+                        //Spremam naziv primarne dijagnoze povezane povijesti bolesti
+                        this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
+                        //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
+                        this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
+                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                        this.onAddDiagnosis();
+                      }
+                      //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
+                      this.onDeleteDiagnosis(-1); 
+                      //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
+                      this.primarnaDijagnoza.setValue(this.primarnaDijagnozaPovijestBolesti);
+                      //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
+                      this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaPovijestBolesti);
+                      //Zatvaram prozor povijesti bolesti
+                      this.otvorenPovijestBolesti = false;
+                      //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
+                      this.ponistiPovezaniSlucaj = true;
+                      //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
+                      this.povezanSlucaj.setValue(true);
+                      //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
+                      this.povezanSlucaj.disable();
+                      //Resetiram checkbox novog slučaja da ne ostane da su oba true
+                      this.noviSlucaj.reset();
+                  }
+              );
           }
       }
 
@@ -372,6 +434,11 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           if(this.subsSubmit){
             //Izađi iz pretplate
             this.subsSubmit.unsubscribe();
+          }
+          //Ako postoji pretplata
+          if(this.subsPovezanaPovijestBolesti){
+            //Izađi iz pretplate
+            this.subsPovezanaPovijestBolesti.unsubscribe();
           }
           //Praznim Subject završenog pregleda
           this.obradaService.zavrsenPregled.next(null);

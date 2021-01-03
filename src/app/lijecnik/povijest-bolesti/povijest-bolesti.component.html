@@ -3,7 +3,10 @@
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
         <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
         <!--Prikaziva se prozor sa otvorenim povijestima bolesti-->
-        <app-povezani-povijest-bolesti *ngIf="otvorenPovijestBolesti" (close)="onClosePovezanPovijestBolesti()"></app-povezani-povijest-bolesti>
+        <app-povezani-povijest-bolesti 
+            *ngIf="otvorenPovijestBolesti" 
+            (close)="onClosePovezanPovijestBolesti()" 
+            (podatciRetka)="onPoveziPodatciRetka($event)"></app-povezani-povijest-bolesti>
         <!--Prikaziva se prozor sa otvorenim slučajevima-->
         <app-otvoreni-slucaj *ngIf="otvoren" (close)="onCloseCase()" (podatciRetka)="onPoveziOtvoreniSlucaj($event)"></app-otvoreni-slucaj>
         <form (ngSubmit)="onSubmit()" [formGroup]="forma">
