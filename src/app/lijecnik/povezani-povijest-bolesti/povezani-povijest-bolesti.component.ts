@@ -16,6 +16,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
     //Kreiram pretplate
     subs: Subscription;
     subsNazivSekundarna: Subscription;
+    subsNazivSekundarnaPretraga: Subscription;
     subsPretraga: Subscription;
     subsPromjenaForma: Subscription;
     //Oznaka je li pronađen rezultat za pretragu povijest bolesti
@@ -101,6 +102,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     ).subscribe(
                         //Dohvaćam odgovor 
                         (odgovor) => {
+                            console.log(odgovor);
                             //Ako je server vratio neke rezultate
                             if(odgovor["success"] !== "false"){
                                 //Brišem svaki form group u form arrayu povijesti bolesti prije nadodavanja novih form groupova pretrage
@@ -132,8 +134,9 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                         povijestB.Godina = null;
                                     }
                                 }
-                                //Za svaku povijest bolesti, dodaj cijeli form array u formu 
+                                //Za svaku povijest bolesti, dodaj cijeli form group u form array  
                                 for(let povijest of this.povijestiBolesti){
+                                    console.log(povijest);
                                     this.addControls(povijest);
                                 }
                                 
@@ -141,8 +144,9 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                 for(let i = 0;i< this.getControls().length;i++){
                                     //Ako šifra sekundarne dijagnoze nije prazna
                                     if(this.getControls()[i].value.mkbSifraSekundarna !== null){
+                                        console.log(this.getControls()[i].value.mkbSifraSekundarna);
                                         //Pretplaćujem se na Observable u kojemu se nalaze NAZIVI SEKUNDARNIH DIJAGNOZA za određene šifre sekundarnih dijagnoza
-                                        this.subsNazivSekundarna = this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna).subscribe(
+                                        this.subsNazivSekundarnaPretraga = this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna).subscribe(
                                             //Dohvaćam naziv sekundarne dijagnoze
                                             (nazivSekundarna) => {
                                                 console.log(nazivSekundarna);
@@ -204,10 +208,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     for(let povijest of this.povijestiBolesti){
                         this.addControls(povijest);
                     }
-                    /* for(let i = 0; i< this.getControls().length;i++){
-                        console.log(this.getControls()[i].value);
-                    }  */
-                    //console.log(this.povijestiBolesti);
+                    
                     //Za svaku iteraciju povijesti bolesti, u polje sekundarnih dijagnoza dodaj form control u kojemu će se nalaziti sekundarne dijagnoze te povijesti bolesti
                     for(let i = 0;i< this.getControls().length;i++){
                         //Ako šifra sekundarne dijagnoze nije prazna
@@ -244,11 +245,17 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                 }
                 //Ako je pacijent AKTIVAN te IMA evidentiranih povijesti bolesti
                 else if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] === "false"){
+                  //Dohvaćam glavni div
+                  const alertBox = document.getElementById("alert-box");
+                  alertBox.style.height = "12vw";
                   //Spremam poruku servera da pacijent nema evidentiranih povijesti bolesti
                   this.porukaPovijestBolesti = odgovor[0]["message"];
                 }
                 //Ako pacijent nije aktivan
                 else if(odgovor === "Nema aktivnih pacijenata!"){
+                    //Dohvaćam glavni div
+                    const alertBox = document.getElementById("alert-box");
+                    alertBox.style.height = "10vw";
                     //Označavam da pacijent nije aktivan u obradi
                     this.isAktivan = false;
                 }
@@ -298,6 +305,11 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
         if(this.subsNazivSekundarna){
             //Izađi iz pretplate
             this.subsNazivSekundarna.unsubscribe();
+        }
+        //Ako postoji pretplata
+        if(this.subsNazivSekundarnaPretraga){
+            //Izađi iz pretplate
+            this.subsNazivSekundarnaPretraga.unsubscribe();
         }
         //Ako postoji pretplata
         if(this.subsPretraga){

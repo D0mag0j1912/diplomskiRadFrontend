@@ -1,8 +1,8 @@
 <div class="backdrop" (click)="onClose()"></div>
-<div class="alert-box">
+<div class="alert-box" id="alert-box">
     <h4 style="text-align: center;">Otvoreni slučajevi</h4>
     <div class="row">
-        <div class="col-xs-12 col-md-6 col-md-offset-4">
+        <div class="col-xs-12 col-md-6 col-md-offset-4" id="promjenaKlase">
             <form [formGroup]="forma" *ngIf="forma">
                 <div class="form-group">
                     <input 
