@@ -23,8 +23,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
     isPovijestBolestiPretraga: boolean = false;
     //Spremam poruku servera za pretragu povijesti bolesti
     porukaPovijestBolestiPretraga: string = null;
-    //Kreiram event emmiter koji će obavjestiti drugu komponentu da je korisnik kliknuo "Izađi"
+    //Kreiram event emitter koji će obavjestiti drugu komponentu da je korisnik kliknuo "Izađi"
     @Output() close = new EventEmitter<any>();
+    //Kreiram event emitter koji će poslati podatke retka drugoj komponenti
+    @Output() podatciRetka = new EventEmitter<{datum: Date,razlogDolaska: string, mkbSifraPrimarna: string}>();
     //Kreiram formu koja služi za pretragu povijesti bolesti
     forma: FormGroup;
     //Kreiram glavnu formu
@@ -53,7 +55,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-
+        
         const combined = this.obradaService.getPatientProcessing().pipe(
             switchMap(response => {
                 //Ako je Observable vratio aktivnog pacijenta
@@ -82,7 +84,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                   //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                   this.porukaAktivan = response["message"];
                   //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                  return of(this.porukaAktivan);    
+                  return of(this.porukaAktivan); 
                 }
             })
         );
@@ -287,6 +289,19 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
               'sekundarneDijagnoze': new FormArray([])
             }) 
         );
+    }
+
+    //Metoda koja emitira event prema komponenti "PovijestBolestiComponent" te joj prosljeđuje podatke iz retka stisnutog buttona
+    poveziPovijestBolesti(datum: Date,razlogDolaska: string,mkbSifraPrimarna: string){
+        console.log(datum);
+        console.log(razlogDolaska);
+        console.log(mkbSifraPrimarna);
+        //Emitiram event 
+        this.podatciRetka.emit({
+            datum,
+            razlogDolaska,
+            mkbSifraPrimarna
+        });
     }
 
     //Metoda koja se poziva korisnik klikne button "Izađi"

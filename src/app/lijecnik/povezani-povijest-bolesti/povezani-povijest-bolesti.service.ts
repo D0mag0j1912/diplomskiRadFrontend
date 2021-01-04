@@ -16,6 +16,17 @@ export class PovezaniPovijestBolestiService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalaze podatci za povezanu povijest bolesti
+    getPovijestBolestiPovezanSlucaj(event: {datum: Date,razlogDolaska: string,mkbSifraPrimarna: string},id: number){
+        //Kreiram paramse
+        let params = new HttpParams().append("datum",event.datum.toString());
+        params = params.append("razlogDolaska",event.razlogDolaska);
+        params = params.append("mkbSifraPrimarna",event.mkbSifraPrimarna);
+        params = params.append("id",id.toString());
+
+        return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPovezanSlucaj.php',{params: params}).pipe(catchError(this.handleError));
+    }
+
     //Metoda koja vraća Observable sa svim podatcima povijesti bolesti za trenutno aktivnog pacijenta (BEZ SEKUNDARNIH DIJAGNOZA)
     getPovijestBolesti(id: number){
 
@@ -34,7 +45,7 @@ export class PovezaniPovijestBolestiService{
         let params = new HttpParams().append("id",id.toString());
         params = params.append("pretraga",pretraga);
         return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPretraga.php',{params: params}).pipe(catchError(this.handleError));
-    }
+    } 
 
     //Metoda za errore
     private handleError(error: HttpErrorResponse){
