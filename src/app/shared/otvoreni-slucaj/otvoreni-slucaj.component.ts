@@ -116,7 +116,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                   //Mijenjam klasu unuturanjem divu
                   unutarnjiDiv.className = "col-xs-12 col-md-6 col-md-offset-2";
                   //Ažuriram visinu prozora
-                  alertBox.style.height = "12vw";
+                  alertBox.style.height = "10vw";
                   alertBox.style.width = "30vw";
                   alertBox.style.left = "35vw";
                   //Spremam neuspješnu poruku (da nema aktivnih dijagnoza) u svoju varijablu

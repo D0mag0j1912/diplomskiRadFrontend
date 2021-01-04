@@ -33,8 +33,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     //Kreiram polje koje će imati elemenata koliki je broj ukupnih stranica
     fakeArray: any[];
     constructor(
-      //Dohvaćam servis medicinske sestre
-      private medSestraService: MedSestraService,
       //Dohvaćam servis čekaonice
       private cekaonicaService: CekaonicaService,
       //Dohvaćam servis obrade
