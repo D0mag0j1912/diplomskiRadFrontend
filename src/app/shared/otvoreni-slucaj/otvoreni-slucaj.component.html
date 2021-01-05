@@ -36,9 +36,9 @@
                             type="button"
                             class="btn btn-info"
                             style="float:right"
-                            (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.datumPregled,slucaj.OdgovornaOsoba)">Poveži</button>    
+                            (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.Datum,slucaj.OdgovornaOsoba)">Poveži</button>    
                     </td>
-                    <td>{{slucaj.datumPregled}}</td>
+                    <td>{{slucaj.Datum}}</td>
                     <td>{{slucaj.OdgovornaOsoba}}</td>
                     <td>{{slucaj.mkbSifraPrimarna}}</td>
                     <td>{{slucaj.NazivPrimarna}}</td>
@@ -49,7 +49,7 @@
                                 *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna 
                                 && dijagnoza.mkbSifraSekundarna !== null 
                                 && slucaj.OdgovornaOsoba === dijagnoza.OdgovornaOsoba 
-                                && slucaj.datumPregled === dijagnoza.Datum" 
+                                && slucaj.Datum === dijagnoza.Datum" 
                                 style="display:inline;">
                                 <strong>{{dijagnoza.mkbSifraSekundarna}}</strong> | {{dijagnoza.NazivSekundarna}}
                             </p>

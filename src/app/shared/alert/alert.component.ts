@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-alert',
@@ -12,7 +12,7 @@ export class AlertComponent implements OnInit {
 
   //Kreiram event i omogućavam da se može slušati iz vanjskih komponenti
   @Output() close = new EventEmitter<any>();
-
+  @ViewChild('alertBoxActions') alertBoxActions : ElementRef;
   constructor() { }
 
   ngOnInit(){

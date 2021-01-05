@@ -1,9 +1,16 @@
 <div class="container">
     <div class="row">
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert> 
+        <app-alert 
+            *ngIf="response" 
+            [message]="responsePoruka" 
+            (close)="onClose()" 
+            #childAlert></app-alert> 
         <!--Prikaziva se prozor sa tablicom pacijenata-->
-        <app-pretraga-pacijent *ngIf="isPretraga && !response" (close)="onCloseTablica()" (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
+        <app-pretraga-pacijent 
+            *ngIf="isPretraga && !response" 
+            (close)="onCloseTablica()" 
+            (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
         <app-brisanje-pacijenta-alert 
             *ngIf="isBrisanje"
             (close)="onCloseBrisanje()" 
