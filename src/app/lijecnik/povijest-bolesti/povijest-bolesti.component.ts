@@ -84,11 +84,11 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   this.dijagnoze = podatci.podatci["dijagnoze"];
 
                   //Ako je Resolver vratio aktivnog pacijenta
-                  if(podatci.pacijent["success"] !== "false"){
+                  if(podatci.pacijent.pacijent["success"] !== "false"){
                     //Označavam da je pacijent aktivan u obradi
                     this.isAktivan = true;
                     //Spremam mu podatke
-                    this.trenutnoAktivniPacijent = podatci.pacijent;
+                    this.trenutnoAktivniPacijent = podatci.pacijent.pacijent;
                     //Spremam ID trenutno aktivnog pacijenta
                     this.idPacijent = this.trenutnoAktivniPacijent[0].idPacijent;
                     console.log(this.idPacijent);

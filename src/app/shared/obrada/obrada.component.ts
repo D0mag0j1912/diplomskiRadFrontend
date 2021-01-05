@@ -79,13 +79,13 @@ export class ObradaComponent implements OnInit, OnDestroy {
       this.subsObrada = this.route.data.subscribe(
         //Dohvaćam podatke
         (pacijent: {pacijent: Obrada | any}) => {
-          
+          console.log(pacijent.pacijent.pacijent);
           //Ako je odgovor servera pozitivan, tj. ima pacijenata u obradi
-          if(pacijent.pacijent["success"] !== "false"){
+          if(pacijent.pacijent.pacijent["success"] !== "false"){
             //Označavam da je pacijent aktivan
             this.isAktivan = true;
             //Spremam pacijente sa servera u svoje polje pacijenata
-            this.pacijenti = pacijent.pacijent;
+            this.pacijenti = pacijent.pacijent.pacijent;
           }
         }
       );

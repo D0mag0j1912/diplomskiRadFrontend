@@ -67,6 +67,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     //Spremam dijagnoze otvorenog slučaja
     primarnaDijagnozaOtvoreniSlucaj: string;
     sekundarnaDijagnozaOtvoreniSlucaj: string[] = [];
+    //Spremam zdravstvene podatke pacijenta da ih mogu INICIJALNO postaviti u formu
+    zdravstveniPodatci: any;
 
     constructor(
       //Dohvaćam route da mogu dohvatiti podatke koje je Resolver poslao
@@ -97,13 +99,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
               this.drzave = response.podatci["drzave"];
 
               //Ako je Resolver vratio aktivnog pacijenta
-              if(response.pacijent["success"] !== "false"){
+              if(response.pacijent.pacijent["success"] !== "false"){
                 //Označavam da je pacijent aktivan u obradi
                 this.isAktivan = true;
                 //Spremam mu podatke
-                this.pacijent = response.pacijent;
+                this.pacijent = response.pacijent.pacijent;
                 //Spremam ID pacijenta
                 this.idPacijent = this.pacijent[0].idPacijent;
+                //Spremam zdravstvene podatke trenutno aktivnog pacijenta
+                this.zdravstveniPodatci = response.pacijent.podatci;
               }
               //Punim polja za validaciju
               for(let ured of this.podrucniUredi){
@@ -155,6 +159,23 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.forma.get('poduzece').disable();
             this.forma.get('oznakaOsiguranika').disable();
             this.forma.get('sekundarnaDijagnoza').disable();
+
+            //Prolazim poljem zdravstvenih podataka
+            for(let podatci of this.zdravstveniPodatci){
+                console.log(podatci);
+                //Inicijalno popunjam polja zdravstvenih podataka trenutno aktivnog pacijenta
+                this.forma.get('kategorijaOsiguranja').setValue(podatci.opisOsiguranika);
+                //Pozivam metodu koja će popuniti oznaku osiguranika
+                this.opisOsiguranikaToOznaka(podatci.opisOsiguranika);
+                this.forma.get('drzavaOsiguranja').setValue(podatci.drzavaOsiguranja);
+                this.forma.get('mbrPacijent').setValue(podatci.mboPacijent);
+                //Ako pacijent ima broj iskaznice dopunskog
+                if(podatci.brojIskazniceDopunsko !== null){
+                    //Postavljam validatore na broj iskaznice dopunskog
+                    this.forma.get('brIskDopunsko').setValidators([Validators.required,Validators.pattern("^\\d{8}$"), this.isValidDopunsko.bind(this)])
+                    this.forma.get('brIskDopunsko').setValue(podatci.brojIskazniceDopunsko);
+                }
+            }
 
             //Kreiram jedan Observable koji će emitirati jednu vrijednost kada bilo koji form control promjeni svoju vrijednost
             const combined = merge(

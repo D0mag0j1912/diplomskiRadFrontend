@@ -74,6 +74,12 @@ export class MedSestraService{
             nazivPoduzeca: nazivPoduzeca
         }).pipe(catchError(this.handleError));
     }
+
+    //Metoda koja vraća Observable u kojemu se nalaze zdravstveni podatci trenutno aktivnog pacijenta
+    getHealthData(){
+
+        return this.http.get<any>(this.baseUrl + 'med-sestra/getZdravstveniPodatci.php').pipe(catchError(this.handleError));
+    }
     
     /* //Metoda koja šalje serveru zahtjev za dohvaćanjem MBO-a trenutno aktivnog pacijenta
     getPatientMBO(id: number){
