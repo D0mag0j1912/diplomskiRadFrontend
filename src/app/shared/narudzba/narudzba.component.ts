@@ -32,6 +32,8 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     @Output() narucivanje = new EventEmitter<any>();
     //Kreiram event emitter da mogu obavijestiti roditeljsku komponentu o brisanju narudžbe
     @Output() otkazivanje = new EventEmitter<any>();
+    //Kreiram event emitter da mogu obavijestiti roditeljsku komponentu da zatvori ovaj prozor
+    @Output() zatvaranje = new EventEmitter<any>();
     //Kreiram formu
     forma: FormGroup;
     //Spremam detalje narudžbe koje sam dobio iz tablice
@@ -230,6 +232,8 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     onCloseAlert(){
         //Zatvori prozor
         this.response = false;
+        //Emitiraj event da zatvori prozor narudžbe
+        this.zatvaranje.emit();
     }
 
     //Ova metoda se pokreće kada se komponenta uništi
