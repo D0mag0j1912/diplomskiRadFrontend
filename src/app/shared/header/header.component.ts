@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { LoginService } from 'src/app/login/login.service';
 import {tap} from 'rxjs/operators';
 import { HeaderService } from './header.service';
@@ -15,8 +15,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   //Kreiram varijable u kojoj pohranjujem pretplatu
   subs: Subscription;
   subLogout: Subscription;
-  subGetIDLijecnik: Subscription;
-  subGetIDMedSestra: Subscription;
+  subsCombined: Subscription;
   //Deklariram varijablu koja dava informaciju je li korisnik prijavljen ili nije
   prijavljen: boolean = false;
 
@@ -89,19 +88,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }
       }
     );
-
-    //Pretplaćujem se na Observable u kojemu se nalazi ID liječnika kada se inicijalizira header
-    this.subGetIDLijecnik = this.headerService.getIDLijecnik().subscribe(
-      (response) => {
-        this.idLijecnik = response[0].idLijecnik;
-      }
-    );
-
-    //Pretplaćujem se na Observable u kojem se nalazi ID medicinske sestre kada se inicijalizira header
-    this.subGetIDMedSestra = this.headerService.getIDMedSestra().subscribe(
-      (response) => {
-        this.idMedSestra = response[0].idMedSestra;
-      }
+    
+    //Kombiniram dva Observable-a te dohvaćam odgovor servera
+    const combined = forkJoin([
+        this.headerService.getIDLijecnik(),
+        this.headerService.getIDMedSestra()
+    ]);
+    //Pretplaćujem se na odgovore servera te dohvaćam ID liječnika te ID medicinske sestre
+    this.subsCombined = combined.subscribe(
+        //Dohvaćam odgovor servera
+        (response) => {
+            this.idLijecnik = response[0][0].idLijecnik;
+            this.idMedSestra = response[1][0].idMedSestra;
+        }
     );
 
   }
@@ -117,15 +116,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       //Izađi iz pretplate
       this.subLogout.unsubscribe();
     }
-    //Ako postoji pretplata
-    if(this.subGetIDLijecnik){
+    //Ako postoji pretplata za logout
+    if(this.subsCombined){
       //Izađi iz pretplate
-      this.subGetIDLijecnik.unsubscribe();
-    }
-    //Ako postoji pretplata
-    if(this.subGetIDMedSestra){
-      //Izađi iz pretplate
-      this.subGetIDMedSestra.unsubscribe();
+      this.subsCombined.unsubscribe();
     }
   }
 

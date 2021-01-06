@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subscription } from 'rxjs';
 import {switchMap, tap} from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
 import { AlertComponent } from '../alert/alert.component';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
@@ -22,6 +23,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
     selectedStatusValues = [];
     //Spremam pretplate
     subs: Subscription;
+    subsPrijavljen: Subscription;
     subsObrada: Subscription;
     subsPretraga: Subscription;
     subsAzurirajStanje: Subscription;
@@ -51,6 +53,12 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
     isChecked: boolean = false;
     //Oznaka je li pacijent dodan u obradu
     isDodanObrada: boolean = false;
+    //Oznaka je li korisnik prijavljen
+    prijavljen: boolean = false;
+    //Oznaka je li korisnik liječnik
+    isLijecnik: boolean = false;
+    //Oznaka je li korisnik medicinska sestra
+    isMedSestra: boolean = false;
 
     //Spremam podatke izbrisanog retka čekaonice
     idPacijent: number;
@@ -76,7 +84,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
       //Dohvaćam servis obrade
       private obradaService: ObradaService,
       //Dohvaćam router
-      private router: Router
+      private router: Router,
+      //Dohvaćam login servis
+      private loginService: LoginService
     ) { }
     
     //Kada se View inicijalizira, pokreće se ova metoda
@@ -90,7 +100,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
           (odgovor) => {
               //Ako je komponenta aktivna (ako je prozor otvoren)
               if(this.isBrisanje){
-                  console.log(odgovor);
                   //Dohvaćam div u toj komponenti (class = "alert-box")
                   const div = odgovor["first"].alertbox.nativeElement;
                   //Postavljam širinu
@@ -146,8 +155,15 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
                   button.addEventListener("click",() => {
                       //Izađi iz ovog prozora
                       this.response = false;
-                      //Pođi na stranicu obrade
-                      this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
+                      //Ako je tip korisnika "Medicinska sestra":
+                      if(this.isMedSestra){
+                          //Pođi na stranicu općih podataka pregleda
+                          this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
+                      }
+                      else if(this.isLijecnik){
+                          //Pođi na stranicu povijesti bolesti
+                          this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
+                      }
                   });
               }
           }
@@ -180,6 +196,24 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
           }
         }
       );
+
+      //Pretplaćujem se na Subject iz login servisa
+      this.subsPrijavljen = this.loginService.user.subscribe(
+        (user) => {
+          //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
+          this.prijavljen = !user ? false : true;
+          //Ako je korisnik prijavljen
+          if(this.prijavljen){
+            //Ako je tip prijavljenog korisnika "lijecnik":
+            if(user["tip"] == "lijecnik"){
+              //Označavam da se liječnik prijavio
+              this.isLijecnik = true;
+            } else if(user["tip"] == "sestra"){
+              //Označavam da se medicinska sestra prijavila
+              this.isMedSestra = true;
+            }
+          }
+      });
 
     }
 
@@ -295,7 +329,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
                       this.response = true;
                       //Spremam poruku servera 
                       this.responsePoruka = odgovor["message"];
+                      //Ako je server vratio da je pacijent uspješno dodan u obradu
                       if(this.responsePoruka !== "Već postoji aktivan pacijent!"){
+                          //Označavam da je pacijent dodan u obradu
                           this.isDodanObrada = true;
                       }
                       //Spremam novu verziju pacijenata
@@ -445,6 +481,11 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
       if(this.subsCheckCount){
         //Izađi iz pretplate
         this.subsCheckCount.unsubscribe();
+      }
+      //Ako postoji pretplata
+      if(this.subsPrijavljen){
+        //Izađi iz pretplate
+        this.subsPrijavljen.unsubscribe();
       }
       //Praznim Subject 
       this.obradaService.imePrezimePacijent.next(null);
