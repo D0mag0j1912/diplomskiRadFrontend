@@ -1,9 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { combineLatest, throwError } from "rxjs";
+import { BehaviorSubject, combineLatest, throwError } from "rxjs";
 import { Cekaonica } from "../modeli/cekaonica.model";
-import { catchError } from 'rxjs/operators';
-import { ObradaService } from "../obrada/obrada.service";
+import { catchError, switchMap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -11,11 +10,13 @@ import { ObradaService } from "../obrada/obrada.service";
 export class CekaonicaService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
-
+    //Kreiram BehaviourSubject da mogu poslati podatke iz čekaonice u detalje pregleda
+    podatciPregleda = new BehaviorSubject<{idCekaonica: number}>(null);
+    //Pretvaram Subject u Observable
+    obsPodatciPregleda = this.podatciPregleda.asObservable();
     constructor(
         //Dohvaćam http
-        private http: HttpClient,
-        private obradaService: ObradaService
+        private http: HttpClient
     ){}
 
     //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u čekaonicu te vraća Observable u kojemu se nalazi odgovor servera
@@ -75,6 +76,36 @@ export class CekaonicaService{
     checkCountCekaonica(){
 
         return this.http.get<number>(this.baseUrl + 'cekaonica/checkCountCekaonica.php').pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja dohvaća ime, prezime te datum pregleda pacijenta u svrhu prikazivanja na detaljima pregleda
+    getImePrezimeDatum(idCekaonica: number){
+
+        let params = new HttpParams().append("idCekaonica",idCekaonica.toString());
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getImePrezimeDatum.php',
+                                {params: params}).
+                                pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja dohvaća opće podatke pregleda za određeni ID čekaonice
+    getOpciPodatci(idCekaonica: number){
+
+        let params = new HttpParams().append("idCekaonica",idCekaonica.toString());
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getOpciPodatci.php',
+                                {params: params}).
+                                pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja dohvaća odgovore servera više metoda te ih kombinira
+    prikaziDetaljePregleda(){
+        return this.obsPodatciPregleda.pipe(
+            switchMap(podatci => {
+                return combineLatest([
+                    this.getImePrezimeDatum(podatci.idCekaonica),
+                    this.getOpciPodatci(podatci.idCekaonica)
+                ]);
+            })
+        );   
     }
 
     //Metoda za errore

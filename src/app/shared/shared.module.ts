@@ -9,6 +9,7 @@ import { PretragaPacijentComponent } from './pretraga-pacijent/pretraga-pacijent
 import { OtvoreniSlucajComponent } from './otvoreni-slucaj/otvoreni-slucaj.component';
 import { NarudzbaComponent } from './narudzba/narudzba.component';
 import { CekaonicaComponent } from './cekaonica/cekaonica.component';
+import { DetaljiPregledaComponent } from './cekaonica/detalji-pregleda/detalji-pregleda.component';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { CekaonicaComponent } from './cekaonica/cekaonica.component';
         PretragaPacijentComponent,
         OtvoreniSlucajComponent,
         NarudzbaComponent,
-        CekaonicaComponent
+        CekaonicaComponent,
+        DetaljiPregledaComponent
     ],
     imports:[
         CommonModule,
@@ -34,7 +36,8 @@ import { CekaonicaComponent } from './cekaonica/cekaonica.component';
         PretragaPacijentComponent,
         OtvoreniSlucajComponent,
         NarudzbaComponent,
-        CekaonicaComponent
+        CekaonicaComponent,
+        DetaljiPregledaComponent
     ]
 })
 export class SharedModule{

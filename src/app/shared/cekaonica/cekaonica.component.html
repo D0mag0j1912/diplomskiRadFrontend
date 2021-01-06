@@ -16,6 +16,9 @@
             (close)="onCloseBrisanje()" 
             (brisanje)="onBrisanje()" 
             #childComponent></app-brisanje-pacijenta-alert>
+        <app-detalji-pregleda 
+            *ngIf="isDetaljiPregleda"
+            (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>
         <div class="col-xs-12 col-md-12">
             <h2 style="text-align: center;">Popis pacijenata u čekaonici</h2>
         </div>
@@ -92,7 +95,17 @@
                             <td>{{pacijent.DatumDodavanja}}</td>
                             <td>{{pacijent.vrijemeDodavanja}}</td>
                             <td>{{pacijent.statusCekaonica}}</td>
-                            <td><button type="button" class="btn btn-primary btn-sm" (click)="onDodajObrada(pacijent.idPacijent)" [disabled]="pacijent.statusCekaonica != 'Čeka na pregled'">Dodaj u obradu</button>
+                            <td><button 
+                                    type="button" 
+                                    class="btn btn-primary btn-sm" 
+                                    (click)="onDodajObrada(pacijent.idPacijent)" 
+                                    [disabled]="pacijent.statusCekaonica != 'Čeka na pregled'" 
+                                    *ngIf="pacijent.statusCekaonica === 'Čeka na pregled' || pacijent.statusCekaonica === 'Na pregledu'">Dodaj u obradu</button>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-primary btn-sm" 
+                                    (click)="onOtvoriDetalje(pacijent.idCekaonica)" 
+                                    *ngIf="pacijent.statusCekaonica === 'Završen pregled'">Pogledaj detalje pregleda</button>
                                 || <button 
                                         type="button" 
                                         class="btn btn-danger btn-sm" 

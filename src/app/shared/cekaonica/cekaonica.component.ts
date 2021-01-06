@@ -32,6 +32,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
     subsBrisanje: Subscription;
     subsAlertBox: Subscription;
     subsCheckCount: Subscription;
+    //Oznaka jesu li detalji pregleda aktivirani
+    isDetaljiPregleda: boolean = false;
     //Oznaka je li brisanje aktivirano
     isBrisanje: boolean = false;
     //Oznaka ima li odgovora servera
@@ -149,6 +151,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
                   button.className = "btn btn-info";
                   button.type = "button";
                   button.innerHTML = "Pođi u obradu";
+                  button.style.margin = "5px";
                   //Ubacivam button u div
                   div.prepend(button);
                   //Slušam event na ovom buttonu
@@ -215,6 +218,14 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
           }
       });
 
+    }
+
+    //Metoda koja otvara prozor detalja pregleda
+    onOtvoriDetalje(idCekaonica: number){
+        //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
+        this.cekaonicaService.podatciPregleda.next({idCekaonica});
+        //Otvori prozor detalja
+        this.isDetaljiPregleda = true;
     }
 
     //Metoda koja provjerava broj preostalih pacijenata u čekaonici
@@ -438,6 +449,12 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
     onCloseBrisanje(){
         //Zatvori prozor
         this.isBrisanje = false;
+    }
+
+    //Metoda koja se aktivira kada korisnik klikne "Izađi" ili negdje vanka
+    onCloseDetaljiPregleda(){
+        //Zatvori prozor
+        this.isDetaljiPregleda = false;
     }
 
     //Ova metoda se poziva kada se komponenta uništi
