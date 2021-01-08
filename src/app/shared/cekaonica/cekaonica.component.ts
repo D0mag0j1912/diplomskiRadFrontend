@@ -1,5 +1,5 @@
 import { Time } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ import { CekaonicaService } from './cekaonica.service';
   templateUrl: './cekaonica.component.html',
   styleUrls: ['./cekaonica.component.css']
 })
-export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
+export class CekaonicaComponent implements OnInit, OnDestroy{
     //Kreiram polje u kojemu se nalaze svi statusi čekaonice
     statusi: Array<string> = ['Čeka na pregled','Na pregledu','Završen pregled'];
     //Kreiram polje u kojega ću spremati selektirane checkboxove
@@ -30,7 +30,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
     subs10zadnjih: Subscription;
     subsStatus: Subscription;
     subsBrisanje: Subscription;
-    subsAlertBox: Subscription;
     subsCheckCount: Subscription;
     //Oznaka jesu li detalji pregleda aktivirani
     isDetaljiPregleda: boolean = false;
@@ -71,11 +70,87 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
     datumDodavanja: Date;
     vrijemeDodavanja: Time;
     statusCekaonica: string;
-
-    //Dohvaćam child komponentu "BrisanjePacijentaAlertComponent"
-    @ViewChildren('childComponent') child : QueryList<BrisanjePacijentaAlertComponent>;
-    //Dohvaćam child komponentu "AlertComponent"
-    @ViewChildren('childAlert') alert: QueryList<AlertComponent>;
+    //Kreiram instancu komponente "AlertComponent"
+    private alertComponent: AlertComponent;
+    //Kreiram instancu komponente "AlertComponent"
+    private brisanjeComponent: BrisanjePacijentaAlertComponent;
+    //Dohvaćam child komponentu "BrisanjePacijentaAlertComponent" kada se ova komponenta prikaže tj. ngif=true
+    @ViewChild('brisanjeComponent',{static: false}) set brisanjeKomponenta(komponenta: BrisanjePacijentaAlertComponent){
+        //Ovo se samo prikazuje ako se otvori prozor za brisanje pacijenta iz čekaonice
+        if(komponenta && this.isBrisanje){
+            this.brisanjeComponent = komponenta;
+            //Dohvaćam div u toj komponenti (class = "alert-box")
+            const div = this.brisanjeComponent.alertbox.nativeElement;
+            //Postavljam širinu
+            div.style.width = "30vw";
+            //Postavljam lijevu marginu
+            div.style.left = "30vw";
+            //Kreiram poruku koja će se prikazati korisniku
+            const newP = document.createElement("h5");
+            newP.innerHTML = `Jeste li sigurni da želite izbrisati pacijenta:`;
+            div.insertBefore(newP,div.children[1]);  
+            const imePrezime = document.createElement("h5");
+            imePrezime.innerHTML = "Ime i prezime: ";
+            const boldImePrezime = document.createElement("b");
+            boldImePrezime.innerHTML = this.imePacijent + " " + this.prezPacijent;
+            boldImePrezime.style.fontWeight = "bold";
+            imePrezime.append(boldImePrezime);
+            div.insertBefore(imePrezime,div.children[2]);
+            const datumDodavanjaH = document.createElement("h5");
+            datumDodavanjaH.innerHTML = "Datum dodavanja: ";
+            const boldDatumDodavanja = document.createElement("b");
+            boldDatumDodavanja.innerHTML = this.datumDodavanja.toString();
+            boldDatumDodavanja.style.fontWeight = "bold";
+            datumDodavanjaH.append(boldDatumDodavanja);
+            div.insertBefore(datumDodavanjaH,div.children[3]);
+            const vrijemeDodavanjaH = document.createElement("h5");
+            vrijemeDodavanjaH.innerHTML = "Vrijeme dodavanja: ";
+            const boldVrijemeDodavanja = document.createElement("b");
+            boldVrijemeDodavanja.innerHTML = this.vrijemeDodavanja.toString();
+            boldVrijemeDodavanja.style.fontWeight = "bold";
+            vrijemeDodavanjaH.append(boldVrijemeDodavanja);
+            div.insertBefore(vrijemeDodavanjaH,div.children[4]);
+            const statusCekaonicaH = document.createElement("h5");
+            statusCekaonicaH.innerHTML = "Status čekaonice: ";
+            const boldStatusCekaonica = document.createElement("b");
+            boldStatusCekaonica.innerHTML = this.statusCekaonica;
+            boldStatusCekaonica.style.fontWeight = "bold";
+            statusCekaonicaH.append(boldStatusCekaonica);
+            div.insertBefore(statusCekaonicaH,div.children[5]);
+        }   
+    }
+    //Dohvaćam child komponentu "AlertComponent" kada se ova komponenta prikaže tj. ngIf = true
+    @ViewChild('childAlert',{static: false}) set content(content: AlertComponent){
+        //Ovo se samo prikazuje ako se otvori prozor da je pacijent dodan u obradu
+        if(content && this.isDodanObrada){
+            this.alertComponent = content;
+            //Dohvaćam div u toj komponenti (class = "alert-box")
+            const div = this.alertComponent.alertBoxActions.nativeElement;
+            //Kreiram novi button
+            const button = document.createElement("button");
+            //Uređivam button
+            button.className = "btn btn-info";
+            button.type = "button";
+            button.innerHTML = "Pođi u obradu";
+            button.style.margin = "5px";
+            //Ubacivam button u div
+            div.prepend(button);
+            //Slušam event na ovom buttonu
+            button.addEventListener("click",() => {
+                //Izađi iz ovog prozora
+                this.response = false;
+                //Ako je tip korisnika "Medicinska sestra":
+                if(this.isMedSestra){
+                    //Pođi na stranicu općih podataka pregleda
+                    this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
+                }
+                else if(this.isLijecnik){
+                    //Pođi na stranicu povijesti bolesti
+                    this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
+                }
+            }); 
+        }
+    }
     constructor(
       //Dohvaćam trenutni url
       private route: ActivatedRoute,
@@ -90,88 +165,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
       //Dohvaćam login servis
       private loginService: LoginService
     ) { }
-    
-    //Kada se View inicijalizira, pokreće se ova metoda
-    ngAfterViewInit(){
-        //Pretplaćujem se na promjene u podređenoj komponenti
-        const combined  = merge(
-                        this.child.changes,
-                        this.alert.changes);
-
-        this.subsAlertBox = combined.subscribe(
-          (odgovor) => {
-              //Ako je komponenta aktivna (ako je prozor otvoren)
-              if(this.isBrisanje){
-                  //Dohvaćam div u toj komponenti (class = "alert-box")
-                  const div = odgovor["first"].alertbox.nativeElement;
-                  //Postavljam širinu
-                  div.style.width = "30vw";
-                  //Postavljam lijevu marginu
-                  div.style.left = "30vw";
-                  //Kreiram poruku koja će se prikazati korisniku
-                  const newP = document.createElement("h5");
-                  newP.innerHTML = `Jeste li sigurni da želite izbrisati pacijenta:`;
-                  div.insertBefore(newP,div.children[1]);  
-                  const imePrezime = document.createElement("h5");
-                  imePrezime.innerHTML = "Ime i prezime: ";
-                  const boldImePrezime = document.createElement("b");
-                  boldImePrezime.innerHTML = this.imePacijent + " " + this.prezPacijent;
-                  boldImePrezime.style.fontWeight = "bold";
-                  imePrezime.append(boldImePrezime);
-                  div.insertBefore(imePrezime,div.children[2]);
-                  const datumDodavanjaH = document.createElement("h5");
-                  datumDodavanjaH.innerHTML = "Datum dodavanja: ";
-                  const boldDatumDodavanja = document.createElement("b");
-                  boldDatumDodavanja.innerHTML = this.datumDodavanja.toString();
-                  boldDatumDodavanja.style.fontWeight = "bold";
-                  datumDodavanjaH.append(boldDatumDodavanja);
-                  div.insertBefore(datumDodavanjaH,div.children[3]);
-                  const vrijemeDodavanjaH = document.createElement("h5");
-                  vrijemeDodavanjaH.innerHTML = "Vrijeme dodavanja: ";
-                  const boldVrijemeDodavanja = document.createElement("b");
-                  boldVrijemeDodavanja.innerHTML = this.vrijemeDodavanja.toString();
-                  boldVrijemeDodavanja.style.fontWeight = "bold";
-                  vrijemeDodavanjaH.append(boldVrijemeDodavanja);
-                  div.insertBefore(vrijemeDodavanjaH,div.children[4]);
-                  const statusCekaonicaH = document.createElement("h5");
-                  statusCekaonicaH.innerHTML = "Status čekaonice: ";
-                  const boldStatusCekaonica = document.createElement("b");
-                  boldStatusCekaonica.innerHTML = this.statusCekaonica;
-                  boldStatusCekaonica.style.fontWeight = "bold";
-                  statusCekaonicaH.append(boldStatusCekaonica);
-                  div.insertBefore(statusCekaonicaH,div.children[5]);
-              }
-              //Ako je alert otvoren
-              if(this.response && this.isDodanObrada){
-                  //Dohvaćam div u toj komponenti (class = "alert-box")
-                  const div = odgovor["first"].alertBoxActions.nativeElement;
-                  //Kreiram novi button
-                  const button = document.createElement("button");
-                  //Uređivam button
-                  button.className = "btn btn-info";
-                  button.type = "button";
-                  button.innerHTML = "Pođi u obradu";
-                  button.style.margin = "5px";
-                  //Ubacivam button u div
-                  div.prepend(button);
-                  //Slušam event na ovom buttonu
-                  button.addEventListener("click",() => {
-                      //Izađi iz ovog prozora
-                      this.response = false;
-                      //Ako je tip korisnika "Medicinska sestra":
-                      if(this.isMedSestra){
-                          //Pođi na stranicu općih podataka pregleda
-                          this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
-                      }
-                      else if(this.isLijecnik){
-                          //Pođi na stranicu povijesti bolesti
-                          this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
-                      }
-                  });
-              }
-          }
-        );
-    }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
@@ -488,11 +481,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy, AfterViewInit{
       if(this.subsBrisanje){
         //Izađi iz pretplate
         this.subsBrisanje.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsAlertBox){
-        //Izađi iz pretplate
-        this.subsAlertBox.unsubscribe();
       }
       //Ako postoji pretplata
       if(this.subsCheckCount){

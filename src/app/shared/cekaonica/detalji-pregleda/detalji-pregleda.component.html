@@ -54,13 +54,21 @@
                                         font-family: Verdana, sans-serif;" 
                                         readonly></textarea>
                                 </td>
-                                <td>
+                                <td *ngIf="isSekundarnaDijagnoza">
                                     <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
                                     <textarea 
                                         type="text"
                                         readonly 
-                                        rows="3" 
+                                        formControlName="sekundarneDijagnoze"
+                                        rows="4" 
                                         style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
+                                </td>
+                                <td *ngIf="!isSekundarnaDijagnoza">
+                                    <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema sekundarnih dijagnoza!</strong>
+                                    <input 
+                                        type="text"
+                                        readonly
+                                        style="border:0;width:40%;margin-left:270px;">
                                 </td>
                             </tr>
                         </div>
@@ -99,7 +107,7 @@
                                     formControlName="anamnezaPovijestBolesti" 
                                     readonly 
                                     rows="3" 
-                                    style="width:65%;margin-left:150px;margin-top:-20px;"></textarea>
+                                    style="width:90%;margin-left:100px;margin-top:-20px;"></textarea>
                             </td>
                         </tr>
                         <tr>

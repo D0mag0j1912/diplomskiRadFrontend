@@ -87,6 +87,15 @@ export class CekaonicaService{
                                 pipe(catchError(this.handleError));
     }
 
+    //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
+    getNazivSifraSekundarnaDijagnoza(mkbSifraSekundarna: string){
+
+        let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
+                                {params: params})
+                                .pipe(catchError(this.handleError));
+    }
+
     //Metoda koja dohvaća opće podatke pregleda za određeni ID čekaonice
     getOpciPodatci(idCekaonica: number){
 
