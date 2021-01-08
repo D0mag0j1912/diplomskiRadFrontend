@@ -96,6 +96,15 @@ export class CekaonicaService{
                                 .pipe(catchError(this.handleError));
     }
 
+    //Metoda koja dohvaća podatke povijesti bolesti za određeni ID čekaonice
+    getPovijestBolesti(idCekaonica: number){
+
+        let params = new HttpParams().append("idCekaonica",idCekaonica.toString());
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getPovijestBolesti.php',
+                                {params: params}).
+                                pipe(catchError(this.handleError));
+    }
+
     //Metoda koja dohvaća opće podatke pregleda za određeni ID čekaonice
     getOpciPodatci(idCekaonica: number){
 
@@ -111,7 +120,8 @@ export class CekaonicaService{
             switchMap(podatci => {
                 return combineLatest([
                     this.getImePrezimeDatum(podatci.idCekaonica),
-                    this.getOpciPodatci(podatci.idCekaonica)
+                    this.getOpciPodatci(podatci.idCekaonica),
+                    this.getPovijestBolesti(podatci.idCekaonica)
                 ]);
             })
         );   
