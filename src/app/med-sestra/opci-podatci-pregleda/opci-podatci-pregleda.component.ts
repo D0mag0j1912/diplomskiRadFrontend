@@ -36,6 +36,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     idPacijent: number;
     //Spremam ID aktivne medicinske sestre
     idMedSestra: number;
+    //Spremam ID obrade
+    idObrada: number;
     //Oznaka je li ima odgovora servera
     response: boolean = false;
     //Spremam odgovor servera
@@ -106,6 +108,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 this.pacijent = response.pacijent.pacijent;
                 //Spremam ID pacijenta
                 this.idPacijent = this.pacijent[0].idPacijent;
+                //Spremam ID obrade
+                this.idObrada = this.pacijent[0].idObrada;
                 //Spremam zdravstvene podatke trenutno aktivnog pacijenta
                 this.zdravstveniPodatci = response.pacijent.podatci;
               }
@@ -525,7 +529,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
           this.subsSubmit = this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
             this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
             this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
-            this.primarnaDijagnoza.value, this.sekundarnaDijagnoza.value,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj').subscribe(
+            this.primarnaDijagnoza.value, this.sekundarnaDijagnoza.value,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',this.idObrada).subscribe(
               //Dohvaćam odgovor servera
               (response) => {
                 //Označavam da ima odgovora servera

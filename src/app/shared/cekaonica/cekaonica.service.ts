@@ -11,7 +11,7 @@ export class CekaonicaService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
     //Kreiram BehaviourSubject da mogu poslati podatke iz čekaonice u detalje pregleda
-    podatciPregleda = new BehaviorSubject<{idCekaonica: number}>(null);
+    podatciPregleda = new BehaviorSubject<{idObrada: number}>(null);
     //Pretvaram Subject u Observable
     obsPodatciPregleda = this.podatciPregleda.asObservable();
     constructor(
@@ -55,14 +55,14 @@ export class CekaonicaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
-    onDeleteCekaonica(idPacijent: number,idCekaonica: number){
+    onDeleteCekaonica(idObrada: number,idCekaonica: number){
         //Uz DELETE metodu šaljem dodatni parametar ID čekaonice
         const options = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json'
             }),
             body: {
-                idPacijent: idPacijent,
+                idObrada: idObrada,
                 idCekaonica: idCekaonica
             }
         };
@@ -79,36 +79,45 @@ export class CekaonicaService{
     }
 
     //Metoda koja dohvaća ime, prezime te datum pregleda pacijenta u svrhu prikazivanja na detaljima pregleda
-    getImePrezimeDatum(idCekaonica: number){
+    getImePrezimeDatum(idObrada: number){
 
-        let params = new HttpParams().append("idCekaonica",idCekaonica.toString());
+        let params = new HttpParams().append("idObrada",idObrada.toString());
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getImePrezimeDatum.php',
                                 {params: params}).
                                 pipe(catchError(this.handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
-    getNazivSifraSekundarnaDijagnoza(mkbSifraSekundarna: string){
+    getNazivSifraPovijestBolesti(mkbSifraSekundarna: string){
 
         let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraPovijestBolesti.php',
+                                {params: params})
+                                .pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
+    getNazivSifraOpciPodatci(mkbSifraSekundarna: string){
+
+        let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraOpciPodatci.php',
                                 {params: params})
                                 .pipe(catchError(this.handleError));
     }
 
     //Metoda koja dohvaća podatke povijesti bolesti za određeni ID čekaonice
-    getPovijestBolesti(idCekaonica: number){
+    getPovijestBolesti(idObrada: number){
 
-        let params = new HttpParams().append("idCekaonica",idCekaonica.toString());
+        let params = new HttpParams().append("idObrada",idObrada.toString());
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getPovijestBolesti.php',
                                 {params: params}).
                                 pipe(catchError(this.handleError));
     }
 
     //Metoda koja dohvaća opće podatke pregleda za određeni ID čekaonice
-    getOpciPodatci(idCekaonica: number){
+    getOpciPodatci(idObrada: number){
 
-        let params = new HttpParams().append("idCekaonica",idCekaonica.toString());
+        let params = new HttpParams().append("idObrada",idObrada.toString());
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getOpciPodatci.php',
                                 {params: params}).
                                 pipe(catchError(this.handleError));
@@ -118,10 +127,11 @@ export class CekaonicaService{
     prikaziDetaljePregleda(){
         return this.obsPodatciPregleda.pipe(
             switchMap(podatci => {
+                console.log(podatci.idObrada);
                 return combineLatest([
-                    this.getImePrezimeDatum(podatci.idCekaonica),
-                    this.getOpciPodatci(podatci.idCekaonica),
-                    this.getPovijestBolesti(podatci.idCekaonica)
+                    this.getImePrezimeDatum(podatci.idObrada),
+                    this.getOpciPodatci(podatci.idObrada),
+                    this.getPovijestBolesti(podatci.idObrada)
                 ]);
             })
         );   

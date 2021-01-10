@@ -245,11 +245,11 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         }
                     }
                 }
-                //Ako je pacijent AKTIVAN te IMA evidentiranih povijesti bolesti
+                //Ako je pacijent AKTIVAN te NEMA evidentiranih povijesti bolesti
                 else if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] === "false"){
                   //Dohvaćam glavni div
                   const alertBox = document.getElementById("alert-box");
-                  alertBox.style.height = "12vw";
+                  alertBox.style.height = "9vw";
                   //Spremam poruku servera da pacijent nema evidentiranih povijesti bolesti
                   this.porukaPovijestBolesti = odgovor[0]["message"];
                 }

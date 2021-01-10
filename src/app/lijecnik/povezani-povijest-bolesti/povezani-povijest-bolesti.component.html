@@ -92,7 +92,7 @@
                                 <tr class="border_bottom" formArrayName="sekundarneDijagnoze" *ngFor="let sekundarna of getControlsSekundarna(i);let j = index">
                                     <td>
                                         <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value != null"><strong>Sekundarne dijagnoze:</strong></p>
-                                        <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value == null"><strong>Nema sekundarnih dijagnoza!</strong></p>
+                                        <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value == null"><strong style="color:#a94442">Nema sekundarnih dijagnoza!</strong></p>
                                         <textarea
                                             type="text"
                                             [formControlName]="j"

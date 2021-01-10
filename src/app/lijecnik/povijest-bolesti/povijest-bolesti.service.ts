@@ -19,7 +19,7 @@ export class PovijestBolestiService{
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
     potvrdiPovijestBolesti(idLijecnik:number,idPacijent: number,razlogDolaska: string, anamneza: string,
                         status: string, nalaz: string, primarnaDijagnoza: string, sekundarnaDijagnoza: string[],
-                        tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string){
+                        tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string,idObrada: number){
         return this.http.post<any>(this.baseUrl + 'lijecnik/povijestBolesti.php',{
             idLijecnik,
             idPacijent,
@@ -32,7 +32,8 @@ export class PovijestBolestiService{
             tipSlucaj,
             terapija,
             preporukaLijecnik,
-            napomena
+            napomena,
+            idObrada
         }).pipe(catchError(this.handleError));
     }
 

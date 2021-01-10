@@ -44,6 +44,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       isAktivan: boolean = false;
       //Spremam ID trenutno aktivnog pacijenta
       idPacijent: number;
+      //Spremam ID obrade
+      idObrada: number;
       //Spremam trenutno izabranu sekundarnu dijagnozu zbog validacije duplikata
       sekDijagnoza: string;
       //Spremam dijagnozu koja je ista kod primarne i kod sekundarne dijagnoze
@@ -91,6 +93,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     this.trenutnoAktivniPacijent = podatci.pacijent.pacijent;
                     //Spremam ID trenutno aktivnog pacijenta
                     this.idPacijent = this.trenutnoAktivniPacijent[0].idPacijent;
+                    //Spremam ID obrade
+                    this.idObrada = this.trenutnoAktivniPacijent[0].idObrada;
                     console.log(this.idPacijent);
                   }
                   this.forma = new FormGroup({
@@ -215,7 +219,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                                                                                   this.primarnaDijagnoza.value,this.sekundarnaDijagnoza.value,
                                                                                   this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                                                                                   this.terapija.value,this.preporukaLijecnik.value,
-                                                                                  this.napomena.value).subscribe(
+                                                                                  this.napomena.value,this.idObrada).subscribe(
                   //Dohvaćam odgovor servera
                   (odgovor) => {
                       //Označavam da ima odgovora servera

@@ -104,12 +104,12 @@
                                 <button 
                                     type="button" 
                                     class="btn btn-primary btn-sm" 
-                                    (click)="onOtvoriDetalje(pacijent.idCekaonica)" 
+                                    (click)="onOtvoriDetalje(pacijent.idObrada)" 
                                     *ngIf="pacijent.statusCekaonica === 'Završen pregled'">Pogledaj detalje pregleda</button>
                                 || <button 
                                         type="button" 
                                         class="btn btn-danger btn-sm" 
-                                        (click)="onGetTableData(pacijent.idPacijent,pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,pacijent.DatumDodavanja,pacijent.vrijemeDodavanja,pacijent.statusCekaonica)"
+                                        (click)="onGetTableData(pacijent.idObrada,pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,pacijent.DatumDodavanja,pacijent.vrijemeDodavanja,pacijent.statusCekaonica)"
                                         >Izbriši iz čekaonice</button></td>
                         </tr>
                     </tbody>
@@ -117,7 +117,7 @@
             </div>
         </div>
         <div class="col-xs-12 col-md-12" *ngIf="isPrazna">
-            <h2 style="text-align: center;">Čekaonica je prazna!</h2>
+            <h2 style="text-align: center;color:#a94442">Čekaonica je prazna!</h2>
         </div>
     </div>
 </div>

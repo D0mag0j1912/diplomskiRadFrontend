@@ -62,7 +62,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     isMedSestra: boolean = false;
 
     //Spremam podatke izbrisanog retka čekaonice
-    idPacijent: number;
+    idObrada: number;
     idCekaonica: number;
     index: number;
     imePacijent: string;
@@ -214,9 +214,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja otvara prozor detalja pregleda
-    onOtvoriDetalje(idCekaonica: number){
+    onOtvoriDetalje(idObrada: number){
+        console.log(idObrada);
         //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
-        this.cekaonicaService.podatciPregleda.next({idCekaonica});
+        this.cekaonicaService.podatciPregleda.next({idObrada});
         //Otvori prozor detalja
         this.isDetaljiPregleda = true;
     }
@@ -237,10 +238,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja briše pacijenta iz čekaonice
-    onDeleteCekaonica(idPacijent: number, idCekaonica: number,index:number){
+    onDeleteCekaonica(idObrada: number, idCekaonica: number,index:number){
         
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
-        this.subsBrisanje = this.cekaonicaService.onDeleteCekaonica(idPacijent,idCekaonica).subscribe(
+        this.subsBrisanje = this.cekaonicaService.onDeleteCekaonica(idObrada,idCekaonica).subscribe(
             //Dohvaćam odgovor servera
             (odgovor) => {
                 //Označavam da ima odgovora servera
@@ -258,9 +259,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja prikuplja sve podatke iz izbrisanog retka čekaonice da bi ih proslijedila uvodnom prozoru brisanja
-    onGetTableData(idPacijent: number, idCekaonica: number,index: number,imePacijent: string, prezPacijent: string,datum: Date,vrijeme: Time,status: string){
+    onGetTableData(idObrada: number, idCekaonica: number,index: number,imePacijent: string, prezPacijent: string,datum: Date,vrijeme: Time,status: string){
         //Spremam podatke iz retka čekaonice u svoje varijable
-        this.idPacijent = idPacijent;
+        this.idObrada = idObrada;
         this.idCekaonica = idCekaonica;
         this.index = index;
         this.imePacijent = imePacijent;
@@ -276,7 +277,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     //Metoda koja se pokreće kada korisnik klikne "Obriši" u prozoru brisanja
     onBrisanje(){
         //Pokreni postupak brisanja
-        this.onDeleteCekaonica(this.idPacijent,this.idCekaonica,this.index);
+        this.onDeleteCekaonica(this.idObrada,this.idCekaonica,this.index);
     }
 
     //Metoda koja kreira polje koje se sastoji do form controlova statusa čekaonice
