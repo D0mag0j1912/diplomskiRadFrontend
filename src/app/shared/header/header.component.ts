@@ -98,8 +98,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subsCombined = combined.subscribe(
         //Dohvaćam odgovor servera
         (response) => {
-            this.idLijecnik = response[0][0].idLijecnik;
-            this.idMedSestra = response[1][0].idMedSestra;
+            //Ako ima evidentiranih liječnika:
+            if(response[0]["success"] !== "false"){
+                //Dohvaćam ID liječnika
+                this.idLijecnik = response[0][0].idLijecnik;
+            }
+            //Ako ima evidentiranih medicinskih sestara
+            if(response[1]["success"] !== "false"){
+                //Dohvaćam ID medicinske sestre
+                this.idMedSestra = response[1][0].idMedSestra;
+            }
         }
     );
 

@@ -60,209 +60,215 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             switchMap(response => {
                 //Ako je Observable vratio aktivnog pacijenta
                 if(response["success"] !== "false"){
-                  //Označavam da je pacijent aktivan u obradi
-                  this.isAktivan = true;
-                  //Spremam mu podatke
-                  this.pacijent = response;
-                  //Spremam ID pacijenta
-                  this.idPacijent = this.pacijent[0].idPacijent;
-                  console.log(this.idPacijent);
-                  //Kreiram formu
-                  this.forma = new FormGroup({
-                    'parametar': new FormControl(null)
-                  });
-                  //Kreiram glavnu formu
-                  this.glavnaForma = new FormGroup({
-                    'povijestBolesti': new FormArray([])
-                  });
-                  return forkJoin([
-                    this.povezaniPovijestBolestiService.getPovijestBolesti(this.idPacijent)
-                  ]);
+                    //Označavam da je pacijent aktivan u obradi
+                    this.isAktivan = true;
+                    //Spremam mu podatke
+                    this.pacijent = response;
+                    //Spremam ID pacijenta
+                    this.idPacijent = this.pacijent[0].idPacijent;
+                    console.log(this.idPacijent);
+                    //Kreiram formu
+                    this.forma = new FormGroup({
+                        'parametar': new FormControl(null)
+                    });
+                    //Kreiram glavnu formu
+                    this.glavnaForma = new FormGroup({
+                        'povijestBolesti': new FormArray([])
+                    });
+                    return forkJoin([
+                        this.povezaniPovijestBolestiService.getPovijestBolesti(this.idPacijent)
+                    ]);
                 }
                 //Ako Observable nije vratio aktivnog pacijenta
                 else{
-                  //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
-                  this.porukaAktivan = response["message"];
-                  //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                  return of(this.porukaAktivan); 
+                    //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
+                    this.porukaAktivan = response["message"];
+                    //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
+                    return of(this.porukaAktivan); 
                 }
             })
         );
         //Pretplaćujem se na odgovor servera
-        this.subs = combined.subscribe(
-            //Dohvaćam odgovor servera
-            (odgovor) => {
-                //console.log(odgovor);
-                //Ako je pacijent AKTIVAN
-                if(odgovor !== "Nema aktivnih pacijenata!"){
-                    //Omogući pretraživanje po raznim parametrima
-                    this.subsPretraga = this.forma.get('parametar').valueChanges.pipe(
-                        //Koristim concatMap da se vrijednosti sekvencijalno šalju na backend
-                        concatMap(value => {
-                            return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.idPacijent,value);
-                        })
-                    ).subscribe(
-                        //Dohvaćam odgovor 
-                        (odgovor) => {
-                            console.log(odgovor);
-                            //Ako je server vratio neke rezultate
-                            if(odgovor["success"] !== "false"){
-                                //Brišem svaki form group u form arrayu povijesti bolesti prije nadodavanja novih form groupova pretrage
-                                
-                                //Dok form array nije prazan
-                                while(this.getControls().length !== 0){
-                                    //Briši mu prvi element 
-                                    (<FormArray>this.glavnaForma.get('povijestBolesti')).removeAt(0);
+        const sekDijagnoze = combined.pipe(
+            switchMap(
+                //Dohvaćam odgovor servera
+                (odgovor) => {
+                    console.log(odgovor[0]);
+                    /* //Ako je pacijent AKTIVAN
+                    if(odgovor !== "Nema aktivnih pacijenata!"){
+                        //Omogući pretraživanje po raznim parametrima
+                        this.subsPretraga = this.forma.get('parametar').valueChanges.pipe(
+                            //Koristim concatMap da se vrijednosti sekvencijalno šalju na backend
+                            concatMap(value => {
+                                return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.idPacijent,value);
+                            })
+                        ).subscribe(
+                            //Dohvaćam odgovor 
+                            (odgovor) => {
+                                console.log(odgovor);
+                                //Ako je server vratio neke rezultate
+                                if(odgovor["success"] !== "false"){
+                                    //Brišem svaki form group u form arrayu povijesti bolesti prije nadodavanja novih form groupova pretrage
+                                    
+                                    //Dok form array nije prazan
+                                    while(this.getControls().length !== 0){
+                                        //Briši mu prvi element 
+                                        (<FormArray>this.glavnaForma.get('povijestBolesti')).removeAt(0);
+                                    }
+                                    //Stavljam neuspješnu poruku pretrage na null da se ne prikazuje na ekranu
+                                    this.porukaPovijestBolestiPretraga = null;
+                                    //Označavam da korisnik pretražuje povijesti bolesti
+                                    this.isPovijestBolestiPretraga = true;
+                                    //Spremam nove rezultate u svoje polje povijesti bolesti
+                                    this.povijestiBolesti = odgovor;
+                                    //console.log(this.povijestiBolesti);
+                                    //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
+                                    let pomPretraga = [];
+                                    //Za svaku vrijednost u polju povijesti bolesti
+                                    for(let povijestB of this.povijestiBolesti){
+                                        //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
+                                        if(pomPretraga.indexOf(povijestB.Godina) === -1){
+                                            //Dodaj tu godinu u pomoćno polje
+                                            pomPretraga.push(povijestB.Godina);
+                                        }
+                                        //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
+                                        else{
+                                            //Dodjeljuje joj se vrijednost null
+                                            povijestB.Godina = null;
+                                        }
+                                    }
+                                    //Za svaku povijest bolesti, dodaj cijeli form group u form array  
+                                    for(let povijest of this.povijestiBolesti){
+                                        console.log(povijest);
+                                        this.addControls(povijest);
+                                    }
+                                    let polje = [];
+                                    //Za svaku iteraciju povijesti bolesti, u polje sekundarnih dijagnoza dodaj form control u kojemu će se nalaziti sekundarne dijagnoze te povijesti bolesti
+                                    for(let i = 0;i< this.getControls().length;i++){
+                                        //Ako šifra sekundarne dijagnoze nije prazna
+                                        if(this.getControls()[i].value.mkbSifraSekundarna !== null){
+                                            polje.push(this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna));
+                                        }
+                                        //Ako je šifra sekundarne dijagnoze prazna
+                                        else{
+                                            (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
+                                                //U form control sekundarne dijagnoze ubaci null
+                                                new FormControl(this.getControls()[i].value.mkbSifraSekundarna)
+                                            ); 
+                                        }
+                                    }
+                                    return forkJoin(polje);
                                 }
-                                //Stavljam neuspješnu poruku pretrage na null da se ne prikazuje na ekranu
-                                this.porukaPovijestBolestiPretraga = null;
-                                //Označavam da korisnik pretražuje povijesti bolesti
-                                this.isPovijestBolestiPretraga = true;
-                                //Spremam nove rezultate u svoje polje povijesti bolesti
-                                this.povijestiBolesti = odgovor;
-                                //console.log(this.povijestiBolesti);
-                                //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
-                                let pomPretraga = [];
-                                //Za svaku vrijednost u polju povijesti bolesti
-                                for(let povijestB of this.povijestiBolesti){
-                                    //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
-                                    if(pomPretraga.indexOf(povijestB.Godina) === -1){
-                                        //Dodaj tu godinu u pomoćno polje
-                                        pomPretraga.push(povijestB.Godina);
-                                    }
-                                    //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
-                                    else{
-                                        //Dodjeljuje joj se vrijednost null
-                                        povijestB.Godina = null;
-                                    }
-                                }
-                                //Za svaku povijest bolesti, dodaj cijeli form group u form array  
-                                for(let povijest of this.povijestiBolesti){
-                                    console.log(povijest);
-                                    this.addControls(povijest);
-                                }
-                                
-                                //Za svaku iteraciju povijesti bolesti, u polje sekundarnih dijagnoza dodaj form control u kojemu će se nalaziti sekundarne dijagnoze te povijesti bolesti
-                                for(let i = 0;i< this.getControls().length;i++){
-                                    //Ako šifra sekundarne dijagnoze nije prazna
-                                    if(this.getControls()[i].value.mkbSifraSekundarna !== null){
-                                        console.log(this.getControls()[i].value.mkbSifraSekundarna);
-                                        //Pretplaćujem se na Observable u kojemu se nalaze NAZIVI SEKUNDARNIH DIJAGNOZA za određene šifre sekundarnih dijagnoza
-                                        this.subsNazivSekundarnaPretraga = this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna).subscribe(
-                                            //Dohvaćam naziv sekundarne dijagnoze
-                                            (nazivSekundarna) => {
-                                                console.log(nazivSekundarna);
-                                                //Za svaku povijesti bolesti, ja pusham prazni form control u polje sekundarnih dijagnoza
-                                                (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                                    new FormControl()
-                                                );
-                                                //Za svaku iteraciju povijesti bolesti, string se resetira
-                                                let str = new String("");
-                                                //Prolazim kroz sve nazive sekundarnih dijagnoza i njihove šifre
-                                                for(let dijagnoza of nazivSekundarna){
-                                                    //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                                    str = str.concat(dijagnoza.mkbSifra + " | " + dijagnoza.imeDijagnoza + "\n");
-                                                    //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                                    (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str]);
-                                                } 
-                                            }
-                                        );
-                                    }
-                                    //Ako je šifra sekundarne dijagnoze prazna
-                                    else{
-                                        (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                            //U form control sekundarne dijagnoze ubaci null
-                                            new FormControl(this.getControls()[i].value.mkbSifraSekundarna)
-                                        ); 
-                                    }
+                                //Ako je server vratio poruku da nema rezultata za navedenu pretragu
+                                else{
+                                    //Spremam poruku servera 
+                                    this.porukaPovijestBolestiPretraga = odgovor["message"];
+                                    return of(this.porukaPovijestBolestiPretraga);
                                 }
                             }
-                            //Ako je server vratio poruku da nema rezultata za navedenu pretragu
+                        );
+                    } */
+                    //Ako je pacijent AKTIVAN te IMA evidentiranih povijesti bolesti
+                    if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] !== "false"){
+                        //Označavam da pacijent ima evidentiranih povijesti bolesti
+                        this.isPovijestBolesti = true;
+                        //Spremam odgovore servera (povijesti bolesti i godine)
+                        this.povijestiBolesti = odgovor[0];
+                        //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
+                        let pom = [];
+                        //Za svaku vrijednost u polju povijesti bolesti
+                        for(let povijestB of this.povijestiBolesti){
+                            //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
+                            if(pom.indexOf(povijestB.Godina) === -1){
+                                //Dodaj tu godinu u pomoćno polje
+                                pom.push(povijestB.Godina);
+                            }
+                            //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
                             else{
-                                //Spremam poruku servera 
-                                this.porukaPovijestBolestiPretraga = odgovor["message"];
+                                //Dodjeljuje joj se vrijednost null
+                                povijestB.Godina = null;
                             }
                         }
-                    );
+                        //Za svaku povijest bolesti, dodaj cijeli form array u formu 
+                        for(let povijest of this.povijestiBolesti){
+                            this.addControls(povijest);
+                        }
+                        let polje = [];
+                        //Za svaku iteraciju povijesti bolesti
+                        for(let i = 0;i< this.getControls().length;i++){
+                            //Ako šifra sekundarne dijagnoze nije prazna
+                            if(this.getControls()[i].value.mkbSifraSekundarna !== null){
+                                //U svoje pomoćno polje spremam Observable u kojemu se nalaze podatci šifre i naziva sekundarne dijagnoze 
+                                polje.push(this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna));
+                            }
+                            //Ako je šifra sekundarne dijagnoze prazna
+                            else{
+                                (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
+                                    //U form control sekundarne dijagnoze ubaci null
+                                    new FormControl(this.getControls()[i].value.mkbSifraSekundarna)
+                                ); 
+                            }
+                        }
+                        return forkJoin(polje);
+                    }
+                    //Ako je pacijent AKTIVAN te NEMA evidentiranih povijesti bolesti
+                    else if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] === "false"){
+                        //Dohvaćam glavni div
+                        const alertBox = document.getElementById("alert-box");
+                        alertBox.style.height = "9vw";
+                        //Spremam poruku servera da pacijent nema evidentiranih povijesti bolesti
+                        this.porukaPovijestBolesti = odgovor[0]["message"];
+                        return of(this.porukaPovijestBolesti);
+                    }
+                    //Ako pacijent nije aktivan
+                    else if(odgovor === "Nema aktivnih pacijenata!"){
+                        //Dohvaćam glavni div
+                        const alertBox = document.getElementById("alert-box");
+                        alertBox.style.height = "10vw";
+                        //Označavam da pacijent nije aktivan u obradi
+                        this.isAktivan = false;
+                        return of(odgovor);
+                    }
                 }
-                //Ako je pacijent AKTIVAN te IMA evidentiranih povijesti bolesti
-                if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] !== "false"){
-                    //Označavam da pacijent ima evidentiranih povijesti bolesti
-                    this.isPovijestBolesti = true;
-                    //Spremam odgovore servera (povijesti bolesti i godine)
-                    this.povijestiBolesti = odgovor[0];
-                    //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
-                    let pom = [];
-                    //Za svaku vrijednost u polju povijesti bolesti
-                    for(let povijestB of this.povijestiBolesti){
-                        //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
-                        if(pom.indexOf(povijestB.Godina) === -1){
-                            //Dodaj tu godinu u pomoćno polje
-                            pom.push(povijestB.Godina);
-                        }
-                        //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
-                        else{
-                            //Dodjeljuje joj se vrijednost null
-                            povijestB.Godina = null;
-                        }
-                    }
-                    //Za svaku povijest bolesti, dodaj cijeli form array u formu 
-                    for(let povijest of this.povijestiBolesti){
-                        this.addControls(povijest);
-                    }
-                    
-                    //Za svaku iteraciju povijesti bolesti, u polje sekundarnih dijagnoza dodaj form control u kojemu će se nalaziti sekundarne dijagnoze te povijesti bolesti
+            )
+        );
+        //Pretplaćujem se na odgovore servera (na šifre i nazive sek. dijagnoza ILI da pacijent NEMA evidentiranih povijesti bolesti, 
+        //ILI da pacijent NIJE AKTIVAN)
+        this.subs = sekDijagnoze.subscribe(
+            //Dohvaćam odgovor
+            (odgovor: any) => {
+                console.log(odgovor);
+                //Ako je pacijent aktivan te ima evidentirane povijesti bolesti
+                if(odgovor[0]["success"] !== "false"){
+                    //Za svaku iteraciju povijesti bolesti
                     for(let i = 0;i< this.getControls().length;i++){
                         //Ako šifra sekundarne dijagnoze nije prazna
                         if(this.getControls()[i].value.mkbSifraSekundarna !== null){
-                            //Pretplaćujem se na Observable u kojemu se nalaze NAZIVI SEKUNDARNIH DIJAGNOZA za određene šifre sekundarnih dijagnoza
-                            this.subsNazivSekundarna = this.povezaniPovijestBolestiService.getNazivSekundarna(this.getControls()[i].value.mkbSifraSekundarna).subscribe(
-                                //Dohvaćam naziv sekundarne dijagnoze
-                                (nazivSekundarna) => {
-                                    console.log(nazivSekundarna);
-                                    //Za svaku povijesti bolesti, ja pusham prazni form control u polje sekundarnih dijagnoza
-                                    (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                        new FormControl()
-                                    );
-                                    //Za svaku iteraciju povijesti bolesti, string se resetira
-                                    let str = new String("");
-                                    //Prolazim kroz sve nazive sekundarnih dijagnoza i njihove šifre
-                                    for(let dijagnoza of nazivSekundarna){
-                                        //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                        str = str.concat(dijagnoza.mkbSifra + " | " + dijagnoza.imeDijagnoza + "\n");
-                                        //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                        (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str]);
-                                    } 
-                                }
-                            );
-                        }
-                        //Ako je šifra sekundarne dijagnoze prazna
-                        else{
+                            console.log(this.getControls()[i].value.mkbSifraSekundarna);
+                            //Za svaku povijesti bolesti, ja pusham prazni form control u polje sekundarnih dijagnoza
                             (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                //U form control sekundarne dijagnoze ubaci null
-                                new FormControl(this.getControls()[i].value.mkbSifraSekundarna)
-                            ); 
+                                new FormControl()
+                            );
+                            //Za svaku iteraciju povijesti bolesti, string se resetira
+                            let str = new String("");
+                            //Prolazim kroz sve nazive sekundarnih dijagnoza i njihove šifre
+                            for(let dijagnoza of odgovor){
+                                dijagnoza.forEach((element) => {
+                                    //Ako je šifra primarne dijagnoze iz form array-a JEDNAKA onoj iz fork joina
+                                    if(this.getControls()[i].value.mkbSifraPrimarna === element.mkbSifraPrimarna){
+                                        //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
+                                        str = str.concat(element.mkbSifra + " | " + element.imeDijagnoza + "\n");
+                                    }
+                                });
+                            }
+                            //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
+                            (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str]);
                         }
                     }
                 }
-                //Ako je pacijent AKTIVAN te NEMA evidentiranih povijesti bolesti
-                else if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] === "false"){
-                  //Dohvaćam glavni div
-                  const alertBox = document.getElementById("alert-box");
-                  alertBox.style.height = "9vw";
-                  //Spremam poruku servera da pacijent nema evidentiranih povijesti bolesti
-                  this.porukaPovijestBolesti = odgovor[0]["message"];
-                }
-                //Ako pacijent nije aktivan
-                else if(odgovor === "Nema aktivnih pacijenata!"){
-                    //Dohvaćam glavni div
-                    const alertBox = document.getElementById("alert-box");
-                    alertBox.style.height = "10vw";
-                    //Označavam da pacijent nije aktivan u obradi
-                    this.isAktivan = false;
-                }
             }
         );
+        
     }
 
     //Dohvati form controlove formarraya sekundarnih dijagnoza na određenom indeksu

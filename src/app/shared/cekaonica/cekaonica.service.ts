@@ -88,18 +88,20 @@ export class CekaonicaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
-    getNazivSifraPovijestBolesti(mkbSifraSekundarna: string){
+    getNazivSifraPovijestBolesti(mkbSifraSekundarna: string,idObrada: number){
 
         let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
+        params = params.append("idObrada",idObrada.toString());
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraPovijestBolesti.php',
                                 {params: params})
                                 .pipe(catchError(this.handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
-    getNazivSifraOpciPodatci(mkbSifraSekundarna: string){
+    getNazivSifraOpciPodatci(mkbSifraSekundarna: string,idObrada: number){
 
         let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
+        params = params.append("idObrada",idObrada.toString());
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraOpciPodatci.php',
                                 {params: params})
                                 .pipe(catchError(this.handleError));
