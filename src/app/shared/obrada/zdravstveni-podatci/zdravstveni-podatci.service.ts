@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -18,9 +18,9 @@ export class ZdravstveniPodatciService{
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalaze svi ZDRAVSTVENI podatci pacijenta koji je aktivan u obradi
-    getHealthDataPatient(){
-
-        return this.http.get<ZdravstveniPodatci | any>(this.baseUrl + 'zdravstveniPodatciPacijent/getHealthDataPatient.php').pipe(
+    getHealthDataPatient(tip: string){
+        let params = new HttpParams().append("tip",tip);
+        return this.http.get<ZdravstveniPodatci | any>(this.baseUrl + 'zdravstveniPodatciPacijent/getHealthDataPatient.php',{params: params}).pipe(
             catchError(this.handleError)
         );
     }

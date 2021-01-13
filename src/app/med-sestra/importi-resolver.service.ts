@@ -3,7 +3,8 @@ import { Observable } from 'rxjs';
 import {Injectable} from '@angular/core';
 import { ImportService } from './import.service';
 import {forkJoin} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, switchMap, take} from 'rxjs/operators';
+import { HeaderService } from '../shared/header/header.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -11,7 +12,9 @@ export class ImportiResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam servis importa
-        private importService: ImportService
+        private importService: ImportService,
+        //Dohvaćam header servis
+        private headerService: HeaderService
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):

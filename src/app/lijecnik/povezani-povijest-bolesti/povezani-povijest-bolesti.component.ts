@@ -2,6 +2,7 @@ import { Component, OnInit,Output,EventEmitter, OnDestroy } from '@angular/core'
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subscription } from 'rxjs';
 import { concatMap, switchMap } from 'rxjs/operators';
+import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { PovezaniPovijestBolestiService } from './povezani-povijest-bolesti.service';
@@ -15,10 +16,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Kreiram pretplate
     subs: Subscription;
-    subsNazivSekundarna: Subscription;
-    subsNazivSekundarnaPretraga: Subscription;
     subsPretraga: Subscription;
-    subsPromjenaForma: Subscription;
     //Oznaka je li pronađen rezultat za pretragu povijest bolesti
     isPovijestBolestiPretraga: boolean = false;
     //Spremam poruku servera za pretragu povijesti bolesti
@@ -50,13 +48,18 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam servis povezane povijesti bolesti
-        private povezaniPovijestBolestiService: PovezaniPovijestBolestiService
+        private povezaniPovijestBolestiService: PovezaniPovijestBolestiService,
+        //Dohvaćam header servis
+        private headerService: HeaderService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        
-        const combined = this.obradaService.getPatientProcessing().pipe(
+        const combined = this.headerService.tipKorisnikaObs.pipe(
+            switchMap(podatci => {
+                return this.obradaService.getPatientProcessing(podatci);
+            })
+          ).pipe(
             switchMap(response => {
                 //Ako je Observable vratio aktivnog pacijenta
                 if(response["success"] !== "false"){
@@ -358,24 +361,9 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
           this.subs.unsubscribe();
         }
         //Ako postoji pretplata
-        if(this.subsNazivSekundarna){
-            //Izađi iz pretplate
-            this.subsNazivSekundarna.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsNazivSekundarnaPretraga){
-            //Izađi iz pretplate
-            this.subsNazivSekundarnaPretraga.unsubscribe();
-        }
-        //Ako postoji pretplata
         if(this.subsPretraga){
             //Izađi iz pretplate
             this.subsPretraga.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsPromjenaForma){
-            //Izađi iz pretplate
-            this.subsPromjenaForma.unsubscribe();
         }
     }
 }

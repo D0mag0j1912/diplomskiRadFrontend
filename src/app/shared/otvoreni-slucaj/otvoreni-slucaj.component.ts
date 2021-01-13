@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/cor
 import { FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subscription } from 'rxjs';
 import { switchMap,distinctUntilChanged } from 'rxjs/operators';
+import { HeaderService } from '../header/header.service';
 import { Obrada } from '../modeli/obrada.model';
 import { ObradaService } from '../obrada/obrada.service';
 import { OtvoreniSlucajService } from './otvoreni-slucaj.service';
@@ -46,13 +47,19 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
       //Dohvaćam servis otvorenog slučaja
       private otvoreniSlucajService: OtvoreniSlucajService,
       //Dohvaćam servis obrade
-      private obradaService: ObradaService
+      private obradaService: ObradaService,
+      //Dohvaćam header servis
+      private headerService: HeaderService
     ) { } 
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-      //Kombiniram dva Observable-a 
-      const combined = this.obradaService.getPatientProcessing().pipe(
+
+      const combined = this.headerService.tipKorisnikaObs.pipe(
+        switchMap(podatci => {
+            return this.obradaService.getPatientProcessing(podatci);
+        })
+      ).pipe(
           //Pomoću switchMapa uzimam podatke trenutno aktivnog pacijenta te njegov ID prosljeđujem dvjema metodama
           switchMap((response) => { 
               console.log(response);

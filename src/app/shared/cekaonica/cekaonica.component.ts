@@ -8,6 +8,7 @@ import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
 import { AlertComponent } from '../alert/alert.component';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
+import { HeaderService } from '../header/header.service';
 import { ObradaService } from '../obrada/obrada.service';
 import { CekaonicaService } from './cekaonica.service';
 
@@ -181,8 +182,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       //Pretplaćujem se na podatke koje je Resolver poslao tj. pacijente u čekaonici
       this.subs = this.route.data.subscribe(
         (podatci: {pacijenti: Cekaonica[] | any}) => {
-
-          //Ako je odgovor servera da je cekaonica prazna:
+          console.log(podatci.pacijenti);
+          //Ako je odgovor servera da je cekaonica NIJE prazna:
           if(podatci.pacijenti["success"] !== "false"){
             //Dohvaćene pacijente spremam u polje
             this.pacijenti = podatci.pacijenti;
@@ -214,12 +215,13 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja otvara prozor detalja pregleda
-    onOtvoriDetalje(idObrada: number){
+    onOtvoriDetalje(idObrada: number,tip: string){
         console.log(idObrada);
+        console.log(tip);
         //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
-        this.cekaonicaService.podatciPregleda.next({idObrada});
+        this.cekaonicaService.podatciPregleda.next({tip,idObrada});
         //Otvori prozor detalja
-        this.isDetaljiPregleda = true;
+        this.isDetaljiPregleda = true; 
     }
 
     //Metoda koja provjerava broj preostalih pacijenata u čekaonici
@@ -324,9 +326,17 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada korisnik klikne button "Dodaj u obradu"
     onDodajObrada(id: number){
-
+        let tipKorisnik;
+        //Ako je prijavljen liječnik:
+        if(this.isLijecnik){
+            tipKorisnik = "lijecnik";
+        }
+        //Ako je prijavljena medicinska sestra
+        else{
+            tipKorisnik = "sestra";
+        }
         //Kombiniram dvije metode da rezultati dođu u isto vrijeme
-        const combined = this.obradaService.addPatientToProcessing(id).pipe(
+        const combined = this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
           switchMap(odgovor => {
               return this.cekaonicaService.getPatientsWaitingRoom().pipe(
                   tap(pacijenti => {

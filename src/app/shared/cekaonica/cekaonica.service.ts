@@ -11,7 +11,7 @@ export class CekaonicaService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
     //Kreiram BehaviourSubject da mogu poslati podatke iz čekaonice u detalje pregleda
-    podatciPregleda = new BehaviorSubject<{idObrada: number}>(null);
+    podatciPregleda = new BehaviorSubject<{tip:string,idObrada: number}>(null);
     //Pretvaram Subject u Observable
     obsPodatciPregleda = this.podatciPregleda.asObservable();
     constructor(
@@ -79,50 +79,33 @@ export class CekaonicaService{
     }
 
     //Metoda koja dohvaća ime, prezime te datum pregleda pacijenta u svrhu prikazivanja na detaljima pregleda
-    getImePrezimeDatum(idObrada: number){
+    getImePrezimeDatum(tip: string,idObrada: number){
 
         let params = new HttpParams().append("idObrada",idObrada.toString());
+        params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getImePrezimeDatum.php',
                                 {params: params}).
                                 pipe(catchError(this.handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
-    getNazivSifraPovijestBolesti(mkbSifraSekundarna: string,idObrada: number){
+    getNazivSifraSekundarnaDijagnoza(tip: string,mkbSifraSekundarna: string,idObrada: number){
 
         let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
         params = params.append("idObrada",idObrada.toString());
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraPovijestBolesti.php',
+        params = params.append("tip",tip);
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
                                 {params: params})
                                 .pipe(catchError(this.handleError));
     }
 
-    //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
-    getNazivSifraOpciPodatci(mkbSifraSekundarna: string,idObrada: number){
-
-        let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
+    //Metoda koja vraća Observable u kojemu se nalaze ILI opći podatci pregleda ILI povijest bolesti pacijenta
+    getPodatciPregleda(tip: string, idObrada: number){
+        let params = new HttpParams().append("tip",tip);
         params = params.append("idObrada",idObrada.toString());
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraOpciPodatci.php',
+        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getPodatciPregleda.php',
                                 {params: params})
                                 .pipe(catchError(this.handleError));
-    }
-
-    //Metoda koja dohvaća podatke povijesti bolesti za određeni ID čekaonice
-    getPovijestBolesti(idObrada: number){
-
-        let params = new HttpParams().append("idObrada",idObrada.toString());
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getPovijestBolesti.php',
-                                {params: params}).
-                                pipe(catchError(this.handleError));
-    }
-
-    //Metoda koja dohvaća opće podatke pregleda za određeni ID čekaonice
-    getOpciPodatci(idObrada: number){
-
-        let params = new HttpParams().append("idObrada",idObrada.toString());
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getOpciPodatci.php',
-                                {params: params}).
-                                pipe(catchError(this.handleError));
     }
 
     //Metoda koja dohvaća odgovore servera više metoda te ih kombinira
@@ -131,9 +114,8 @@ export class CekaonicaService{
             switchMap(podatci => {
                 console.log(podatci.idObrada);
                 return combineLatest([
-                    this.getImePrezimeDatum(podatci.idObrada),
-                    this.getOpciPodatci(podatci.idObrada),
-                    this.getPovijestBolesti(podatci.idObrada)
+                    this.getImePrezimeDatum(podatci.tip,podatci.idObrada),
+                    this.getPodatciPregleda(podatci.tip,podatci.idObrada)
                 ]);
             })
         );   

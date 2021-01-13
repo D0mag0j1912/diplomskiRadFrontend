@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -19,9 +19,9 @@ export class OsnovniPodatciService{
 
 
     //Metoda koja vraća Observable u kojemu se nalaze svi OSNOVNI podatci pacijenta koji je aktivan u obradi
-    getMainDataPatient(){
-
-        return this.http.get<Pacijent | any>(this.baseUrl + 'osnovniPodatciPacijent/getMainDataPatient.php').pipe(
+    getMainDataPatient(tip: string){
+        let params = new HttpParams().append("tip",tip);
+        return this.http.get<Pacijent | any>(this.baseUrl + 'osnovniPodatciPacijent/getMainDataPatient.php',{params: params}).pipe(
             catchError(this.handleError)
         );
     }

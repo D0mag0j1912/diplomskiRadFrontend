@@ -80,6 +80,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th scope="col">Odgovorna osoba</th>
                             <th scope="col">Ime</th>
                             <th scope="col">Prezime</th>
                             <th scope="col">Datum dodavanja</th>
@@ -90,6 +91,7 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let pacijent of pacijenti;let i = index">
+                            <td>{{ (isLijecnik && pacijent.tip === 'lijecnik') ? "Vi" : (isMedSestra && pacijent.tip === 'sestra') ? "Vi" : pacijent.OdgovornaOsoba }}</td>
                             <td>{{pacijent.imePacijent}}</td>
                             <td>{{pacijent.prezPacijent}}</td>
                             <td>{{pacijent.DatumDodavanja}}</td>
@@ -104,7 +106,7 @@
                                 <button 
                                     type="button" 
                                     class="btn btn-primary btn-sm" 
-                                    (click)="onOtvoriDetalje(pacijent.idObrada)" 
+                                    (click)="onOtvoriDetalje(pacijent.idObrada,pacijent.tip)" 
                                     *ngIf="pacijent.statusCekaonica === 'Završen pregled'">Pogledaj detalje pregleda</button>
                                 || <button 
                                         type="button" 

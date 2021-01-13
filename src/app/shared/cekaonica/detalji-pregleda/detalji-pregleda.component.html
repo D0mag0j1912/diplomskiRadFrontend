@@ -1,5 +1,5 @@
 <div class="backdrop" (click)="onClose()"></div>
-<div class="alert-box">
+<div class="alert-box" #detaljiPregleda>
     <h3 style="text-align: center;">Detalji pregleda</h3>
     <div class="col-xs-12 col-md-12">
         <form [formGroup]="forma" *ngIf="forma">
@@ -30,62 +30,26 @@
                             </td>
                             <td></td>
                         </tr>
-                        <tr>
+                        <tr *ngIf="!tip">
                             <td>
-                                <h4><strong style="font-family: Verdana, sans-serif;color:#337ab7">Opći podatci pregleda</strong></h4>
+                                <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih podataka na pregledu!</strong></h4>
                             </td>
-                            <td></td>
                         </tr>
-                        <tr *ngIf="!isPrimarnaOpciPodatci">
-                            <td>
-                                <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema primarnih dijagnoza!</strong>
-                            </td>
-                            <td></td>
-                        </tr> 
-                        <div formArrayName="opciPodatci" *ngFor="let control of getControlsOpciPodatci();let i = index">
-                            <tr [formGroupName]="i">
+                        <div *ngIf="tip === 'sestra'">
+                            <tr>
                                 <td>
-                                    <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
-                                    <textarea 
-                                        type="text"
-                                        rows="2"
-                                        formControlName="primarnaDijagnoza" 
-                                        style="border:0;width:100%;
-                                        font-family: Verdana, sans-serif;" 
-                                        readonly></textarea>
+                                    <h4><strong style="font-family: Verdana, sans-serif;color:#337ab7">Opći podatci pregleda</strong></h4>
                                 </td>
-                                <td *ngIf="isSekundarnaDijagnozaOpci">
-                                    <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
-                                    <textarea 
-                                        type="text"
-                                        readonly 
-                                        formControlName="sekundarneDijagnoze"
-                                        rows="4" 
-                                        style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
-                                </td>
-                                <td *ngIf="!isSekundarnaDijagnozaOpci">
-                                    <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema sekundarnih dijagnoza!</strong>
-                                    <input 
-                                        type="text"
-                                        readonly
-                                        style="border:0;width:40%;margin-left:270px;">
-                                </td>
+                                <td></td>
                             </tr>
-                        </div>
-                        <tr>
-                            <td>
-                                <h4><strong style="font-family: Verdana, sans-serif;color:#337ab7">Povijest bolesti</strong></h4>
-                            </td>
-                        </tr>
-                        <tr *ngIf="!isPovijestBolesti">
-                            <td>
-                                <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema evidentiranih povijesti bolesti!</strong>
-                            </td>
-                            <td></td>
-                        </tr>
-                        <div formArrayName="povijestBolesti" *ngFor="let control of getControlsPovijestBolesti();let j = index">
-                            <div [formGroupName]="j">
-                                <tr>
+                            <tr *ngIf="!isOpciPodatci">
+                                <td>
+                                    <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema primarnih dijagnoza!</strong>
+                                </td>
+                                <td></td>
+                            </tr> 
+                            <div formArrayName="opciPodatci" *ngFor="let control of getControlsOpciPodatci();let i = index">
+                                <tr [formGroupName]="i">
                                     <td>
                                         <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
                                         <textarea 
@@ -96,7 +60,7 @@
                                             font-family: Verdana, sans-serif;" 
                                             readonly></textarea>
                                     </td>
-                                    <td *ngIf="isSekundarnaDijagnozaPovijestBolesti">
+                                    <td *ngIf="isSekundarnaDijagnozaOpci">
                                         <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
                                         <textarea 
                                             type="text"
@@ -105,38 +69,83 @@
                                             rows="4" 
                                             style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
                                     </td>
-                                    <td *ngIf="!isSekundarnaDijagnozaPovijestBolesti">
+                                    <td *ngIf="!isSekundarnaDijagnozaOpci">
                                         <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema sekundarnih dijagnoza!</strong>
                                         <input 
                                             type="text"
                                             readonly
                                             style="border:0;width:40%;margin-left:270px;">
-                                    </td> 
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <p style="font-family: Verdana, sans-serif;"><strong>Anamneza: </strong>
-                                        <textarea
-                                            type="text" 
-                                            formControlName="anamneza" 
-                                            readonly 
-                                            rows="3" 
-                                            style="width:90%;margin-left:100px;margin-top:-20px;"></textarea>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <p style="font-family: Verdana, sans-serif;"><strong>Terapija: </strong>
-                                        <textarea
-                                            type="text" 
-                                            formControlName="terapija" 
-                                            readonly 
-                                            rows="3" 
-                                            style="width:90%;margin-left:75px;margin-top:-20px;"></textarea>
                                     </td>
                                 </tr>
                             </div>
-                        </div> 
+                        </div>
+                        <div *ngIf="tip === 'lijecnik'">
+                            <tr>
+                                <td>
+                                    <h4><strong style="font-family: Verdana, sans-serif;color:#337ab7">Povijest bolesti</strong></h4>
+                                </td>
+                            </tr>
+                            <tr *ngIf="!isPovijestBolesti">
+                                <td>
+                                    <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema evidentiranih povijesti bolesti!</strong>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <div formArrayName="povijestBolesti" *ngFor="let control of getControlsPovijestBolesti();let j = index">
+                                <div [formGroupName]="j">
+                                    <tr>
+                                        <td>
+                                            <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
+                                            <textarea 
+                                                type="text"
+                                                rows="2"
+                                                formControlName="primarnaDijagnoza" 
+                                                style="border:0;width:100%;
+                                                font-family: Verdana, sans-serif;" 
+                                                readonly></textarea>
+                                        </td>
+                                        <td *ngIf="isSekundarnaDijagnozaPovijestBolesti">
+                                            <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
+                                            <textarea 
+                                                type="text"
+                                                readonly 
+                                                formControlName="sekundarneDijagnoze"
+                                                rows="4" 
+                                                style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
+                                        </td>
+                                        <td *ngIf="!isSekundarnaDijagnozaPovijestBolesti">
+                                            <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema sekundarnih dijagnoza!</strong>
+                                            <input 
+                                                type="text"
+                                                readonly
+                                                style="border:0;width:40%;margin-left:270px;">
+                                        </td> 
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <p style="font-family: Verdana, sans-serif;"><strong>Anamneza: </strong>
+                                            <textarea
+                                                type="text" 
+                                                formControlName="anamneza" 
+                                                readonly 
+                                                rows="3" 
+                                                style="width:90%;margin-left:100px;margin-top:-20px;"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <p style="font-family: Verdana, sans-serif;"><strong>Terapija: </strong>
+                                            <textarea
+                                                type="text" 
+                                                formControlName="terapija" 
+                                                readonly 
+                                                rows="3" 
+                                                style="width:90%;margin-left:75px;margin-top:-20px;"></textarea>
+                                        </td>
+                                    </tr>
+                                </div>
+                            </div> 
+                        </div>
                     </tbody>
                 </table>
             </div>

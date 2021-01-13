@@ -1,8 +1,8 @@
 import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, FormsModule } from '@angular/forms';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import {Subscription} from 'rxjs';
+import {forkJoin, Subscription} from 'rxjs';
 import { NarucivanjeService } from './narucivanje.service';
 @Component({
   selector: 'app-narucivanje',
@@ -13,15 +13,11 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
 
     //Spremam pretplate
     subs: Subscription;
-    subsDatumiNaziviAzuriranje: Subscription;
-    subsTBodyAzuriranje: Subscription;
-    subsDatumiNaziviNarucivanje: Subscription;
-    subsTBodyNarucivanje: Subscription;
-    subsDatumiNaziviOtkazivanje: Subscription;
-    subsTBodyOtkazivanje: Subscription;
     subsDanasnjiDatum: Subscription;
-    subsNovoStanjeTBody: Subscription;
-    subsNovoStanjeDatumiNazivi:Subscription;
+    subsNarucivanje: Subscription;
+    subsAzuriranje: Subscription;
+    subsOtkazivanje: Subscription;
+    subsNovoStanje: Subscription;
     //Oznaka je li prozor sa detaljima narudžbe otvoren
     isNarudzba: boolean = false;
     //Označavam je li ima odgovora servera
@@ -99,12 +95,21 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     //Metoda koja dohvaća novo stanje tablice kada se promjeni datum
     dohvatiNovoStanje(datum: Date){
 
-        //Pretplaćujem se na Observable u kojemu se nalazi novo stanje DATUMA I NAZIVA DANA 
-        this.subsNovoStanjeDatumiNazivi = this.narucivanjeService.dohvatiNovoStanjeDatumiNazivi(datum).subscribe(
-            //Dohvaćam THEAD
-            (thead) => {
-                //Thead sa servera spremam u svoje polje
-                this.datumiNazivi = thead;
+        const combined = forkJoin([
+            this.narucivanjeService.dohvatiNovoStanje(datum),
+            this.narucivanjeService.dohvatiNovoStanjeDatumiNazivi(datum)
+        ]);
+        this.subsNovoStanje = combined.subscribe(
+            //Dohvaćam odgovor
+            (odgovor) => {
+                //Spremam narudžbe i vremena
+                this.narudzbe = odgovor[0];
+                //Prolazim kroz polje vremena i narudžbi
+                this.narudzbe.forEach((element,index) => {
+                    this.azurirajFormu(element,index);
+                });
+                //Spremam datume i nazive dana
+                this.datumiNazivi = odgovor[1];
                 //Postavljam hard-codiranu vrijednost 'Vrijeme' prvo na nultu poziciju
                 (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(0).patchValue('Vrijeme');
                 //Prolazim kroz polje datuma i naziva dana u tjednu
@@ -112,19 +117,6 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
                     (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);    
                 });
-            }
-        );
-
-        //Pretplaćujem se na Observable u kojemu se nalazi novo stanje tablice za navedeni datum
-        this.subsNovoStanjeTBody = this.narucivanjeService.dohvatiNovoStanje(datum).subscribe(
-            //Dohvaćam novo stanje tablice 
-            (tbody) => {
-                //Spremam novo stanje tablice u svoje polje
-                this.narudzbe = tbody;
-                //Prolazim kroz polje vremena i narudžbi
-                this.narudzbe.forEach((element,index) => {
-                    this.azurirajFormu(element,index);
-                });  
             }
         );
     }
@@ -204,12 +196,20 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     //Metoda koja se izvršava kada korisnik otkaže narudžbu (FORMA SE AŽURIRA)
     onOtkazivanjeNarudzba(){
 
-        //Pretplaćujem se na Observable u kojemu se nalazi THEAD nakon ažuriranja narudžbe
-        this.subsDatumiNaziviOtkazivanje = this.narucivanjeService.getDatumiNazivi().subscribe(
-            //Dohvaćam thead
-            (thead) => {
-                //Thead sa servera spremam u svoje polje
-                this.datumiNazivi = thead;
+        const combined = forkJoin([
+            this.narucivanjeService.getVremena(),
+            this.narucivanjeService.getDatumiNazivi()
+        ]);
+        this.subsOtkazivanje = combined.subscribe(
+            (odgovor) => {
+                //Dohvaćam narudžbe i vremena
+                this.narudzbe = odgovor[0];
+                //Prolazim kroz polje vremena i narudžbi
+                this.narudzbe.forEach((element,index) => {
+                    this.azurirajFormu(element,index);
+                });
+                //Dohvaćam datume i nazive dana
+                this.datumiNazivi = odgovor[1];
                 //Postavljam hard-codiranu vrijednost 'Vrijeme' prvo na nultu poziciju
                 (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(0).patchValue('Vrijeme');
                 //Prolazim kroz polje datuma i naziva dana u tjednu
@@ -219,41 +219,25 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 });
             }
         );
-
-        //Pretplaćujem se na Observable u kojemu se nalazi stanje tablice NAKON OTKAZIVANJA NARUDŽBE
-        this.subsTBodyOtkazivanje = this.narucivanjeService.getVremena().subscribe(
-            //Dohvaćam TBody
-            (tbody) => {
-                //Spremam novo stanje tablice u svoje polje
-                this.narudzbe = tbody;
-                //Prolazim kroz polje vremena i narudžbi
-                this.narudzbe.forEach((element,index) => {
-                    this.azurirajFormu(element,index);
-                });
-            }
-        );
     }
 
     //Metoda koja se izvršava kada se narudžba ažurira 
     onAzuriranjeNarudzba(){
-        //Pretplaćujem se na Observable u kojemu se nalazi stanje tablice narudžbi NAKON AŽURIRANJA
-        this.subsTBodyAzuriranje = this.narucivanjeService.getVremena().subscribe(
-            //Dohvaćam TBody
-            (tbody) => {
-                this.narudzbe = tbody;
+
+        const combined = forkJoin([
+            this.narucivanjeService.getVremena(),
+            this.narucivanjeService.getDatumiNazivi()
+        ]);
+        this.subsAzuriranje = combined.subscribe(
+            (odgovor) => {
+                //Dohvaćam narudžbe i vremena
+                this.narudzbe = odgovor[0];
                 //Prolazim kroz polje vremena i narudžbi
                 this.narudzbe.forEach((element,index) => {
                     this.azurirajFormu(element,index);
                 });
-            }
-        );
-
-        //Pretplaćujem se na Observable u kojemu se nalazi THEAD nakon ažuriranja narudžbe
-        this.subsDatumiNaziviAzuriranje = this.narucivanjeService.getDatumiNazivi().subscribe(
-            //Dohvaćam thead
-            (thead) => {
-                //Thead sa servera spremam u svoje polje
-                this.datumiNazivi = thead;
+                //Dohvaćam datume i nazive dana
+                this.datumiNazivi = odgovor[1];
                 //Postavljam hard-codiranu vrijednost 'Vrijeme' prvo na nultu poziciju
                 (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(0).patchValue('Vrijeme');
                 //Prolazim kroz polje datuma i naziva dana u tjednu
@@ -268,24 +252,21 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     //Metoda koja se pokreće kada ova komponenta primi poruku da je novi pacijent naručen
     onNarucivanjePacijenta(){
 
-        //Pretplaćujem se na Observable u kojem se nalazi stanje tablice narudžbi NAKON NOVOG NARUČIVANJA
-        this.subsTBodyNarucivanje = this.narucivanjeService.getVremena().subscribe(
-            //Dohvaćam novo stanje tablice narudžbi
-            (tbody) => {
-                this.narudzbe = tbody;
+        const combined = forkJoin([
+            this.narucivanjeService.getVremena(),
+            this.narucivanjeService.getDatumiNazivi()
+        ]);
+        this.subsNarucivanje = combined.subscribe(
+            //Dohvaćam odgovor servera
+            (odgovor) => {
+                //Spremam narudžbe i vremena
+                this.narudzbe = odgovor[0];
                 //Prolazim kroz polje vremena i narudžbi
                 this.narudzbe.forEach((element,index) => {
                     this.azurirajFormu(element,index);
-                });    
-            }
-        );
-
-        //Pretplaćujem se na Observable u kojemu se nalazi THEAD nakon DODAVANJA NOVE NARUDŽBE
-        this.subsDatumiNaziviNarucivanje = this.narucivanjeService.getDatumiNazivi().subscribe(
-            //Dohvaćam thead
-            (thead) => {
+                }); 
                 //Thead sa servera spremam u svoje polje
-                this.datumiNazivi = thead;
+                this.datumiNazivi = odgovor[1];
                 //Postavljam hard-codiranu vrijednost 'Vrijeme' prvo na nultu poziciju
                 (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(0).patchValue('Vrijeme');
                 //Prolazim kroz polje datuma i naziva dana u tjednu
@@ -449,49 +430,29 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
             this.subs.unsubscribe();
         }
         //Ako postoji pretplata
-        if(this.subsDatumiNaziviAzuriranje){
-            //Izađi iz pretplate
-            this.subsDatumiNaziviAzuriranje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsTBodyAzuriranje){
-            //Izađi iz pretplate
-            this.subsTBodyAzuriranje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsDatumiNaziviNarucivanje){
-            //Izađi iz pretplate
-            this.subsDatumiNaziviNarucivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsTBodyNarucivanje){
-            //Izađi iz pretplate
-            this.subsTBodyNarucivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsDatumiNaziviOtkazivanje){
-            //Izađi iz pretplate
-            this.subsDatumiNaziviOtkazivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsTBodyOtkazivanje){
-            //Izađi iz pretplate
-            this.subsTBodyOtkazivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
         if(this.subsDanasnjiDatum){
             //Izađi iz pretplate
             this.subsDanasnjiDatum.unsubscribe();
         }
         //Ako postoji pretplata
-        if(this.subsNovoStanjeTBody){
+        if(this.subsNarucivanje){
             //Izađi iz pretplate
-            this.subsNovoStanjeTBody.unsubscribe();
+            this.subsNarucivanje.unsubscribe();
         }
         //Ako postoji pretplata
-        if(this.subsNovoStanjeDatumiNazivi){
+        if(this.subsAzuriranje){
             //Izađi iz pretplate
-            this.subsNovoStanjeDatumiNazivi.unsubscribe();
+            this.subsAzuriranje.unsubscribe();
+        }
+        //Ako postoji pretplata
+        if(this.subsOtkazivanje){
+            //Izađi iz pretplate
+            this.subsOtkazivanje.unsubscribe();
+        }
+        //Ako postoji pretplata
+        if(this.subsNovoStanje){
+            //Izađi iz pretplate
+            this.subsNovoStanje.unsubscribe();
         }
     }
 

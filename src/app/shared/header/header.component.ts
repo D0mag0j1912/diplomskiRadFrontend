@@ -43,49 +43,50 @@ export class HeaderComponent implements OnInit, OnDestroy {
     //Pretplaćujem se na Subject iz login servisa
     this.subs = this.loginService.user.subscribe(
       (user) => {
-        //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
-        this.prijavljen = !user ? false : true;
-        //Ako je korisnik prijavljen
-        if(this.prijavljen){
-          //Ako je tip prijavljenog korisnika "lijecnik":
-          if(user["tip"] == "lijecnik"){
-            //Označavam da se liječnik prijavio
-            this.isLijecnik = true;
-          } else if(user["tip"] == "sestra"){
-            //Označavam da se medicinska sestra prijavila
-            this.isMedSestra = true;
-          }
-          //Dohvaćam korisnikove podatke iz Session Storagea
-          const userData: {
-            tip: string;
-            email: string;
-            _tokenExpirationDate: Date;
-            lozinka: string;
-            _token: string;
-          } = JSON.parse(sessionStorage.getItem('userData'));
-          
-          //Ako ne postoje nikakvi korisnikovi podatci u spremištu
-          if(!userData){
-              //Izađi iz ove metode
-              return;
-          }
-          //Računam koliki je rok trajanja tokena 
-          let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-          console.log(expirationDuration);
-          //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
-          this.tokenExpirationTimer = setTimeout(() => {
+          //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
+          this.prijavljen = !user ? false : true;
+          //Ako je korisnik prijavljen
+          if(this.prijavljen){
               //Ako je tip prijavljenog korisnika "lijecnik":
               if(user["tip"] == "lijecnik"){
-                //Gasim liječnički header
-                this.isLijecnik = false;
+                  //Označavam da se liječnik prijavio
+                  this.isLijecnik = true;
               } else if(user["tip"] == "sestra"){
-                //Gasim sestrin header
-                this.isMedSestra = false;
+                  //Označavam da se medicinska sestra prijavila
+                  this.isMedSestra = true;
               }
-              console.log("istekao sam");
-          },expirationDuration);
-
-        }
+              //U Subject stavljam tip korisnika da ostale komponente mogu vidjeti tu informaciju
+              this.headerService.tipKorisnika.next(user["tip"]);
+              //Dohvaćam korisnikove podatke iz Session Storagea
+              const userData: {
+                tip: string;
+                email: string;
+                _tokenExpirationDate: Date;
+                lozinka: string;
+                _token: string;
+              } = JSON.parse(sessionStorage.getItem('userData'));
+              
+              //Ako ne postoje nikakvi korisnikovi podatci u spremištu
+              if(!userData){
+                  //Izađi iz ove metode
+                  return;
+              }
+              //Računam koliki je rok trajanja tokena 
+              let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
+              console.log(expirationDuration);
+              //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
+              this.tokenExpirationTimer = setTimeout(() => {
+                  //Ako je tip prijavljenog korisnika "lijecnik":
+                  if(user["tip"] == "lijecnik"){
+                    //Gasim liječnički header
+                    this.isLijecnik = false;
+                  } else if(user["tip"] == "sestra"){
+                    //Gasim sestrin header
+                    this.isMedSestra = false;
+                  }
+                  console.log("istekao sam");
+              },expirationDuration);
+          }
       }
     );
     
@@ -129,6 +130,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       //Izađi iz pretplate
       this.subsCombined.unsubscribe();
     }
+    this.headerService.tipKorisnika.next(null);
   }
 
   //Metoda se poziva kada korisnik klikne button "Logout"

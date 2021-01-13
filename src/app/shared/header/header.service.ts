@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
+import { BehaviorSubject, throwError } from 'rxjs';
 import {catchError} from 'rxjs/operators';
 @Injectable({
     providedIn: 'root'
@@ -9,6 +9,10 @@ export class HeaderService{
 
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
+    //Kreiram Subject koji će nositi tip prijavljenog korisnika u sebi
+    tipKorisnika = new BehaviorSubject<string>(null);
+    //Kreiram Observable od njega
+    tipKorisnikaObs = this.tipKorisnika.asObservable();
 
     constructor(
         private http: HttpClient

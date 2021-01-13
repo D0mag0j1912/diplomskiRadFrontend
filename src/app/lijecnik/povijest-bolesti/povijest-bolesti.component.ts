@@ -82,19 +82,20 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           this.subsResolver = this.route.data.subscribe(
               //Dohvaćam podatke iz Resolvera
               (podatci: {podatci: any,pacijent: Obrada | any}) => {
+                  console.log(podatci.podatci);
                   //Spremam dijagnoze iz Resolvera u svoje polje
                   this.dijagnoze = podatci.podatci["dijagnoze"];
-
                   //Ako je Resolver vratio aktivnog pacijenta
-                  if(podatci.pacijent.pacijent["success"] !== "false"){
+                  if(podatci.pacijent["success"] !== "false"){
                     //Označavam da je pacijent aktivan u obradi
                     this.isAktivan = true;
                     //Spremam mu podatke
-                    this.trenutnoAktivniPacijent = podatci.pacijent.pacijent;
+                    this.trenutnoAktivniPacijent = podatci.pacijent;
                     //Spremam ID trenutno aktivnog pacijenta
                     this.idPacijent = this.trenutnoAktivniPacijent[0].idPacijent;
                     //Spremam ID obrade
                     this.idObrada = this.trenutnoAktivniPacijent[0].idObrada;
+                    console.log(this.idObrada);
                     console.log(this.idPacijent);
                   }
                   this.forma = new FormGroup({

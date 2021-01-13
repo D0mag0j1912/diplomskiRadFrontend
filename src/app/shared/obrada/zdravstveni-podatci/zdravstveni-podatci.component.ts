@@ -69,6 +69,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
       this.subs = this.route.data.subscribe(
         //Dohvaćam podatke
         (response: {podatci: any, zdravstveniPodatci: ZdravstveniPodatci | any}) => {
+          console.log(response);
           //Podatke država iz Resolvera spremam u svoje polje
           this.drzave = response.podatci["drzave"];
           //Podatke kategorija osiguranja spremam u svoje polje

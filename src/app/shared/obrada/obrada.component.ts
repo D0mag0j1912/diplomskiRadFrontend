@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, forkJoin, Subscription } from 'rxjs';
+import { combineLatest, Subscription } from 'rxjs';
+import { switchMap, take } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
+import { HeaderService } from '../header/header.service';
 import { ObradaService } from './obrada.service';
 
 @Component({
@@ -16,7 +18,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Pretplaćujem se na Observable koji vraća pacijente
     subs: Subscription;
     subsObrada: Subscription;
-    subsAzurirajStatus: Subscription;
     subsGetPatients: Subscription;
     subsPorukeObrada: Subscription;
     subsSljedeciPacijentPretraga: Subscription;
@@ -63,7 +64,9 @@ export class ObradaComponent implements OnInit, OnDestroy {
       //Dohvaćam servis obrade
       private obradaService: ObradaService,
       //Dohvaćam login servis
-      private loginService: LoginService
+      private loginService: LoginService,
+      //Dohvaćam header service
+      private headerService: HeaderService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -75,11 +78,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
         'prezime': new FormControl(null)
       }, {validators: this.atLeastOneRequired});
 
-      //Pretplaćujem se na podatke Resolvera 
+      /* //Pretplaćujem se na podatke Resolvera 
       this.subsObrada = this.route.data.subscribe(
         //Dohvaćam podatke
         (pacijent: {pacijent: Obrada | any}) => {
-          console.log(pacijent.pacijent.pacijent);
+          console.log(pacijent.pacijent);
           //Ako je odgovor servera pozitivan, tj. ima pacijenata u obradi
           if(pacijent.pacijent.pacijent["success"] !== "false"){
             //Označavam da je pacijent aktivan
@@ -88,18 +91,22 @@ export class ObradaComponent implements OnInit, OnDestroy {
             this.pacijenti = pacijent.pacijent.pacijent;
           }
         }
+      ); */
+      const combined2 = this.headerService.tipKorisnikaObs.pipe(
+          take(1),
+          switchMap(podatci => {
+              return combineLatest([
+                this.obradaService.getSljedeciPacijent(),
+                this.obradaService.getVrijemeNarudzbe(podatci),
+                this.obradaService.getObradenOpciPodatci(),
+                this.obradaService.getObradenPovijestBolesti(),
+                this.loginService.user,
+                this.route.data
+              ]);
+          })
       );
-      
-      //Kombiniram odgovore dvije metode 
-      const combined = combineLatest([
-          this.obradaService.getSljedeciPacijent(),
-          this.obradaService.getVrijemeNarudzbe(),
-          this.obradaService.getObradenOpciPodatci(),
-          this.obradaService.getObradenPovijestBolesti(),
-          this.loginService.user
-      ]);
       //Pretplaćujem se na odgovore servera na traženje sljedećeg pacijenta koji čeka na pregled I na vrijeme narudžbe aktivnog pacijenta
-      this.subsPorukeObrada = combined.subscribe(
+      this.subsPorukeObrada = combined2.subscribe(
           (odgovor) => {
               //Ako je server vratio uspješnu poruku
               if(odgovor[0]["success"] != "false"){
@@ -145,6 +152,25 @@ export class ObradaComponent implements OnInit, OnDestroy {
                       this.isMedSestra = true;
                   }
               }
+              //Ako je prijavljeni korisnik "lijecnik":
+              if(this.isLijecnik){
+                  //Ako je server vratio da ima pacijenta u obradi
+                  if(odgovor[5]["pacijent"]["success"] !== "false"){
+                      //Označavam da je pacijent aktivan
+                      this.isAktivan = true;
+                      //Spremam pacijente sa servera u svoje polje pacijenata
+                      this.pacijenti = odgovor[5]["pacijent"];
+                  }
+              }
+              else if(this.isMedSestra){
+                  //Ako je server vratio da ima pacijenta u obradi
+                  if(odgovor[5]["pacijent"]["pacijent"]["success"] !== "false"){
+                    //Označavam da je pacijent aktivan
+                    this.isAktivan = true;
+                    //Spremam pacijente sa servera u svoje polje pacijenata
+                    this.pacijenti = odgovor[5]["pacijent"]["pacijent"];
+                  }
+              }
               console.log(odgovor);
               console.log(this.isLijecnik ? this.isObradenOpciPodatci ? "Medicinska sestra je obradila pacijenta!" : "Medicinska sestra nije obradila pacijenta!" 
                           : this.isObradenPovijestBolesti ? "Liječnik je obradio pacijenta!" : "Liječnik nije obradio pacijenta!");
@@ -176,17 +202,22 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Metoda koja se izvršava kada korisnik klikne button "Završi pregled"
     zavrsiPregled(){
-
-        //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera za ažuriranje statusa pacijenta (cekaonica,obrada)
-        this.subsAzurirajStatus = this.obradaService.editPatientStatus(this.pacijenti[0].idPacijent).subscribe();
-
-        //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera za dohvaćanje aktivnog pacijenta obrade (za ažuriranje template-a)
-        this.subsGetPatients = this.obradaService.getPatientProcessing().subscribe(
+        //Dohvaćam tip prijavljenog korisnika te tu informaciju predavam metodama
+        const combined = this.headerService.tipKorisnikaObs.pipe(
+            switchMap(podatci => {
+                return combineLatest([
+                    this.obradaService.editPatientStatus(this.pacijenti[0].idObrada,podatci,this.pacijenti[0].idPacijent),
+                    this.obradaService.getPatientProcessing(podatci)
+                ])
+            })
+        );
+        //Pretplaćivam se na odgovore servera
+        this.subsGetPatients = combined.subscribe(
           (odgovor) => {
-            //Označavam da pacijent više nije aktivan
-            this.isAktivan = false;
-            //Stavljam vrijednost u Subject da je završen pregled
-            this.obradaService.zavrsenPregled.next('zavrsenPregled');
+              //Označavam da pacijent više nije aktivan
+              this.isAktivan = false;
+              //Stavljam vrijednost u Subject da je završen pregled
+              this.obradaService.zavrsenPregled.next('zavrsenPregled');
           }
         );  
     }
@@ -277,11 +308,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
       if(this.subsObrada){
         //Izađi iz pretplate
         this.subsObrada.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsAzurirajStatus){
-        //Izađi iz pretplate
-        this.subsAzurirajStatus.unsubscribe();
       }
       //Ako postoji pretplata
       if(this.subsGetPatients){
