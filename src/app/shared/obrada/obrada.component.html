@@ -80,8 +80,10 @@
                             </td>
                             <td>
                                 <h4>{{isNarucen ? 'Naručen u: ' + narucenU : porukaNarucen}}</h4>
-                                <h4>{{isLijecnik ? isObradenOpciPodatci ? 'Medicinska sestra je obradila pacijenta!' : 'Medicinska sestra nije obradila pacijenta!' 
-                                    : isObradenPovijestBolesti ? 'Liječnik je obradio pacijenta!' : 'Liječnik nije obradio pacijenta!'}}</h4>
+                                <h4>{{isLijecnik ? isObradenOpciPodatci ? 'Medicinska sestra je obradila pacijenta u ' + vrijemeObrade + '!' 
+                                    : 'Medicinska sestra nije obradila pacijenta!' 
+                                    : isObradenPovijestBolesti ? 'Liječnik je obradio pacijenta u ' + vrijemeObrade + '!' 
+                                    : 'Liječnik nije obradio pacijenta!'}}</h4>
                             </td>
                         </tr>
                     </tbody>

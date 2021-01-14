@@ -1,8 +1,9 @@
+import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, Subscription } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { combineLatest, forkJoin, Subscription } from 'rxjs';
+import { concatMap, switchMap, take } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { HeaderService } from '../header/header.service';
@@ -57,7 +58,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
     isLijecnik: boolean = false;
     //Oznaka je li korisnik medicinska sestra
     isMedSestra: boolean = false;
-    
+    //Spremam ID trenutno aktivnog pacijenta
+    idTrenutnoAktivniPacijent: number;
+    //Spremam vrijeme kada je liječnik/med.sestra obradio/la pacijenta
+    vrijemeObrade: Time;
+
     constructor(
       //Dohvaćam trenutni route da dohvatim podatke
       private route: ActivatedRoute,
@@ -78,88 +83,102 @@ export class ObradaComponent implements OnInit, OnDestroy {
         'prezime': new FormControl(null)
       }, {validators: this.atLeastOneRequired});
 
-      const combined = this.headerService.tipKorisnikaObs.pipe(
+      //Pretplaćujem se na odgovore servera na traženje sljedećeg pacijenta koji čeka na pregled I na vrijeme narudžbe aktivnog pacijenta
+      this.subsPorukeObrada = this.headerService.tipKorisnikaObs.pipe(
           take(1),
           switchMap(podatci => {
               return combineLatest([
                 this.obradaService.getSljedeciPacijent(podatci),
                 this.obradaService.getVrijemeNarudzbe(podatci),
-                this.obradaService.getObradenOpciPodatci(),
-                this.obradaService.getObradenPovijestBolesti(),
                 this.loginService.user,
                 this.route.data
-              ]);
+              ]).pipe(
+                  concatMap(podatci => {
+                      console.log(podatci);
+                      //Ako je server vratio uspješnu poruku
+                      if(podatci[0]["success"] != "false"){
+                        //Označavam da ima sljedećeg pacijenta
+                        this.isSljedeciPacijent = true;
+                        //Spremam sljedećeg pacijenta
+                        this.sljedeciPacijent = podatci[0][0].imePacijent + " " + podatci[0][0].prezPacijent;
+                      }
+                      else{
+                        //Spremam neuspješnu poruku
+                        this.porukaSljedeciPacijent = podatci[0]["message"];
+                      }
+                      //Ako je pacijent naručen na taj dan
+                      if(podatci[1]["success"] != "false"){
+                          //Označavam da je pacijent naručen
+                          this.isNarucen = true;
+                          //Spremam mu vrijeme narudžbe
+                          this.narucenU = podatci[1][0]["Vrijeme"];
+                      }
+                      //Ako pacijent nije naručen za taj dan
+                      else{
+                          //Spremam poruku da je nenaručen
+                          this.porukaNarucen = podatci[1]["message"];
+                      }
+                      //Ako korisnički objekt nije null
+                      if(podatci[2] != null){
+                          if(podatci[2]["tip"] === "lijecnik"){
+                              //Označavam da je korisnik liječnik
+                              this.isLijecnik = true;
+                          }
+                          else{
+                              //Označavam da je korisnik medicinska sestra
+                              this.isMedSestra = true;
+                          }
+                      }
+                      //Ako je prijavljeni korisnik "lijecnik":
+                      if(this.isLijecnik){
+                          //Ako je server vratio da ima pacijenta u obradi
+                          if(podatci[3]["pacijent"]["success"] !== "false"){
+                              //Označavam da je pacijent aktivan
+                              this.isAktivan = true;
+                              //Spremam pacijente sa servera u svoje polje pacijenata
+                              this.pacijenti = podatci[3]["pacijent"];
+                              //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
+                              this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"][0].idPacijent;
+                          }
+                      }
+                      else if(this.isMedSestra){
+                          //Ako je server vratio da ima pacijenta u obradi
+                          if(podatci[3]["pacijent"]["pacijent"]["success"] !== "false"){
+                            //Označavam da je pacijent aktivan
+                            this.isAktivan = true;
+                            //Spremam pacijente sa servera u svoje polje pacijenata
+                            this.pacijenti = podatci[3]["pacijent"]["pacijent"];
+                            //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
+                            this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"]["pacijent"][0].idPacijent;
+                            console.log(this.pacijenti);
+                          }
+                      }
+                      //Vraćam odgovor servera tj. informaciju je li pacijent obrađen od liječnika/med.sestre
+                      return forkJoin([ 
+                        this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent),
+                        this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent)
+                      ])
+                  })
+              );
           })
-      );
-      //Pretplaćujem se na odgovore servera na traženje sljedećeg pacijenta koji čeka na pregled I na vrijeme narudžbe aktivnog pacijenta
-      this.subsPorukeObrada = combined.subscribe(
+      ).subscribe(
           (odgovor) => {
-              //Ako je server vratio uspješnu poruku
-              if(odgovor[0]["success"] != "false"){
-                  //Označavam da ima sljedećeg pacijenta
-                  this.isSljedeciPacijent = true;
-                  //Spremam sljedećeg pacijenta
-                  this.sljedeciPacijent = odgovor[0][0].imePacijent + " " + odgovor[0][0].prezPacijent;
-              }
-              else{
-                //Spremam neuspješnu poruku
-                this.porukaSljedeciPacijent = odgovor[0]["message"];
-              }
-              //Ako je pacijent naručen na taj dan
-              if(odgovor[1]["success"] != "false"){
-                  //Označavam da je pacijent naručen
-                  this.isNarucen = true;
-                  //Spremam mu vrijeme narudžbe
-                  this.narucenU = odgovor[1][0]["Vrijeme"];
-              }
-              //Ako pacijent nije naručen za taj dan
-              else{
-                  //Spremam poruku da je nenaručen
-                  this.porukaNarucen = odgovor[1]["message"];
-              }
+              console.log(odgovor);
               //Ako je medicinska sestra potvrdila opće podatke ovog pacijenta
-              if(odgovor[2][0]["IDPregled"] != null){
+              if(odgovor[0][0]["Vrijeme"] !== null){
                   //Označavam da je sestra potvrdila opće podatke ovog pacijenta
                   this.isObradenOpciPodatci = true;
+                  //Spremam vrijeme obrade
+                  this.vrijemeObrade = odgovor[0][0]["Vrijeme"];
               }
               //Ako je liječnik potvrdio povijest bolesti ovog pacijenta
-              if(odgovor[3][0]["IDPovijestBolesti"] != null){
-                //Označavam da je liječnik potvrdio povijest bolesti ovog pacijenta
-                this.isObradenPovijestBolesti = true;
-              } 
-              //Ako korisnički objekt nije null
-              if(odgovor[4] != null){
-                  if(odgovor[4]["tip"] === "lijecnik"){
-                      //Označavam da je korisnik liječnik
-                      this.isLijecnik = true;
-                  }
-                  else{
-                      //Označavam da je korisnik medicinska sestra
-                      this.isMedSestra = true;
-                  }
-              }
-              //Ako je prijavljeni korisnik "lijecnik":
-              if(this.isLijecnik){
-                  //Ako je server vratio da ima pacijenta u obradi
-                  if(odgovor[5]["pacijent"]["success"] !== "false"){
-                      //Označavam da je pacijent aktivan
-                      this.isAktivan = true;
-                      //Spremam pacijente sa servera u svoje polje pacijenata
-                      this.pacijenti = odgovor[5]["pacijent"];
-                  }
-              }
-              else if(this.isMedSestra){
-                  //Ako je server vratio da ima pacijenta u obradi
-                  if(odgovor[5]["pacijent"]["pacijent"]["success"] !== "false"){
-                    //Označavam da je pacijent aktivan
-                    this.isAktivan = true;
-                    //Spremam pacijente sa servera u svoje polje pacijenata
-                    this.pacijenti = odgovor[5]["pacijent"]["pacijent"];
-                  }
-              }
-              console.log(odgovor);
-              console.log(this.isLijecnik ? this.isObradenOpciPodatci ? "Medicinska sestra je obradila pacijenta!" : "Medicinska sestra nije obradila pacijenta!" 
-                          : this.isObradenPovijestBolesti ? "Liječnik je obradio pacijenta!" : "Liječnik nije obradio pacijenta!");
+              if(odgovor[1][0]["Vrijeme"] != null){
+                  //Označavam da je liječnik potvrdio povijest bolesti ovog pacijenta
+                  this.isObradenPovijestBolesti = true;
+                  //Spremam vrijeme obrade
+                  this.vrijemeObrade = odgovor[1][0]["Vrijeme"];
+              }  
+              
           }
       );
     }

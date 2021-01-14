@@ -86,13 +86,15 @@ export class ObradaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li trenutno aktivni pacijent obrađen (opći podatci)
-    getObradenOpciPodatci(){
-        return this.http.get<any>(this.baseUrl + 'obrada/getObradenOpciPodatci.php').pipe(catchError(this.handleError));
+    getObradenOpciPodatci(id:number){
+        let params = new HttpParams().append("idPacijent",id.toString());
+        return this.http.get<any>(this.baseUrl + 'obrada/getObradenOpciPodatci.php',{params: params}).pipe(catchError(this.handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li trenutno aktivni pacijent obrađen (povijest bolesti)
-    getObradenPovijestBolesti(){
-        return this.http.get<any>(this.baseUrl + 'obrada/getObradenPovijestBolesti.php').pipe(catchError(this.handleError));
+    getObradenPovijestBolesti(id:number){
+        let params = new HttpParams().append("idPacijent",id.toString());
+        return this.http.get<any>(this.baseUrl + 'obrada/getObradenPovijestBolesti.php',{params: params}).pipe(catchError(this.handleError));
     }
 
 

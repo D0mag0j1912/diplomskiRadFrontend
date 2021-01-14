@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
-import {finalize, map, share, switchMap, take} from 'rxjs/operators';
+import { map, switchMap, take} from 'rxjs/operators';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { HeaderService } from '../header/header.service';
@@ -26,7 +26,6 @@ export class ObradaResolverService implements Resolve<Obrada | any>{
         return this.headerService.tipKorisnikaObs.pipe(
             take(1),
             switchMap(podatci => {
-                console.log(podatci);
                 //Ako je tip korisnika "lijecnik":
                 if(podatci === "lijecnik"){
                     //Vraćam samo podatke trenutno aktivnog pacijenta

@@ -51,7 +51,8 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
 
-      const combined = this.obradaService.imePrezimePacijent.pipe(
+      //Pretplaćujem se na odgovor servera
+      this.subsCijeliPacijent = this.obradaService.imePrezimePacijent.pipe(
           //Dohvaćam vrijednosti koje se nalaze u Subjectu
           switchMap(pacijenti => {
               return combineLatest([
@@ -70,9 +71,7 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
                   })    
               );    
           })
-      );
-      //Pretplaćujem se na odgovor servera
-      this.subsCijeliPacijent = combined.subscribe();
+      ).subscribe();
 
     }
 
