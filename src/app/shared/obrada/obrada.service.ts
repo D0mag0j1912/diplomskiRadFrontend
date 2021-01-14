@@ -74,9 +74,9 @@ export class ObradaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi sljedeći pacijent koji čeka na pregled
-    getSljedeciPacijent(){
-
-        return this.http.get<any>(this.baseUrl + 'obrada/sljedeciPacijent.php').pipe(catchError(this.handleError));
+    getSljedeciPacijent(tip: string){
+        let params = new HttpParams().append("tip",tip);
+        return this.http.get<any>(this.baseUrl + 'obrada/sljedeciPacijent.php',{params: params}).pipe(catchError(this.handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi vrijeme narudžbe za aktivnog pacijenta da prikažem u formi obrade

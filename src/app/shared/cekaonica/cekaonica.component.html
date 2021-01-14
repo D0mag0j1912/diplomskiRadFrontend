@@ -91,6 +91,9 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let pacijent of pacijenti;let i = index">
+                            <!--Ako je liječnik prijavljen i liječnik je dodao ovaj redak == "Vi".-->
+                            <!--Ako je medicinska sestra prijavljena i medicinska sestra je dodala ovaj redak == "Vi"-->
+                            <!--Inače ispiši pravo ime liječnika/medicinske sestre-->
                             <td>{{ (isLijecnik && pacijent.tip === 'lijecnik') ? "Vi" : (isMedSestra && pacijent.tip === 'sestra') ? "Vi" : pacijent.OdgovornaOsoba }}</td>
                             <td>{{pacijent.imePacijent}}</td>
                             <td>{{pacijent.prezPacijent}}</td>
@@ -101,7 +104,7 @@
                                     type="button" 
                                     class="btn btn-primary btn-sm" 
                                     (click)="onDodajObrada(pacijent.idPacijent)" 
-                                    [disabled]="pacijent.statusCekaonica != 'Čeka na pregled'" 
+                                    [disabled]="(pacijent.statusCekaonica != 'Čeka na pregled') || (tipKorisnik !== pacijent.tip)" 
                                     *ngIf="pacijent.statusCekaonica === 'Čeka na pregled' || pacijent.statusCekaonica === 'Na pregledu'">Dodaj u obradu</button>
                                 <button 
                                     type="button" 
@@ -111,7 +114,10 @@
                                 || <button 
                                         type="button" 
                                         class="btn btn-danger btn-sm" 
-                                        (click)="onGetTableData(pacijent.idObrada,pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,pacijent.DatumDodavanja,pacijent.vrijemeDodavanja,pacijent.statusCekaonica)"
+                                        [disabled]="tipKorisnik !== pacijent.tip"
+                                        (click)="onGetTableData(pacijent.idObrada,
+                                                pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,
+                                                pacijent.DatumDodavanja,pacijent.vrijemeDodavanja,pacijent.statusCekaonica,pacijent.tip)"
                                         >Izbriši iz čekaonice</button></td>
                         </tr>
                     </tbody>

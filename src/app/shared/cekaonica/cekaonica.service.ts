@@ -20,11 +20,12 @@ export class CekaonicaService{
     ){}
 
     //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u čekaonicu te vraća Observable u kojemu se nalazi odgovor servera
-    addToWaitingRoom(id: number){
+    addToWaitingRoom(tip: string,id: number){
 
         return this.http.post<any>(this.baseUrl + 'cekaonica/cekaonica.php',
         {   
-            id: id
+            id: id,
+            tip:tip
         }).pipe(catchError(this.handleError));
     }
 
@@ -55,13 +56,14 @@ export class CekaonicaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
-    onDeleteCekaonica(idObrada: number,idCekaonica: number){
+    onDeleteCekaonica(tip: string,idObrada: number,idCekaonica: number){
         //Uz DELETE metodu šaljem dodatni parametar ID čekaonice
         const options = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json'
             }),
             body: {
+                tip: tip,
                 idObrada: idObrada,
                 idCekaonica: idCekaonica
             }

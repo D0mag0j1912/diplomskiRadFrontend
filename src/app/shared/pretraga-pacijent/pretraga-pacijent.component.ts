@@ -3,6 +3,7 @@ import { combineLatest, Subscription } from 'rxjs';
 import { switchMap,tap } from 'rxjs/operators';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
 import { CekaonicaService } from '../cekaonica/cekaonica.service';
+import { HeaderService } from '../header/header.service';
 import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from '../obrada/obrada.service';
 
@@ -36,7 +37,9 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
       //Dohvaćam servis čekaonice
       private cekaonicaService: CekaonicaService,
       //Dohvaćam servis obrade
-      private obradaService: ObradaService
+      private obradaService: ObradaService,
+      //Dohvaćam header service
+      private headerService: HeaderService
     ) { }
     //Kreiram event emitter koji će pokrenuti event kada se stisne "Close"
     @Output() close = new EventEmitter<any>();
@@ -92,7 +95,11 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     onDodajCekaonica(id: number){
 
       //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje pacijenta u čekaonicu
-      this.subsCekaonica = this.cekaonicaService.addToWaitingRoom(id).subscribe(
+      this.subsCekaonica = this.headerService.tipKorisnikaObs.pipe(
+          switchMap(tipKorisnik => {
+              return this.cekaonicaService.addToWaitingRoom(tipKorisnik,id)
+          })
+      ).subscribe(
         //Uzimam odgovor
         (odgovor) => {
           //Označavam da ima odgovora servera

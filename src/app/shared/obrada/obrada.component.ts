@@ -78,25 +78,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
         'prezime': new FormControl(null)
       }, {validators: this.atLeastOneRequired});
 
-      /* //Pretplaćujem se na podatke Resolvera 
-      this.subsObrada = this.route.data.subscribe(
-        //Dohvaćam podatke
-        (pacijent: {pacijent: Obrada | any}) => {
-          console.log(pacijent.pacijent);
-          //Ako je odgovor servera pozitivan, tj. ima pacijenata u obradi
-          if(pacijent.pacijent.pacijent["success"] !== "false"){
-            //Označavam da je pacijent aktivan
-            this.isAktivan = true;
-            //Spremam pacijente sa servera u svoje polje pacijenata
-            this.pacijenti = pacijent.pacijent.pacijent;
-          }
-        }
-      ); */
-      const combined2 = this.headerService.tipKorisnikaObs.pipe(
+      const combined = this.headerService.tipKorisnikaObs.pipe(
           take(1),
           switchMap(podatci => {
               return combineLatest([
-                this.obradaService.getSljedeciPacijent(),
+                this.obradaService.getSljedeciPacijent(podatci),
                 this.obradaService.getVrijemeNarudzbe(podatci),
                 this.obradaService.getObradenOpciPodatci(),
                 this.obradaService.getObradenPovijestBolesti(),
@@ -106,7 +92,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
           })
       );
       //Pretplaćujem se na odgovore servera na traženje sljedećeg pacijenta koji čeka na pregled I na vrijeme narudžbe aktivnog pacijenta
-      this.subsPorukeObrada = combined2.subscribe(
+      this.subsPorukeObrada = combined.subscribe(
           (odgovor) => {
               //Ako je server vratio uspješnu poruku
               if(odgovor[0]["success"] != "false"){
@@ -180,8 +166,12 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Metoda koja se pokreće kada korisnik klikne "Dodaj u čekaonicu" u prozoru pretrage pacijenta
     onSljedeciPacijent(){
-
-        this.subsSljedeciPacijentPretraga = this.obradaService.getSljedeciPacijent().subscribe(
+        //Pretplaćujem se na odgovor servera ima li sljedećeg pacijenta koji ima status "Čeka na pregled"
+        this.subsSljedeciPacijentPretraga = this.headerService.tipKorisnikaObs.pipe(
+            switchMap(tipKorisnik => {
+                return this.obradaService.getSljedeciPacijent(tipKorisnik);
+            })
+        ).subscribe(
             //Dohvaćam pacijenta ili poruku da nema pacijenta
             (odgovor) => {
               //Ako ima SLJEDEĆEG pacijenta koji čeka na pregled
