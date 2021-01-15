@@ -19,6 +19,11 @@ export class CekaonicaResolverService implements Resolve<Cekaonica[] | any>{
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
             Observable<Cekaonica[] | any> | Promise<Cekaonica[] | any> | Cekaonica[] | any {
-        return this.cekaonicaService.getPatientsWaitingRoom();
+        return this.headerService.tipKorisnikaObs.pipe(
+            take(1),
+            switchMap(tipKorisnik => {
+                return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik);      
+            })
+        );
     }
 }

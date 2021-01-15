@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, Subscription } from 'rxjs';
-import {switchMap, tap} from 'rxjs/operators';
+import {switchMap, take, tap} from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
 import { AlertComponent } from '../alert/alert.component';
@@ -304,9 +304,13 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             this.selectedStatusValues.push(this.statusi[i]);
           }
         });
-
+        
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti određenog statusa
-        this.subsStatus = this.cekaonicaService.getPatientByStatus(this.selectedStatusValues).subscribe(
+        this.subsStatus = this.headerService.tipKorisnikaObs.pipe(
+            switchMap(tipKorisnik => {
+                return this.cekaonicaService.getPatientByStatus(tipKorisnik,this.selectedStatusValues);
+            })
+        ).subscribe(
           //Dohvaćam odgovor servera (pacijente)
           (pacijenti) => {
             //Dohvaćene pacijente spremam u svoje polje pacijenata
@@ -339,7 +343,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         //Pretplaćujem se na rezultate da ih dohvatim
         this.subsObrada = this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
           switchMap(odgovor => {
-              return this.cekaonicaService.getPatientsWaitingRoom().pipe(
+              return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
                   tap(pacijenti => {
                       //Označavam da ima odgovora servera 
                       this.response = true;
@@ -394,13 +398,18 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     onAzurirajStanje(){
 
         //Pretplaćujem se na Observable u kojemu se nalaze novi pacijenti čekaonice
-        this.subsAzurirajStanje = this.cekaonicaService.getPatientsWaitingRoom().subscribe(
+        this.subsAzurirajStanje = this.headerService.tipKorisnikaObs.pipe(
+            take(1),
+            switchMap(tipKorisnik => {
+                return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik);
+            })
+        ).subscribe(
           //Uzimam pacijente
           (pacijenti) => {
-            //Označavam da čekaonica više nije prazna
-            this.isPrazna = false;
-            //Spremam pacijente u svoje polje da mogu ažurirati template
-            this.pacijenti = pacijenti;
+              //Označavam da čekaonica više nije prazna
+              this.isPrazna = false;
+              //Spremam pacijente u svoje polje da mogu ažurirati template
+              this.pacijenti = pacijenti;
           }
         );
     }
@@ -409,7 +418,11 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     prikazi10zadnjih(){
 
       //Pretplaćujem se na Observable u kojemu se nalaze pacijenti
-      this.subs10zadnjih = this.cekaonicaService.getTenLast().subscribe(
+      this.subs10zadnjih = this.headerService.tipKorisnikaObs.pipe(
+          switchMap(tipKorisnik => {
+              return this.cekaonicaService.getTenLast(tipKorisnik);
+          })
+      ).subscribe(
         //Uzimam odgovor
         (pacijenti) => {
           //Pacijente iz odgovora spremam u svoje polje

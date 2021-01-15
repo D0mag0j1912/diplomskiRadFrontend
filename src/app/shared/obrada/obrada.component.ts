@@ -61,8 +61,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Spremam ID trenutno aktivnog pacijenta
     idTrenutnoAktivniPacijent: number;
     //Spremam vrijeme kada je liječnik/med.sestra obradio/la pacijenta
-    vrijemeObrade: Time;
-
+    vrijemeObradeLijecnik: Time;
+    vrijemeObradeMedSestra: Time;
     constructor(
       //Dohvaćam trenutni route da dohvatim podatke
       private route: ActivatedRoute,
@@ -129,56 +129,65 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               this.isMedSestra = true;
                           }
                       }
+                      //Kreiram pomoćno polje u koje ću stavljat infomacije (Observableove) je li pacijent obrađen
+                      let polje = [];
                       //Ako je prijavljeni korisnik "lijecnik":
                       if(this.isLijecnik){
                           //Ako je server vratio da ima pacijenta u obradi
                           if(podatci[3]["pacijent"]["success"] !== "false"){
                               //Označavam da je pacijent aktivan
                               this.isAktivan = true;
-                              //Spremam pacijente sa servera u svoje polje pacijenata
+                              //Spremam podatke aktivnog pacijenta u svoje polje pacijenata
                               this.pacijenti = podatci[3]["pacijent"];
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
                               this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"][0].idPacijent;
+                              //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je med. sestra obradila aktivnog pacijenta danas
+                              polje.push(this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent));
+                              //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
+                              polje.push(this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent));
                           }
                       }
+                      //Ako je prijavljeni korisnik "sestra":
                       else if(this.isMedSestra){
                           //Ako je server vratio da ima pacijenta u obradi
                           if(podatci[3]["pacijent"]["pacijent"]["success"] !== "false"){
-                            //Označavam da je pacijent aktivan
-                            this.isAktivan = true;
-                            //Spremam pacijente sa servera u svoje polje pacijenata
-                            this.pacijenti = podatci[3]["pacijent"]["pacijent"];
-                            //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
-                            this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"]["pacijent"][0].idPacijent;
-                            console.log(this.pacijenti);
+                              //Označavam da je pacijent aktivan
+                              this.isAktivan = true;
+                              //Spremam podatke aktivnog pacijenta u svoje polje pacijenata
+                              this.pacijenti = podatci[3]["pacijent"]["pacijent"];
+                              //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
+                              this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"]["pacijent"][0].idPacijent;
+                              //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je med. sestra obradila aktivnog pacijenta danas
+                              polje.push(this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent));
+                              //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
+                              polje.push(this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent));
                           }
                       }
-                      //Vraćam odgovor servera tj. informaciju je li pacijent obrađen od liječnika/med.sestre
-                      return forkJoin([ 
-                        this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent),
-                        this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent)
-                      ])
+                      return forkJoin(polje);
                   })
               );
           })
+      //Pretplaćujem se na informaciju je li pacijenta obrađen od strane liječnika/med.sestre
       ).subscribe(
           (odgovor) => {
               console.log(odgovor);
-              //Ako je medicinska sestra potvrdila opće podatke ovog pacijenta
-              if(odgovor[0][0]["Vrijeme"] !== null){
-                  //Označavam da je sestra potvrdila opće podatke ovog pacijenta
-                  this.isObradenOpciPodatci = true;
-                  //Spremam vrijeme obrade
-                  this.vrijemeObrade = odgovor[0][0]["Vrijeme"];
-              }
-              //Ako je liječnik potvrdio povijest bolesti ovog pacijenta
-              if(odgovor[1][0]["Vrijeme"] != null){
-                  //Označavam da je liječnik potvrdio povijest bolesti ovog pacijenta
-                  this.isObradenPovijestBolesti = true;
-                  //Spremam vrijeme obrade
-                  this.vrijemeObrade = odgovor[1][0]["Vrijeme"];
+              //Ako je pacijent aktivan
+              if(odgovor.length > 0){
+                  //Ako je medicinska sestra potvrdila opće podatke ovog pacijenta
+                  if(odgovor[0][0]["Vrijeme"] !== null){
+                    //Označavam da je sestra potvrdila opće podatke ovog pacijenta
+                    this.isObradenOpciPodatci = true;
+                    //Spremam vrijeme obrade
+                    this.vrijemeObradeMedSestra = odgovor[0][0]["Vrijeme"];
+                  }
+                  //Ako je liječnik potvrdio povijest bolesti ovog pacijenta
+                  if(odgovor[1][0]["Vrijeme"] != null){
+                      //Označavam da je liječnik potvrdio povijest bolesti ovog pacijenta
+                      this.isObradenPovijestBolesti = true;
+                      //Spremam vrijeme obrade
+                      this.vrijemeObradeLijecnik = odgovor[1][0]["Vrijeme"];
+                  }
               }  
-              
           }
       );
     }

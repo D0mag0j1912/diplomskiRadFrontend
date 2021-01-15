@@ -30,29 +30,27 @@ export class CekaonicaService{
     }
 
     //Metoda koja šalje zahtjev serveru za dohvaćanje pacijenata iz čekaonice te vraća Observable u kojemu se nalaze pronađeni pacijenti
-    getPatientsWaitingRoom(){
-
-        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/cekaonica.php').pipe(
+    getPatientsWaitingRoom(tip: string){
+        let params = new HttpParams().append("tip",tip);
+        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/cekaonica.php',{params: params}).pipe(
             catchError(this.handleError)
         );
     }
 
     //Metoda koja šalje zahtjev serveru za prikazom 10 pacijenata iz čekaonice
-    getTenLast(){
-
+    getTenLast(tip: string){
+        let params = new HttpParams().append("tip",tip);
         //Vraćam Observable u kojemu se nalazi odgovor servera na dohvat 10 zadnjih pacijenata
-        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/getTenLastWaitingRoom.php').pipe(
+        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/getTenLastWaitingRoom.php',{params: params}).pipe(
             catchError(this.handleError)
         );
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze pacijenti onoga statusa kojega korisnik klikne
-    getPatientByStatus(statusi: string[]){
-
-        return this.http.post<Cekaonica[]>(this.baseUrl + 'cekaonica/getPatientByStatus.php',
-        {   
-            statusi: statusi
-        }).pipe(catchError(this.handleError));
+    getPatientByStatus(tip: string,statusi: string[]){
+        let params = new HttpParams().append("tip",tip);
+        params = params.append("statusi",JSON.stringify(statusi));
+        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/getPatientByStatus.php',{params: params}).pipe(catchError(this.handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice

@@ -25,12 +25,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     idObrada: number;
     //Oznaka je li pacijent ima primarnu dijagnozu općih podataka
     isOpciPodatci: boolean = false;
-    //Oznaka je li postoje sekundarne dijagnoze za neku primarnu dijagnozu općih podataka
-    isSekundarnaDijagnozaOpci: boolean = false;
     //Oznaka je li pacijent ima evidentiran povijest bolesti
     isPovijestBolesti: boolean = false;
-    //Oznaka je li postoje sekundarne dijagnoze za neku primarnu dijagnozu povijesti bolesti
-    isSekundarnaDijagnozaPovijestBolesti: boolean = false;
     //Spremam tip prijavljenog korisnika
     tipKorisnik: string;
     //Podatci pregleda
@@ -107,8 +103,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             for(let i=0;i<this.getControlsOpciPodatci().length;i++){
                                 //Ako šifra sekundarne dijagnoze nije null
                                 if(this.getControlsOpciPodatci()[i].value.mkbSifraSekundarna !== null){
-                                    //Označavam da postoji sekundarnih dijagnoza
-                                    this.isSekundarnaDijagnozaOpci = true;
                                     //U pomoćno polje ubacivam Observable u kojemu se nalazi naziv i šifra sekundarne dijagnoze
                                     polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(this.tip,this.getControlsOpciPodatci()[i].value.mkbSifraSekundarna,this.idObrada));
                                 }
@@ -129,8 +123,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                                 console.log(this.getControlsPovijestBolesti()[i].value);
                                 //Ako šifra sekundarne dijagnoze nije null
                                 if(this.getControlsPovijestBolesti()[i].value.mkbSifraSekundarna !== null){
-                                    //Označavam da postoji sekundarna dijagnoza
-                                    this.isSekundarnaDijagnozaPovijestBolesti = true;
                                     //U pomoćno polje stavljam Observable u kojemu se nalazi šifra i naziv sekundarnih dijagnoza 
                                     polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(this.tip,this.getControlsPovijestBolesti()[i].value.mkbSifraSekundarna,this.idObrada));
                                 }

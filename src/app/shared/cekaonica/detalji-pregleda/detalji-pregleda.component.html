@@ -60,7 +60,7 @@
                                             font-family: Verdana, sans-serif;" 
                                             readonly></textarea>
                                     </td>
-                                    <td *ngIf="isSekundarnaDijagnozaOpci">
+                                    <td *ngIf="control.value.mkbSifraSekundarna">
                                         <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
                                         <textarea 
                                             type="text"
@@ -69,12 +69,12 @@
                                             rows="4" 
                                             style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
                                     </td>
-                                    <td *ngIf="!isSekundarnaDijagnozaOpci">
-                                        <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema sekundarnih dijagnoza!</strong>
+                                    <td *ngIf="!control.value.mkbSifraSekundarna">
+                                        <strong style="font-family: Verdana, sans-serif;color:#a94442;margin-left:40px;">Nema sekundarnih dijagnoza!</strong>
                                         <input 
                                             type="text"
                                             readonly
-                                            style="border:0;width:40%;margin-left:270px;">
+                                            style="border:0;width:40%;margin-left:270px;"> 
                                     </td>
                                 </tr>
                             </div>
@@ -104,7 +104,7 @@
                                                 font-family: Verdana, sans-serif;" 
                                                 readonly></textarea>
                                         </td>
-                                        <td *ngIf="isSekundarnaDijagnozaPovijestBolesti">
+                                        <td *ngIf="control.value.mkbSifraSekundarna">
                                             <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
                                             <textarea 
                                                 type="text"
@@ -113,7 +113,7 @@
                                                 rows="4" 
                                                 style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
                                         </td>
-                                        <td *ngIf="!isSekundarnaDijagnozaPovijestBolesti">
+                                        <td *ngIf="!control.value.mkbSifraSekundarna">
                                             <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema sekundarnih dijagnoza!</strong>
                                             <input 
                                                 type="text"

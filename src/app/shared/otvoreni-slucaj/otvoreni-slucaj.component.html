@@ -17,7 +17,7 @@
         </div>
     </div>
     <!--AKO JE PACIJENT AKTIVAN U OBRADI-->
-    <div class="table-responsive-sm" *ngIf="isAktivan && isDijagnoza && isDijagnozaPretraga">
+    <div class="table-responsive-sm" *ngIf="(isAktivan && isDijagnoza && !porukaDijagnozaPretraga)">
         <table class="table table-striped">
             <thead>
                 <tr>

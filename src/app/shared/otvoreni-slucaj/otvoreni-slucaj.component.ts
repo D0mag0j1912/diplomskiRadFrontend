@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subscription } from 'rxjs';
-import { switchMap,distinctUntilChanged } from 'rxjs/operators';
+import { switchMap,distinctUntilChanged, concatMap, tap, map } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { Obrada } from '../modeli/obrada.model';
 import { ObradaService } from '../obrada/obrada.service';
@@ -16,21 +16,18 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
 
     //Spremam pretplatu
     subs: Subscription;
-    subsAktivniPacijent: Subscription;
-    subsPretraga: Subscription;
     subsOtvoreniSlucajPretraga: Subscription;
-    subsZavrsenPregled: Subscription;
     //Oznaka je li pacijent aktivan u obradi ili nije
     isAktivan: boolean = false;
     //Oznaka je li ima dijagnoza za trenutno aktivnog pacijenta
     isDijagnoza: boolean = false;
-    isDijagnozaPretraga: boolean = true;
+    isDijagnozaPretraga: boolean = false;
     isSekundarnaDijagnoza: boolean = false;
     //Poruka 
-    porukaAktivan: string;
-    porukaDijagnoza: string;
-    porukaDijagnozaPretraga: string;
-    porukaSekundarnaDijagnoza: string;
+    porukaAktivan: string = null;
+    porukaDijagnoza: string = null;
+    porukaDijagnozaPretraga: string = null;
+    porukaSekundarnaDijagnoza: string = null;
     //Kreiram event tako da ga druge komponente mogu slušati
     @Output() close = new EventEmitter<any>();
     @Output() podatciRetka = new EventEmitter<{mkbSifraPrimarna: string,datumPregled: Date,odgovornaOsoba: string}>();
@@ -42,6 +39,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     //Kreiram svoju formu
     forma: FormGroup;
     pacijent: Obrada;
+    //Spremam tip prijavljenog korisnika
+    tipKorisnik: string = null;
 
     constructor(
       //Dohvaćam servis otvorenog slučaja
@@ -55,59 +54,88 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
 
-      const combined = this.headerService.tipKorisnikaObs.pipe(
-        switchMap(podatci => {
-            return this.obradaService.getPatientProcessing(podatci);
-        })
-      ).pipe(
-          //Pomoću switchMapa uzimam podatke trenutno aktivnog pacijenta te njegov ID prosljeđujem dvjema metodama
-          switchMap((response) => { 
-              console.log(response);
-              //Ako je Observable vratio aktivnog pacijenta
-              if(response["success"] !== "false"){
-                //Označavam da je pacijent aktivan u obradi
-                this.isAktivan = true;
-                //Spremam mu podatke
-                this.pacijent = response;
-                //Spremam ID pacijenta
-                this.idPacijent = this.pacijent[0].idPacijent;
-                //Kreiram svoju formu
-                this.forma = new FormGroup({
-                  'parametar': new FormControl(null)
-                });
-                console.log(this.isAktivan);
-                return forkJoin([
-                    this.otvoreniSlucajService.getOtvoreniSlucaj(this.idPacijent),
-                    this.otvoreniSlucajService.getSekundarneDijagnoze(this.idPacijent)
-                ]);
-              }
-              //Ako Observable nije vratio aktivnog pacijenta
-              else{
-                //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
-                this.porukaAktivan = response["message"];
-                //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                return of(this.porukaAktivan);    
-              }
-          }) 
-      );
-      //Pretplaćujem se na odgovore servera
-      this.subs = combined.subscribe(
-          //Dohvaćavam odgovor
-          (podatci) => {
-              console.log(podatci);
-              //Ako je pacijent AKTIVAN 
-              if(podatci !== "Nema aktivnih pacijenata!"){
-                  //Pretplaćujem se na promjene u formi pretrage 
-                  this.subsPretraga = this.forma.get('parametar').valueChanges.subscribe(
-                    //Dohvaćam promjene u pretrazi dijagnoze
-                    (value: string) => {
-                        //Pozivam metodu koja vraća datum pregleda, odgovornu osobu, mkb šifru i naziv primarne dijagnoze za promjenu u inputu
-                        this.dohvatiOtvoreniSlucajPretraga(value);
-                    }
-                  );
-              }
+        //Pretplaćujem se na odgovore servera
+        this.subs = this.headerService.tipKorisnikaObs.pipe(
+          switchMap(podatci => {
+              //Spremam tip prijavljenog korisnika
+              this.tipKorisnik = podatci;
+              return this.obradaService.getPatientProcessing(podatci);
+          })
+        ).pipe(
+            //Pomoću switchMapa uzimam podatke trenutno aktivnog pacijenta te njegov ID prosljeđujem dvjema metodama
+            switchMap((response) => {
+                //Ako je Observable vratio aktivnog pacijenta
+                if(response["success"] !== "false"){
+                    //Označavam da je pacijent aktivan u obradi
+                    this.isAktivan = true;
+                    //Spremam mu podatke
+                    this.pacijent = response;
+                    //Spremam ID pacijenta
+                    this.idPacijent = this.pacijent[0].idPacijent;
+                    //Kreiram svoju formu
+                    this.forma = new FormGroup({
+                      'parametar': new FormControl(null)
+                    });
+                    return forkJoin([
+                        this.otvoreniSlucajService.getOtvoreniSlucaj(this.tipKorisnik,this.idPacijent),
+                        this.otvoreniSlucajService.getSekundarneDijagnoze(this.tipKorisnik,this.idPacijent)
+                    ]);
+                }
+                //Ako Observable nije vratio aktivnog pacijenta
+                else{
+                    //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
+                    this.porukaAktivan = response["message"];
+                    //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
+                    return of(this.porukaAktivan); 
+                }
+            }) 
+        ).subscribe(
+              (podatci) => {
+              console.log(podatci);  
               //Ako je server vratio uspješni odgovor tj. ako je pacijent AKTIVAN i ako ima AKTIVNIH PRIMARNIH DIJAGNOZA za pacijenta
               if(podatci !== "Nema aktivnih pacijenata!" && podatci[0]["success"] !== "false"){
+                  //Pretplaćujem se na promjene u formi pretrage 
+                  this.subsOtvoreniSlucajPretraga = this.forma.get('parametar').valueChanges.pipe(
+                      concatMap(value => {
+                          return this.otvoreniSlucajService.getOtvoreniSlucajPretraga(this.tipKorisnik,value,this.idPacijent);
+                      })
+                  ).subscribe(
+                      (odgovor) => {
+                          console.log(odgovor);
+                          //Ako je server vratio uspješni odgovor tj. ako ima aktivnih primarnih dijagnoza za pacijenta ZA NAVEDENU PRETRAGU
+                          if(odgovor["success"] !== "false"){
+                              //Ako JE prazno polje unosa pretrage, prikaži sve podatke
+                              if(this.forma.get('parametar').value.length === 0){
+                                  //Restartam poruku u kojoj piše da nema rezultata
+                                  this.porukaDijagnozaPretraga = null;
+                                  //Inicijalno stavljam sve podatke na ekran
+                                  this.otvoreniSlucaj = podatci[0];
+                              }
+                              //Ako NIJE prazno polje unosa pretrage, prikaži samo one koje odgovaraju pretrazi
+                              else{
+                                  //Označavam da ima pronađenih dijagnoza za navedenu pretragu
+                                  this.isDijagnozaPretraga = true;
+                                  //Spremam sve podatke za otvoreni slučajeve trenutno aktivnog pacijenta
+                                  this.otvoreniSlucaj = odgovor;
+                                  //Restartam poruke dijagnoze pretrage
+                                  this.porukaDijagnozaPretraga = null;
+                              }
+                          }
+                          //Ako nema pronađenih rezultata ZA PRETRAGU
+                          else{
+                              //Ako JE prazno polje unosa pretrage, prikaži inicijalno sve podatke
+                              if(this.forma.get('parametar').value.length === 0){
+                                  this.otvoreniSlucaj = podatci[0];
+                              }
+                              //Ako NIJE prazno polje unosa pretrage, prikaži poruku pogreške
+                              else{
+                                  this.isDijagnozaPretraga = false;
+                                  //Spremam odgovor servera kao poruku koju ću prikazati na ekranu
+                                  this.porukaDijagnozaPretraga = odgovor["message"];
+                              }
+                          }
+                      }
+                  );
                   //Označavam da ima dijagnoza
                   this.isDijagnoza = true;
                   //Spremam sve podatke za prvi dio tablice otvorenog slučaja 
@@ -138,36 +166,10 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                   alertBox.style.width = "30vw";
                   alertBox.style.left = "35vw";
                   this.porukaAktivan = podatci;
-              }
+              }  
           }
-      );
-    }
-
-    //Metoda u kojoj dohvaćam DATUM PREGLEDA, ODGOVORNU OSOBU, MKB ŠIFRU I NAZIV PRIMARNE DIJAGNOZE ZA PRETRAGU
-    dohvatiOtvoreniSlucajPretraga(value: string){
-
-        this.subsOtvoreniSlucajPretraga = this.otvoreniSlucajService.getOtvoreniSlucajPretraga(value,this.idPacijent).subscribe(
-            //Dohvaćam rezultat pretrage
-            (odgovor) => {
-                //Ako je server vratio uspješni odgovor tj. ako ima aktivnih primarnih dijagnoza za pacijenta ZA NAVEDENU PRETRAGU
-                if(odgovor["success"] !== "false"){
-                  //Označavam da ima pronađenih dijagnoza za navedenu pretragu
-                  this.isDijagnozaPretraga = true;
-                  //Spremam sve podatke za otvoreni slučajeve trenutno aktivnog pacijenta
-                  this.otvoreniSlucaj = odgovor;
-                  console.log(this.otvoreniSlucaj);
-                }
-                //Ako nema pronađenih rezultata ZA PRETRAGU
-                else{
-                    //Označavam da nema pronađenih dijagnoza za pretragu
-                    this.isDijagnozaPretraga = false;
-                    //Spremam odgovor servera kao poruku koju ću prikazati na ekranu
-                    this.porukaDijagnozaPretraga = odgovor["message"];
-                }
-            }
         );
     }
-
 
     //Metoda koja se aktivira kada se klikne button "Poveži". Kao parameter prima podatke određenog retka
     poveziOtvoreniSlucaj(mkbSifraPrimarna: string,datumPregled: Date,odgovornaOsoba: string){
@@ -191,16 +193,6 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
       if(this.subs){
         //Izađi iz pretplate
         this.subs.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsAktivniPacijent){
-        //Izađi iz pretplate
-        this.subsAktivniPacijent.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsPretraga){
-        //Izađi iz pretplate
-        this.subsPretraga.unsubscribe();
       }
       //Ako postoji pretplata
       if(this.subsOtvoreniSlucajPretraga){
