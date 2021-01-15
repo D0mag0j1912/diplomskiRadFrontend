@@ -42,18 +42,20 @@
                 <a routerLink="/signup" style="cursor:pointer;" class="nav-link">Registracija</a>
             </li>
             <!--Ovaj dropdown se prikazuje samo ako je korisnik prijavljen i ako je korisnik tipa "lijecnik"-->
-            <li class="dropdown nav-item" *ngIf="prijavljen && isLijecnik" appDropdown>
-                <a style="cursor:pointer;" class="dropdown-toggle nav-link" role="button">Postavke</a>
-                <ul class="dropdown-menu">
+            <li routerLinkActive="active" class="dropdown nav-item" *ngIf="prijavljen && isLijecnik">
+                <a style="cursor:pointer;" class="dropdown-toggle nav-link" role="button" id="navbarDropdown" data-toggle="dropdown">Postavke</a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li><a style="cursor:pointer;" routerLink="/lijecnik/editPersonalData">Ažuriranje osobnih podataka</a></li>
+                    <div class="dropdown-divider"></div>
                     <li><a style="cursor:pointer;" [routerLink]="['/lijecnik/editPassword', idLijecnik]">Ažuriranje lozinke</a></li>
                 </ul>
             </li>
             <!--Ovaj dropdown se prikazuje samo ako je korisnik prijavljen i ako je korisnik tipa "lijecnik"-->
-            <li class="dropdown nav-item" *ngIf="prijavljen && isMedSestra" appDropdown>
-                <a style="cursor:pointer;" class="dropdown-toggle nav-link" role="button">Postavke</a>
-                <ul class="dropdown-menu">
+            <li routerLinkActive="active" class="dropdown nav-item" *ngIf="prijavljen && isMedSestra">
+                <a style="cursor:pointer;" class="dropdown-toggle nav-link" role="button" id="navbarDropdown" data-toggle="dropdown">Postavke</a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li><a style="cursor:pointer;" routerLink="/med-sestra/editPersonalData">Ažuriranje osobnih podataka</a></li>
+                    <div class="dropdown-divider"></div>
                     <li><a style="cursor:pointer;" [routerLink]="['/med-sestra/editPassword', idMedSestra]">Ažuriranje lozinke</a></li>
                 </ul>
             </li>

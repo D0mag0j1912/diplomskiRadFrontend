@@ -19,12 +19,13 @@
                     class="nav-link">
                     Povijest bolesti</a>
             </li>
-            <li routerLinkActive="active" class="dropdown nav-item" appDropdown>
+            <li routerLinkActive="active" class="dropdown nav-item">
                 <a style="cursor: pointer;" 
                     class="dropdown-toggle nav-link"
-                    role="button">Osobni podatci</a>
-                <ul class="dropdown-menu">
+                    role="button" id="navbarDropdown" data-toggle="dropdown">Osobni podatci</a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li><a style="cursor: pointer;" routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a></li>
+                    <div class="dropdown-divider"></div>
                     <li><a style="cursor: pointer;" routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a></li>
                 </ul>
             </li>

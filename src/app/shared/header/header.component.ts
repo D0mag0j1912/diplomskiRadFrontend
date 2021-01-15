@@ -3,7 +3,6 @@ import { forkJoin, Subscription } from 'rxjs';
 import { LoginService } from 'src/app/login/login.service';
 import {tap} from 'rxjs/operators';
 import { HeaderService } from './header.service';
-import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
 
 @Component({
   selector: 'app-header',
