@@ -86,7 +86,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                     this.porukaAktivan = response["message"];
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                    return of(this.porukaAktivan); 
+                    return of(this.porukaAktivan);  
                 }
             }) 
         ).subscribe(

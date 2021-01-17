@@ -21,6 +21,9 @@
             <li routerLinkActive="active" *ngIf="prijavljen && isLijecnik" class="nav-item">
                 <a routerLink="/lijecnik/cekaonica" style="cursor: pointer;" class="nav-link">Čekaonica</a>
             </li>
+            <li routerLinkActive="active" *ngIf="prijavljen && isLijecnik" class="nav-item">
+                <a routerLink="/lijecnik/recept" style="cursor: pointer;" class="nav-link">Recepti</a>
+            </li>
             <li routerLinkActive="active" *ngIf="prijavljen && isMedSestra" class="nav-item">
                 <a routerLink="/med-sestra/obrada/opciPodatci" style="cursor: pointer;" class="nav-link">Obrada</a>
             </li>

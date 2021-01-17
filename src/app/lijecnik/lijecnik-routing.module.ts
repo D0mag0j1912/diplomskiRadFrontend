@@ -18,7 +18,8 @@ const routes = [
         {path: 'cekaonica', component: CekaonicaComponent, resolve: {pacijenti: CekaonicaResolverService}},
         {path: 'editPersonalData', component: AzuriranjeOsobnihPodatakaComponent, resolve: {podatci: LijecnikResolverService}},
         //Označavam da će u URL-u biti ID liječnika
-        {path: 'editPassword/:id', component: AzuriranjeLozinkaComponent}
+        {path: 'editPassword/:id', component: AzuriranjeLozinkaComponent},
+        {path: 'recept',loadChildren:() => import('./recept/recept.module').then(module => module.ReceptModule)}  
     ]}
 ];
 

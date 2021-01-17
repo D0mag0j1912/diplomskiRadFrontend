@@ -37,3 +37,6 @@ textarea{
     font-family: Verdana, sans-serif;
     resize:none;
 }
+.border_bottom{
+    border-bottom:1px solid black;
+}

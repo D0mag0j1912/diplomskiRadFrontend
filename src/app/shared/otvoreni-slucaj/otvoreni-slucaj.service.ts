@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({
@@ -17,7 +17,7 @@ export class OtvoreniSlucajService{
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalaze svi podatci za otvoreni slučaj trenutno aktivnog pacijenta
-    getOtvoreniSlucaj(tip:string,id: number){
+    getOtvoreniSlucaj(tip:string,id: number) : Observable<any>{
 
         let params = new HttpParams().append("id",id.toString());
         params = params.append("tip",tip);
@@ -27,7 +27,7 @@ export class OtvoreniSlucajService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi podatci SEKUNDARNIH DIJAGNOZA trenutno aktivnog pacijenta
-    getSekundarneDijagnoze(tip: string,id: number){
+    getSekundarneDijagnoze(tip: string,id: number) : Observable<any>{
 
         let params = new HttpParams().append("id",id.toString());
         params = params.append("tip",tip);

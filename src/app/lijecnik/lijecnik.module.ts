@@ -7,22 +7,14 @@ import { LijecnikRoutingModule } from './lijecnik-routing.module';
 import { LijecnikComponent } from './lijecnik.component';
 import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podataka/azuriranje-osobnih-podataka.component';
 import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
-import { PocetnaComponent } from './pocetna/pocetna.component';
-import { LijecnikDodajPacijentaComponent } from './lijecnik-dodaj-pacijenta/lijecnik-dodaj-pacijenta.component';
-import { LijecnikIspisPacijenataComponent } from './pocetna/lijecnik-ispis-pacijenata/lijecnik-ispis-pacijenata.component';
-import { LijecnikAzurirajPacijentaComponent } from './lijecnik-azuriraj-pacijenta/lijecnik-azuriraj-pacijenta.component';
 import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.component';
 import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/povezani-povijest-bolesti.component';
-/* import { PacijentModule } from './pacijent/pacijent.module'; */
+import { ReceptModule } from './recept/recept.module';
 @NgModule({
     declarations: [
         LijecnikComponent,
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
-        PocetnaComponent,
-        LijecnikDodajPacijentaComponent,
-        LijecnikIspisPacijenataComponent,
-        LijecnikAzurirajPacijentaComponent,
         PovijestBolestiComponent,
         PovezaniPovijestBolestiComponent
     ],
@@ -32,16 +24,13 @@ import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/po
         SharedModule,
         LijecnikRoutingModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        ReceptModule
     ],
     exports: [
         LijecnikComponent,
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
-        PocetnaComponent,
-        LijecnikDodajPacijentaComponent,
-        LijecnikIspisPacijenataComponent,
-        LijecnikAzurirajPacijentaComponent,
         PovijestBolestiComponent,
         PovezaniPovijestBolestiComponent
     ]

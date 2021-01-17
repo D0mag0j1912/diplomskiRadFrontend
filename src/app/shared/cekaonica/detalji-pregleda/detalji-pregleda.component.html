@@ -49,7 +49,7 @@
                                 <td></td>
                             </tr> 
                             <div formArrayName="opciPodatci" *ngFor="let control of getControlsOpciPodatci();let i = index">
-                                <tr [formGroupName]="i">
+                                <tr [formGroupName]="i" class="border_bottom">
                                     <td>
                                         <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
                                         <textarea 
@@ -132,7 +132,7 @@
                                                 style="width:90%;margin-left:100px;margin-top:-20px;"></textarea>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr class="border_bottom">
                                         <td colspan="2">
                                             <p style="font-family: Verdana, sans-serif;"><strong>Terapija: </strong>
                                             <textarea

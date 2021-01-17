@@ -84,14 +84,6 @@ export class LijecnikService{
             catchError(this.handleError));
     }
 
-    //Metoda koja šalje zahtjev serveru i vraća Observable sa svim registriranim pacijentima
-    getAllPatients(){
-
-        return this.http.get<Pacijent[]>(this.baseUrl + 'getAllPatients.php').pipe(
-            catchError(this.handleError)
-        );
-    }
-
     //Metoda koja šalje zahtjev serveru za dohvaćanjem podataka pacijenta
     getPatientData(id: number){
         //Uz GET metodu šaljem dodatni parametar ID pacijenta
