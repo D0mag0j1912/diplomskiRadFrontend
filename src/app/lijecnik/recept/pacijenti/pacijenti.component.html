@@ -1,0 +1,45 @@
+
+<h3 style="text-align: center;">Tablica pacijenata</h3>
+<form [formGroup]="formaPretraga">
+    <div class="table-responsive-sm">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td style="padding-left:100px;">
+                        <p><strong>Pretraži:</strong></p>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            formControlName="pretraga" 
+                            placeholder="Unesite pacijenta..." 
+                            style="width:300px;margin-left:65px;margin-top:-35px;">
+                        <span class="help-block" *ngIf="!isPretraga">{{porukaPretraga}}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</form>
+<div class="table-responsive-sm">
+    <table class="table table-striped table-bordered tablicaPretraga" *ngIf="isPretraga">
+        <thead>
+            <th scope="col" style="width:20%">Ime</th>
+            <th scope="col" style="width:25%">Prezime</th>
+            <th scope="col" style="width:20%">Datum rođenja</th>
+            <th scope="col" style="width:15%">MBO</th>
+            <th scope="col" style="width:20%">Akcija</th>
+        </thead>
+        <tbody>
+            <tr *ngFor="let pacijent of pacijenti">
+                <td>{{pacijent.imePacijent}}</td>
+                <td>{{pacijent.prezPacijent}}</td>
+                <td>{{pacijent.Datum}}</td>
+                <td>{{pacijent.mboPacijent}}</td>
+                <td><button 
+                        type="button" 
+                        (click)="izdajRecept()" 
+                        class="btn btn-primary">Izdaj recept</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
