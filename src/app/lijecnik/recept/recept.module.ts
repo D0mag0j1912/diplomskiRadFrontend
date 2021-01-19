@@ -5,12 +5,14 @@ import { ReceptComponent } from "./recept.component";
 import { PacijentiComponent } from './pacijenti/pacijenti.component';
 import { ListaReceptiComponent } from './lista-recepti/lista-recepti.component';
 import { ReactiveFormsModule } from "@angular/forms";
+import { IzdajReceptComponent } from './pacijenti/izdaj-recept/izdaj-recept.component';
 
 @NgModule({
     declarations: [
         ReceptComponent,
         PacijentiComponent,
-        ListaReceptiComponent
+        ListaReceptiComponent,
+        IzdajReceptComponent
     ],
     imports: [
         CommonModule,
@@ -20,7 +22,8 @@ import { ReactiveFormsModule } from "@angular/forms";
     exports: [
         ReceptComponent,
         PacijentiComponent,
-        ListaReceptiComponent
+        ListaReceptiComponent,
+        IzdajReceptComponent
     ]
 })
 export class ReceptModule{

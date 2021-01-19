@@ -23,6 +23,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     isPretraga: boolean = true;
     //Spremam poruku servera da nema rezultata za pretragu
     porukaPretraga: string = null;
+    //Oznaka je li prozor za izdavanje recepta aktivan
+    isIzdajRecept: boolean = false;
 
     constructor(
         //Dohvaćam trenutni route
@@ -50,6 +52,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         this.subsPretraga = this.formaPretraga.get('pretraga').valueChanges.pipe( 
             //Ne ponavljam iste zahtjeve
             distinctUntilChanged(), 
+            //Uzimam vrijednost pretrage te ga sekvencijalno predavam serveru tj. ako prošla vrijednost pretrage nije došla još do backenda
+            //,a već se nova vrijednost pretrage pojavila, nova će morati čekati staru da završi
             concatMap(value => {
                 return this.receptService.getPacijentiPretraga(value);
             })
@@ -78,7 +82,14 @@ export class PacijentiComponent implements OnInit, OnDestroy {
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"
     izdajRecept(){
+        //Otvara se prozor za izdavanje recepta
+        this.isIzdajRecept = true;
+    }
 
+    //Metoda koja zatvara prozor izdavanja recepta
+    onClose(){
+        //Zatvori prozor
+        this.isIzdajRecept = false;
     }
 
     //Ova metoda se izvodi kada se komponenta uništi
@@ -87,6 +98,11 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         if(this.subs){
             //Izađi iz pretplate
             this.subs.unsubscribe();
+        }
+        //Ako postoji pretplata
+        if(this.subsPretraga){
+            //Izađi iz pretplate
+            this.subsPretraga.unsubscribe();
         }
     }
 }

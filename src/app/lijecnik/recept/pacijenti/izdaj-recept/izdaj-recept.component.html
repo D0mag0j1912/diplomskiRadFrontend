@@ -1,0 +1,150 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <h3 style="text-align: center;">Unos novog recepta</h3>
+    <div class="col-xs-12 col-md-12">
+        <form [formGroup]="forma">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td><label for="primarnaDijagnoza" style="margin-top:8px;">Primarna dijagnoza:</label></td>
+                            <td><select class="form-control" style="width:350px;height:35px" formControlName="primarnaDijagnoza">
+                                <option [ngValue]="null" [disabled]="true">Odaberite dijagnozu</option>
+                                <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
+                            </select>
+                            </td>
+                            <td>
+                                <input 
+                                    type="text"
+                                    class="form-control"
+                                    style="width:100px;height:35px" 
+                                    formControlName="mkbPrimarnaDijagnoza" 
+                                    placeholder="MKB šifra">
+                            </td>
+                        </tr>
+                        <tr formArrayName="sekundarnaDijagnoza" *ngFor="let dijagnozaCtrl of getControlsSekundarna(); let i = index">
+                            <td><label for="sekundarnaDijagnoza" *ngIf="i<1">Sekundarna dijagnoza:</label></td>
+                            <td><select class="form-control" style="width:350px;height:35px" [formControlName]="i">
+                                <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
+                                <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
+                            </select>
+                            <span class="help-block" *ngIf="(sekundarnaDijagnoza.touched || sekundarnaDijagnoza.dirty) && !sekundarnaDijagnoza.valid">
+                                <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
+                                <span *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value === sekDijagnoza">Duplikati nisu dozvoljeni!</span>
+                            </span> 
+                            <span class="help-block" *ngIf="(sekundarnaDijagnoza.touched || sekundarnaDijagnoza.dirty) && !forma.valid"> 
+                                <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value === dijagnoza">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
+                            </span> 
+                            </td>
+                            <td><button type="button" class="btn btn-danger" (click)="onDeleteDiagnosis(i)">X</button></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <!--BUTTON JE DISABLED AKO DIJAGNOZE NISU ISPRAVNE-->
+                            <td><button 
+                                    type="button" 
+                                    class="btn btn-info" 
+                                    (click)="onAddDiagnosis()" 
+                                    [disabled]="sekundarnaDijagnoza.errors?.duplikat || forma.errors?.primarnaJeIstaKaoSekundarna || !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <label for="lijek" style="margin-left:4px;">Lijek</label>
+                                <input  
+                                    type="radio" 
+                                    formControlName="tip" 
+                                    style="margin-left:5px;" 
+                                    [value]=1 
+                                    (change)="onChange($event)">
+                                <label for="magPripravak" style="margin-left:20px;">Magistralni pripravak</label>
+                                <input  
+                                    type="radio" 
+                                    formControlName="tip" 
+                                    style="margin-left:5px;" 
+                                    [value]=0 
+                                    (change)="onChange($event)">
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr formGroupName="osnovnaListaLijek" *ngIf="isLijek">
+                            <td><label for="osnovnaListaLijek" style="margin-top:6px;">Osnovna lista lijekova:</label></td>
+                            <td><select class="form-control" style="width:350px;height:35px" formControlName="osnovnaListaLijekDropdown">
+                                <option [ngValue]="null" [disabled]="true">Odaberite lijek</option>
+                                <option *ngFor="let lijek of lijekoviOsnovnaLista" value="{{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}">{{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}</option>
+                            </select>
+                            </td>
+                            <td>
+                                <input  
+                                    type="text"
+                                    formControlName="osnovnaListaLijekText"
+                                    class="form-control"
+                                    style="width:250px;height:35px" 
+                                    placeholder="Naziv lijeka...">
+                            </td>
+                        </tr>
+                        <tr formGroupName="dopunskaListaLijek" *ngIf="isLijek">
+                            <td><label for="dopunskaListaLijek" style="margin-top:6px;">Dopunska lista lijekova:</label></td>
+                            <td><select class="form-control" style="width:350px;height:35px" formControlName="dopunskaListaLijekDropdown">
+                                <option [ngValue]="null" [disabled]="true">Odaberite lijek</option>
+                                <option 
+                                    *ngFor="let lijek of lijekoviDopunskaLista" 
+                                    value="{{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}">
+                                    {{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}</option>
+                            </select>
+                            </td>
+                            <td>
+                                <input  
+                                    type="text"
+                                    formControlName="dopunskaListaLijekText"
+                                    class="form-control"
+                                    style="width:250px;height:35px" 
+                                    placeholder="Naziv lijeka...">
+                            </td>
+                        </tr>
+                        <tr formGroupName="osnovnaListaMagPripravak" *ngIf="isLijek">
+                            <td><label for="osnovnaListaMagPripravak" style="margin-top:6px;">Osnovna lista magistralnih pripravaka:</label></td>
+                            <td><select class="form-control" style="width:350px;height:35px" formControlName="osnovnaListaMagPripravakDropdown">
+                                <option [ngValue]="null" [disabled]="true">Odaberite mag.pripravak</option>
+                                <option *ngFor="let pripravak of magPripravciOsnovnaLista" 
+                                        value="{{pripravak.nazivMagPripravak}}">
+                                        {{pripravak.nazivMagPripravak}}</option>
+                            </select>
+                            </td>
+                            <td>
+                                <input  
+                                    type="text"
+                                    formControlName="osnovnaListaMagPripravakText"
+                                    class="form-control"
+                                    style="width:250px;height:35px" 
+                                    placeholder="Naziv magistralnog pripravka...">
+                            </td>
+                        </tr>
+                        <tr formGroupName="dopunskaListaMagPripravak" *ngIf="isLijek">
+                            <td><label for="dopunskaListaMagPripravak" style="margin-top:6px;">Dopunska lista magistralnih pripravaka:</label></td>
+                            <td><select class="form-control" style="width:350px;height:35px" formControlName="dopunskaListaMagPripravakDropdown">
+                                <option [ngValue]="null" [disabled]="true">Odaberite mag.pripravak</option>
+                                <option 
+                                    *ngFor="let pripravak of magPripravciDopunskaLista" 
+                                    value="{{pripravak.nazivMagPripravak}}">
+                                    {{pripravak.nazivMagPripravak}}</option>
+                            </select>
+                            </td>
+                            <td>
+                                <input  
+                                    type="text"
+                                    formControlName="dopunskaListaMagPripravakText"
+                                    class="form-control"
+                                    style="width:250px;height:35px" 
+                                    placeholder="Naziv magistralnog pripravka...">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+    <div class="alert-box-actions" #alertBoxActions>
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>
