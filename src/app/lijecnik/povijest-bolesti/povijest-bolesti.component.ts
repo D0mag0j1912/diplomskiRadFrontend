@@ -161,14 +161,14 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       }
 
       //Metoda koja INICIJALNO postavlja da bude required jedan od tipova slučaja
-    atLeastOneRequiredTipSlucaj(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        if(group.controls['noviSlucaj'].value || group.controls['povezanSlucaj'].value) {
-          return null;
+      atLeastOneRequiredTipSlucaj(group : FormGroup) : {[s:string ]: boolean} {
+        if (group) {
+          if(group.controls['noviSlucaj'].value || group.controls['povezanSlucaj'].value) {
+            return null;
+          }
         }
+        return {'baremJedanTipSlucaj': true};
       }
-      return {'baremJedanTipSlucaj': true};
-    }
 
       //Metoda koja provjerava je li uneseno više istih sekundarnih dijagnoza
       isValidSekundarnaDijagnoza(array: FormArray): {[key: string]: boolean}{
