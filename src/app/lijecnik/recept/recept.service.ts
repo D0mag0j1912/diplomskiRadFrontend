@@ -15,6 +15,24 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalaze rezultati za pretragu OSNOVNE LISTE LIJEKOVA
+    getLijekDopunskaListaPretraga(pretraga: string){
+        let params = new HttpParams().append("pretraga",pretraga);
+        return this.http.get<any>(this.baseUrl + 'recept/pretraga/getLijekDopunskaListaPretraga.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalaze rezultati za pretragu OSNOVNE LISTE LIJEKOVA
+    getLijekOsnovnaListaPretraga(pretraga: string){
+        let params = new HttpParams().append("pretraga",pretraga);
+        return this.http.get<any>(this.baseUrl + 'recept/pretraga/getLijekOsnovnaListaPretraga.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
     //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
     getAllPatients(){
 

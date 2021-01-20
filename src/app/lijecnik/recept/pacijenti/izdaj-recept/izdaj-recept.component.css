@@ -40,3 +40,21 @@ textarea{
 .border_bottom{
     border-bottom:1px solid black;
 }
+.pretragaUl{
+    z-index:1;
+    position: absolute;
+    overflow-y: scroll;
+}
+.pretragaLi{
+    cursor:pointer;
+    font-weight: bold;
+    margin-left:-40px;
+    position: relative;
+    width:250px;
+    height:50px;
+    font-size: small;
+}
+.pretragaLi:hover{
+    background-color:#337ab7;
+    color:white;
+}

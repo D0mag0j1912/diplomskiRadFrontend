@@ -2,7 +2,7 @@
 <div class="alert-box">
     <h3 style="text-align: center;">Unos novog recepta</h3>
     <div class="col-xs-12 col-md-12">
-        <form [formGroup]="forma">
+        <form [formGroup]="forma" *ngIf="forma">
             <div class="table-responsive-sm">
                 <table class="table table-striped">
                     <tbody>
@@ -55,14 +55,14 @@
                                     type="radio" 
                                     formControlName="tip" 
                                     style="margin-left:5px;" 
-                                    [value]=1 
+                                    value="lijek" 
                                     (change)="onChange($event)">
                                 <label for="magPripravak" style="margin-left:20px;">Magistralni pripravak</label>
                                 <input  
                                     type="radio" 
                                     formControlName="tip" 
                                     style="margin-left:5px;" 
-                                    [value]=0 
+                                    value="magPripravak" 
                                     (change)="onChange($event)">
                             </td>
                             <td></td>
@@ -80,7 +80,20 @@
                                     formControlName="osnovnaListaLijekText"
                                     class="form-control"
                                     style="width:250px;height:35px" 
-                                    placeholder="Naziv lijeka...">
+                                    placeholder="Naziv lijeka..." 
+                                    #inputLijekOsnovnaLista>
+                                <ul 
+                                    class="pretragaUl" 
+                                    *ngIf="isPretragaLijekOsnovnaLista && !porukaNemaRezultata" 
+                                    id="ulLijekOsnovnaLista">
+                                    <li 
+                                        class="pretragaLi form-control" 
+                                        *ngFor="let rez of resultLijekOsnovnaLista" 
+                                        (click)="onClickLi(rez.zasticenoImeLijek)">
+                                        <p>{{rez.zasticenoImeLijek}}</p>
+                                    </li>
+                                </ul> 
+                                <span class="help-block" *ngIf="isPretragaLijekOsnovnaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
                             </td>
                         </tr>
                         <tr formGroupName="dopunskaListaLijek" *ngIf="isLijek">
@@ -99,10 +112,23 @@
                                     formControlName="dopunskaListaLijekText"
                                     class="form-control"
                                     style="width:250px;height:35px" 
-                                    placeholder="Naziv lijeka...">
+                                    placeholder="Naziv lijeka..." 
+                                    #inputLijekDopunskaLista>
+                                <ul 
+                                    class="pretragaUl" 
+                                    *ngIf="isPretragaLijekDopunskaLista && !porukaNemaRezultata" 
+                                    id="ulLijekDopunskaLista">
+                                <li 
+                                    class="pretragaLi form-control" 
+                                    *ngFor="let rez of resultLijekDopunskaLista" 
+                                    (click)="onClickLi(rez.zasticenoImeLijek)">
+                                    <p>{{rez.zasticenoImeLijek}}</p>
+                                </li>
+                            </ul> 
+                            <span class="help-block" *ngIf="isPretragaLijekDopunskaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
                             </td>
                         </tr>
-                        <tr formGroupName="osnovnaListaMagPripravak" *ngIf="isLijek">
+                        <tr formGroupName="osnovnaListaMagPripravak" *ngIf="isMagPripravak">
                             <td><label for="osnovnaListaMagPripravak" style="margin-top:6px;">Osnovna lista magistralnih pripravaka:</label></td>
                             <td><select class="form-control" style="width:350px;height:35px" formControlName="osnovnaListaMagPripravakDropdown">
                                 <option [ngValue]="null" [disabled]="true">Odaberite mag.pripravak</option>
@@ -120,7 +146,7 @@
                                     placeholder="Naziv magistralnog pripravka...">
                             </td>
                         </tr>
-                        <tr formGroupName="dopunskaListaMagPripravak" *ngIf="isLijek">
+                        <tr formGroupName="dopunskaListaMagPripravak" *ngIf="isMagPripravak">
                             <td><label for="dopunskaListaMagPripravak" style="margin-top:6px;">Dopunska lista magistralnih pripravaka:</label></td>
                             <td><select class="form-control" style="width:350px;height:35px" formControlName="dopunskaListaMagPripravakDropdown">
                                 <option [ngValue]="null" [disabled]="true">Odaberite mag.pripravak</option>
