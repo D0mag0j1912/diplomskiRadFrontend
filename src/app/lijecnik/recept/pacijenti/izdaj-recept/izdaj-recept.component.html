@@ -71,26 +71,29 @@
                             <td><label for="osnovnaListaLijek" style="margin-top:6px;">Osnovna lista lijekova:</label></td>
                             <td><select class="form-control" style="width:350px;height:35px" formControlName="osnovnaListaLijekDropdown">
                                 <option [ngValue]="null" [disabled]="true">Odaberite lijek</option>
-                                <option *ngFor="let lijek of lijekoviOsnovnaLista" value="{{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}">{{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}</option>
+                                <option 
+                                    *ngFor="let lijek of lijekoviOsnovnaListaOJP" 
+                                    value="{{lijek}}">
+                                    {{lijek}}</option>
                             </select>
                             </td>
                             <td>
-                                <input  
+                                <textarea  
                                     type="text"
                                     formControlName="osnovnaListaLijekText"
                                     class="form-control"
-                                    style="width:250px;height:35px" 
+                                    style="width:250px;" 
                                     placeholder="Naziv lijeka..." 
-                                    #inputLijekOsnovnaLista>
+                                    #inputLijekOsnovnaLista 
+                                    rows="3"></textarea>
                                 <ul 
                                     class="pretragaUl" 
-                                    *ngIf="isPretragaLijekOsnovnaLista && !porukaNemaRezultata" 
-                                    id="ulLijekOsnovnaLista">
+                                    *ngIf="isPretragaLijekOsnovnaLista && !porukaNemaRezultata">
                                     <li 
                                         class="pretragaLi form-control" 
                                         *ngFor="let rez of resultLijekOsnovnaLista" 
                                         (click)="onClickLi(rez.zasticenoImeLijek)">
-                                        <p>{{rez.zasticenoImeLijek}}</p>
+                                        <p id="pLijekOsnovnaLista">{{rez.zasticenoImeLijek}}</p>
                                     </li>
                                 </ul> 
                                 <span class="help-block" *ngIf="isPretragaLijekOsnovnaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
@@ -101,68 +104,94 @@
                             <td><select class="form-control" style="width:350px;height:35px" formControlName="dopunskaListaLijekDropdown">
                                 <option [ngValue]="null" [disabled]="true">Odaberite lijek</option>
                                 <option 
-                                    *ngFor="let lijek of lijekoviDopunskaLista" 
-                                    value="{{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}">
-                                    {{lijek.zasticenoImeLijek}} {{lijek.oblikJacinaPakiranjeLijek}}</option>
+                                    *ngFor="let lijek of lijekoviDopunskaListaOJP" 
+                                    value="{{lijek}}">
+                                    {{lijek}}</option>
                             </select>
                             </td>
                             <td>
-                                <input  
+                                <textarea  
                                     type="text"
                                     formControlName="dopunskaListaLijekText"
                                     class="form-control"
-                                    style="width:250px;height:35px" 
+                                    style="width:250px" 
                                     placeholder="Naziv lijeka..." 
-                                    #inputLijekDopunskaLista>
+                                    #inputLijekDopunskaLista 
+                                    rows="3"></textarea>
                                 <ul 
                                     class="pretragaUl" 
-                                    *ngIf="isPretragaLijekDopunskaLista && !porukaNemaRezultata" 
-                                    id="ulLijekDopunskaLista">
-                                <li 
-                                    class="pretragaLi form-control" 
-                                    *ngFor="let rez of resultLijekDopunskaLista" 
-                                    (click)="onClickLi(rez.zasticenoImeLijek)">
-                                    <p>{{rez.zasticenoImeLijek}}</p>
-                                </li>
-                            </ul> 
-                            <span class="help-block" *ngIf="isPretragaLijekDopunskaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
+                                    *ngIf="isPretragaLijekDopunskaLista && !porukaNemaRezultata">
+                                    <li 
+                                        class="pretragaLi form-control" 
+                                        *ngFor="let rez of resultLijekDopunskaLista" 
+                                        (click)="onClickLi(rez.zasticenoImeLijek)">
+                                        <p  id="pLijekDopunskaLista">{{rez.zasticenoImeLijek}}</p>
+                                    </li>
+                                </ul> 
+                                <span class="help-block" *ngIf="isPretragaLijekDopunskaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
                             </td>
                         </tr>
                         <tr formGroupName="osnovnaListaMagPripravak" *ngIf="isMagPripravak">
-                            <td><label for="osnovnaListaMagPripravak" style="margin-top:6px;">Osnovna lista magistralnih pripravaka:</label></td>
+                            <td><label for="osnovnaListaMagPripravak" style="margin-top:6px;">Osnovna lista mag. pripravaka:</label></td>
                             <td><select class="form-control" style="width:350px;height:35px" formControlName="osnovnaListaMagPripravakDropdown">
                                 <option [ngValue]="null" [disabled]="true">Odaberite mag.pripravak</option>
                                 <option *ngFor="let pripravak of magPripravciOsnovnaLista" 
-                                        value="{{pripravak.nazivMagPripravak}}">
-                                        {{pripravak.nazivMagPripravak}}</option>
+                                        value="{{pripravak}}">
+                                        {{pripravak}}</option>
                             </select>
                             </td>
                             <td>
-                                <input  
+                                <textarea  
                                     type="text"
                                     formControlName="osnovnaListaMagPripravakText"
                                     class="form-control"
-                                    style="width:250px;height:35px" 
-                                    placeholder="Naziv magistralnog pripravka...">
+                                    style="width:250px;" 
+                                    placeholder="Naziv magistralnog pripravka..." 
+                                    #inputMagPripravakOsnovnaLista 
+                                    rows="3"></textarea>
+                                <ul 
+                                    class="pretragaUl" 
+                                    *ngIf="isPretragaMagPripravakOsnovnaLista && !porukaNemaRezultata">
+                                    <li 
+                                        class="pretragaLi form-control" 
+                                        *ngFor="let rez of resultMagPripravciOsnovnaLista" 
+                                        (click)="onClickLi(rez.nazivMagPripravak)">
+                                        <p id="pMagPripravakOsnovnaLista">{{rez.nazivMagPripravak}}</p>
+                                    </li>
+                                </ul> 
+                                <span class="help-block" *ngIf="isPretragaMagPripravakOsnovnaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
                             </td>
                         </tr>
                         <tr formGroupName="dopunskaListaMagPripravak" *ngIf="isMagPripravak">
-                            <td><label for="dopunskaListaMagPripravak" style="margin-top:6px;">Dopunska lista magistralnih pripravaka:</label></td>
+                            <td><label for="dopunskaListaMagPripravak" style="margin-top:6px;">Dopunska lista mag. pripravaka:</label></td>
                             <td><select class="form-control" style="width:350px;height:35px" formControlName="dopunskaListaMagPripravakDropdown">
                                 <option [ngValue]="null" [disabled]="true">Odaberite mag.pripravak</option>
                                 <option 
                                     *ngFor="let pripravak of magPripravciDopunskaLista" 
-                                    value="{{pripravak.nazivMagPripravak}}">
-                                    {{pripravak.nazivMagPripravak}}</option>
+                                    value="{{pripravak}}">
+                                    {{pripravak}}</option>
                             </select>
                             </td>
                             <td>
-                                <input  
+                                <textarea  
                                     type="text"
                                     formControlName="dopunskaListaMagPripravakText"
                                     class="form-control"
-                                    style="width:250px;height:35px" 
-                                    placeholder="Naziv magistralnog pripravka...">
+                                    style="width:250px;" 
+                                    placeholder="Naziv magistralnog pripravka..." 
+                                    #inputMagPripravakDopunskaLista 
+                                    rows="3"></textarea>
+                                <ul 
+                                    class="pretragaUl" 
+                                    *ngIf="isPretragaMagPripravakDopunskaLista && !porukaNemaRezultata">
+                                    <li 
+                                        class="pretragaLi form-control" 
+                                        *ngFor="let rez of resultMagPripravciDopunskaLista" 
+                                        (click)="onClickLi(rez.nazivMagPripravak)">
+                                        <p id="pMagPripravakDopunskaLista">{{rez.nazivMagPripravak}}</p>
+                                    </li>
+                                </ul> 
+                                <span class="help-block" *ngIf="isPretragaMagPripravakDopunskaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
                             </td>
                         </tr>
                     </tbody>

@@ -58,3 +58,7 @@ textarea{
     background-color:#337ab7;
     color:white;
 }
+textarea{
+    font-family: Verdana, sans-serif;
+    resize:none;
+}

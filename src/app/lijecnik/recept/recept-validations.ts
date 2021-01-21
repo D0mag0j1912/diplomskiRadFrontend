@@ -38,7 +38,7 @@ export function isValidSekundarnaDijagnoza(sekDijagnoza: string): ValidatorFn{
             if(pom.indexOf(control.value) !== -1 && control.value !== null){
                 //U svoju varijablu spremam sekundarnu dijagnozu koja je duplikat
                 sekDijagnoza = control.value;
-                console.log(sekDijagnoza);
+                console.log(this.sekDijagnoza);
                 return {'duplikat': true};
             }
             //Ako se vrijednost sekundarne dijagnoze NE NALAZI u pom polju
