@@ -27,9 +27,9 @@ export function nazivToMKB(nazivPrimarna: string,dijagnoze: any,forma: FormGroup
     forma.get('mkbPrimarnaDijagnoza').updateValueAndValidity({emitEvent: false});
 }
 
+//Metoda koja provjerava je li uneseno više istih sekundarnih dijagnoza
 export function isValidSekundarnaDijagnoza(sekDijagnoza: string): ValidatorFn{
-    //Metoda koja provjerava je li uneseno više istih sekundarnih dijagnoza
-    return (array: FormArray): {[key: string]: boolean} | null=> {
+    return (array: FormArray): {[key: string]: boolean} | null => {
         //Kreiram pomoćno polje
         let pom = [];
         //Prolazim kroz array 

@@ -6,13 +6,15 @@ import { PacijentiComponent } from './pacijenti/pacijenti.component';
 import { ListaReceptiComponent } from './lista-recepti/lista-recepti.component';
 import { ReactiveFormsModule } from "@angular/forms";
 import { IzdajReceptComponent } from './pacijenti/izdaj-recept/izdaj-recept.component';
+import { ReceptDirective } from "./recept.directive";
 
 @NgModule({
     declarations: [
         ReceptComponent,
         PacijentiComponent,
         ListaReceptiComponent,
-        IzdajReceptComponent
+        IzdajReceptComponent,
+        ReceptDirective
     ],
     imports: [
         CommonModule,
@@ -23,7 +25,8 @@ import { IzdajReceptComponent } from './pacijenti/izdaj-recept/izdaj-recept.comp
         ReceptComponent,
         PacijentiComponent,
         ListaReceptiComponent,
-        IzdajReceptComponent
+        IzdajReceptComponent,
+        ReceptDirective
     ]
 })
 export class ReceptModule{

@@ -88,12 +88,17 @@
                                     rows="3"></textarea>
                                 <ul 
                                     class="pretragaUl" 
-                                    *ngIf="isPretragaLijekOsnovnaLista && !porukaNemaRezultata">
+                                    *ngIf="isPretragaLijekOsnovnaLista && !porukaNemaRezultata" 
+                                    appOutsideClick 
+                                    (clickedOutside)="zatvoriListu($event)" 
+                                    [isPretraga]="isPretragaLijekOsnovnaLista"
+                                    [tip]="'lijekOL'">
                                     <li 
                                         class="pretragaLi form-control" 
                                         *ngFor="let rez of resultLijekOsnovnaLista" 
-                                        (click)="onClickLi(rez.zasticenoImeLijek)">
-                                        <p id="pLijekOsnovnaLista">{{rez.zasticenoImeLijek}}</p>
+                                        (click)="onClickLi(rez.zasticenoImeLijek)" 
+                                        id="liLijekOL">
+                                        <p >{{rez.zasticenoImeLijek}}</p>
                                     </li>
                                 </ul> 
                                 <span class="help-block" *ngIf="isPretragaLijekOsnovnaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
@@ -120,11 +125,16 @@
                                     rows="3"></textarea>
                                 <ul 
                                     class="pretragaUl" 
-                                    *ngIf="isPretragaLijekDopunskaLista && !porukaNemaRezultata">
+                                    *ngIf="isPretragaLijekDopunskaLista && !porukaNemaRezultata" 
+                                    appOutsideClick 
+                                    (clickedOutside)="zatvoriListu($event)" 
+                                    [isPretraga]="isPretragaLijekDopunskaLista"
+                                    [tip]="'lijekDL'">
                                     <li 
                                         class="pretragaLi form-control" 
                                         *ngFor="let rez of resultLijekDopunskaLista" 
-                                        (click)="onClickLi(rez.zasticenoImeLijek)">
+                                        (click)="onClickLi(rez.zasticenoImeLijek)" 
+                                        id="liLijekDopunskaLista">
                                         <p  id="pLijekDopunskaLista">{{rez.zasticenoImeLijek}}</p>
                                     </li>
                                 </ul> 
@@ -151,11 +161,16 @@
                                     rows="3"></textarea>
                                 <ul 
                                     class="pretragaUl" 
-                                    *ngIf="isPretragaMagPripravakOsnovnaLista && !porukaNemaRezultata">
+                                    *ngIf="isPretragaMagPripravakOsnovnaLista && !porukaNemaRezultata" 
+                                    appOutsideClick 
+                                    (clickedOutside)="zatvoriListu($event)" 
+                                    [isPretraga]="isPretragaMagPripravakOsnovnaLista"
+                                    [tip]="'magPripravakOL'">
                                     <li 
                                         class="pretragaLi form-control" 
                                         *ngFor="let rez of resultMagPripravciOsnovnaLista" 
-                                        (click)="onClickLi(rez.nazivMagPripravak)">
+                                        (click)="onClickLi(rez.nazivMagPripravak)" 
+                                        id="liMagPripravakOsnovnaLista">
                                         <p id="pMagPripravakOsnovnaLista">{{rez.nazivMagPripravak}}</p>
                                     </li>
                                 </ul> 
@@ -183,11 +198,16 @@
                                     rows="3"></textarea>
                                 <ul 
                                     class="pretragaUl" 
-                                    *ngIf="isPretragaMagPripravakDopunskaLista && !porukaNemaRezultata">
+                                    *ngIf="isPretragaMagPripravakDopunskaLista && !porukaNemaRezultata" 
+                                    appOutsideClick 
+                                    (clickedOutside)="zatvoriListu($event)" 
+                                    [isPretraga]="isPretragaMagPripravakDopunskaLista"
+                                    [tip]="'magPripravakDL'">
                                     <li 
                                         class="pretragaLi form-control" 
                                         *ngFor="let rez of resultMagPripravciDopunskaLista" 
-                                        (click)="onClickLi(rez.nazivMagPripravak)">
+                                        (click)="onClickLi(rez.nazivMagPripravak)" 
+                                        id="liMagPripravakDopunskaLista">
                                         <p id="pMagPripravakDopunskaLista">{{rez.nazivMagPripravak}}</p>
                                     </li>
                                 </ul> 
