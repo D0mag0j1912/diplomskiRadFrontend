@@ -15,6 +15,13 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalazi cijena LIJEKA sa OSNOVNE LISTE
+    getCijenaLijekOL(lijek: string){
+        let params = new HttpParams().append("lijek",lijek);
+        return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaLijekOL.php',
+            {params: params}
+        ).pipe(catchError(this.handleError));
+    }
     //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
     getAllPatients(){
 
@@ -22,7 +29,6 @@ export class ReceptService{
             catchError(this.handleError)
         );
     }
-
     //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti koji odgovaraju pretrazi
     getPacijentiPretraga(value: string){
         let params = new HttpParams().append("pretraga",value);

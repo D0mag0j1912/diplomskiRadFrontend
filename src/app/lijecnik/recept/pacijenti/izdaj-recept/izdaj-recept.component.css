@@ -10,14 +10,14 @@
 .alert-box{
     position:fixed;
     top:10vh;
-    left: 25vw;
-    width: 50vw;
+    left: 20vw;
+    width: 60vw;
     height:40vw;
     padding: 16px;
     z-index: 100;
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
-    overflow-y:scroll;
+    overflow-y:auto;
 }
 
 .alert-box-actions{
@@ -62,4 +62,6 @@ textarea{
 textarea{
     font-family: Verdana, sans-serif;
     resize:none;
+    border-style: inset;
+    border-width: 1px;
 }

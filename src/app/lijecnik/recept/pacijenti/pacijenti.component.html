@@ -1,18 +1,18 @@
 <app-izdaj-recept *ngIf="isIzdajRecept" (close)="onClose()"></app-izdaj-recept>
-<h3 style="text-align: center;">Tablica pacijenata</h3>
+<h3 style="text-align: center;font-family: Verdana, sans-serif;">Tablica pacijenata</h3>
 <form [formGroup]="formaPretraga">
     <div class="table-responsive-sm">
         <table class="table">
             <tbody>
                 <tr>
                     <td style="padding-left:100px;">
-                        <p><strong>Pretraži:</strong></p>
+                        <p style="font-family: Verdana, sans-serif;"><strong>Pretraži:</strong></p>
                         <input 
                             type="text" 
                             class="form-control" 
                             formControlName="pretraga" 
                             placeholder="Unesite pacijenta..." 
-                            style="width:300px;margin-left:65px;margin-top:-35px;">
+                            style="width:300px;margin-left:70px;margin-top:-35px;">
                         <span class="help-block" *ngIf="!isPretraga">{{porukaPretraga}}</span>
                     </td>
                 </tr>
