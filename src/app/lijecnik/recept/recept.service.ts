@@ -15,13 +15,54 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
-    //Metoda koja vraća Observable u kojemu se nalazi cijena LIJEKA sa OSNOVNE LISTE
-    getCijenaLijekOL(lijek: string){
+    //Metoda koja vraća Observable u kojemu se nalazi DATUM do kada vrijedi terapija
+    getDatumDostatnost(dostatnost: string){
+        let params = new HttpParams().append("dostatnost",dostatnost);
+        return this.http.get<any>(this.baseUrl + 'recept/getDatumDostatnost.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi informacija je li MAGISTRALNI PRIPRAVAK ima oznaku "RS"
+    getOznakaMagistralniPripravak(magPripravak: string){
+        magPripravak = encodeURIComponent(magPripravak);
+        let params = new HttpParams().append("magPripravak",magPripravak);
+        return this.http.get<any>(this.baseUrl + 'recept/oznake/getOznakaMagPripravak.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi informacija je li LIJEK ima oznaku "RS"
+    getOznakaLijek(lijek: string){
+        lijek = encodeURIComponent(lijek);
         let params = new HttpParams().append("lijek",lijek);
-        return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaLijekOL.php',
+        return this.http.get<any>(this.baseUrl + 'recept/oznake/getOznakaLijek.php', 
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi cijena MAGISTRALNOG PRIPRAVKA sa DOPUNSKE LISTE
+    getCijenaMagPripravakDL(magPripravak: string){
+        magPripravak = encodeURIComponent(magPripravak);
+        let params = new HttpParams().append("magPripravak",magPripravak);
+        return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaMagPripravakDL.php',
+        {   
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi cijena LIJEKA sa DOPUNSKE LISTE
+    getCijenaLijekDL(lijek: string){
+        lijek = encodeURIComponent(lijek);
+        let params = new HttpParams().append("lijek",lijek);
+        return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaLijekDL.php',
             {params: params}
         ).pipe(catchError(this.handleError));
     }
+
     //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
     getAllPatients(){
 
@@ -29,11 +70,13 @@ export class ReceptService{
             catchError(this.handleError)
         );
     }
+
     //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti koji odgovaraju pretrazi
     getPacijentiPretraga(value: string){
         let params = new HttpParams().append("pretraga",value);
         return this.http.get<any>(this.baseUrl + 'recept/getPacijentiPretraga.php',{params: params}).pipe(catchError(this.handleError));
     }
+
     //Metoda za errore
     private handleError(error: HttpErrorResponse){
         if(error.error instanceof ErrorEvent){

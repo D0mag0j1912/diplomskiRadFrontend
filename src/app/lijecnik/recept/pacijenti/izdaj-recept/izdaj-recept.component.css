@@ -10,13 +10,14 @@
 .alert-box{
     position:fixed;
     top:10vh;
-    left: 20vw;
-    width: 60vw;
+    left: 25vw;
+    width: 55vw;
     height:40vw;
     padding: 16px;
     z-index: 100;
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
+    overflow-x:hidden;
     overflow-y:auto;
 }
 
@@ -43,7 +44,7 @@ textarea{
 .pretragaUl{
     z-index:1;
     position: absolute;
-    overflow-y: auto;
+    overflow: auto;
 }
 .pretragaLi{
     border-radius: 10px;
@@ -51,9 +52,10 @@ textarea{
     font-weight: bold;
     margin-left:-40px;
     position: relative;
-    width:250px;
-    height:60px;
+    width:300px;
+    height:120px;
     font-size: small;
+    overflow: auto;
 }
 .pretragaLi:hover{
     background-color:#337ab7;
@@ -64,4 +66,10 @@ textarea{
     resize:none;
     border-style: inset;
     border-width: 1px;
+}
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948; /* green */
+}
+.ng-invalid:not(form)  {
+    border-left: 5px solid #a94442; /* red */
 }

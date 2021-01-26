@@ -5,6 +5,7 @@ import {forkJoin} from 'rxjs';
 import {map} from 'rxjs/operators';
 import { ReceptImportiService } from './recept-import.service';
 import { ImportService } from 'src/app/med-sestra/import.service';
+import { ReceptService } from './recept.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -14,7 +15,9 @@ export class ReceptImportiResolverService implements Resolve<any>{
         //Dohvaćam importi recept servis
         private receptImportiService: ReceptImportiService,
         //Dohvaćam importi service
-        private importService: ImportService
+        private importService: ImportService,
+        //Dohvaćam servis recepta
+        private receptService: ReceptService
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
@@ -25,7 +28,8 @@ export class ReceptImportiResolverService implements Resolve<any>{
             this.receptImportiService.getLijekoviOsnovnaLista(),
             this.receptImportiService.getLijekoviDopunskaLista(),
             this.receptImportiService.getMagistralniPripravciOsnovnaLista(),
-            this.receptImportiService.getMagistralniPripravciDopunskaLista()
+            this.receptImportiService.getMagistralniPripravciDopunskaLista(),
+            this.receptService.getDatumDostatnost("30")
         ]).pipe(
             map(result => {
                 return {
@@ -33,7 +37,8 @@ export class ReceptImportiResolverService implements Resolve<any>{
                     lijekoviOsnovnaLista: result[1],
                     lijekoviDopunskaLista: result[2],
                     magistralniPripravciOsnovnaLista: result[3],
-                    magistralniPripravciDopunskaLista: result[4]
+                    magistralniPripravciDopunskaLista: result[4],
+                    datum: result[5]
                 };    
             })
         );
