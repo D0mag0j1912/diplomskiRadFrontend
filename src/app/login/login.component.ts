@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from './login.service';
 
 @Component({
@@ -11,16 +12,13 @@ import { LoginService } from './login.service';
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
-    //Varijabla za pohranu pretplate
-    subs: Subscription;
-
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Ovdje spremam ima li odgovora servera
     response: boolean = false;
 
     //Ovdje spremam poruku odgovora servera
     responsePoruka: string = null;
-
-    isLoading: boolean = false;
 
     constructor(
       private loginService: LoginService,
@@ -40,39 +38,35 @@ export class LoginComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.subs = this.loginService.login(form.value.email,form.value.lozinka).subscribe(
-        (response) => {
-            //Ako je korisnik uspješno prijavljen
-            if(response["success"] == "true"){
-                    
-              //Ako je tip korisnika "Medicinska sestra":
-              if(response["tip"] == "sestra"){
-
-                  //Pozivam metodu koja handlea login
-                  this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
-                  //Preusmjeri medicinsku sestru na njezinu stranicu
-                  this.router.navigate(['/med-sestra/obrada/opciPodatci']);
-                  
-                  
-              }
-              //Ako je tip korisnika "Liječnik":
-              else if(response["tip"] == "lijecnik"){
-                  //Pozivam metodu koja handlea login
-                  this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
-                  //Preusmjeri liječnika na njegovu stranicu
-                  this.router.navigate(['/lijecnik/obrada/povijestBolesti']);
-                  
-              }
-          }
-          else{
-              //Označavam da postoji negativni odgovor servera
-              this.response = true;
-              //Odgovor servera spremam u varijablu "responsePoruka"
-              this.responsePoruka = response["message"];
-          }
+      this.loginService.login(form.value.email,form.value.lozinka).pipe(
+          takeUntil(this.pretplateSubject),
+          tap((response) => {
+              //Ako je korisnik uspješno prijavljen
+              if(response["success"] == "true"){
+                //Ako je tip korisnika "Medicinska sestra":
+                if(response["tip"] == "sestra"){
+                    //Pozivam metodu koja handlea login
+                    this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
+                    //Preusmjeri medicinsku sestru na njezinu stranicu
+                    this.router.navigate(['/med-sestra/obrada/opciPodatci']); 
+                }
+                //Ako je tip korisnika "Liječnik":
+                else if(response["tip"] == "lijecnik"){
+                    //Pozivam metodu koja handlea login
+                    this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
+                    //Preusmjeri liječnika na njegovu stranicu
+                    this.router.navigate(['/lijecnik/obrada/povijestBolesti']);
+                }
+            }
+            else{
+                //Označavam da postoji negativni odgovor servera
+                this.response = true;
+                //Odgovor servera spremam u varijablu "responsePoruka"
+                this.responsePoruka = response["message"];
+            }
           
-        }
-      );
+          })
+      ).subscribe();
     }
 
     //Metoda koja zatvara prozor poruke
@@ -82,10 +76,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     //Ova metoda se pokreće kad se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subs){
-        //Izađi iz nje
-        this.subs.unsubscribe();
-      }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }

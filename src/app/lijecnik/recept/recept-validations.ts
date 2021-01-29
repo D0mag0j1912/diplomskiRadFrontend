@@ -1,5 +1,20 @@
-import { FormArray } from "@angular/forms";
+import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
+
+//Funkcija koja provjerava ispravnost MKB šifre primarne dijagnoze
+export function provjeriMKB(mkbSifre: string[]): ValidatorFn{
+    return (control: FormControl): {[key: string]:boolean} | null => {
+        if(control){
+            //Ako se vrijednost unosa MKB šifre nalazi u polju MKB šifri
+            if(mkbSifre.indexOf(control.value) !== -1){
+                //Vrati da je u redu
+                return null;
+            }
+            //Vrati pogrešku
+            return {'neispravanMKB': true};
+        }
+    }
+}
 
 //Funkcija koja popunjava unos naziva primarne dijagnoze, kada je unesen njena MKB šifra u polje unosa MKB šifre
 export function MKBtoNaziv(mkbSifra: string,dijagnoze: any,forma: FormGroup){
@@ -8,11 +23,11 @@ export function MKBtoNaziv(mkbSifra: string,dijagnoze: any,forma: FormGroup){
         //Ako je unesena MKB šifra JEDNAKA MKB šifri iz importanog polja
         if(dijagnoza.mkbSifra === mkbSifra){
             //U polje naziva primarne dijagnoze postavljam naziv koji odgovara toj jednakoj MKB šifri
-            forma.get('primarnaDijagnoza').patchValue(dijagnoza.imeDijagnoza,{emitEvent: false});
+            forma.get('primarnaDijagnoza').patchValue(dijagnoza.imeDijagnoza,{onlySelf: true,emitEvent: false});
         }
     }
     //Ažuriram promjene u polje naziva primarne dijagnoze
-    forma.get('primarnaDijagnoza').updateValueAndValidity({emitEvent: false});
+    forma.get('primarnaDijagnoza').updateValueAndValidity({onlySelf:true,emitEvent: false});
 }
 
 //Metoda koja popunjava polje MKB šifre dijagnoze kada se unese ime primarne dijagnoze
@@ -28,52 +43,92 @@ export function nazivToMKB(nazivPrimarna: string,dijagnoze: any,forma: FormGroup
     forma.get('mkbPrimarnaDijagnoza').updateValueAndValidity({onlySelf: true,emitEvent: false});
 }
 //Metoda koja provjerava je li proizvod unesen
-export function isUnesenProizvod(): ValidatorFn{
+export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopunskaListaOJP:string[],
+                                magPripravciOsnovnaLista: string[],magPripravciDopunskaLista: string[],
+                                isLijek: boolean,isMagPripravak: boolean): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
-        //Ako nijedan proizvod nije unesen
-        if(!group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value  && 
+        if(group){
+            //Ako liječnik izabire lijekove
+            if(isLijek){
+                if(group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value){
+                    if(lijekoviOsnovnaListaOJP.indexOf(group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value) !== -1){
+                        return null;
+                    }
+                }
+                else if(group.get('osnovnaListaLijek.osnovnaListaLijekText').value){
+                    console.log("tu sam");
+                    if(lijekoviOsnovnaListaOJP.indexOf(group.get('osnovnaListaLijek.osnovnaListaLijekText').value) !== -1){
+                        return null;
+                    }
+                }
+                else if(group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value){
+                    if(lijekoviDopunskaListaOJP.indexOf(group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value) !== -1){
+                        return null;
+                    }
+                }
+                else if(group.get('dopunskaListaLijek.dopunskaListaLijekText').value){
+                    if(lijekoviDopunskaListaOJP.indexOf(group.get('dopunskaListaLijek.dopunskaListaLijekText').value) !== -1){
+                        return null;
+                    }
+                }
+                return {'baremJedan': true};
+                /* //Ako je barem jedno od polja popunjeno
+                if(group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value 
+                    || group.get('osnovnaListaLijek.osnovnaListaLijekText').value 
+                    || group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value 
+                    || group.get('dopunskaListaLijek.dopunskaListaLijekText').value){
+                    //Vrati da je u redu
+                    return null;
+                }
+                //Inače, vrati grešku
+                return {'baremJedan': true}; */
+            }
+            //Ako liječnik izabere magistralne pripravke
+            else if(isMagPripravak){
+                //Ako je barem jedno od polja popunjeno
+                if(group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').value 
+                    || group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value 
+                    || group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value 
+                    || group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value){
+                    //Vrati da je u redu
+                    return null;
+                }
+                //Inače, vrati grešku
+                return {'baremJedan': true};
+            }
+        }
+    }
+} 
+//Metoda koja provjerava je li doziranje uneseno PRIJE količine 
+export function doziranjePrijeKolicina(): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        //Ako je doziranje ispravno uneseno, a da NIJE unesena količina proizvoda
+        if(group.get('doziranje.doziranjeFrekvencija').valid 
+            && !group.get('kolicina.kolicinaDropdown').value){
+            //Vraćam grešku
+            return {'doziranjePrijeKolicina': true};
+        }
+        //Ako je sve u redu, vraćam null
+        return null;
+    }
+}
+//Metoda koja provjerava je li količina proizvoda unesena PRIJE samog proizvoda
+export function kolicinaPrijeProizvod(): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        //Ako je količina unesena, a da nije unesen proizvod
+        if(group.get('kolicina.kolicinaDropdown').value 
+            && (!group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value  && 
             !group.get('osnovnaListaLijek.osnovnaListaLijekText').value && 
             !group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value && 
             !group.get('dopunskaListaLijek.dopunskaListaLijekText').value && 
             !group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').value && 
             !group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value && 
             !group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value && 
-            !group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value){
-                //Vrati grešku
-                return {'baremJedan': true};
+            !group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value)){
+            //Vraćam grešku
+            return {'kolicinaPrijeProizvod': true};
         }
-        //Ako je barem jedan proizvod unesen, vrati da je u redu
-        return null;
-    }
-}
-//Metoda koja provjerava jesu li OBA DOZIRANJA UNESENA
-export function obaDoziranjaZabranjeno(): ValidatorFn{
-    return (group: FormGroup): {[key: string]: boolean} | null => {
-        if(group){
-            //Ako su oba dvije vrste doziranja unesene, prikaži error
-            if(group.controls['doziranjeFrekvencija'].value && 
-                group.controls['doziranjePeriod'].value && 
-                group.controls['doziranjeText'].value){
-                //Vrati grešku
-                return {'bothForbidden': true};
-            }
-        }
-        //Ako nisu oba dvije vrste unosa unesene, vrati da je u redu
-        return null;
-    }
-}
-//Funkcija koja provjerava je li barem jedno doziranje uneseno
-export function baremJednoDoziranje(): ValidatorFn{
-    return (group: FormGroup): {[key: string]: boolean} | null => {
-        if(group){
-            //Ako barem jedna vrsta doziranja nije unesena
-            if(!group.get('doziranjeFrekvencija').value && 
-                !group.get('doziranjeText').value){
-                    //Vrati grešku
-                    return {'baremJednoDoziranje': true};
-            }
-        }
-        //Inače vrati da je sve u redu
+        //Ako je sve u redu, vraćam null
         return null;
     }
 }

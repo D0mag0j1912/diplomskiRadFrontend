@@ -2,8 +2,8 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, merge, Subscription } from 'rxjs';
-import {switchMap, take, tap} from 'rxjs/operators';
+import { forkJoin, merge, Subject, Subscription } from 'rxjs';
+import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
 import { AlertComponent } from '../alert/alert.component';
@@ -18,6 +18,9 @@ import { CekaonicaService } from './cekaonica.service';
   styleUrls: ['./cekaonica.component.css']
 })
 export class CekaonicaComponent implements OnInit, OnDestroy{
+
+    //Kreiram novi Subject pomoću kojega izlazim iz pretplata
+    pretplateSubject = new Subject<boolean>();
     //Kreiram polje u kojemu se nalaze svi statusi čekaonice
     statusi: Array<string> = ['Čeka na pregled','Na pregledu','Završen pregled'];
     //Kreiram polje u kojega ću spremati selektirane checkboxove
@@ -164,8 +167,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       private obradaService: ObradaService,
       //Dohvaćam router
       private router: Router,
-      //Dohvaćam login servis
-      private loginService: LoginService,
       //Dohvaćam header servis
       private headerService: HeaderService
     ) { }
@@ -182,7 +183,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         statusi: this.dodajStatusKontrole()
       });
       //Pretplaćujem se na odgovor Resolvera tj. inicijalnih pacijenata u čekaonici
-      this.subs = this.headerService.tipKorisnikaObs.pipe(
+      this.headerService.tipKorisnikaObs.pipe(
+          takeUntil(this.pretplateSubject),
           switchMap(tipKorisnik => {
               //Ako je tip prijavljenog korisnika "lijecnik":
               if(tipKorisnik == "lijecnik"){
@@ -225,37 +227,39 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     //Metoda koja provjerava broj preostalih pacijenata u čekaonici
     checkCountCekaonica(){
 
-        this.subsCheckCount = this.cekaonicaService.checkCountCekaonica().subscribe(
+        this.cekaonicaService.checkCountCekaonica().pipe(
+            takeUntil(this.pretplateSubject),
             //Dohvaćam broj pacijenata u čekaonici
-            (brojPacijenata) => {
-                //Ako više nema pacijenata u čekaonici
-                if(brojPacijenata == 0){
-                    //Označavam da je čekaonica prazna
-                    this.isPrazna = true;
-                }
-            }
-        );
+            tap((brojPacijenata) => {
+                  //Ako više nema pacijenata u čekaonici
+                  if(brojPacijenata == 0){
+                      //Označavam da je čekaonica prazna
+                      this.isPrazna = true;
+                  }
+            })
+        ).subscribe();
     }
 
     //Metoda koja briše pacijenta iz čekaonice
     onDeleteCekaonica(tip: string,idObrada: number, idCekaonica: number,index:number){
         
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
-        this.subsBrisanje = this.cekaonicaService.onDeleteCekaonica(tip,idObrada,idCekaonica).subscribe(
+        this.cekaonicaService.onDeleteCekaonica(tip,idObrada,idCekaonica).pipe(
+            takeUntil(this.pretplateSubject),
             //Dohvaćam odgovor servera
-            (odgovor) => {
-                //Označavam da ima odgovora servera
-                this.response = true;
-                //Spremam poruku servera
-                this.responsePoruka = odgovor["message"];
-                //Brišem pacijenta na indexu retka na kojem je kliknut button "Izbriši iz čekaonice"
-                this.pacijenti.splice(index,1);
-                //Provjeravam broj pacijenata u čekaonici
-                this.checkCountCekaonica();
-                //Zatvaram prozor za brisanje
-                this.isBrisanje = false;
-            }
-        );
+            tap((odgovor) => {
+                  //Označavam da ima odgovora servera
+                  this.response = true;
+                  //Spremam poruku servera
+                  this.responsePoruka = odgovor["message"];
+                  //Brišem pacijenta na indexu retka na kojem je kliknut button "Izbriši iz čekaonice"
+                  this.pacijenti.splice(index,1);
+                  //Provjeravam broj pacijenata u čekaonici
+                  this.checkCountCekaonica();
+                  //Zatvaram prozor za brisanje
+                  this.isBrisanje = false;
+            })
+        ).subscribe();
     }
 
     //Metoda koja prikuplja sve podatke iz izbrisanog retka čekaonice da bi ih proslijedila uvodnom prozoru brisanja
@@ -306,16 +310,17 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         });
         
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti određenog statusa
-        this.subsStatus = this.headerService.tipKorisnikaObs.pipe(
+        this.headerService.tipKorisnikaObs.pipe(
+            takeUntil(this.pretplateSubject),
             switchMap(tipKorisnik => {
                 return this.cekaonicaService.getPatientByStatus(tipKorisnik,this.selectedStatusValues);
             })
         ).subscribe(
-          //Dohvaćam odgovor servera (pacijente)
-          (pacijenti) => {
-            //Dohvaćene pacijente spremam u svoje polje pacijenata
-            this.pacijenti = pacijenti;
-          }
+            //Dohvaćam odgovor servera (pacijente)
+            (pacijenti) => {
+              //Dohvaćene pacijente spremam u svoje polje pacijenata
+              this.pacijenti = pacijenti;
+            }
         );
     }
 
@@ -341,9 +346,11 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             tipKorisnik = "sestra";
         }
         //Pretplaćujem se na rezultate da ih dohvatim
-        this.subsObrada = this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
+        this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
+          takeUntil(this.pretplateSubject),
           switchMap(odgovor => {
               return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
+                  takeUntil(this.pretplateSubject),
                   tap(pacijenti => {
                       //Označavam da ima odgovora servera 
                       this.response = true;
@@ -366,42 +373,46 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     //Metoda se pokreće kada korisnik klikne "Pretraži"
     onSubmit(){
         //Ako forma nije ispravna
-      if(!this.forma.valid){
-        return;
-      }
-      //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera
-      this.subsPretraga = this.obradaService.getPatients(this.ime.value,this.prezime.value,this.stranica).subscribe(
-        (odgovor) => {
-          //Ako je odgovor negativan, tj. nema pacijenata
-          if(odgovor["success"] == "false"){
-            //Označavam da ima poruke servera
-            this.response = true;
-            //Spremam poruku servera u prozor
-            this.responsePoruka = odgovor["message"];
-            //Resetiram formu
-            this.forma.reset();
-          }
-          //Ako je odgovor pozitivan, tj. ima pacijenata
-          else{
-            //Pošalji Subjectu uneseno ime ili prezime pacijenta i broj početne stranice tablice pacijenata
-            this.obradaService.imePrezimePacijent.next({ime: this.ime.value, prezime: this.prezime.value,stranica: this.stranica});
-            //Otvori tablicu pacijenata
-            this.isPretraga = true;
-            //Restiraj formu
-            this.forma.reset();
-          }
+        if(!this.forma.valid){
+          return;
         }
-      ); 
+        //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera
+        this.obradaService.getPatients(this.ime.value,this.prezime.value,this.stranica).pipe(
+            takeUntil(this.pretplateSubject),
+            tap((odgovor) => {
+                //Ako je odgovor negativan, tj. nema pacijenata
+                if(odgovor["success"] == "false"){
+                  //Označavam da ima poruke servera
+                  this.response = true;
+                  //Spremam poruku servera u prozor
+                  this.responsePoruka = odgovor["message"];
+                  //Resetiram formu
+                  this.forma.reset();
+                }
+                //Ako je odgovor pozitivan, tj. ima pacijenata
+                else{
+                  //Pošalji Subjectu uneseno ime ili prezime pacijenta i broj početne stranice tablice pacijenata
+                  this.obradaService.imePrezimePacijent.next({ime: this.ime.value, prezime: this.prezime.value,stranica: this.stranica});
+                  //Otvori tablicu pacijenata
+                  this.isPretraga = true;
+                  //Restiraj formu
+                  this.forma.reset();
+                }
+            })
+        ).subscribe(); 
     }
 
     //Metoda se pokreće kada korisnik klikne "Dodaj u čekaonicu"
     onAzurirajStanje(){
 
         //Pretplaćujem se na Observable u kojemu se nalaze novi pacijenti čekaonice
-        this.subsAzurirajStanje = this.headerService.tipKorisnikaObs.pipe(
+        this.headerService.tipKorisnikaObs.pipe(
+            takeUntil(this.pretplateSubject),
             take(1),
             switchMap(tipKorisnik => {
-                return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik);
+                return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
+                    takeUntil(this.pretplateSubject)
+                );
             })
         ).subscribe(
           //Uzimam pacijente
@@ -418,19 +429,22 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     prikazi10zadnjih(){
 
       //Pretplaćujem se na Observable u kojemu se nalaze pacijenti
-      this.subs10zadnjih = this.headerService.tipKorisnikaObs.pipe(
+      this.headerService.tipKorisnikaObs.pipe(
+          takeUntil(this.pretplateSubject),
           switchMap(tipKorisnik => {
-              return this.cekaonicaService.getTenLast(tipKorisnik);
+              return this.cekaonicaService.getTenLast(tipKorisnik).pipe(
+                  takeUntil(this.pretplateSubject)
+              );
           })
       ).subscribe(
-        //Uzimam odgovor
-        (pacijenti) => {
-          //Pacijente iz odgovora spremam u svoje polje
-          this.pacijenti = pacijenti;
-          //Označi checkboxove neaktivnima
-          this.formaStatus.reset();
-          console.log(this.pacijenti);
-        }
+          //Uzimam odgovor
+          (pacijenti) => {
+            //Pacijente iz odgovora spremam u svoje polje
+            this.pacijenti = pacijenti;
+            //Označi checkboxove neaktivnima
+            this.formaStatus.reset();
+            console.log(this.pacijenti);
+          }
       );
     }
 
@@ -475,41 +489,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subs){
-        //Izađi iz pretplate
-        this.subs.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsObrada){
-        //Izađi iz pretplate
-        this.subsObrada.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsPretraga){
-        //Izađi iz pretplate
-        this.subsPretraga.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsAzurirajStanje){
-        //Izađi iz pretplate
-        this.subsAzurirajStanje.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsStatus){
-        //Izađi iz pretplate
-        this.subsStatus.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsBrisanje){
-        //Izađi iz pretplate
-        this.subsBrisanje.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsCheckCount){
-        //Izađi iz pretplate
-        this.subsCheckCount.unsubscribe();
-      }
+      //Postavljam Subject na true
+      this.pretplateSubject.next(true);
+      this.pretplateSubject.complete();
       //Praznim Subject 
       this.obradaService.imePrezimePacijent.next(null);
     }

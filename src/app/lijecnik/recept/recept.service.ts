@@ -15,10 +15,26 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalazi ukupno trajanje terapije
+    getDostatnost(lijek: string, kolicina: string,doza: string){
+        //Kodiram specijalne znakove
+        lijek = encodeURIComponent(lijek);
+        kolicina = encodeURIComponent(kolicina);
+        doza = encodeURIComponent(doza);
+        //Kreiram paramse da ih mogu poslati u backend
+        let params = new HttpParams().append("lijek",lijek);
+        params = params.append("kolicina",kolicina);
+        params = params.append("doza",doza);
+        return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDostatnost.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
     //Metoda koja vraća Observable u kojemu se nalazi DATUM do kada vrijedi terapija
     getDatumDostatnost(dostatnost: string){
         let params = new HttpParams().append("dostatnost",dostatnost);
-        return this.http.get<any>(this.baseUrl + 'recept/getDatumDostatnost.php',
+        return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDatumDostatnost.php',
         {
             params: params
         }).pipe(catchError(this.handleError));

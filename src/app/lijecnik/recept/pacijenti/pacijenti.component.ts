@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, Subscription } from 'rxjs';
-import { concatMap, debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { concatMap, distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 import { ReceptService } from '../recept.service';
 
 @Component({
@@ -14,9 +14,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
 
     //Kreiram formu
     formaPretraga: FormGroup;
-    //Spremam pretplate
-    subs: Subscription;
-    subsPretraga: Subscription;
+    //Definiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Spremam pacijente za tablicu
     pacijenti: any;
     //Oznaka ima li rezultata pretrage
@@ -40,16 +39,17 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             'pretraga': new FormControl(null)
         });
         //Pretplaćivam se na podatke iz Resolvera 
-        this.subs = this.route.data.subscribe(
-            //Dohvati podatke
-            (podatci : {pacijenti: any}) => {
-                //Spremam pacijente za tablicu
-                this.pacijenti = podatci.pacijenti;
-                console.log(this.pacijenti);
-            }
-        ); 
+        this.route.data.pipe(
+            takeUntil(this.pretplateSubject),
+            tap((podatci : {pacijenti: any}) => {
+                    //Spremam pacijente za tablicu
+                    this.pacijenti = podatci.pacijenti;
+                    console.log(this.pacijenti);
+                })
+        ).subscribe(); 
         //Pretplaćujem se na liječnikovu pretragu u formi pretrage
-        this.subsPretraga = this.formaPretraga.get('pretraga').valueChanges.pipe( 
+        this.formaPretraga.get('pretraga').valueChanges.pipe( 
+            takeUntil(this.pretplateSubject),
             //Ne ponavljam iste zahtjeve
             distinctUntilChanged(), 
             //Uzimam vrijednost pretrage te ga sekvencijalno predavam serveru tj. ako prošla vrijednost pretrage nije došla još do backenda
@@ -94,15 +94,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
 
     //Ova metoda se izvodi kada se komponenta uništi
     ngOnDestroy(){
-        //Ako postoji pretplata
-        if(this.subs){
-            //Izađi iz pretplate
-            this.subs.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsPretraga){
-            //Izađi iz pretplate
-            this.subsPretraga.unsubscribe();
-        }
+        //Postavljam Subject na true da izađem iz pretplata
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }

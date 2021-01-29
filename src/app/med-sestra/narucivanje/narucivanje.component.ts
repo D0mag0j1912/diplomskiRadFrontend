@@ -2,7 +2,8 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import {forkJoin, Subscription} from 'rxjs';
+import {forkJoin, Subject} from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { NarucivanjeService } from './narucivanje.service';
 @Component({
   selector: 'app-narucivanje',
@@ -11,13 +12,8 @@ import { NarucivanjeService } from './narucivanje.service';
 })
 export class NarucivanjeComponent implements OnInit, OnDestroy{
 
-    //Spremam pretplate
-    subs: Subscription;
-    subsDanasnjiDatum: Subscription;
-    subsNarucivanje: Subscription;
-    subsAzuriranje: Subscription;
-    subsOtkazivanje: Subscription;
-    subsNovoStanje: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li prozor sa detaljima narudžbe otvoren
     isNarudzba: boolean = false;
     //Označavam je li ima odgovora servera
@@ -44,7 +40,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit() {
 
-        this.subs = this.route.data.subscribe(
+        this.route.data.pipe(
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
             //Dohvaćam podatke iz Resolvera
             (podatci : {podatci: any}) => {
                 //Spremam podatke iz Resolvera u svoje polje
@@ -54,35 +52,36 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 console.log(this.narudzbe);
                 //Spremam današnji datum
                 this.danasnjiDatum = podatci.podatci["danasnjiDatum"];
-            }
-        );
 
-        //Kreiram svoju formu za početne datume
-        this.forma = new FormGroup({
-            'datum': new FormControl(this.danasnjiDatum)
-        });
-        
-        //Kreiram reactive formu koja sadržava sve retke i stupce tablice narudžbi
-        this.formaTablica = new FormGroup({
-            //FormArray koji sadrži sve datume i nazive dana u tjednu u prvom retku (formcontrolove)
-            'datumiNaziviDana': new FormArray([
-                new FormControl('Vrijeme')
-            ]),
-            'tbody': new FormArray([])
-        });
-        //Za svaki podatak u polju datumi i nazivi, DODAJ JEDAN FORM CONTROL U FORM ARRAY KOJI JE PRVI REDAK
-        for(let datumNaziv of this.datumiNazivi){
-            //Kao vrijednost form controla inicijalno postavi DATUM + NAZIV DANA U TJEDNU
-            this.dodajDatumINazivDana(datumNaziv.NazivDana+" "+datumNaziv.Datum);
-        }
-        //Za svaki podataka u polju narudzbe, DODAJ JEDAN FORM CONTROL U FORM ARRAY 
-        for(let narudzba of this.narudzbe){
-            //Kao vrijednost form controla inicijalno postavi VREMENA I NARUDŽBE
-            this.dodajTbody(narudzba);
-        }        
+                //Kreiram svoju formu za početne datume
+                this.forma = new FormGroup({
+                    'datum': new FormControl(this.danasnjiDatum)
+                });
+                
+                //Kreiram reactive formu koja sadržava sve retke i stupce tablice narudžbi
+                this.formaTablica = new FormGroup({
+                    //FormArray koji sadrži sve datume i nazive dana u tjednu u prvom retku (formcontrolove)
+                    'datumiNaziviDana': new FormArray([
+                        new FormControl('Vrijeme')
+                    ]),
+                    'tbody': new FormArray([])
+                });
+                //Za svaki podatak u polju datumi i nazivi, DODAJ JEDAN FORM CONTROL U FORM ARRAY KOJI JE PRVI REDAK
+                for(let datumNaziv of this.datumiNazivi){
+                    //Kao vrijednost form controla inicijalno postavi DATUM + NAZIV DANA U TJEDNU
+                    this.dodajDatumINazivDana(datumNaziv.NazivDana+" "+datumNaziv.Datum);
+                }
+                //Za svaki podataka u polju narudzbe, DODAJ JEDAN FORM CONTROL U FORM ARRAY 
+                for(let narudzba of this.narudzbe){
+                    //Kao vrijednost form controla inicijalno postavi VREMENA I NARUDŽBE
+                    this.dodajTbody(narudzba);
+                }
+        });        
 
         //Pretplaćujem se na promjene u datumu
-        this.subsDanasnjiDatum = this.forma.get('datum').valueChanges.subscribe(
+        this.forma.get('datum').valueChanges.pipe(
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
             //Dohvaćam vrijednost datuma
             (datum) => {
                 //Pozivam metodu da promijeni stanje tablice
@@ -98,8 +97,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.dohvatiNovoStanje(datum),
             this.narucivanjeService.dohvatiNovoStanjeDatumiNazivi(datum)
-        ]);
-        this.subsNovoStanje = combined.subscribe(
+        ]).pipe(
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
             //Dohvaćam odgovor
             (odgovor) => {
                 //Spremam narudžbe i vremena
@@ -199,8 +199,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.getVremena(),
             this.narucivanjeService.getDatumiNazivi()
-        ]);
-        this.subsOtkazivanje = combined.subscribe(
+        ]).pipe(
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
             (odgovor) => {
                 //Dohvaćam narudžbe i vremena
                 this.narudzbe = odgovor[0];
@@ -227,8 +228,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.getVremena(),
             this.narucivanjeService.getDatumiNazivi()
-        ]);
-        this.subsAzuriranje = combined.subscribe(
+        ]).pipe(
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
             (odgovor) => {
                 //Dohvaćam narudžbe i vremena
                 this.narudzbe = odgovor[0];
@@ -255,8 +257,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.getVremena(),
             this.narucivanjeService.getDatumiNazivi()
-        ]);
-        this.subsNarucivanje = combined.subscribe(
+        ]).pipe(
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
             //Dohvaćam odgovor servera
             (odgovor) => {
                 //Spremam narudžbe i vremena
@@ -424,36 +427,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada se komponenta uništi
     ngOnDestroy(){
-        //Ako postoji pretplata
-        if(this.subs){
-            //Izađi iz pretplate
-            this.subs.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsDanasnjiDatum){
-            //Izađi iz pretplate
-            this.subsDanasnjiDatum.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsNarucivanje){
-            //Izađi iz pretplate
-            this.subsNarucivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsAzuriranje){
-            //Izađi iz pretplate
-            this.subsAzuriranje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsOtkazivanje){
-            //Izađi iz pretplate
-            this.subsOtkazivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsNovoStanje){
-            //Izađi iz pretplate
-            this.subsNovoStanje.unsubscribe();
-        }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 
     //Pravim getter za datum koji se mijenja

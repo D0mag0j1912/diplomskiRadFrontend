@@ -34,6 +34,7 @@
                                     *ngIf="(mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid" 
                                     style="font-family: Verdana, sans-serif;font-weight: bold;"> 
                                     <span *ngIf="mkbPrimarnaDijagnoza.errors?.required">MKB šifra dijagnoze je obavezna!</span>
+                                    <span *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB && !mkbPrimarnaDijagnoza.errors?.required">Neispravan unos MKB šifre!</span>
                                 </span> 
                             </td>
                             <td></td>
@@ -134,7 +135,10 @@
                                         <p style="font-family: Verdana, sans-serif;">Proizvođač: {{rez.proizvodacLijek}}</p>
                                     </li>
                                 </ul> 
-                                <span class="help-block" *ngIf="isPretragaLijekOsnovnaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="isPretragaLijekOsnovnaLista && porukaNemaRezultata" 
+                                    style="font-weight: bold;">{{porukaNemaRezultata}}</span>
                             </td>
                             <td></td>
                         </tr>
@@ -151,13 +155,12 @@
                                 </select>
                                 <span 
                                     class="help-block" 
-                                    *ngIf="((osnovnaListaLijek.touched || osnovnaListaLijek.dirty) 
-                                        || (dopunskaListaLijek.touched || dopunskaListaLijek.dirty))">
+                                    *ngIf="primarnaDijagnoza.valid && isLijek">
                                     <span 
                                         *ngIf="forma.errors?.baremJedan" 
                                         style="font-family: Verdana, sans-serif;
                                         font-weight: bold;top:10px;position: relative;">Unesite barem jedan proizvod!</span>
-                                </span>
+                                </span>  
                             </td>
                             <td>
                                 <textarea  
@@ -184,7 +187,10 @@
                                         <p style="font-family: Verdana, sans-serif;">Proizvođač: {{rez.proizvodacLijek}}</p>
                                     </li>
                                 </ul> 
-                                <span class="help-block" *ngIf="isPretragaLijekDopunskaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="isPretragaLijekDopunskaLista && porukaNemaRezultata" 
+                                    style="font-weight: bold;">{{porukaNemaRezultata}}</span>
                             </td>
                             <td></td>
                         </tr>
@@ -222,7 +228,10 @@
                                         <h4>{{rez.nazivMagPripravak}}</h4>
                                     </li>
                                 </ul> 
-                                <span class="help-block" *ngIf="isPretragaMagPripravakOsnovnaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="isPretragaMagPripravakOsnovnaLista && porukaNemaRezultata" 
+                                    style="font-weight: bold;">{{porukaNemaRezultata}}</span>
                             </td>
                             <td></td>
                         </tr>
@@ -239,8 +248,7 @@
                                 </select>
                                 <span 
                                     class="help-block" 
-                                    *ngIf="((osnovnaListaMagPripravak.touched || osnovnaListaMagPripravak.dirty) 
-                                        || (dopunskaListaMagPripravak.touched || dopunskaListaMagPripravak.dirty))">
+                                    *ngIf="primarnaDijagnoza.valid && isMagPripravak">
                                     <span 
                                         *ngIf="forma.errors?.baremJedan" 
                                         style="font-family: Verdana, sans-serif;
@@ -271,7 +279,10 @@
                                         <h4>{{rez.nazivMagPripravak}}</h4>
                                     </li>
                                 </ul> 
-                                <span class="help-block" *ngIf="isPretragaMagPripravakDopunskaLista && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="isPretragaMagPripravakDopunskaLista && porukaNemaRezultata" 
+                                    style="font-weight: bold;">{{porukaNemaRezultata}}</span>
                             </td>
                             <td></td>
                         </tr>
@@ -316,26 +327,32 @@
                                     style="margin-top:6px;font-family: Verdana, sans-serif;">Količina:</label>
                                 <select 
                                     class="form-control" 
-                                    style="width:100px;height:35px;left:75px;margin-top:-30px;position: relative;" 
+                                    style="width:200px;height:35px;left:75px;margin-top:-30px;position: relative;" 
                                     formControlName="kolicinaDropdown" 
                                     #kolicina
                                     (change)="promijeniKolicina(kolicina.value)">
-                                    <option [ngValue]="null">Odaberite</option>
+                                    <option [ngValue]="null" *ngIf="!isKolicina">Odaberite količinu</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                 </select>
                                 <input 
                                     type="text"
                                     formControlName="kolicinaRimski"
-                                    style="width: 130px; height: 35px;left:180px;margin-top:-35px;position: relative;" 
+                                    style="width: 130px; height: 35px;left:280px;margin-top:-35px;position: relative;" 
                                     class="form-control"
                                     placeholder="Rimska oznaka">
                                 <span 
                                     class="help-block" 
                                     *ngIf="(kolicinaDropdown.touched || kolicinaDropdown.dirty) && !kolicinaDropdown.valid" 
-                                    style="font-family: Verdana, sans-serif;left:80px;position:relative"> 
+                                    style="font-family: Verdana, sans-serif;left:80px;position:relative;font-weight: bold;"> 
                                     <span *ngIf="kolicinaDropdown.errors?.required">Količina je obavezna!</span>
                                 </span>
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="(kolicinaDropdown.touched || kolicinaDropdown.dirty)" 
+                                    style="font-family: Verdana, sans-serif;left:80px;position:relative;font-weight: bold;"> 
+                                    <span *ngIf="forma.errors?.kolicinaPrijeProizvod">Prvo morate unijeti proizvod!</span>
+                                </span> 
                             </td>
                         </tr>
                         <tr formGroupName="doziranje">
@@ -355,26 +372,6 @@
                                         <option value="dnevno">dnevno</option>
                                         <option value="tjedno">tjedno</option>
                                 </select>
-                                <p style="font-family:Verdana, sans-serif;margin-top:-29px;left:315px;position: relative;">ILI</p>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    formControlName="doziranjeText"
-                                    placeholder="Unesite dozu..."
-                                    style="width:350px;height:35px;margin-top:-35px;left:345px;position: relative;">
-                                <span 
-                                    class="help-block" 
-                                    *ngIf="(doziranjeText.touched || doziranjeText.dirty) 
-                                        || (doziranjeFrekvencija.touched || doziranjeFrekvencija.dirty)">
-                                    <span 
-                                        *ngIf="doziranje.errors?.bothForbidden" 
-                                        style="font-family: Verdana, sans-serif;
-                                        font-weight: bold;">Samo jedna vrsta unosa doziranja je dozvoljena!</span>
-                                    <span 
-                                        *ngIf="!doziranje.errors?.bothForbidden && doziranje.errors?.baremJednoDoziranje"
-                                        style="font-family: Verdana, sans-serif;
-                                        font-weight: bold;">Morate unijeti barem jednu vrstu doziranja!</span> 
-                                </span>
                                 <span 
                                     class="help-block" 
                                     *ngIf="(doziranjeFrekvencija.touched || doziranjeFrekvencija.dirty) && !doziranjeFrekvencija.valid">
@@ -383,6 +380,12 @@
                                         style="font-family: Verdana, sans-serif;
                                         font-weight: bold;">Frekvencija doziranja mora biti cjelobrojna vrijednost!</span>
                                 </span> 
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="(doziranjeFrekvencija.touched || doziranjeFrekvencija.dirty) && !kolicinaDropdown.valid" 
+                                    style="font-family: Verdana, sans-serif;font-weight: bold;"> 
+                                    <span *ngIf="forma.errors?.doziranjePrijeKolicina">Prvo morate unijeti količinu!</span>
+                                </span>  
                             </td>
                         </tr>
                         <tr formGroupName="trajanje">
@@ -410,7 +413,7 @@
                             <td></td>
                         </tr>
                         <tr *ngIf="isSpecijalist">
-                            <td colspan="2">
+                            <td colspan="4">
                                 <label 
                                     for="sifraSpecijalist" 
                                     style="margin-top:6px;font-family: Verdana, sans-serif;">Šifra specijalista:</label>
@@ -421,9 +424,17 @@
                                     placeholder="Šifra specijalista..." 
                                     style="width:250px;height:35px;left:150px;margin-top:-30px;position: relative;">
                             </td>
-                            <td></td>
-                            <td></td>
                         </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">
+                                <button 
+                                    type="submit"
+                                    [disabled]="!forma.valid"
+                                    class="btn btn-info">Unesi novi recept</button>
+                            </td>
+                            <td></td>
+                        </tr> 
                     </tbody>
                 </table>
             </div>

@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { forkJoin, of, Subject, Subscription } from 'rxjs';
+import { switchMap, take, takeUntil } from 'rxjs/operators';
 import { HeaderService } from '../../header/header.service';
 import { CekaonicaService } from '../cekaonica.service';
 
@@ -14,6 +14,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
     //Kreiram pretplate
     subs: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Kreiram EventEmitter da mogu obavijestiti roditeljsku komponentu da se ovaj prozor zatvara
     @Output() close = new EventEmitter<any>();
     //Inicijaliziram formu
@@ -47,12 +49,15 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     ngOnInit() {
 
         //Pretplaćujem se na Observable u kojemu se nalaze detalji pregleda
-        this.subs = this.headerService.tipKorisnikaObs.pipe(
+        this.headerService.tipKorisnikaObs.pipe(
+            takeUntil(this.pretplateSubject),
             take(1),
             switchMap(tipKorisnik => {
                 //Spremam tip prijavljenog korisnika
                 this.tipKorisnik = tipKorisnik;
-                return this.cekaonicaService.prikaziDetaljePregleda();
+                return this.cekaonicaService.prikaziDetaljePregleda().pipe(
+                    takeUntil(this.pretplateSubject)
+                );
             })
         ).pipe(
             switchMap(
@@ -252,10 +257,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
     //Ova metoda se izvodi kada se komponenta uništi
     ngOnDestroy(){
-        //Ako postoji pretplata
-        if(this.subs){
-            //Izađi iz pretplate
-            this.subs.unsubscribe();
-        }
+        //Izlazim iz pretplata
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }

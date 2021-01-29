@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { merge, Subscription } from 'rxjs';
+import { combineLatest, merge, Subject } from 'rxjs';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { DrzavaOsiguranja } from 'src/app/shared/modeli/drzavaOsiguranja.model';
 import { HeaderService } from 'src/app/shared/header/header.service';
@@ -11,6 +11,7 @@ import { OtvoreniSlucajService } from 'src/app/shared/otvoreni-slucaj/otvoreni-s
 import { PodrucniUred } from 'src/app/shared/modeli/podrucniUred.model';
 import { MedSestraService } from '../med-sestra.service';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
+import { takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -19,13 +20,8 @@ import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 })
 export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
-    //Kreiram pretplate 
-    subsCombined: Subscription;
-    subs: Subscription;
-    subsSubmit: Subscription;
-    subsAktivnaMedSestra: Subscription;
-    subsZavrsenPregled: Subscription;
-    subsOtvoreniSlucaj: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li gumb za poništavanje povezanog slučaja aktivan
     ponistiPovezaniSlucaj: boolean = false;
     //Oznaka je su li otvoreni slučajevi
@@ -89,8 +85,9 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     ngOnInit() {
 
         //Pretplaćujem se na route da mogu dohvatiti podatke od njega
-        this.subs = this.route.data.subscribe(
-          (response: {podatci: any, pacijent: Obrada | any}) => {
+        this.route.data.pipe(
+          takeUntil(this.pretplateSubject),
+          tap((response: {podatci: any, pacijent: Obrada | any}) => {
               //Podatke iz Resolvera dohvaćavam i spremam u svoje polje ureda
               this.podrucniUredi = response.podatci["uredi"];
               //Podatke iz Resolver dohvaćam i spremam u svoje polje kategorija osiguranja
@@ -150,47 +147,55 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   'povezanSlucaj': new FormControl(null)
                 }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null}),
               }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
-          }
-        ); 
+          })
+        ).subscribe(); 
 
         //AKO JE PACIJENT AKTIVAN
         if(this.isAktivan){
             //Inicijalno onemogućavam unos nekih polja u formi
-            this.forma.get('sifUred').disable();
-            this.forma.get('sifUredOzljeda').disable();
-            this.forma.get('podrucniUred').disable();
-            this.forma.get('ozljeda').disable();
-            this.forma.get('poduzece').disable();
-            this.forma.get('oznakaOsiguranika').disable();
-            this.forma.get('sekundarnaDijagnoza').disable();
+            this.forma.get('sifUred').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('sifUredOzljeda').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('podrucniUred').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('ozljeda').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('poduzece').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('oznakaOsiguranika').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('sekundarnaDijagnoza').disable({onlySelf:true,emitEvent: false});
 
             //Prolazim poljem zdravstvenih podataka
             for(let podatci of this.zdravstveniPodatci){
                 console.log(podatci);
                 //Inicijalno popunjam polja zdravstvenih podataka trenutno aktivnog pacijenta
-                this.forma.get('kategorijaOsiguranja').setValue(podatci.opisOsiguranika);
+                this.forma.get('kategorijaOsiguranja').patchValue(podatci.opisOsiguranika,{onlySelf:true,emitEvent: false});
                 //Pozivam metodu koja će popuniti oznaku osiguranika
                 this.opisOsiguranikaToOznaka(podatci.opisOsiguranika);
-                this.forma.get('drzavaOsiguranja').setValue(podatci.drzavaOsiguranja);
-                this.forma.get('mbrPacijent').setValue(podatci.mboPacijent);
+                this.forma.get('drzavaOsiguranja').patchValue(podatci.drzavaOsiguranja,{onlySelf:true,emitEvent: false});
+                this.forma.get('mbrPacijent').patchValue(podatci.mboPacijent,{onlySelf:true,emitEvent: false});
                 //Ako pacijent ima broj iskaznice dopunskog
                 if(podatci.brojIskazniceDopunsko !== null){
                     //Postavljam validatore na broj iskaznice dopunskog
                     this.forma.get('brIskDopunsko').setValidators([Validators.required,Validators.pattern("^\\d{8}$"), this.isValidDopunsko.bind(this)])
-                    this.forma.get('brIskDopunsko').setValue(podatci.brojIskazniceDopunsko);
+                    this.forma.get('brIskDopunsko').patchValue(podatci.brojIskazniceDopunsko,{onlySelf:true,emitEvent: false});
                 }
             }
 
             //Kreiram jedan Observable koji će emitirati jednu vrijednost kada bilo koji form control promjeni svoju vrijednost
             const combined = merge(
-                this.forma.get('nacinPlacanja').valueChanges,
-                this.forma.get('kategorijaOsiguranja').valueChanges,
-                this.forma.get('podrucniUred').valueChanges,
-                this.forma.get('ozljeda').valueChanges,
-                this.forma.get('primarnaDijagnoza').valueChanges
-            );
-            //Pretplaćujem se na promjene u poljima za unos
-            this.subsCombined = combined.subscribe(
+                this.forma.get('nacinPlacanja').valueChanges.pipe(
+                    takeUntil(this.pretplateSubject)
+                ),
+                this.forma.get('kategorijaOsiguranja').valueChanges.pipe(
+                    takeUntil(this.pretplateSubject)
+                ),
+                this.forma.get('podrucniUred').valueChanges.pipe(
+                    takeUntil(this.pretplateSubject)
+                ),
+                this.forma.get('ozljeda').valueChanges.pipe(
+                    takeUntil(this.pretplateSubject)
+                ),
+                this.forma.get('primarnaDijagnoza').valueChanges.pipe(
+                    takeUntil(this.pretplateSubject)
+                )
+            ).subscribe(
                 //Dohvaćam odgovor
                 (value) => {
                     //Ako je unesena vrijednost u formi jednaka nekoj od ovih vrijednosti
@@ -244,35 +249,66 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 }
             );
 
-            //Pretplaćujem se na Subject da doznam ID aktivne medicinske sestre
-            this.subsAktivnaMedSestra = this.headerService.getIDMedSestra().subscribe(
-              //Dohvaćam podatak ID-a medicinske sestre
-              (response) => {
-                //Podatak iz Subjecta spremam u svoju varijablu
-                this.idMedSestra = response[0].idMedSestra;
-              }
-            );
+            /* //Pretplaćujem se na Subject da doznam ID aktivne medicinske sestre
+            this.headerService.getIDMedSestra().pipe(
+                takeUntil(this.pretplateSubject),
+                //Dohvaćam podatak ID-a medicinske sestre
+                tap((response) => {
+                    //Podatak iz Subjecta spremam u svoju varijablu
+                    this.idMedSestra = response[0].idMedSestra;
+                    console.log(this.idMedSestra);
+                })
+            ).subscribe();
             //Pretplaćujem se na Subject koji označava je li pregled završen ili nije
             this.subsZavrsenPregled = this.obradaService.obsZavrsenPregled.subscribe(
-              (podatci) => {
-                //Ako je pregled završen
-                if(podatci === "zavrsenPregled"){
-                  //Postavljam da pacijent više nije aktivan
-                  this.isAktivan = false;
-                  //Resetiram formu osnovnih podataka pacijenta
-                  this.forma.reset();
-                  //Uklanjam validatore sa forme
-                  this.forma.clearValidators();
-                  this.forma.updateValueAndValidity({emitEvent: false});
-                  //Za svaki form control u formi
-                  for(let field in this.forma.controls){
-                    //Ukloni mu validator i ažuriraj stanje forme
-                    this.forma.get(field).clearValidators();
-                    this.forma.get(field).updateValueAndValidity({emitEvent: false});
+                (podatci) => {
+                  //Ako je pregled završen
+                  if(podatci === "zavrsenPregled"){
+                    //Postavljam da pacijent više nije aktivan
+                    this.isAktivan = false;
+                    //Resetiram formu osnovnih podataka pacijenta
+                    this.forma.reset();
+                    //Uklanjam validatore sa forme
+                    this.forma.clearValidators();
+                    this.forma.updateValueAndValidity({emitEvent: false});
+                    //Za svaki form control u formi
+                    for(let field in this.forma.controls){
+                      //Ukloni mu validator i ažuriraj stanje forme
+                      this.forma.get(field).clearValidators();
+                      this.forma.get(field).updateValueAndValidity({emitEvent: false});
+                    }
                   }
                 }
-              }
-            );
+            ); */ 
+            const combined2 = combineLatest([
+                this.headerService.getIDMedSestra(),
+                this.obradaService.obsZavrsenPregled
+            ]).pipe(
+                takeUntil(this.pretplateSubject)
+            ).subscribe(
+                //Dohvaćam odgovor
+                (response) => {
+                    //Podatak iz Subjecta spremam u svoju varijablu
+                    this.idMedSestra = response[0][0].idMedSestra;
+                    console.log(this.idMedSestra);
+                    //Ako je pregled završen
+                    if(response[1] === "zavrsenPregled"){
+                        //Postavljam da pacijent više nije aktivan
+                        this.isAktivan = false;
+                        //Resetiram formu osnovnih podataka pacijenta
+                        this.forma.reset();
+                        //Uklanjam validatore sa forme
+                        this.forma.clearValidators();
+                        this.forma.updateValueAndValidity({emitEvent: false});
+                        //Za svaki form control u formi
+                        for(let field in this.forma.controls){
+                          //Ukloni mu validator i ažuriraj stanje forme
+                          this.forma.get(field).clearValidators();
+                          this.forma.get(field).updateValueAndValidity({emitEvent: false});
+                        }
+                    }
+                }
+            ); 
         }
         
     }
@@ -330,7 +366,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
           //Ako je trenutna vrijednost načina plaćanja "poduzeće"
           if(value === 'poduzece'){
             //Omogućavam unos poduzeća
-            this.poduzece.enable();
+            this.poduzece.enable({onlySelf: true, emitEvent: false});
             //Naziv poduzeća mora biti unesen
             this.poduzece.setValidators(Validators.required);
             //Restiram polja područnih ureda
@@ -340,8 +376,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.sifUred.reset();
             this.sifUredOzljeda.reset();
             //Disablam područne urede
-            this.podrucniUred.disable();
-            this.ozljeda.disable();
+            this.podrucniUred.disable({onlySelf: true, emitEvent: false});
+            this.ozljeda.disable({onlySelf: true, emitEvent: false});
           }
           else{
             //Gasim validatore za poduzeće
@@ -352,7 +388,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             //Resetiram šifre područnih ureda ozljede
             this.sifUredOzljeda.reset();
             //Omogućavam unos područnog ureda HZZO
-            this.podrucniUred.enable();
+            this.podrucniUred.enable({onlySelf: true, emitEvent: false});
             //Područni ured mora biti unesen
             this.podrucniUred.setValidators([Validators.required,this.isValidPodrucniUred.bind(this)]);
             //Broj iskaznice dopunskog mora biti unesen
@@ -362,8 +398,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.ozljeda.reset();
             this.poduzece.reset();
             //Onemogućavam unos područnog ureda ozljede na radu te naziva poduzeća
-            this.ozljeda.disable();
-            this.poduzece.disable();
+            this.ozljeda.disable({onlySelf: true, emitEvent: false});
+            this.poduzece.disable({onlySelf: true, emitEvent: false});
           }
           else{
             //Odbaci validatore
@@ -376,15 +412,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             //Resetiram šifre područnih ureda
             this.sifUred.reset();
             //Omogućavam unos područnog ureda ozljede na radu
-            this.ozljeda.enable();
+            this.ozljeda.enable({onlySelf: true, emitEvent: false});
             //Područni ured ozljede mora biti unesen
             this.ozljeda.setValidators([Validators.required, this.isValidPodrucniUred.bind(this)]);
             //Resetiram polja područnog ureda HZZO-a i poduzeća
             this.podrucniUred.reset();
             this.poduzece.reset();
             //Onemogućavam unos područnog ureda i poduzeća
-            this.podrucniUred.disable();
-            this.poduzece.disable();
+            this.podrucniUred.disable({onlySelf: true, emitEvent: false});
+            this.poduzece.disable({onlySelf: true, emitEvent: false});
           }
           else{
             //Odbaci validatore
@@ -400,9 +436,9 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.ozljeda.reset();
             this.poduzece.reset();
             //Onemogućavam unos područnim uredima i poduzeću
-            this.podrucniUred.disable();
-            this.ozljeda.disable();
-            this.poduzece.disable();
+            this.podrucniUred.disable({onlySelf: true, emitEvent: false});
+            this.ozljeda.disable({onlySelf: true, emitEvent: false});
+            this.poduzece.disable({onlySelf: true, emitEvent: false});
           }
           //Ako je trenutna vrijednost načina plaćanja "ozljeda" ili "hzzo"
           if(value === 'hzzo' || value === 'ozljeda' || value === 'poduzece'){
@@ -439,7 +475,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
         if(value === ured["nazivSluzbe"]){
           //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUred').setValue(ured["sifUred"]);
+          this.forma.get('sifUred').patchValue(ured["sifUred"],{onlySelf: true, emitEvent: false});
         }
       }
       this.forma.get('sifUred').updateValueAndValidity({emitEvent: false}); 
@@ -451,7 +487,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
         if(value === ured["nazivSluzbe"]){
           //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUredOzljeda').setValue(ured["sifUred"]);
+          this.forma.get('sifUredOzljeda').patchValue(ured["sifUred"],{onlySelf: true, emitEvent: false});
         }
       }
       this.forma.get('sifUredOzljeda').updateValueAndValidity({emitEvent: false}); 
@@ -464,7 +500,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
         if(value === osiguranje["opisOsiguranika"]){
           //Postavi oznaku osiguranika na onu oznaku koja odgovora odabranom opisu osiguranika
-          this.forma.get('oznakaOsiguranika').setValue(osiguranje["oznakaOsiguranika"]);
+          this.forma.get('oznakaOsiguranika').patchValue(osiguranje["oznakaOsiguranika"],{onlySelf: true, emitEvent: false});
         }
       }
       this.forma.get('oznakaOsiguranika').updateValueAndValidity({emitEvent: false}); 
@@ -526,18 +562,19 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
       //Ako je pacijent aktivan
       if(this.isAktivan){
           //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na zahtjev dodavanja općih podataka pregleda
-          this.subsSubmit = this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
-            this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
-            this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
-            this.primarnaDijagnoza.value, this.sekundarnaDijagnoza.value,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',this.idObrada).subscribe(
-              //Dohvaćam odgovor servera
-              (response) => {
-                //Označavam da ima odgovora servera
-                this.response = true;
-                //Spremam odgovor servera
-                this.responsePoruka = response["success"] !== "false" ? "Opći podatci pregleda uspješno dodani!" : response["message"];
-              }
-          );
+          this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
+              this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
+              this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
+              this.primarnaDijagnoza.value, this.sekundarnaDijagnoza.value,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',this.idObrada).pipe(
+                takeUntil(this.pretplateSubject),
+                //Dohvaćam odgovor servera
+                tap((response) => {
+                    //Označavam da ima odgovora servera
+                    this.response = true;
+                    //Spremam odgovor servera
+                    this.responsePoruka = response["success"] !== "false" ? "Opći podatci pregleda uspješno dodani!" : response["message"];
+                })    
+          ).subscribe();
       }
       else{
         //Označavam da se prozor aktivira
@@ -557,43 +594,44 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
       //Ako je pacijent aktivan
       if(this.isAktivan){
           //Pretplaćujem se na Observable u kojemu se nalaze NAZIV PRIMARNE DIJAGNOZE i NAZIVI NJEZINIH SEKUNDARNIH DIJAGNOZA
-          this.subsOtvoreniSlucaj = this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).subscribe(
-            //Dohvaćam podatke
-            (podatci) => {
-                //Resetiram formu sekundarnih dijagnoza
-                this.sekundarnaDijagnoza.clear();
-                //Resetiram svoje polje sekundarnih dijagnoza
-                this.sekundarnaDijagnozaOtvoreniSlucaj = [];
-                //Dodaj jedan form control da inicijalno bude 1
-                this.onAddDiagnosis();
-                //Prolazim poljem odgovora servera
-                for(let dijagnoza of podatci){
-                  console.log(dijagnoza);
-                  //Spremam naziv primarne dijagnoze otvorenog slučaja
-                  this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
-                  //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
-                  this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
-                  //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+          this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).pipe(
+            takeUntil(this.pretplateSubject),
+            tap(//Dohvaćam podatke
+              (podatci) => {
+                  //Resetiram formu sekundarnih dijagnoza
+                  this.sekundarnaDijagnoza.clear();
+                  //Resetiram svoje polje sekundarnih dijagnoza
+                  this.sekundarnaDijagnozaOtvoreniSlucaj = [];
+                  //Dodaj jedan form control da inicijalno bude 1
                   this.onAddDiagnosis();
-                }
-                //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                this.onDeleteDiagnosis(-1); 
-                //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                this.primarnaDijagnoza.setValue(this.primarnaDijagnozaOtvoreniSlucaj);
-                //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaOtvoreniSlucaj);
-                //Zatvaram prozor otvorenog slučaja
-                this.otvoren = false;
-                //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
-                this.ponistiPovezaniSlucaj = true;
-                //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                this.povezanSlucaj.setValue(true);
-                //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                this.povezanSlucaj.disable();
-                //Resetiram checkbox novog slučaja da ne ostane da su oba true
-                this.noviSlucaj.reset();
-            }
-        );
+                  //Prolazim poljem odgovora servera
+                  for(let dijagnoza of podatci){
+                    console.log(dijagnoza);
+                    //Spremam naziv primarne dijagnoze otvorenog slučaja
+                    this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
+                    //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
+                    this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
+                    //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                    this.onAddDiagnosis();
+                  }
+                  //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
+                  this.onDeleteDiagnosis(-1); 
+                  //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
+                  this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
+                  //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
+                  this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
+                  //Zatvaram prozor otvorenog slučaja
+                  this.otvoren = false;
+                  //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
+                  this.ponistiPovezaniSlucaj = true;
+                  //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
+                  this.povezanSlucaj.patchValue(true,{onlySelf: true, emitEvent: false});
+                  //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
+                  this.povezanSlucaj.disable({onlySelf: true, emitEvent: false});
+                  //Resetiram checkbox novog slučaja da ne ostane da su oba true
+                  this.noviSlucaj.reset();
+              })
+          ).subscribe();
       }
     }
 
@@ -605,7 +643,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.sekundarnaDijagnoza.clear();
             this.sekundarnaDijagnozaOtvoreniSlucaj = [];
             this.onAddDiagnosis();
-            this.primarnaDijagnoza.setValue(null);
+            this.primarnaDijagnoza.patchValue(null,{onlySelf: true, emitEvent: false});
             //Skrivam button "Poništi povezani slučaj"
             this.ponistiPovezaniSlucaj = false;
             //Resetiram checkbox povezanog slučaja
@@ -616,36 +654,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Metoda koja se pokreće kada se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subs){
-        //Izađi iz nje
-        this.subs.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsSubmit){
-        //Izađi iz nje
-        this.subsSubmit.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsAktivnaMedSestra){
-        //Izađi iz nje
-        this.subsAktivnaMedSestra.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsZavrsenPregled){
-        //Izađi iz nje
-        this.subsZavrsenPregled.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsOtvoreniSlucaj){
-        //Izađi iz nje
-        this.subsOtvoreniSlucaj.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsCombined){
-          //Izađi iz pretplate
-          this.subsCombined.unsubscribe();
-      }
+      this.pretplateSubject.next(true);
+      this.pretplateSubject.complete();
       //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
       this.obradaService.zavrsenPregled.next(null);
     }

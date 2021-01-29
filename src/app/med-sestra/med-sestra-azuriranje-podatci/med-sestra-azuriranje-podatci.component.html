@@ -5,9 +5,6 @@
             <h3>Ažuriraj osobne podatke</h3>
             <h3>Profil </h3>
             <p><strong>Datum registracije profila: {{osobniPodatci[0].datKreirMedSestra}}</strong></p>
-            <div>
-                <app-loading-spinner *ngIf="isLoading"></app-loading-spinner>
-            </div>
             <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
             <form #forma="ngForm" (ngSubmit)="onSubmit(forma)">
                 <div class="form-group">

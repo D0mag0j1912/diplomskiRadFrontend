@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { Korisnik } from 'src/app/shared/modeli/korisnik.model';
 import { LijecnikService } from '../lijecnik.service';
 
@@ -14,9 +15,8 @@ import { LijecnikService } from '../lijecnik.service';
 
 export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
 
-    //Kreiram varijable u kojoj ću spremiti pretplatu na servis
-    subsResolver: Subscription;
-    subsAzuriranje: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Kreiram objekt tipa Korisnik u kojemu će se nalaziti svi osobni podatci liječnika
     osobniPodatci: Korisnik;
 
@@ -26,8 +26,6 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
     response: boolean = false;
     //Poruka backenda (ako postoji response)
     responsePoruka: string = null;
-    //Oznaka je li se spinner pokazuje
-    isLoading: boolean = false;
 
     constructor(
       //Dohvaćam liječnički servis
@@ -39,59 +37,53 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
     //Ova metoda se poziva kada se ova komponenta pokrene 
     ngOnInit() {
       //Pretplaćujem se na podatke koji su poslani preko Resolvera 
-      this.subsResolver = this.route.data.subscribe(
-        (data : {podatci: Korisnik}) => {
-          //Podatke koje je backend vratio (baza), pridružujem svom objektu i pomoću ngModel te vrijednosti lijepim na template
-          this.osobniPodatci = data.podatci;
-          //ID liječnika koji je backend vratio spremam u varijablu
-          this.idLijecnik = this.osobniPodatci[0].idLijecnik;
-        }
-      );
+      this.route.data.pipe(
+          takeUntil(this.pretplateSubject),
+          tap(
+            (data : {podatci: Korisnik}) => {
+              //Podatke koje je backend vratio (baza), pridružujem svom objektu i pomoću ngModel te vrijednosti lijepim na template
+              this.osobniPodatci = data.podatci;
+              //ID liječnika koji je backend vratio spremam u varijablu
+              this.idLijecnik = this.osobniPodatci[0].idLijecnik;
+            }
+          )
+      ).subscribe();
 
-    }
-
-    ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subsResolver){
-        //Izađi iz pretplate
-        this.subsResolver.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsAzuriranje){
-        //Izađi iz pretplate
-        this.subsAzuriranje.unsubscribe();
-      }
     }
 
     //Pokreće se kada korisnik stisne button "Ažuriraj"
     onSubmit(form: NgForm){
-      //console.log(form);
-      if(!form.valid){
-        return;
-      }
-      
-      //Pokrećem spinner
-      this.isLoading = true;
 
-      //Pretplaćujem se na Observable koji je vratio podatke za ažuriranje osobnih podataka
-      this.subsAzuriranje = this.lijecnikService.editPersonalData(this.idLijecnik,form.value.email,form.value.ime,form.value.prezime,form.value.adresa,form.value.specijalizacija).subscribe(
-        (response) => {
-          //Ako postoji odgovor
-          if(response){
-            //Gasim spinner
-            this.isLoading = false;
-            //Označavam da ima odgovora servera
-            this.response = true;
-            //Spremam odgovor servera
-            this.responsePoruka = response["message"];
-          }    
-        }  
-      );
+        if(!form.valid){
+          return;
+        }
+
+        //Pretplaćujem se na Observable koji je vratio podatke za ažuriranje osobnih podataka
+        this.lijecnikService.editPersonalData(this.idLijecnik,form.value.email,form.value.ime,form.value.prezime,form.value.adresa,form.value.specijalizacija).pipe(
+            takeUntil(this.pretplateSubject),
+            tap(
+              (response) => {
+                //Ako postoji odgovor
+                if(response){
+                  //Označavam da ima odgovora servera
+                  this.response = true;
+                  //Spremam odgovor servera
+                  this.responsePoruka = response["message"];
+                }    
+              }
+            )  
+        ).subscribe();
     }
 
     //Zatvaranje prozora poruke
     onClose(){
-      this.response = false;
+        this.response = false;
+    }
+
+    //Ova metoda se poziva kada se komponenta uništi
+    ngOnDestroy(){
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 
 }

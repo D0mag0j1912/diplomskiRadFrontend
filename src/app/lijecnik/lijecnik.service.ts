@@ -33,7 +33,7 @@ export class LijecnikService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda na ažuriranje osobnih podataka liječnika
     editPersonalData(id: number, email: string, ime: string, prezime: string, adresa: string, specijalizacija: string){
 
-        return this.http.put<any>(this.baseUrl + 'lijecnik/lijecnik.php',
+        return this.http.put<any>(this.baseUrl + 'lijecnik/azurirajOsobnePodatke.php',
         {
             id: id,
             email: email,
@@ -48,7 +48,7 @@ export class LijecnikService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda za ažuriranje lozinke liječnika
     editPassword(id: number,trenutna: string, nova: string, potvrdaNova: string){
 
-        return this.http.put(this.baseUrl + 'lijecnik/lijecnik.php',
+        return this.http.put(this.baseUrl + 'lijecnik/azurirajLozinka.php',
         {
             id: id,
             trenutna: trenutna,

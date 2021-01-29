@@ -27,7 +27,7 @@ export class MedSestraService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda na ažuriranje osobnih podataka medicinske sestre
     editPersonalData(id: number, email: string, ime: string, prezime: string, adresa: string, specijalizacija: string){
 
-        return this.http.put<any>(this.baseUrl + 'med-sestra/medSestra.php',
+        return this.http.put<any>(this.baseUrl + 'med-sestra/azurirajOsobnePodatke.php',
         {
             id: id,
             email: email,
@@ -42,7 +42,7 @@ export class MedSestraService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda za ažuriranje lozinke medicinske sestre
     editPassword(id: number,trenutna: string, nova: string, potvrdaNova: string){
 
-        return this.http.put(this.baseUrl + 'med-sestra/medSestra.php',
+        return this.http.put(this.baseUrl + 'med-sestra/azurirajLozinka.php',
         {
             id: id,
             trenutna: trenutna,
