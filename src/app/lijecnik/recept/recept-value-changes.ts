@@ -1,7 +1,49 @@
-import { AbstractControl, FormGroup } from "@angular/forms";
-import { of, Subject } from "rxjs";
+import { AbstractControl } from "@angular/forms";
+import { Observable, of, Subject } from "rxjs";
 import { concatMap, takeUntil, tap } from "rxjs/operators";
 import {ReceptService} from './recept.service';
+
+//Funkcija koja prima PROIZVOD te za svaku promjenu proizvoda, ažurira DOSTATNOST
+export function promjenaDostatnostiLijek(forma: AbstractControl,receptService: ReceptService,pretplateSubject: Subject<boolean>): Observable<any>{
+    //Dohvaćam količinu
+    let kolicina: string = forma.get('kolicina.kolicinaDropdown').value;
+    //Inicijaliziram dozu i lijek
+    let doza: string;
+    let lijek: string;
+    //Dohvaćam unesenu dozu lijeka
+    if(forma.get('doziranje.doziranjeFrekvencija').value && forma.get('doziranje.doziranjeFrekvencija').valid){
+        doza = forma.get('doziranje.doziranjeFrekvencija').value + "x" + forma.get('doziranje.doziranjePeriod').value;
+    }
+    //Dohvaćam uneseni lijek
+    if(forma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value){
+        lijek = forma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value;
+    }
+    else if(forma.get('osnovnaListaLijek.osnovnaListaLijekText').value){
+        lijek = forma.get('osnovnaListaLijek.osnovnaListaLijekText').value;
+    }
+    else if(forma.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value){
+        lijek = forma.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value;
+    }
+    else if(forma.get('dopunskaListaLijek.dopunskaListaLijekText').value){
+        lijek = forma.get('dopunskaListaLijek.dopunskaListaLijekText').value;
+    }
+    //Ako su popunjeni unosi lijeka, količine lijeka i doziranja lijeka:
+    if(lijek && doza && kolicina){
+        return receptService.getDostatnost(lijek,kolicina,doza).pipe(
+            takeUntil(pretplateSubject),
+            tap(odgovor => {
+                console.log(odgovor);
+            })
+        );
+    }
+    //Ako NISU popunjeni unosi lijeka, količine lijeka i doziranja lijeka, vrati null
+    else{
+        //Polje dostatnosti i polje datuma stavljam na null
+        forma.get('trajanje.dostatnost').patchValue(null,{onlySelf: true,emitEvent: false});
+        forma.get('trajanje.vrijediDo').patchValue(null,{onlySelf: true,emitEvent: false});
+        return of(null);
+    }
+}
 
 //Funkcija koja prati promjene u polju unosa frekvencije doziranja
 export function promjenaFormeDoziranje(forma: AbstractControl,pretplateSubject: Subject<any>,cijelaForma: AbstractControl,receptService: ReceptService){
@@ -21,9 +63,11 @@ export function promjenaFormeDoziranje(forma: AbstractControl,pretplateSubject: 
             }
         }),
         concatMap(value => {
+            //Dohvaćam količinu
+            let kolicina: string = cijelaForma.get('kolicina.kolicinaDropdown').value;
             let lijek;
             let doza;
-            //Dohvaćam uneseni lijek
+            //Dohvaćam uneseni proizvod
             if(cijelaForma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value){
                 lijek = cijelaForma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value;
             }
@@ -42,17 +86,35 @@ export function promjenaFormeDoziranje(forma: AbstractControl,pretplateSubject: 
             }
 
             //Ako su popunjeni unosi lijeka, količine lijeka i doziranja lijeka:
-            if(lijek && doza && cijelaForma.get('kolicina.kolicinaDropdown').value){
-                return receptService.getDostatnost(lijek,cijelaForma.get('kolicina.kolicinaDropdown').value,doza).pipe(
+            if(lijek && doza && kolicina){
+                return receptService.getDostatnost(lijek,kolicina,doza).pipe(
                     takeUntil(pretplateSubject),
-                    tap(odgovor => {
-                        console.log(odgovor);
+                    concatMap(dostatnost => {
+                        //Ako server nije vratio null za dostatnost
+                        if(dostatnost !== null){
+                            //U polje dostatnosti postavljam izračunatu dostatnost
+                            cijelaForma.get('trajanje.dostatnost').patchValue(dostatnost,{onlySelf: true, emitEvent: false});
+                            return receptService.getDatumDostatnost(dostatnost.toString()).pipe(
+                                takeUntil(pretplateSubject),
+                                tap(datum => {
+                                    //Dohvaćeni datum postavi u njegovo polje "Vrijedi do:"
+                                    cijelaForma.get('trajanje.vrijediDo').patchValue(datum,{onlySelf: true, emitEvent: false});
+                                })
+                            );
+                        }
+                        else{
+                            return of(null);
+                        }
                     })
                 );
             }
-            console.log(lijek);
             //Ako NISU popunjeni unosi lijeka, količine lijeka i doziranja lijeka, vrati null
-            return of(null);
+            else{
+                //Polje dostatnosti i polje datuma stavljam na null
+                cijelaForma.get('trajanje.dostatnost').patchValue(null,{onlySelf: true,emitEvent: false});
+                cijelaForma.get('trajanje.vrijediDo').patchValue(null,{onlySelf: true,emitEvent: false});
+                return of(null);
+            }
         })
     ).subscribe();
 }

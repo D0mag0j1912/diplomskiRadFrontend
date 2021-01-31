@@ -1,5 +1,8 @@
+import { EventEmitter } from "@angular/core";
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { take, takeUntil, tap } from "rxjs/operators";
 
 //Funkcija koja provjerava ispravnost MKB šifre primarne dijagnoze
 export function provjeriMKB(mkbSifre: string[]): ValidatorFn{
@@ -50,48 +53,85 @@ export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopun
         if(group){
             //Ako liječnik izabire lijekove
             if(isLijek){
+                //Ako dropdown osnovne liste lijekova ima neku vrijednost
                 if(group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value){
+                    //Ako je ta vrijednost ispravna tj. dio osnovne liste lijekova
                     if(lijekoviOsnovnaListaOJP.indexOf(group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value) !== -1){
+                        //Vrati da je u redu
                         return null;
                     }
                 }
-                else if(group.get('osnovnaListaLijek.osnovnaListaLijekText').value){
-                    console.log("tu sam");
-                    if(lijekoviOsnovnaListaOJP.indexOf(group.get('osnovnaListaLijek.osnovnaListaLijekText').value) !== -1){
-                        return null;
-                    }
+                //Ako tekstualno polje OSNOVNE liste lijekova ima neku vrijednost
+                if(group.get('osnovnaListaLijek.osnovnaListaLijekText').value){
+                    //Prolazim kroz sve vrijednost lijekova OSNOVNE liste
+                    for(const lijek of lijekoviOsnovnaListaOJP){
+                        //Ako lijek iz polja (malim slovima) je JEDNAK lijeku iz polja pretrage (malim slovima)
+                        if(lijek.toLowerCase() === group.get('osnovnaListaLijek.osnovnaListaLijekText').value.toLowerCase()){
+                            //Vrati da je u redu
+                            return null;
+                        }
+                    }  
                 }
-                else if(group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value){
+                //Ako dropdown dopunske liste lijekova ima neku vrijednost
+                if(group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value){
+                    //Ako je ta vrijednost dio polja dopunske liste lijekova
                     if(lijekoviDopunskaListaOJP.indexOf(group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value) !== -1){
+                        //Vrati da je u redu
                         return null;
                     }
                 }
-                else if(group.get('dopunskaListaLijek.dopunskaListaLijekText').value){
-                    if(lijekoviDopunskaListaOJP.indexOf(group.get('dopunskaListaLijek.dopunskaListaLijekText').value) !== -1){
-                        return null;
+                //Ako tekstualno polje DOPUNSKE LISTE LIJEKOVA ima neku vrijednost
+                if(group.get('dopunskaListaLijek.dopunskaListaLijekText').value){
+                    //Prolazim kroz sve vrijednost lijekova DOPUNSKE liste
+                    for(const lijek of lijekoviDopunskaListaOJP){
+                        //Ako lijek iz polja (malim slovima) je JEDNAK lijeku iz polja pretrage (malim slovima)
+                        if(lijek.toLowerCase() === group.get('dopunskaListaLijek.dopunskaListaLijekText').value.toLowerCase()){
+                            //Vrati da je u redu
+                            return null;
+                        }
                     }
                 }
                 return {'baremJedan': true};
-                /* //Ako je barem jedno od polja popunjeno
-                if(group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value 
-                    || group.get('osnovnaListaLijek.osnovnaListaLijekText').value 
-                    || group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value 
-                    || group.get('dopunskaListaLijek.dopunskaListaLijekText').value){
-                    //Vrati da je u redu
-                    return null;
-                }
-                //Inače, vrati grešku
-                return {'baremJedan': true}; */
             }
             //Ako liječnik izabere magistralne pripravke
             else if(isMagPripravak){
-                //Ako je barem jedno od polja popunjeno
-                if(group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').value 
-                    || group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value 
-                    || group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value 
-                    || group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value){
-                    //Vrati da je u redu
-                    return null;
+                //Ako dropdown osnovne liste magistralnih pripravaka ima neku vrijednost
+                if(group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').value){
+                    //Ako je ta vrijednost ispravna tj. dio osnovne liste mag. pripravaka
+                    if(magPripravciOsnovnaLista.indexOf(group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').value) !== -1){
+                        //Vrati da je u redu
+                        return null;
+                    }
+                }
+                //Ako tekstualno polje OSNOVNE liste mag.pripravaka ima neku vrijednost
+                if(group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value){
+                    //Prolazim kroz sve vrijednosti mag. pripravaka OSNOVNE liste
+                    for(const magPripravak of magPripravciOsnovnaLista){
+                        //Ako mag. pripravak iz polja (malim slovima) je JEDNAK mag. pripravku iz polja pretrage (malim slovima)
+                        if(magPripravak.toLowerCase() === group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value.toLowerCase()){
+                            //Vrati da je u redu
+                            return null;
+                        }
+                    }  
+                }
+                //Ako dropdown DOPUNSKE liste magistralnih pripravaka ima neku vrijednost
+                if(group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value){
+                    //Ako je ta vrijednost ispravna tj. dio DOPUNSKE liste mag. pripravaka
+                    if(magPripravciDopunskaLista.indexOf(group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value) !== -1){
+                        //Vrati da je u redu
+                        return null;
+                    }
+                }
+                //Ako tekstualno polje DOPUNSKE liste mag.pripravaka ima neku vrijednost
+                if(group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value){
+                    //Prolazim kroz sve vrijednosti mag. pripravaka DOPUNSKE liste
+                    for(const magPripravak of magPripravciDopunskaLista){
+                        //Ako mag. pripravak iz polja (malim slovima) je JEDNAK mag. pripravku iz polja pretrage (malim slovima)
+                        if(magPripravak.toLowerCase() === group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value.toLowerCase()){
+                            //Vrati da je u redu
+                            return null;
+                        }
+                    }  
                 }
                 //Inače, vrati grešku
                 return {'baremJedan': true};
