@@ -1,8 +1,17 @@
-import { EventEmitter } from "@angular/core";
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
-import { take, takeUntil, tap } from "rxjs/operators";
+
+//Funkcija koja provjerava ispravnost liječnikova unosa dostatnosti
+export function provjeriDostatnost(): ValidatorFn{
+    return (control: FormControl): {[key: string]:boolean} | null => {
+        if(control){
+            if(+control.value > 30){
+                return {'najvise30': true};
+            }
+            return null;
+        }
+    }
+}
 
 //Funkcija koja provjerava ispravnost MKB šifre primarne dijagnoze
 export function provjeriMKB(mkbSifre: string[]): ValidatorFn{

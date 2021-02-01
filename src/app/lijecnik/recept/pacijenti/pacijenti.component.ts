@@ -40,23 +40,26 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         });
         //Pretplaćivam se na podatke iz Resolvera 
         this.route.data.pipe(
-            takeUntil(this.pretplateSubject),
-            tap((podatci : {pacijenti: any}) => {
+            tap(
+                (podatci : {pacijenti: any}) => {
                     //Spremam pacijente za tablicu
                     this.pacijenti = podatci.pacijenti;
                     console.log(this.pacijenti);
-                })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(); 
         //Pretplaćujem se na liječnikovu pretragu u formi pretrage
-        this.formaPretraga.get('pretraga').valueChanges.pipe( 
-            takeUntil(this.pretplateSubject),
+        this.formaPretraga.get('pretraga').valueChanges.pipe(
             //Ne ponavljam iste zahtjeve
             distinctUntilChanged(), 
             //Uzimam vrijednost pretrage te ga sekvencijalno predavam serveru tj. ako prošla vrijednost pretrage nije došla još do backenda
             //,a već se nova vrijednost pretrage pojavila, nova će morati čekati staru da završi
             concatMap(value => {
-                return this.receptService.getPacijentiPretraga(value);
-            })
+                return this.receptService.getPacijentiPretraga(value).pipe(
+                    takeUntil(this.pretplateSubject)
+                );
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(
             //Dohvaćam odgovor servera na liječnikovu pretragu
             (odgovor) => {

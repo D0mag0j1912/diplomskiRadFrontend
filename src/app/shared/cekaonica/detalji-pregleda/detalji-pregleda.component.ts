@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { forkJoin, of, Subject, Subscription } from 'rxjs';
+import { forkJoin, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil } from 'rxjs/operators';
 import { HeaderService } from '../../header/header.service';
 import { CekaonicaService } from '../cekaonica.service';
@@ -12,8 +12,6 @@ import { CekaonicaService } from '../cekaonica.service';
 })
 export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
-    //Kreiram pretplate
-    subs: Subscription;
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
     //Kreiram EventEmitter da mogu obavijestiti roditeljsku komponentu da se ovaj prozor zatvara
@@ -50,7 +48,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
         //Pretplaćujem se na Observable u kojemu se nalaze detalji pregleda
         this.headerService.tipKorisnikaObs.pipe(
-            takeUntil(this.pretplateSubject),
             take(1),
             switchMap(tipKorisnik => {
                 //Spremam tip prijavljenog korisnika
@@ -58,7 +55,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 return this.cekaonicaService.prikaziDetaljePregleda().pipe(
                     takeUntil(this.pretplateSubject)
                 );
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).pipe(
             switchMap(
                 //Dohvaćam odgovor servera
@@ -150,7 +148,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         return of(null);
                     } 
                 }
-            )
+            ),
+            takeUntil(this.pretplateSubject)
         //Pretplaćujem se na nazive i šifre sekundarnih dijagnoza
         ).subscribe(
             (odgovor) => {

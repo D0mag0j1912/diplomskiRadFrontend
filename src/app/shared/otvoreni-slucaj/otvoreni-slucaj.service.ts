@@ -51,7 +51,8 @@ export class OtvoreniSlucajService{
 
     //Metoda koja vraća Observable u kojemu se nalaze DATUM PREGLEDA, ODGOVORNA OSOBA, MKB ŠIFRA I NAZIV PRIMARNE DIJAGNOZE ZA NAVEDENU PRETRAGU
     getOtvoreniSlucajPretraga(tip: string,pretraga: string,id: number){
-
+        //Kodiram parametar pretrage
+        pretraga = encodeURIComponent(pretraga);
         //Pipremam parametre slanja na backend pomoću params (vrijednost pretrage i ID pacijenta)
         let params = new HttpParams().append("pretraga", pretraga);
         params = params.append("id", id.toString());
@@ -63,7 +64,8 @@ export class OtvoreniSlucajService{
 
     //Metoda koja vraća Observable u kojemu se nalaze SVE SEKUNDARNE DIJAGNOZE ZA NAVEDENU PRETRAGU
     getSekundarneDijagnozePretraga(pretraga: string,id: number){
-
+        //Kodiram parametar pretrage
+        pretraga = encodeURIComponent(pretraga);
         //Pipremam parametre slanja na backend pomoću params (vrijednost pretrage i ID pacijenta)
         let params = new HttpParams().append("pretraga", pretraga);
         params = params.append("id", id.toString());

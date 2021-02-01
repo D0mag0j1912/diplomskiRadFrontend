@@ -2,7 +2,8 @@ import { Time } from '@angular/common';
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { NarucivanjeService } from 'src/app/med-sestra/narucivanje/narucivanje.service';
 @Component({
   selector: 'app-narudzba',
@@ -11,13 +12,8 @@ import { NarucivanjeService } from 'src/app/med-sestra/narucivanje/narucivanje.s
 })
 export class NarudzbaComponent implements OnInit, OnDestroy {
 
-    //Spremam pretplate
-    subs: Subscription;
-    subsNarudzba: Subscription;
-    subsResolver: Subscription;
-    subsAzuriranje: Subscription;
-    subsNarucivanje: Subscription;
-    subsOtkazivanje: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Označavam da ima odgovora servera
     response: boolean = false;
     //Spremam poruku servera
@@ -71,15 +67,18 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
         //Pretplaćujem se na Resolver da mogu dohvatiti pacijente
-        this.subsResolver = this.route.data.subscribe(
-            //Dohvaćam pacijente
-            (podatci : {podatci:any[]}) => {
-                //Spremam podatke pacijenta iz Resolvera u svoje polje pacijenata
-                this.pacijenti = podatci.podatci["pacijenti"];
-                //Spremam sve RAZLIČITE vrste pregleda za DROPDOWN
-                this.razliciteVrstePregleda = podatci.podatci["razliciteVrstePregleda"];
-            }
-        );
+        this.route.data.pipe(
+            tap(
+                //Dohvaćam pacijente
+                (podatci : {podatci:any[]}) => {
+                    //Spremam podatke pacijenta iz Resolvera u svoje polje pacijenata
+                    this.pacijenti = podatci.podatci["pacijenti"];
+                    //Spremam sve RAZLIČITE vrste pregleda za DROPDOWN
+                    this.razliciteVrstePregleda = podatci.podatci["razliciteVrstePregleda"];
+                }
+            ),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
 
         //Punim polje NAZIVA različitih vrsta pregleda
         for(let naziv of this.razliciteVrstePregleda){
@@ -92,61 +91,64 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
         }
 
         //Pretplaćujem se na Observable u kojemu se nalaze SVI PODATCI VEZANI ZA POJEDINU NARUDŽBU
-        this.subs = this.narucivanjeService.prikaziDetaljeNarudzbe().subscribe(
-            (podatci) => {
-                //Spremam sve podatke vrste pregleda u svoje polje
-                this.vrstePregleda = podatci[3];
-                //Spremam vrijeme narudžbe u svoju varijablu
-                this.vrijemeNarudzba = podatci[2][0].vrijeme;
-                //Spremam datum narudžbe u svoju varijablu
-                this.datumNarudzba = podatci[0][0].datum;
-                console.log(this.datumNarudzba);
-                //Spremam detalje naružbe u svoje polje
-                this.narudzba = podatci[1];
-                //Ako je Objekt prazan (ako nema ključeva) tj. ako je korisnik kliknuo na praznu ćeliju
-                if(Object.keys(this.narudzba).length === 0){
-                    //Označavam da nema pacijenta 
-                    this.isPacijent = false;
-                }
-                //Ako je korisnik kliknuo na punu ćeliju (s imenom, prezimenom i MBO pacijenta)
-                else{
-                    //Označavam da ima pacijenta
-                    this.isPacijent = true;
-                    //Prolazim kroz svaki element polja SVIH PACIJENATA 
-                    this.pacijenti.forEach((element) => {
-                        //Pitam ima li neki pacijent u tom polju koji ima ISTO ime i prezime i MBO kao i pacijent stisnute ćelije
-                        if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent){
-                            //Postavljam inicijalnu vrijednost dropdowna na vrijednost pacijenta koji je kliknut u ćeliji tablice
-                            this.selectedPacijent = element.Pacijent;
-                        }
-                    });
+        this.narucivanjeService.prikaziDetaljeNarudzbe().pipe(
+            tap(
+                (podatci) => {
+                    //Spremam sve podatke vrste pregleda u svoje polje
+                    this.vrstePregleda = podatci[3];
+                    //Spremam vrijeme narudžbe u svoju varijablu
+                    this.vrijemeNarudzba = podatci[2][0].vrijeme;
+                    //Spremam datum narudžbe u svoju varijablu
+                    this.datumNarudzba = podatci[0][0].datum;
+                    console.log(this.datumNarudzba);
+                    //Spremam detalje naružbe u svoje polje
+                    this.narudzba = podatci[1];
+                    //Ako je Objekt prazan (ako nema ključeva) tj. ako je korisnik kliknuo na praznu ćeliju
+                    if(Object.keys(this.narudzba).length === 0){
+                        //Označavam da nema pacijenta 
+                        this.isPacijent = false;
+                    }
+                    //Ako je korisnik kliknuo na punu ćeliju (s imenom, prezimenom i MBO pacijenta)
+                    else{
+                        //Označavam da ima pacijenta
+                        this.isPacijent = true;
+                        //Prolazim kroz svaki element polja SVIH PACIJENATA 
+                        this.pacijenti.forEach((element) => {
+                            //Pitam ima li neki pacijent u tom polju koji ima ISTO ime i prezime i MBO kao i pacijent stisnute ćelije
+                            if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent){
+                                //Postavljam inicijalnu vrijednost dropdowna na vrijednost pacijenta koji je kliknut u ćeliji tablice
+                                this.selectedPacijent = element.Pacijent;
+                            }
+                        });
 
-                    //Prolazim kroz svaki element polja SVIH VRSTA PREGLEDA
-                    this.vrstePregleda.forEach(element => {
-                        //Pitam ima li neki pacijent u tom polju koji ima ISTO ime i prezime i MBO kao pacijent stisnute ćelije
-                        if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent 
-                            && this.narudzba[0].datumNarucivanje === element.datumNarucivanje && this.narudzba[0].vrijemeNarucivanje === element.vrijemeNarucivanje){
-                            //Postavljam inicijalnu vrijednost dropdowna VRSTA PREGLEDA na vrstu pregleda koju taj pacijent ima
-                            this.selectedVrstaPregled = element.nazivVrstaPregled;
-                        }
-                    });
-                }
+                        //Prolazim kroz svaki element polja SVIH VRSTA PREGLEDA
+                        this.vrstePregleda.forEach(element => {
+                            //Pitam ima li neki pacijent u tom polju koji ima ISTO ime i prezime i MBO kao pacijent stisnute ćelije
+                            if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent 
+                                && this.narudzba[0].datumNarucivanje === element.datumNarucivanje && this.narudzba[0].vrijemeNarucivanje === element.vrijemeNarucivanje){
+                                //Postavljam inicijalnu vrijednost dropdowna VRSTA PREGLEDA na vrstu pregleda koju taj pacijent ima
+                                this.selectedVrstaPregled = element.nazivVrstaPregled;
+                            }
+                        });
+                    }
 
-                //Kreiram formu
-                this.forma = new FormGroup({
-                    //Ako već postoji narudžba pacijenta, popuni podatke forme s podatcima narudžbe, a ako ne postoji, stavi null ili stavi VRIJEME I DATUM
-                    'vrijeme': new FormControl(this.isPacijent ? this.narudzba[0].vrijemeNarucivanje : this.vrijemeNarudzba, [Validators.required]),
-                    'vrstaPregleda': new FormControl(null,[Validators.required, this.isValidVrstaPregleda.bind(this)]),
-                    'datum': new FormControl(this.isPacijent ? this.narudzba[0].datumNarucivanje : this.datumNarudzba,[Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
-                    'pacijenti': new FormControl(null,[Validators.required, this.isValidPacijent.bind(this)]),
-                    'napomena': new FormControl(this.isPacijent ? this.narudzba[0].napomenaNarucivanje : null)
-                });
-                //Postavljam inicijalnu vrijednost dropdowna na vrijednost PACIJENTA koji je kliknut u ćeliji tablice
-                this.forma.get('pacijenti').setValue(this.selectedPacijent);
-                //Postavljam inicijalnu vrijednost dropdowna na vrijednost VRSTU PREGLEDA koju kliknuti pacijent ima
-                this.forma.get('vrstaPregleda').setValue(this.selectedVrstaPregled); 
-            }
-        );
+                    //Kreiram formu
+                    this.forma = new FormGroup({
+                        //Ako već postoji narudžba pacijenta, popuni podatke forme s podatcima narudžbe, a ako ne postoji, stavi null ili stavi VRIJEME I DATUM
+                        'vrijeme': new FormControl(this.isPacijent ? this.narudzba[0].vrijemeNarucivanje : this.vrijemeNarudzba, [Validators.required]),
+                        'vrstaPregleda': new FormControl(null,[Validators.required, this.isValidVrstaPregleda.bind(this)]),
+                        'datum': new FormControl(this.isPacijent ? this.narudzba[0].datumNarucivanje : this.datumNarudzba,[Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
+                        'pacijenti': new FormControl(null,[Validators.required, this.isValidPacijent.bind(this)]),
+                        'napomena': new FormControl(this.isPacijent ? this.narudzba[0].napomenaNarucivanje : null)
+                    });
+                    //Postavljam inicijalnu vrijednost dropdowna na vrijednost PACIJENTA koji je kliknut u ćeliji tablice
+                    this.forma.get('pacijenti').patchValue(this.selectedPacijent,{onlySelf: true, emitEvent: false});
+                    //Postavljam inicijalnu vrijednost dropdowna na vrijednost VRSTU PREGLEDA koju kliknuti pacijent ima
+                    this.forma.get('vrstaPregleda').patchValue(this.selectedVrstaPregled,{onlySelf: true, emitEvent: false}); 
+                }
+            ),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
 
     }
 
@@ -173,53 +175,62 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     onAzurirajNarudzbu(){
 
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na ažuriranje narudžbe
-        this.subsAzuriranje = this.narucivanjeService.onAzurirajNarudzbu(this.vrijeme.value,this.vrstaPregleda.value,
-                                                                        this.datum.value,this.pacijentiForm.value,this.napomena.value).subscribe(
-            //Dohvaćam odgovor servera
-            (odgovor) => {
-                //Pokrećem event
-                this.azuriranje.emit();
-                //Označavam da postoji odgovor servera
-                this.response = true;
-                //Spremam poruku servera
-                this.responsePoruka = odgovor["message"];
-            }
-        );
+        this.narucivanjeService.onAzurirajNarudzbu(this.vrijeme.value,this.vrstaPregleda.value,
+                                                                        this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
+            tap(
+                //Dohvaćam odgovor servera
+                (odgovor) => {
+                    //Pokrećem event
+                    this.azuriranje.emit();
+                    //Označavam da postoji odgovor servera
+                    this.response = true;
+                    //Spremam poruku servera
+                    this.responsePoruka = odgovor["message"];
+                }
+            ),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Metoda koja naručuje pacijenta na neki termin
     onNaruciPacijenta(){
         
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na naručivanje pacijenta
-        this.subsNarucivanje = this.narucivanjeService.naruciPacijenta(this.vrijeme.value,this.vrstaPregleda.value,
-                                                                    this.datum.value,this.pacijentiForm.value,this.napomena.value).subscribe(
-            //Dohvaćam odgovor servera
-            (odgovor) => {
-                //Pokrećem event
-                this.narucivanje.emit();
-                //Označavam da ima odgovora servera
-                this.response = true;
-                //Spremam poruku servera 
-                this.responsePoruka = odgovor["message"];
-            }
-        );
+        this.narucivanjeService.naruciPacijenta(this.vrijeme.value,this.vrstaPregleda.value,
+                                                                    this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
+            tap(
+                //Dohvaćam odgovor servera
+                (odgovor) => {
+                    //Pokrećem event
+                    this.narucivanje.emit();
+                    //Označavam da ima odgovora servera
+                    this.response = true;
+                    //Spremam poruku servera 
+                    this.responsePoruka = odgovor["message"];
+                }
+            ),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Metoda koja otkazuje narudžbu pacijenta
     onOtkaziNarudzbu(){
 
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na OTKAZIVANJE narudžbe pacijenta
-        this.subsOtkazivanje = this.narucivanjeService.onOtkaziNarudzbu().subscribe(
-            //Dohvaćam odgovor servera
-            (odgovor) => {
-                //Pokrećem event
-                this.otkazivanje.emit();
-                //Označavam da ima odgovora servera
-                this.response = true;
-                //Spremam poruku servera 
-                this.responsePoruka = odgovor["message"];
-            }
-        );   
+        this.narucivanjeService.onOtkaziNarudzbu().pipe(
+            tap(
+                //Dohvaćam odgovor servera
+                (odgovor) => {
+                    //Pokrećem event
+                    this.otkazivanje.emit();
+                    //Označavam da ima odgovora servera
+                    this.response = true;
+                    //Spremam poruku servera 
+                    this.responsePoruka = odgovor["message"];
+                }
+            ),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();   
     }
 
     //Metoda koja se pokreće kada korisnik klikne "Izađi"
@@ -238,38 +249,8 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
 
     //Ova metoda se pokreće kada se komponenta uništi
     ngOnDestroy(){
-        //Ako postoji pretplata
-        if(this.subs){
-            //Izađi iz pretplate
-            this.subs.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsNarudzba){
-            //Izađi iz pretplate
-            this.subsNarudzba.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsResolver){
-            //Izađi iz pretplate
-            this.subsResolver.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsAzuriranje){
-            //Izađi iz pretplate
-            this.subsAzuriranje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsNarucivanje){
-            //Izađi iz pretplate
-            this.subsNarucivanje.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsOtkazivanje){
-            //Izađi iz pretplate
-            this.subsOtkazivanje.unsubscribe();
-        }
-        //Praznim Subject
-        //this.narucivanjeService.podatciNarudzbe.next(null); 
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete(); 
     }
 
     //Kreiram gettere za dijelove forme

@@ -18,6 +18,7 @@ export class PovezaniPovijestBolestiService{
 
     //Metoda koja vraća Observable u kojemu se nalaze podatci za povezanu povijest bolesti
     getPovijestBolestiPovezanSlucaj(event: {datum: Date,razlogDolaska: string,mkbSifraPrimarna: string},id: number){
+        event.razlogDolaska = encodeURIComponent(event.razlogDolaska);
         //Kreiram paramse
         let params = new HttpParams().append("datum",event.datum.toString());
         params = params.append("razlogDolaska",event.razlogDolaska);
@@ -41,7 +42,8 @@ export class PovezaniPovijestBolestiService{
 
     //Metoda koja vraća Observable sa svim povijestima bolesti u kojima se nalazi vrijednost PRETRAGE korisnika
     getPovijestBolestiPretraga(id: number, pretraga: string){
-
+        //Kodiram parametar pretrage
+        pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("id",id.toString());
         params = params.append("pretraga",pretraga);
         return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPretraga.php',{params: params}).pipe(catchError(this.handleError));

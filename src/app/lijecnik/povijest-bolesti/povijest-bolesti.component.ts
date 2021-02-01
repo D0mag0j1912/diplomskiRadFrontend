@@ -2,12 +2,13 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PovezaniPovijestBolestiService} from '../povezani-povijest-bolesti/povezani-povijest-bolesti.service';
-import { Subscription } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { OtvoreniSlucajService } from 'src/app/shared/otvoreni-slucaj/otvoreni-slucaj.service';
 import { PovijestBolestiService } from './povijest-bolesti.service';
+import { takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-povijest-bolesti',
@@ -16,14 +17,8 @@ import { PovijestBolestiService } from './povijest-bolesti.service';
 })
 export class PovijestBolestiComponent implements OnInit, OnDestroy {
 
-      //Spremam pretplate
-      subsResolver: Subscription;
-      subsOtvoreniSlucaj: Subscription;
-      subsPovezanaPovijestBolesti: Subscription;
-      subsPrimarnaDijagnoza: Subscription;
-      subsAktivniLijecnik: Subscription;
-      subsZavrsenPregled: Subscription;
-      subsSubmit: Subscription;
+      //Kreiram Subject
+      pretplateSubject = new Subject<boolean>();
       //Oznaka je li gumb za poništavanje povezanog slučaja aktivan
       ponistiPovezaniSlucaj: boolean = false;
       //Oznaka je li otvoren prozor sa povijestima bolesti
@@ -79,48 +74,53 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Metoda koja se izvodi kada se komponenta inicijalizira
       ngOnInit() {
           //Pretplaćujem se na podatke iz Resolvera
-          this.subsResolver = this.route.data.subscribe(
-              //Dohvaćam podatke iz Resolvera
-              (podatci: {podatci: any,pacijent: Obrada | any}) => {
-                  console.log(podatci.podatci);
-                  //Spremam dijagnoze iz Resolvera u svoje polje
-                  this.dijagnoze = podatci.podatci["dijagnoze"];
-                  //Ako je Resolver vratio aktivnog pacijenta
-                  if(podatci.pacijent["success"] !== "false"){
-                    //Označavam da je pacijent aktivan u obradi
-                    this.isAktivan = true;
-                    //Spremam mu podatke
-                    this.trenutnoAktivniPacijent = podatci.pacijent;
-                    //Spremam ID trenutno aktivnog pacijenta
-                    this.idPacijent = this.trenutnoAktivniPacijent[0].idPacijent;
-                    //Spremam ID obrade
-                    this.idObrada = this.trenutnoAktivniPacijent[0].idObrada;
-                    console.log(this.idObrada);
-                    console.log(this.idPacijent);
-                  }
-                  this.forma = new FormGroup({
-                    'razlogDolaska': new FormControl(null),
-                    'anamneza': new FormControl(null),
-                    'status': new FormControl(null),
-                    'primarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required] : []),
-                    'sekundarnaDijagnoza': new FormArray([
-                      new FormControl(null)
-                    ] , {validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
-                    'nalaz': new FormControl(null),
-                    'terapija': new FormControl(null),
-                    'preporukaLijecnik': new FormControl(null),
-                    'napomena': new FormControl(null),
-                    'tipSlucaj': new FormGroup({
-                      'noviSlucaj': new FormControl(null),
-                      'povezanSlucaj': new FormControl(null)
-                    }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null})
-                  }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
-                  //Na početku onemogućavam unos sekundarne dijagnoze
-                  this.forma.get('sekundarnaDijagnoza').disable();
-              }
-          );
+          this.route.data.pipe(
+              tap(
+                //Dohvaćam podatke iz Resolvera
+                (podatci: {podatci: any,pacijent: Obrada | any}) => {
+                    console.log(podatci.podatci);
+                    //Spremam dijagnoze iz Resolvera u svoje polje
+                    this.dijagnoze = podatci.podatci["dijagnoze"];
+                    //Ako je Resolver vratio aktivnog pacijenta
+                    if(podatci.pacijent["success"] !== "false"){
+                      //Označavam da je pacijent aktivan u obradi
+                      this.isAktivan = true;
+                      //Spremam mu podatke
+                      this.trenutnoAktivniPacijent = podatci.pacijent;
+                      //Spremam ID trenutno aktivnog pacijenta
+                      this.idPacijent = this.trenutnoAktivniPacijent[0].idPacijent;
+                      //Spremam ID obrade
+                      this.idObrada = this.trenutnoAktivniPacijent[0].idObrada;
+                      console.log(this.idObrada);
+                      console.log(this.idPacijent);
+                    }
+                    this.forma = new FormGroup({
+                      'razlogDolaska': new FormControl(null),
+                      'anamneza': new FormControl(null),
+                      'status': new FormControl(null),
+                      'primarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required] : []),
+                      'sekundarnaDijagnoza': new FormArray([
+                        new FormControl(null)
+                      ] , {validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
+                      'nalaz': new FormControl(null),
+                      'terapija': new FormControl(null),
+                      'preporukaLijecnik': new FormControl(null),
+                      'napomena': new FormControl(null),
+                      'tipSlucaj': new FormGroup({
+                        'noviSlucaj': new FormControl(null),
+                        'povezanSlucaj': new FormControl(null)
+                      }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null})
+                    }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
+                    //Na početku onemogućavam unos sekundarne dijagnoze
+                    this.forma.get('sekundarnaDijagnoza').disable();
+                }
+              ),
+              takeUntil(this.pretplateSubject)
+          ).subscribe();
           //Pretplaćujem se na promjene u primarnoj dijagnozi
-          this.subsPrimarnaDijagnoza = this.forma.get('primarnaDijagnoza').valueChanges.subscribe(
+          this.forma.get('primarnaDijagnoza').valueChanges.pipe(
+              takeUntil(this.pretplateSubject)
+          ).subscribe(
               (dijagnoza) => {
                   if(dijagnoza){
                       //Kada je primarna dijagnoza unesena, unos sekundarne dijagnoze je omogućen
@@ -129,7 +129,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               }
           );
 
-          //Pretplaćujem se na Observable da dobijem ID trenutno aktivnog liječnika
+          /* //Pretplaćujem se na Observable da dobijem ID trenutno aktivnog liječnika
           this.subsAktivniLijecnik = this.headerService.getIDLijecnik().subscribe(
               //Dohvaćam ID liječnika
               (idLijecnik) => {
@@ -157,6 +157,38 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                 }
               }
             }
+          ); */
+
+          const combined = combineLatest([
+              this.headerService.getIDLijecnik(),
+              this.obradaService.obsZavrsenPregled
+          ]).pipe(
+              tap(//Dohvaćam ID liječnika
+                  (idLijecnik) => {
+                      //Spremam ID liječnika
+                      this.idLijecnik = idLijecnik[0][0].idLijecnik;
+                  }
+              ),
+              takeUntil(this.pretplateSubject)
+          ).subscribe(
+              (podatci) => {
+                  //Ako je pregled završen
+                  if(podatci[1] === "zavrsenPregled"){
+                      //Postavljam da pacijent više nije aktivan
+                      this.isAktivan = false;
+                      //Resetiram formu osnovnih podataka pacijenta
+                      this.forma.reset();
+                      //Uklanjam validatore sa forme
+                      this.forma.clearValidators();
+                      this.forma.updateValueAndValidity({emitEvent: false});
+                      //Za svaki form control u formi
+                      for(let field in this.forma.controls){
+                          //Ukloni mu validator i ažuriraj stanje forme
+                          this.forma.get(field).clearValidators();
+                          this.forma.get(field).updateValueAndValidity({emitEvent: false});
+                      }
+                  }
+              }
           );
       }
 
@@ -215,20 +247,23 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           if(this.isAktivan){
               console.log(this.forma.getRawValue());
               //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
-              this.subsSubmit = this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
+              this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
                                                                                   this.anamneza.value,this.status.value,this.nalaz.value,
                                                                                   this.primarnaDijagnoza.value,this.sekundarnaDijagnoza.value,
                                                                                   this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                                                                                   this.terapija.value,this.preporukaLijecnik.value,
-                                                                                  this.napomena.value,this.idObrada).subscribe(
-                  //Dohvaćam odgovor servera
-                  (odgovor) => {
+                                                                                  this.napomena.value,this.idObrada).pipe(
+                  tap(
+                    //Dohvaćam odgovor servera
+                    (odgovor) => {
                       //Označavam da ima odgovora servera
                       this.response = true;
                       //Spremam odgovor servera
                       this.responsePoruka = odgovor["message"];
-                  }
-              );
+                    }
+                  ),
+                  takeUntil(this.pretplateSubject)
+              ).subscribe();
           }
           //Ako pacijent nije aktivan u obradi
           else{
@@ -244,44 +279,47 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
         //Ako je pacijent aktivan
         if(this.isAktivan){
             //Pretplaćujem se na Observable u kojemu se nalaze NAZIV PRIMARNE DIJAGNOZE i NAZIVI NJEZINIH SEKUNDARNIH DIJAGNOZA
-            this.subsOtvoreniSlucaj = this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).subscribe(
-              //Dohvaćam podatke
-              (podatci) => {
-                  console.log(podatci);
-                  //Resetiram formu sekundarnih dijagnoza
-                  this.sekundarnaDijagnoza.clear();
-                  //Resetiram svoje polje sekundarnih dijagnoza
-                  this.sekundarnaDijagnozaOtvoreniSlucaj = [];
-                  //Dodaj jedan form control da inicijalno bude 1
-                  this.onAddDiagnosis();
-                  //Prolazim poljem odgovora servera
-                  for(let dijagnoza of podatci){
-                    console.log(dijagnoza);
-                    //Spremam naziv primarne dijagnoze otvorenog slučaja
-                    this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
-                    //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
-                    this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
-                    //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+            this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).pipe(
+              tap(
+                //Dohvaćam podatke
+                (podatci) => {
+                    console.log(podatci);
+                    //Resetiram formu sekundarnih dijagnoza
+                    this.sekundarnaDijagnoza.clear();
+                    //Resetiram svoje polje sekundarnih dijagnoza
+                    this.sekundarnaDijagnozaOtvoreniSlucaj = [];
+                    //Dodaj jedan form control da inicijalno bude 1
                     this.onAddDiagnosis();
-                  }
-                  //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                  this.onDeleteDiagnosis(-1); 
-                  //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                  this.primarnaDijagnoza.setValue(this.primarnaDijagnozaOtvoreniSlucaj);
-                  //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                  this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaOtvoreniSlucaj);
-                  //Zatvaram prozor otvorenog slučaja
-                  this.otvoren = false;
-                  //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
-                  this.ponistiPovezaniSlucaj = true;
-                  //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                  this.povezanSlucaj.setValue(true);
-                  //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                  this.povezanSlucaj.disable();
-                  //Resetiram checkbox novog slučaja da ne ostane da su oba true
-                  this.noviSlucaj.reset();
-              }
-          );
+                    //Prolazim poljem odgovora servera
+                    for(let dijagnoza of podatci){
+                      console.log(dijagnoza);
+                      //Spremam naziv primarne dijagnoze otvorenog slučaja
+                      this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
+                      //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
+                      this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
+                      //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                      this.onAddDiagnosis();
+                    }
+                    //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
+                    this.onDeleteDiagnosis(-1); 
+                    //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
+                    this.primarnaDijagnoza.setValue(this.primarnaDijagnozaOtvoreniSlucaj);
+                    //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
+                    this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaOtvoreniSlucaj);
+                    //Zatvaram prozor otvorenog slučaja
+                    this.otvoren = false;
+                    //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
+                    this.ponistiPovezaniSlucaj = true;
+                    //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
+                    this.povezanSlucaj.setValue(true);
+                    //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
+                    this.povezanSlucaj.disable();
+                    //Resetiram checkbox novog slučaja da ne ostane da su oba true
+                    this.noviSlucaj.reset();
+                }
+              ),
+              takeUntil(this.pretplateSubject)
+          ).subscribe();
         }
       }
 
@@ -305,52 +343,55 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       onPoveziPodatciRetka($event){
           //Ako je pacijent aktivan
           if(this.isAktivan){
-              this.subsPovezanaPovijestBolesti = this.povezaniPovijestBolestiService.getPovijestBolestiPovezanSlucaj($event,this.idPacijent).subscribe(
-                  //Dohvaćam odgovor
-                  (odgovor) => {
-                      console.log(odgovor);
-                      //Popuni polja povijesti bolesti sa rezultatima sa servera
-                      this.razlogDolaska.patchValue(odgovor[0].razlogDolaska);
-                      this.anamneza.patchValue(odgovor[0].anamneza);
-                      this.status.patchValue(odgovor[0].statusPacijent);
-                      this.nalaz.patchValue(odgovor[0].nalaz);
-                      this.terapija.patchValue(odgovor[0].terapija);
-                      this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik);
-                      this.napomena.patchValue(odgovor[0].napomena);
-                      //Resetiram formu sekundarnih dijagnoza
-                      this.sekundarnaDijagnoza.clear();
-                      //Resetiram svoje polje sekundarnih dijagnoza
-                      this.sekundarnaDijagnozaPovijestBolesti = [];
-                      //Dodaj jedan form control da inicijalno bude 1
-                      this.onAddDiagnosis();
-                      //Prolazim poljem odgovora servera
-                      for(let dijagnoza of odgovor){
-                        console.log(dijagnoza);
-                        //Spremam naziv primarne dijagnoze povezane povijesti bolesti
-                        this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
-                        //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
-                        this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
-                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+              this.povezaniPovijestBolestiService.getPovijestBolestiPovezanSlucaj($event,this.idPacijent).pipe(
+                  tap(
+                    //Dohvaćam odgovor
+                    (odgovor) => {
+                        console.log(odgovor);
+                        //Popuni polja povijesti bolesti sa rezultatima sa servera
+                        this.razlogDolaska.patchValue(odgovor[0].razlogDolaska);
+                        this.anamneza.patchValue(odgovor[0].anamneza);
+                        this.status.patchValue(odgovor[0].statusPacijent);
+                        this.nalaz.patchValue(odgovor[0].nalaz);
+                        this.terapija.patchValue(odgovor[0].terapija);
+                        this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik);
+                        this.napomena.patchValue(odgovor[0].napomena);
+                        //Resetiram formu sekundarnih dijagnoza
+                        this.sekundarnaDijagnoza.clear();
+                        //Resetiram svoje polje sekundarnih dijagnoza
+                        this.sekundarnaDijagnozaPovijestBolesti = [];
+                        //Dodaj jedan form control da inicijalno bude 1
                         this.onAddDiagnosis();
-                      }
-                      //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                      this.onDeleteDiagnosis(-1); 
-                      //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                      this.primarnaDijagnoza.setValue(this.primarnaDijagnozaPovijestBolesti);
-                      //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                      this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaPovijestBolesti);
-                      //Zatvaram prozor povijesti bolesti
-                      this.otvorenPovijestBolesti = false;
-                      //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
-                      this.ponistiPovezaniSlucaj = true;
-                      //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                      this.povezanSlucaj.setValue(true);
-                      //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                      this.povezanSlucaj.disable();
-                      //Resetiram checkbox novog slučaja da ne ostane da su oba true
-                      this.noviSlucaj.reset();
-                  }
-              );
+                        //Prolazim poljem odgovora servera
+                        for(let dijagnoza of odgovor){
+                          console.log(dijagnoza);
+                          //Spremam naziv primarne dijagnoze povezane povijesti bolesti
+                          this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
+                          //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
+                          this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
+                          //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                          this.onAddDiagnosis();
+                        }
+                        //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
+                        this.onDeleteDiagnosis(-1); 
+                        //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
+                        this.primarnaDijagnoza.setValue(this.primarnaDijagnozaPovijestBolesti);
+                        //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
+                        this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaPovijestBolesti);
+                        //Zatvaram prozor povijesti bolesti
+                        this.otvorenPovijestBolesti = false;
+                        //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
+                        this.ponistiPovezaniSlucaj = true;
+                        //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
+                        this.povezanSlucaj.setValue(true);
+                        //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
+                        this.povezanSlucaj.disable();
+                        //Resetiram checkbox novog slučaja da ne ostane da su oba true
+                        this.noviSlucaj.reset();
+                    }
+                  ),
+                  takeUntil(this.pretplateSubject)
+              ).subscribe();
           }
       }
 
@@ -410,41 +451,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
 
       //Ova metoda se poziva kada se komponenta uništi
       ngOnDestroy(){
-          //Ako postoji pretplata
-          if(this.subsResolver){
-              //Izađi iz pretplate
-              this.subsResolver.unsubscribe();
-          }
-          //Ako postoji pretplata
-          if(this.subsOtvoreniSlucaj){
-            //Izađi iz pretplate
-            this.subsOtvoreniSlucaj.unsubscribe();
-          }
-          //Ako postoji pretplata
-          if(this.subsPrimarnaDijagnoza){
-            //Izađi iz pretplate
-            this.subsPrimarnaDijagnoza.unsubscribe();
-          }
-          //Ako postoji pretplata
-          if(this.subsAktivniLijecnik){
-            //Izađi iz pretplate
-            this.subsAktivniLijecnik.unsubscribe();
-          }
-          //Ako postoji pretplata
-          if(this.subsZavrsenPregled){
-            //Izađi iz pretplate
-            this.subsZavrsenPregled.unsubscribe();
-          }
-          //Ako postoji pretplata
-          if(this.subsSubmit){
-            //Izađi iz pretplate
-            this.subsSubmit.unsubscribe();
-          }
-          //Ako postoji pretplata
-          if(this.subsPovezanaPovijestBolesti){
-            //Izađi iz pretplate
-            this.subsPovezanaPovijestBolesti.unsubscribe();
-          }
+          this.pretplateSubject.next(true);
+          this.pretplateSubject.complete();
           //Praznim Subject završenog pregleda
           this.obradaService.zavrsenPregled.next(null);
       }

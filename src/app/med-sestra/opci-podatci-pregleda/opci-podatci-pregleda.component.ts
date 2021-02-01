@@ -213,7 +213,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         //Ako nije ispravan
                         else{
                           //Treba biti prazno
-                          this.forma.get('oznakaOsiguranika').setValue(null);
+                          this.forma.get('oznakaOsiguranika').patchValue(null,{onlySelf: true, emitEvent: false});
                         }
                     }
                     //Ako se unesena vrijednost u formi NALAZI u nazivima područnih ureda
@@ -226,24 +226,24 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         //Ako nije ispravan
                         else{
                           //Treba biti prazno
-                          this.forma.get('sifUred').setValue(null);
+                          this.forma.get('sifUred').patchValue(null,{onlySelf: true, emitEvent: false});
                         }  
                         //Ako je form control ispravan
                         if(this.forma.get('ozljeda').valid){
-                          //Pozivam metodu
-                          this.nazivSluzbeToSifOzljeda(value);
+                            //Pozivam metodu
+                            this.nazivSluzbeToSifOzljeda(value);
                         }
                         //Ako nije ispravan
                         else{
-                          //Treba biti prazno
-                          this.forma.get('sifUredOzljeda').setValue(null);
+                            //Treba biti prazno
+                            this.forma.get('sifUredOzljeda').patchValue(null,{onlySelf: true, emitEvent: false});
                         }   
                     }
                     //Ako se unesena vrijednost u formi NALAZI u nazivima primarnih dijagnoza
                     if(this.naziviDijagnoze.indexOf(value) !== -1){
                         if(this.forma.get('primarnaDijagnoza').valid){
                             //Kada je primarna dijagnoza unesena, unos sekundarne dijagnoze je omogućen
-                            this.forma.get('sekundarnaDijagnoza').enable();
+                            this.forma.get('sekundarnaDijagnoza').enable({onlySelf: true, emitEvent: false});
                         }
                     }
                 }

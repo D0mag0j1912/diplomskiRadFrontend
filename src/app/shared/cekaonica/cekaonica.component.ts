@@ -463,7 +463,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     onCloseTablica(){
       //Zatvori prozor
       this.isPretraga = false;
-    }
+    } 
 
     //Metoda koja zatvara prozor brisanja
     onCloseBrisanje(){

@@ -8,8 +8,8 @@
             #childAlert></app-alert> 
         <!--Prikaziva se prozor sa tablicom pacijenata-->
         <app-pretraga-pacijent 
-            *ngIf="isPretraga && !response" 
-            (close)="onCloseTablica()" 
+            *ngIf="isPretraga && !response"
+            (close)="onCloseTablica()"  
             (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
         <app-brisanje-pacijenta-alert 
             *ngIf="isBrisanje"

@@ -1,12 +1,8 @@
 <div class="row">
     <div class="col-xs-12 col-md-6 col-md-offset-3">
-        <div *ngIf="isLoading" style="text-align: center;">
-            <!--Prikaziva se spinner kada između akcija korisnika te se prikazuje samo ako je varijabla isLoading = true-->
-            <app-spinner></app-spinner>
-        </div>
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
         <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
-        <form (ngSubmit)="onSubmit(forma)" #forma="ngForm" *ngIf="!isLoading">
+        <form (ngSubmit)="onSubmit(forma)" #forma="ngForm">
             <h3 style="text-align: center;">Registriraj se</h3>
             <div class="form-group">
                 <label for="tip">Tip korisnika</label>

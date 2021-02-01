@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { combineLatest, Subject, Subscription } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
 import { switchMap,takeUntil,tap } from 'rxjs/operators';
 import { CekaonicaService } from '../cekaonica/cekaonica.service';
 import { HeaderService } from '../header/header.service';
@@ -19,10 +19,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     response: boolean = false;
     //Spremam odgovor servera
     responsePoruka: string = null;
-    //Kreiram pretplatu
-    subsCijeliPacijent: Subscription;
-    subsTrenutnaStranica: Subscription;
-    subsCekaonica: Subscription;
     //Spremam ime i prezime pacijenta
     imePacijent: string = null;
     prezimePacijent: string = null;
@@ -138,5 +134,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     onCloseAlert(){
         //Zatvori alert
         this.response = false;
+        this.close.emit();
     }
 }

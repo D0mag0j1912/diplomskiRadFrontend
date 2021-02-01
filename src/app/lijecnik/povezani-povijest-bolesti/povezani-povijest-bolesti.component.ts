@@ -1,7 +1,7 @@
 import { Component, OnInit,Output,EventEmitter, OnDestroy } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { concatMap, switchMap } from 'rxjs/operators';
+import { forkJoin, of, Subject, Subscription } from 'rxjs';
+import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -14,9 +14,8 @@ import { PovezaniPovijestBolestiService } from './povezani-povijest-bolesti.serv
 })
 export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
-    //Kreiram pretplate
-    subs: Subscription;
-    subsPretraga: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li pronađen rezultat za pretragu povijest bolesti
     isPovijestBolestiPretraga: boolean = false;
     //Spremam poruku servera za pretragu povijesti bolesti
@@ -55,10 +54,13 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        const combined = this.headerService.tipKorisnikaObs.pipe(
+        this.headerService.tipKorisnikaObs.pipe(
             switchMap(podatci => {
-                return this.obradaService.getPatientProcessing(podatci);
-            })
+                return this.obradaService.getPatientProcessing(podatci).pipe(
+                    takeUntil(this.pretplateSubject)
+                );
+            }),
+            takeUntil(this.pretplateSubject)
           ).pipe(
             switchMap(response => {
                 //Ako je Observable vratio aktivnog pacijenta
@@ -80,7 +82,9 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     });
                     return forkJoin([
                         this.povezaniPovijestBolestiService.getPovijestBolesti(this.idPacijent)
-                    ]);
+                    ]).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );
                 }
                 //Ako Observable nije vratio aktivnog pacijenta
                 else{
@@ -89,10 +93,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
                     return of(this.porukaAktivan); 
                 }
-            })
-        );
+            }),
+            takeUntil(this.pretplateSubject)
         //Dohvaćam ILI podatke povijesti bolesti ILI poruku da pacijent nije aktivan
-        const sekDijagnoze = combined.pipe(
+        ).pipe(
             switchMap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
@@ -102,8 +106,11 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         const pretraga = this.forma.get('parametar').valueChanges.pipe(
                             //Koristim concatMap da se vrijednosti sekvencijalno šalju na backend
                             concatMap(value => {
-                                return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.idPacijent,value);
-                            })
+                                return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.idPacijent,value).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }),
+                            takeUntil(this.pretplateSubject)
                         ).pipe(
                             switchMap(
                                 //Dohvaćam odgovor
@@ -172,10 +179,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                         return of(odgovor["success"]);
                                     }
                                 }
-                            )
-                        );
+                            ),
+                            takeUntil(this.pretplateSubject)
                         //Pretplaćujem se na odgovor servera (ILI šifre i nazive sek. dijagnoza ILI da NEMA REZULTATA ZA PRETRAGU)
-                        this.subsPretraga = pretraga.subscribe(
+                        ).subscribe(
                             (odgovor: any) => {
                                 console.log(odgovor);
                                 //Ako odgovor servera nije "false", tj. ako ima rezultata za ključnu riječ <znak>
@@ -268,11 +275,11 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         return of(odgovor);
                     }
                 }
-            )
-        );
+            ),
+            takeUntil(this.pretplateSubject)
         //Pretplaćujem se na odgovore servera (na šifre i nazive sek. dijagnoza ILI da pacijent NEMA evidentiranih povijesti bolesti, 
         //ILI da pacijent NIJE AKTIVAN)
-        this.subs = sekDijagnoze.subscribe(
+        ).subscribe(
             //Dohvaćam odgovor
             (odgovor: any) => {
                 console.log(odgovor);
@@ -355,15 +362,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
-        //Ako postoji pretplata
-        if(this.subs){
-          //Izađi iz pretplate
-          this.subs.unsubscribe();
-        }
-        //Ako postoji pretplata
-        if(this.subsPretraga){
-            //Izađi iz pretplate
-            this.subsPretraga.unsubscribe();
-        }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }

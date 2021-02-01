@@ -118,32 +118,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     }
 
-    //Ova metoda se poziva kada se komponenta uništi
-    ngOnDestroy(){
-        this.pretplateSubject.next(true);
-        this.pretplateSubject.complete();
-        this.headerService.tipKorisnika.next(null);
-    }
-
     //Metoda se poziva kada korisnik klikne button "Logout"
     onLogout(){
-        //Pretplaćujem se na Observable iz logout() metode 
+
         this.loginService.logout().pipe(
-            tap(
-              (podatci) => {
-                  console.log(podatci);
-                  //Postavljam varijablu isLijecnik = false da označim da korisnik više nije liječnik i da se header liječnika skrije
-                  this.isLijecnik = false;
-                  //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
-                  this.isMedSestra = false;
+            tap(podatci => {
                   //Ako postoji aktivan timer, kada se ručno odlogiramo, resetiraj timer
                   if(this.tokenExpirationTimer){
-                      clearTimeout(this.tokenExpirationTimer);
+                    clearTimeout(this.tokenExpirationTimer);
                   }
                   this.tokenExpirationTimer = null;
               }
             ),
             takeUntil(this.pretplateSubject)
+        ).subscribe(
+            (podatci) => {
+              console.log(podatci);
+              //Postavljam varijablu isLijecnik = false da označim da korisnik više nije liječnik i da se header liječnika skrije
+              this.isLijecnik = false;
+              //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
+              this.isMedSestra = false;
+            }
         );
     }
 
@@ -154,6 +149,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.isLijecnik = false;
         //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
         this.isMedSestra = false;
+    }
+
+    //Ova metoda se poziva kada se komponenta uništi
+    ngOnDestroy(){
+      this.pretplateSubject.next(true);
+      this.pretplateSubject.complete();
+      this.headerService.tipKorisnika.next(null);
     }
 
 }

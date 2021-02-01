@@ -1,8 +1,8 @@
-import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
-import { concatMap, debounceTime, take, takeUntil, tap } from 'rxjs/operators';
+import { forkJoin, merge, of, Subject } from 'rxjs';
+import { concatMap, debounceTime, takeUntil, tap } from 'rxjs/operators';
 import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
 import { ReceptService } from '../../recept.service';
@@ -14,7 +14,6 @@ import * as Promjene from '../../recept-value-changes';
   styleUrls: ['./izdaj-recept.component.css']
 })
 export class IzdajReceptComponent implements OnInit, OnDestroy{
-
     //Kreiram novi Subject koji uvjetuje do kada držim pretplate (kad je on true => pretplata.unsubscribe())
     pretplateSubject = new Subject<boolean>();
     //Oznaka je li liječnik odabrao lijek (Inicijalno na početku je lijek uvijek)
@@ -158,7 +157,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         'doziranjePeriod': new FormControl("dnevno")
                     }),
                     'trajanje': new FormGroup({
-                        'dostatnost': new FormControl(),
+                        'dostatnost': new FormControl("30",[Validacija.provjeriDostatnost(),Validators.pattern("^[0-9]*$")]),
                         'vrijediDo': new FormControl(podatci.importi.datum)
                     }),
                     'sifraSpecijalist': new FormControl(),
@@ -200,8 +199,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.forma.updateValueAndValidity({emitEvent: false});
             }
         );
-        //Importam slušanje promjena polja unosa "doziranjeFrekvencija"
-        Promjene.promjenaFormeDoziranje(this.forma.get('doziranje'),this.pretplateSubject,this.forma,this.receptService);
         
         //Pretplaćujem se na promjene u pojedinim dijelovima forme
         const prviDio =
@@ -303,9 +300,21 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }),
                 concatMap(value => {
                     return forkJoin([
-                        Promjene.promjenaDostatnostiLijek(this.forma,this.receptService,this.pretplateSubject),
+                        Promjene.azuriranjeDostatnosti(this.forma,this.receptService),
                         this.receptService.getOznakaLijek(value)
                     ]).pipe(
+                        tap(value => {
+                            //Ako je server vratio da ima oznake "RS" na izabranom lijeku
+                            if(value[1]["success"] === "true"){
+                                //Označavam da treba prikazati polje unosa šifre specijalista
+                                this.isSpecijalist = true;
+                            }
+                            //Ako je server vratio da NEMA oznake "RS" na izabranom lijeku
+                            else if(value[1]["success"] === "false"){
+                                //Označavam da treba sakriti polje unosa šifre specijalista
+                                this.isSpecijalist = false;
+                            }
+                        }),
                         //Ulazim u još jedan concatMap da predam dostatnost u danima metodi koja vraća DATUM vrijediDo
                         concatMap(value => {
                             console.log(value);
@@ -321,17 +330,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     takeUntil(this.pretplateSubject)
                                 );
                             }
-                            //Ako je server vratio da ima oznake "RS" na izabranom lijeku
-                            if(value[1]["success"] === "true"){
-                                //Označavam da treba prikazati polje unosa šifre specijalista
-                                this.isSpecijalist = true;
-                                return of(null);
-                            }
-                            //Ako je server vratio da NEMA oznake "RS" na izabranom lijeku
-                            else if(value[1]["success"] === "false"){
-                                //Označavam da treba sakriti polje unosa šifre specijalista
-                                this.isSpecijalist = false;
-                                return of(null);
+                            //Ako je server vratio null za dostatnost
+                            if(value[0] === null){
+                                return of(null).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
                             }
                         }),
                         takeUntil(this.pretplateSubject)
@@ -376,10 +379,19 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     return forkJoin([
                         this.receptService.getCijenaLijekDL(value),
                         this.receptService.getOznakaLijek(value),
-                        Promjene.promjenaDostatnostiLijek(this.forma,this.receptService,this.pretplateSubject)
+                        Promjene.azuriranjeDostatnosti(this.forma,this.receptService)
                     ]).pipe(
                         tap(value => {
                             console.log(value);
+                            //Ako je server vratio da ovaj lijek IMA oznaku "RS":
+                            if(value[1].success === "true"){
+                                //Označavam da treba prikazati polje unosa šifre specijalista
+                                this.isSpecijalist = true;
+                            }
+                            //Ako je server vratio da ovaj lijek NEMA oznaku "RS":
+                            else{
+                                this.isSpecijalist = false;
+                            }
                             //Postavljam vrijednosti cijena u formu
                             this.forma.get('cijenaDopunskaLista.cijenaUkupno').patchValue(`${value[0][0].cijenaLijek} kn`,{onlySelf: true, emitEvent: false});
                             this.forma.get('cijenaDopunskaLista.cijenaZavod').patchValue(`${value[0][0].cijenaZavod} kn`,{onlySelf: true, emitEvent: false});
@@ -399,16 +411,12 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     takeUntil(this.pretplateSubject)
                                 );
                             }
-                            //Ako je server vratio da ovaj lijek IMA oznaku "RS":
-                            if(value[1].success === "true"){
-                                //Označavam da treba prikazati polje unosa šifre specijalista
-                                this.isSpecijalist = true;
-                                return of(null);
-                            }
-                            //Ako je server vratio da ovaj lijek NEMA oznaku "RS":
-                            else{
-                                this.isSpecijalist = false;
-                                return of(null);
+                            //Ako je server vratio null za dostatnosti
+                            else if(value[2] === null){
+                                //Nastavi niz podataka
+                                return of(null).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
                             }
                         }),
                         takeUntil(this.pretplateSubject)
@@ -523,6 +531,114 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         }),
                         takeUntil(this.pretplateSubject)
                     )
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na promjene u polju unosa količine
+            this.forma.get('kolicina.kolicinaDropdown').valueChanges.pipe(
+                //Za svaku promjenu u vrijednosti količine, izvršava se unutarnji Observable koji dohvaća dostatnost
+                concatMap(value => {
+                    return Promjene.azuriranjeDostatnosti(this.forma,this.receptService).pipe(
+                        tap(value => {
+                            //Vrijednost dostatnosti stavljam u polje
+                            this.forma.get('trajanje.dostatnost').patchValue(value,{onlySelf: true, emitEvent: false});
+                        }),
+                        //Svaku vrijednost dostatnosti prosljeđujem funkciji koja izvodi DATUM od te DOSTATNOSTI
+                        concatMap(value => {
+                            //Ako vrijednost dostatnosti nije null
+                            if(value !== null){
+                                return this.receptService.getDatumDostatnost(value.toString()).pipe(
+                                    tap(datum => {
+                                        //Vrijednost datuma postavljam u njegovo polje
+                                        this.forma.get('trajanje.vrijediDo').patchValue(datum,{onlySelf: true, emitEvent: false});
+                                    }),
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                            //Ako je vrijednost dostatnosti null
+                            else{
+                                return of(null).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    )
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na promjene u polju FREKVENCIJE DOZIRANJA i PERIODA DOZIRANJA
+            this.forma.get('doziranje').valueChanges.pipe(
+                tap(value => {
+                    console.log(value);
+                    //Ako polje frekvencije doziranja ima neku ispravnu vrijednost
+                    if(this.forma.get('doziranje.doziranjeFrekvencija').valid && this.forma.get('doziranje.doziranjeFrekvencija').value){
+                        //Omogući unos perioda doziranja
+                        this.forma.get('doziranje.doziranjePeriod').enable({onlySelf: true, emitEvent: false});
+                        //Omogući unos dostatnosti terapije
+                        this.forma.get('trajanje.dostatnost').enable({onlySelf: true, emitEvent: false});
+                    }
+                    //Ako polje frekvencija doziranja NEMA neku ispravnu vrijednost
+                    else{
+                        //Onemogući unos perioda doziranja
+                        this.forma.get('doziranje.doziranjePeriod').disable({onlySelf: true, emitEvent: false});
+                        //Onemogući unos dostatnosti terapije
+                        this.forma.get('trajanje.dostatnost').disable({onlySelf: true, emitEvent: false});
+                    }
+                }),
+                //Za svaku promjenu u vrijednosti količine, izvršava se unutarnji Observable koji dohvaća dostatnost
+                concatMap(value => {
+                    return Promjene.azuriranjeDostatnosti(this.forma,this.receptService).pipe(
+                        tap(value => {
+                            //Vrijednost dostatnosti stavljam u polje
+                            this.forma.get('trajanje.dostatnost').patchValue(value,{onlySelf: true, emitEvent: false});
+                        }),
+                        //Svaku vrijednost dostatnosti prosljeđujem funkciji koja izvodi DATUM od te DOSTATNOSTI
+                        concatMap(value => {
+                            //Ako vrijednost dostatnosti nije null
+                            if(value !== null){
+                                return this.receptService.getDatumDostatnost(value.toString()).pipe(
+                                    tap(datum => {
+                                        //Vrijednost datuma postavljam u njegovo polje
+                                        this.forma.get('trajanje.vrijediDo').patchValue(datum,{onlySelf: true, emitEvent: false});
+                                    }),
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                            //Ako je dostatnost null
+                            else{
+                                return of(null).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    )
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćivam se na promjene u polju DOSTATNOSTI
+            this.forma.get('trajanje.dostatnost').valueChanges.pipe(
+                //Uzimam vrijednost dostatnosti i prosljeđivam je funkciji koja računa datum "Vrijedi do:" na osnovu te dostatnosti
+                concatMap(dostatnost => {
+                    //Ako dostatnost NIJE NULL
+                    if(dostatnost){
+                        return this.receptService.getDatumDostatnost(dostatnost.toString()).pipe(
+                            tap(datum => {
+                                //Postavi datum u njegovo polje
+                                this.forma.get('trajanje.vrijediDo').patchValue(datum,{onlySelf: true, emitEvent: false});
+                            }),
+                            takeUntil(this.pretplateSubject)
+                        );
+                    }
+                    //Ako je dostatnost null
+                    else{
+                        //Isprazni polje datuma
+                        this.forma.get('trajanje.vrijediDo').patchValue(null,{onlySelf: true, emitEvent: false});
+                        return of(null).pipe(
+                            takeUntil(this.pretplateSubject)
+                        );
+                    }
                 }),
                 takeUntil(this.pretplateSubject)
             )
@@ -1031,6 +1147,15 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Onemogući unos količine i doziranja
             this.onemoguciKolicinaDoziranje();
         }
+    }
+
+    //Metoda koja se poziva kada liječnik klikne "Unesi novi recept":
+    onSubmit(){
+        //Ako je forma neispravna
+        if(!this.forma.valid){
+            return;
+        }
+        console.log(this.forma.getRawValue());
     }
 
     //Metoda se poziva kada liječnik promijeni količinu (broj pakiranja proizvoda)

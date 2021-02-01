@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { switchMap,distinctUntilChanged, concatMap, tap, map } from 'rxjs/operators';
+import { forkJoin, of, Subject} from 'rxjs';
+import { switchMap,distinctUntilChanged, concatMap, takeUntil } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { Obrada } from '../modeli/obrada.model';
 import { ObradaService } from '../obrada/obrada.service';
@@ -14,9 +14,8 @@ import { OtvoreniSlucajService } from './otvoreni-slucaj.service';
 })
 export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
 
-    //Spremam pretplatu
-    subs: Subscription;
-    subsOtvoreniSlucajPretraga: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li pacijent aktivan u obradi ili nije
     isAktivan: boolean = false;
     //Oznaka je li ima dijagnoza za trenutno aktivnog pacijenta
@@ -55,12 +54,15 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     ngOnInit(){
 
         //Pretplaćujem se na odgovore servera
-        this.subs = this.headerService.tipKorisnikaObs.pipe(
-          switchMap(podatci => {
-              //Spremam tip prijavljenog korisnika
-              this.tipKorisnik = podatci;
-              return this.obradaService.getPatientProcessing(podatci);
-          })
+        this.headerService.tipKorisnikaObs.pipe(
+            switchMap(podatci => {
+                //Spremam tip prijavljenog korisnika
+                this.tipKorisnik = podatci;
+                return this.obradaService.getPatientProcessing(podatci).pipe(
+                    takeUntil(this.pretplateSubject)
+                );
+            }),
+            takeUntil(this.pretplateSubject)
         ).pipe(
             //Pomoću switchMapa uzimam podatke trenutno aktivnog pacijenta te njegov ID prosljeđujem dvjema metodama
             switchMap((response) => {
@@ -79,26 +81,33 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     return forkJoin([
                         this.otvoreniSlucajService.getOtvoreniSlucaj(this.tipKorisnik,this.idPacijent),
                         this.otvoreniSlucajService.getSekundarneDijagnoze(this.tipKorisnik,this.idPacijent)
-                    ]);
+                    ]).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );
                 }
                 //Ako Observable nije vratio aktivnog pacijenta
                 else{
                     //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                     this.porukaAktivan = response["message"];
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                    return of(this.porukaAktivan);  
+                    return of(this.porukaAktivan).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );  
                 }
-            }) 
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(
               (podatci) => {
               console.log(podatci);  
               //Ako je server vratio uspješni odgovor tj. ako je pacijent AKTIVAN i ako ima AKTIVNIH PRIMARNIH DIJAGNOZA za pacijenta
               if(podatci !== "Nema aktivnih pacijenata!" && podatci[0]["success"] !== "false"){
                   //Pretplaćujem se na promjene u formi pretrage 
-                  this.subsOtvoreniSlucajPretraga = this.forma.get('parametar').valueChanges.pipe(
+                  this.forma.get('parametar').valueChanges.pipe(
+                      distinctUntilChanged(),
                       concatMap(value => {
                           return this.otvoreniSlucajService.getOtvoreniSlucajPretraga(this.tipKorisnik,value,this.idPacijent);
-                      })
+                      }),
+                      takeUntil(this.pretplateSubject)
                   ).subscribe(
                       (odgovor) => {
                           console.log(odgovor);
@@ -189,15 +198,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
 
     //Metoda koja se poziva kada se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subs){
-        //Izađi iz pretplate
-        this.subs.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsOtvoreniSlucajPretraga){
-        //Izađi iz pretplate
-        this.subsOtvoreniSlucajPretraga.unsubscribe();
-      }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }

@@ -2,8 +2,8 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, forkJoin, Subscription } from 'rxjs';
-import { concatMap, switchMap, take } from 'rxjs/operators';
+import { combineLatest, forkJoin, Subject } from 'rxjs';
+import { concatMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { HeaderService } from '../header/header.service';
@@ -16,12 +16,8 @@ import { ObradaService } from './obrada.service';
 })
 export class ObradaComponent implements OnInit, OnDestroy {
 
-    //Pretplaćujem se na Observable koji vraća pacijente
-    subs: Subscription;
-    subsObrada: Subscription;
-    subsGetPatients: Subscription;
-    subsPorukeObrada: Subscription;
-    subsSljedeciPacijentPretraga: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li postoji sljedeći pacijent koji čeka u čekaonici
     isSljedeciPacijent: boolean = false;
     //Oznaka je li prozor poruke aktivan
@@ -84,7 +80,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
       }, {validators: this.atLeastOneRequired});
 
       //Pretplaćujem se na odgovore servera na traženje sljedećeg pacijenta koji čeka na pregled I na vrijeme narudžbe aktivnog pacijenta
-      this.subsPorukeObrada = this.headerService.tipKorisnikaObs.pipe(
+      this.headerService.tipKorisnikaObs.pipe(
           take(1),
           switchMap(podatci => {
               return combineLatest([
@@ -164,9 +160,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
                           }
                       }
                       return forkJoin(polje);
-                  })
+                  }),
+                  takeUntil(this.pretplateSubject)
               );
-          })
+          }),
+          takeUntil(this.pretplateSubject)
       //Pretplaćujem se na informaciju je li pacijenta obrađen od strane liječnika/med.sestre
       ).subscribe(
           (odgovor) => {
@@ -195,10 +193,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Metoda koja se pokreće kada korisnik klikne "Dodaj u čekaonicu" u prozoru pretrage pacijenta
     onSljedeciPacijent(){
         //Pretplaćujem se na odgovor servera ima li sljedećeg pacijenta koji ima status "Čeka na pregled"
-        this.subsSljedeciPacijentPretraga = this.headerService.tipKorisnikaObs.pipe(
+        this.headerService.tipKorisnikaObs.pipe(
             switchMap(tipKorisnik => {
                 return this.obradaService.getSljedeciPacijent(tipKorisnik);
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(
             //Dohvaćam pacijenta ili poruku da nema pacijenta
             (odgovor) => {
@@ -221,22 +220,24 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Metoda koja se izvršava kada korisnik klikne button "Završi pregled"
     zavrsiPregled(){
         //Dohvaćam tip prijavljenog korisnika te tu informaciju predavam metodama
-        const combined = this.headerService.tipKorisnikaObs.pipe(
+        this.headerService.tipKorisnikaObs.pipe(
             switchMap(podatci => {
                 return combineLatest([
                     this.obradaService.editPatientStatus(this.pacijenti[0].idObrada,podatci,this.pacijenti[0].idPacijent),
                     this.obradaService.getPatientProcessing(podatci)
-                ])
-            })
-        );
+                ]).pipe(
+                    takeUntil(this.pretplateSubject)
+                )
+            }),
+            takeUntil(this.pretplateSubject)
         //Pretplaćivam se na odgovore servera
-        this.subsGetPatients = combined.subscribe(
-          (odgovor) => {
-              //Označavam da pacijent više nije aktivan
-              this.isAktivan = false;
-              //Stavljam vrijednost u Subject da je završen pregled
-              this.obradaService.zavrsenPregled.next('zavrsenPregled');
-          }
+        ).subscribe(
+            (odgovor) => {
+                //Označavam da pacijent više nije aktivan
+                this.isAktivan = false;
+                //Stavljam vrijednost u Subject da je završen pregled
+                this.obradaService.zavrsenPregled.next('zavrsenPregled');
+            }
         );  
     }
 
@@ -271,28 +272,31 @@ export class ObradaComponent implements OnInit, OnDestroy {
         return;
       }
       //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera
-      this.subs = this.obradaService.getPatients(this.ime.value,this.prezime.value,this.stranica).subscribe(
-        (odgovor) => {
-          //Ako je odgovor negativan, tj. nema pacijenata
-          if(odgovor["success"] == "false"){
-            //Označavam da ima poruke servera
-            this.response = true;
-            //Spremam poruku servera u prozor
-            this.responsePoruka = odgovor["message"];
-            //Resetiram formu
-            this.forma.reset();
-          }
-          //Ako je odgovor pozitivan, tj. ima pacijenata
-          else{
-            //Pošalji Subjectu uneseno ime ili prezime pacijenta i broj početne stranice tablice pacijenata
-            this.obradaService.imePrezimePacijent.next({ime: this.ime.value, prezime: this.prezime.value,stranica: this.stranica});
-            //Otvori tablicu pacijenata
-            this.isPretraga = true;
-            //Restiraj formu
-            this.forma.reset();
-          }
-        }
-      );
+      this.obradaService.getPatients(this.ime.value,this.prezime.value,this.stranica).pipe(
+          tap(
+            (odgovor) => {
+              //Ako je odgovor negativan, tj. nema pacijenata
+              if(odgovor["success"] == "false"){
+                //Označavam da ima poruke servera
+                this.response = true;
+                //Spremam poruku servera u prozor
+                this.responsePoruka = odgovor["message"];
+                //Resetiram formu
+                this.forma.reset();
+              }
+              //Ako je odgovor pozitivan, tj. ima pacijenata
+              else{
+                //Pošalji Subjectu uneseno ime ili prezime pacijenta i broj početne stranice tablice pacijenata
+                this.obradaService.imePrezimePacijent.next({ime: this.ime.value, prezime: this.prezime.value,stranica: this.stranica});
+                //Otvori tablicu pacijenata
+                this.isPretraga = true;
+                //Restiraj formu
+                this.forma.reset();
+              }
+            }
+          ),
+          takeUntil(this.pretplateSubject)
+      ).subscribe();
     }
 
     //Kada korisnik klikne button "Izađi" na prozoru poruke ili negdje izvan njega
@@ -317,30 +321,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subs){
-        //Izađi iz pretplate
-        this.subs.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsObrada){
-        //Izađi iz pretplate
-        this.subsObrada.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsGetPatients){
-        //Izađi iz pretplate
-        this.subsGetPatients.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsPorukeObrada){
-        //Izađi iz pretplate
-        this.subsPorukeObrada.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsSljedeciPacijentPretraga){
-        //Izađi iz pretplate
-        this.subsSljedeciPacijentPretraga.unsubscribe();
-      }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }
