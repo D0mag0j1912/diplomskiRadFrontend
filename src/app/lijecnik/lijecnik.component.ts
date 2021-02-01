@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject} from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { Korisnik } from '../shared/modeli/korisnik.model';
 
 @Component({
@@ -9,8 +10,8 @@ import { Korisnik } from '../shared/modeli/korisnik.model';
   styleUrls: ['./lijecnik.component.css']
 })
 export class LijecnikComponent implements OnInit, OnDestroy {
-    //Spremam pretplatu za resolver
-    subs: Subscription;
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Polje u koje spremam osobne podatke liječnika
     osobniPodatci: Korisnik;
     constructor(
@@ -20,19 +21,19 @@ export class LijecnikComponent implements OnInit, OnDestroy {
 
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        this.subs = this.route.data.subscribe(
-          (data: {podatci: Korisnik}) => {
-            this.osobniPodatci = data.podatci;
-          }
-        );
+        this.route.data.pipe(
+            takeUntil(this.pretplateSubject),
+            tap(
+              (data: {podatci: Korisnik}) => {
+                  this.osobniPodatci = data.podatci;
+            })
+        ).subscribe();
     } 
 
+    //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subs){
-        //Izađi iz pretplate
-        this.subs.unsubscribe();
-      }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 
 }

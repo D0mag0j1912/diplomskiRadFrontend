@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { combineLatest, Subscription } from 'rxjs';
-import { switchMap,tap } from 'rxjs/operators';
-import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
+import { combineLatest, Subject, Subscription } from 'rxjs';
+import { switchMap,takeUntil,tap } from 'rxjs/operators';
 import { CekaonicaService } from '../cekaonica/cekaonica.service';
 import { HeaderService } from '../header/header.service';
 import { Pacijent } from '../modeli/pacijent.model';
@@ -14,6 +13,8 @@ import { ObradaService } from '../obrada/obrada.service';
 })
 export class PretragaPacijentComponent implements OnInit, OnDestroy {
 
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li postoji odgovor servera
     response: boolean = false;
     //Spremam odgovor servera
@@ -52,7 +53,7 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     ngOnInit() {
 
       //Pretplaćujem se na odgovor servera
-      this.subsCijeliPacijent = this.obradaService.imePrezimePacijent.pipe(
+      this.obradaService.imePrezimePacijent.pipe(
           //Dohvaćam vrijednosti koje se nalaze u Subjectu
           switchMap(pacijenti => {
               return combineLatest([
@@ -68,9 +69,11 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
                       this.stranica = pacijenti.stranica;
                       this.brojStranica = odgovor[1]["brojStranica"];
                       this.fakeArray = new Array(this.brojStranica);
-                  })    
+                  }),
+                  takeUntil(this.pretplateSubject)    
               );    
-          })
+          }),
+          takeUntil(this.pretplateSubject)
       ).subscribe();
 
     }
@@ -79,38 +82,43 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     setPage(brojTrenutneStranice: number){
           
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti koji odgovaraju trenutnoj stranici (1.stranica = prvih 5 pacijenata, 2.stranica = od 5. do 10. itd..)
-        this.subsTrenutnaStranica = this.obradaService.getPatients(this.imePacijent,this.prezimePacijent,brojTrenutneStranice).subscribe(
-          (pacijenti)=> {
-            //U polje pacijenata spremam novih 5 pacijenata koji odgovaraju trenutnoj stranici
-            this.pacijenti = pacijenti;
-            //Ažuriram svoju varijablu trenutne stranice
-            this.stranica = brojTrenutneStranice;
-            console.log(this.stranica);
-          }
-        );
+        this.obradaService.getPatients(this.imePacijent,this.prezimePacijent,brojTrenutneStranice).pipe(
+            tap(
+                (pacijenti)=> {
+                  //U polje pacijenata spremam novih 5 pacijenata koji odgovaraju trenutnoj stranici
+                  this.pacijenti = pacijenti;
+                  //Ažuriram svoju varijablu trenutne stranice
+                  this.stranica = brojTrenutneStranice;
+                  console.log(this.stranica);
+                }
+            ),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Metoda koja dodava određenog pacijenta u čekaonicu
     onDodajCekaonica(id: number){
-
-      //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje pacijenta u čekaonicu
-      this.subsCekaonica = this.headerService.tipKorisnikaObs.pipe(
-          switchMap(tipKorisnik => {
-              return this.cekaonicaService.addToWaitingRoom(tipKorisnik,id)
-          })
-      ).subscribe(
-        //Uzimam odgovor
-        (odgovor) => {
-          //Označavam da ima odgovora servera
-          this.response = true;
-          //Spremam odgovor servera
-          this.responsePoruka = odgovor["message"];
-          //Pokrećem event
-          this.dodaj.emit();
-          //Pokrećem event za sljedećeg pacijenta
-          this.sljedeciPacijent.emit();
-        }
-      );
+        //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje pacijenta u čekaonicu
+        this.headerService.tipKorisnikaObs.pipe(
+            switchMap(tipKorisnik => {
+                return this.cekaonicaService.addToWaitingRoom(tipKorisnik,id).pipe(
+                    takeUntil(this.pretplateSubject)
+                );
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe(
+            //Uzimam odgovor
+            (odgovor) => {
+              //Označavam da ima odgovora servera
+              this.response = true;
+              //Spremam odgovor servera
+              this.responsePoruka = odgovor["message"];
+              //Pokrećem event
+              this.dodaj.emit();
+              //Pokrećem event za sljedećeg pacijenta
+              this.sljedeciPacijent.emit();
+            }
+        );
     }
 
     //Ova metoda se pokreće kada korisnik klikne "Izađi" ili negdje izvan prozora
@@ -120,23 +128,15 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
 
     //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
-      //Ako postoji pretplata
-      if(this.subsCijeliPacijent){
-        //Izađi iz pretplate
-        this.subsCijeliPacijent.unsubscribe();
-      }
-      //Ako postoji pretplata
-      if(this.subsCekaonica){
-        //Izađi iz pretplate
-        this.subsCekaonica.unsubscribe();
-      }
-      //Isprazni Subject
-      this.obradaService.imePrezimePacijent.next(null);
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
+        //Isprazni Subject
+        this.obradaService.imePrezimePacijent.next(null);
     }
 
     //Ova metoda zatvara prozor poruke alerta
     onCloseAlert(){
-      //Zatvori alert
-      this.response = false;
+        //Zatvori alert
+        this.response = false;
     }
 }

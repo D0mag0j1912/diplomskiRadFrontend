@@ -33,12 +33,12 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
 
       //Dohvaćam ID liječnika iz URL-a
       this.route.params.pipe(
-          takeUntil(this.pretplateSubject),
           tap(
             (params: Params) => {
               this.idLijecnik = +params['id'];
             }
-          )
+          ),
+          takeUntil(this.pretplateSubject)
       ).subscribe();
 
     }
@@ -50,7 +50,6 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
         }
         //Pretplaćujem se na Observable koju vraća metoda editPassword() iz servisa
         this.lijecnikService.editPassword(this.idLijecnik,form.value.trenutnaLozinka, form.value.novaLozinka, form.value.potvrdaNovaLozinka).pipe(
-            takeUntil(this.pretplateSubject),
             tap(
               (response) => {
                 //Označavam da postoji odgovor servera
@@ -59,7 +58,8 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
                 this.responsePoruka = response["message"];
                 form.reset();
               }
-            )
+            ),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
 
     }

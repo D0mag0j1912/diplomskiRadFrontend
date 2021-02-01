@@ -38,7 +38,6 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
     ngOnInit() {
       //Pretplaćujem se na podatke koji su poslani preko Resolvera 
       this.route.data.pipe(
-          takeUntil(this.pretplateSubject),
           tap(
             (data : {podatci: Korisnik}) => {
               //Podatke koje je backend vratio (baza), pridružujem svom objektu i pomoću ngModel te vrijednosti lijepim na template
@@ -46,7 +45,8 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
               //ID liječnika koji je backend vratio spremam u varijablu
               this.idLijecnik = this.osobniPodatci[0].idLijecnik;
             }
-          )
+          ),
+          takeUntil(this.pretplateSubject)
       ).subscribe();
 
     }
@@ -60,7 +60,6 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
 
         //Pretplaćujem se na Observable koji je vratio podatke za ažuriranje osobnih podataka
         this.lijecnikService.editPersonalData(this.idLijecnik,form.value.email,form.value.ime,form.value.prezime,form.value.adresa,form.value.specijalizacija).pipe(
-            takeUntil(this.pretplateSubject),
             tap(
               (response) => {
                 //Ako postoji odgovor
@@ -71,7 +70,8 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
                   this.responsePoruka = response["message"];
                 }    
               }
-            )  
+            ),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
     }
 

@@ -39,33 +39,33 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
 
       this.loginService.login(form.value.email,form.value.lozinka).pipe(
-          takeUntil(this.pretplateSubject),
           tap((response) => {
               //Ako je korisnik uspješno prijavljen
               if(response["success"] == "true"){
-                //Ako je tip korisnika "Medicinska sestra":
-                if(response["tip"] == "sestra"){
-                    //Pozivam metodu koja handlea login
-                    this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
-                    //Preusmjeri medicinsku sestru na njezinu stranicu
-                    this.router.navigate(['/med-sestra/obrada/opciPodatci']); 
-                }
-                //Ako je tip korisnika "Liječnik":
-                else if(response["tip"] == "lijecnik"){
-                    //Pozivam metodu koja handlea login
-                    this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
-                    //Preusmjeri liječnika na njegovu stranicu
-                    this.router.navigate(['/lijecnik/obrada/povijestBolesti']);
-                }
-            }
-            else{
-                //Označavam da postoji negativni odgovor servera
-                this.response = true;
-                //Odgovor servera spremam u varijablu "responsePoruka"
-                this.responsePoruka = response["message"];
-            }
+                  //Ako je tip korisnika "Medicinska sestra":
+                  if(response["tip"] == "sestra"){
+                      //Pozivam metodu koja handlea login
+                      this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
+                      //Preusmjeri medicinsku sestru na njezinu stranicu
+                      this.router.navigate(['/med-sestra/obrada/opciPodatci']); 
+                  }
+                  //Ako je tip korisnika "Liječnik":
+                  else if(response["tip"] == "lijecnik"){
+                      //Pozivam metodu koja handlea login
+                      this.loginService.handleLogin(form.value.email,form.value.lozinka,response["token"],response["tip"],response["expiresIn"]);
+                      //Preusmjeri liječnika na njegovu stranicu
+                      this.router.navigate(['/lijecnik/obrada/povijestBolesti']);
+                  }
+              }
+              else{
+                  //Označavam da postoji negativni odgovor servera
+                  this.response = true;
+                  //Odgovor servera spremam u varijablu "responsePoruka"
+                  this.responsePoruka = response["message"];
+              }
           
-          })
+          }),
+          takeUntil(this.pretplateSubject)
       ).subscribe();
     }
 

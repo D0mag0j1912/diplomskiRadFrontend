@@ -30,10 +30,10 @@ export function promjenaDostatnostiLijek(forma: AbstractControl,receptService: R
     //Ako su popunjeni unosi lijeka, količine lijeka i doziranja lijeka:
     if(lijek && doza && kolicina){
         return receptService.getDostatnost(lijek,kolicina,doza).pipe(
-            takeUntil(pretplateSubject),
             tap(odgovor => {
                 console.log(odgovor);
-            })
+            }),
+            takeUntil(pretplateSubject)
         );
     }
     //Ako NISU popunjeni unosi lijeka, količine lijeka i doziranja lijeka, vrati null
@@ -48,7 +48,6 @@ export function promjenaDostatnostiLijek(forma: AbstractControl,receptService: R
 //Funkcija koja prati promjene u polju unosa frekvencije doziranja
 export function promjenaFormeDoziranje(forma: AbstractControl,pretplateSubject: Subject<any>,cijelaForma: AbstractControl,receptService: ReceptService){
     forma.valueChanges.pipe(
-        takeUntil(pretplateSubject),
         tap(value => {
             console.log(value);
             //Ako polje frekvencije doziranja ima neku ispravnu vrijednost
@@ -88,24 +87,24 @@ export function promjenaFormeDoziranje(forma: AbstractControl,pretplateSubject: 
             //Ako su popunjeni unosi lijeka, količine lijeka i doziranja lijeka:
             if(lijek && doza && kolicina){
                 return receptService.getDostatnost(lijek,kolicina,doza).pipe(
-                    takeUntil(pretplateSubject),
                     concatMap(dostatnost => {
                         //Ako server nije vratio null za dostatnost
                         if(dostatnost !== null){
                             //U polje dostatnosti postavljam izračunatu dostatnost
                             cijelaForma.get('trajanje.dostatnost').patchValue(dostatnost,{onlySelf: true, emitEvent: false});
                             return receptService.getDatumDostatnost(dostatnost.toString()).pipe(
-                                takeUntil(pretplateSubject),
                                 tap(datum => {
                                     //Dohvaćeni datum postavi u njegovo polje "Vrijedi do:"
                                     cijelaForma.get('trajanje.vrijediDo').patchValue(datum,{onlySelf: true, emitEvent: false});
-                                })
+                                }),
+                                takeUntil(pretplateSubject)
                             );
                         }
                         else{
                             return of(null);
                         }
-                    })
+                    }),
+                    takeUntil(pretplateSubject)
                 );
             }
             //Ako NISU popunjeni unosi lijeka, količine lijeka i doziranja lijeka, vrati null
@@ -115,6 +114,7 @@ export function promjenaFormeDoziranje(forma: AbstractControl,pretplateSubject: 
                 cijelaForma.get('trajanje.vrijediDo').patchValue(null,{onlySelf: true,emitEvent: false});
                 return of(null);
             }
-        })
+        }),
+        takeUntil(pretplateSubject)
     ).subscribe();
 }

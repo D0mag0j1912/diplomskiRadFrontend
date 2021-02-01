@@ -2,9 +2,8 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, merge, Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
-import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
 import { AlertComponent } from '../alert/alert.component';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
@@ -25,15 +24,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     statusi: Array<string> = ['Čeka na pregled','Na pregledu','Završen pregled'];
     //Kreiram polje u kojega ću spremati selektirane checkboxove
     selectedStatusValues = [];
-    //Spremam pretplate
-    subs: Subscription;
-    subsObrada: Subscription;
-    subsPretraga: Subscription;
-    subsAzurirajStanje: Subscription;
-    subs10zadnjih: Subscription;
-    subsStatus: Subscription;
-    subsBrisanje: Subscription;
-    subsCheckCount: Subscription;
     //Oznaka jesu li detalji pregleda aktivirani
     isDetaljiPregleda: boolean = false;
     //Oznaka je li brisanje aktivirano
@@ -184,12 +174,11 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       });
       //Pretplaćujem se na odgovor Resolvera tj. inicijalnih pacijenata u čekaonici
       this.headerService.tipKorisnikaObs.pipe(
-          takeUntil(this.pretplateSubject),
           switchMap(tipKorisnik => {
               //Ako je tip prijavljenog korisnika "lijecnik":
               if(tipKorisnik == "lijecnik"){
-                //Označavam da se liječnik prijavio
-                this.isLijecnik = true;
+                  //Označavam da se liječnik prijavio
+                  this.isLijecnik = true;
               } else if(tipKorisnik== "sestra"){
                   //Označavam da se medicinska sestra prijavila
                   this.isMedSestra = true;
@@ -197,7 +186,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
               //Spremam tip prijavljenog korisnika
               this.tipKorisnik = tipKorisnik;
               return this.route.data;
-          })
+          }),
+          takeUntil(this.pretplateSubject)
       ).subscribe(
           //Dohvaćam odgovor tj. pacijente iz čekaonice
           (odgovor)=>{
@@ -228,7 +218,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     checkCountCekaonica(){
 
         this.cekaonicaService.checkCountCekaonica().pipe(
-            takeUntil(this.pretplateSubject),
             //Dohvaćam broj pacijenata u čekaonici
             tap((brojPacijenata) => {
                   //Ako više nema pacijenata u čekaonici
@@ -236,7 +225,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                       //Označavam da je čekaonica prazna
                       this.isPrazna = true;
                   }
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
     }
 
@@ -245,7 +235,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
         this.cekaonicaService.onDeleteCekaonica(tip,idObrada,idCekaonica).pipe(
-            takeUntil(this.pretplateSubject),
             //Dohvaćam odgovor servera
             tap((odgovor) => {
                   //Označavam da ima odgovora servera
@@ -258,7 +247,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                   this.checkCountCekaonica();
                   //Zatvaram prozor za brisanje
                   this.isBrisanje = false;
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
     }
 
@@ -311,10 +301,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti određenog statusa
         this.headerService.tipKorisnikaObs.pipe(
-            takeUntil(this.pretplateSubject),
             switchMap(tipKorisnik => {
                 return this.cekaonicaService.getPatientByStatus(tipKorisnik,this.selectedStatusValues);
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(
             //Dohvaćam odgovor servera (pacijente)
             (pacijenti) => {
@@ -347,10 +337,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         }
         //Pretplaćujem se na rezultate da ih dohvatim
         this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
-          takeUntil(this.pretplateSubject),
           switchMap(odgovor => {
               return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
-                  takeUntil(this.pretplateSubject),
                   tap(pacijenti => {
                       //Označavam da ima odgovora servera 
                       this.response = true;
@@ -363,9 +351,11 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                       }
                       //Spremam novu verziju pacijenata
                       this.pacijenti = pacijenti;
-                  })
+                  }),
+                  takeUntil(this.pretplateSubject)
               );
-          })
+          }),
+          takeUntil(this.pretplateSubject)
         ).subscribe();
       
     }
@@ -378,7 +368,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         }
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera
         this.obradaService.getPatients(this.ime.value,this.prezime.value,this.stranica).pipe(
-            takeUntil(this.pretplateSubject),
             tap((odgovor) => {
                 //Ako je odgovor negativan, tj. nema pacijenata
                 if(odgovor["success"] == "false"){
@@ -398,7 +387,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                   //Restiraj formu
                   this.forma.reset();
                 }
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(); 
     }
 
@@ -407,13 +397,13 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
         //Pretplaćujem se na Observable u kojemu se nalaze novi pacijenti čekaonice
         this.headerService.tipKorisnikaObs.pipe(
-            takeUntil(this.pretplateSubject),
             take(1),
             switchMap(tipKorisnik => {
                 return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
                     takeUntil(this.pretplateSubject)
                 );
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(
           //Uzimam pacijente
           (pacijenti) => {
@@ -430,12 +420,12 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
       //Pretplaćujem se na Observable u kojemu se nalaze pacijenti
       this.headerService.tipKorisnikaObs.pipe(
-          takeUntil(this.pretplateSubject),
           switchMap(tipKorisnik => {
               return this.cekaonicaService.getTenLast(tipKorisnik).pipe(
                   takeUntil(this.pretplateSubject)
               );
-          })
+          }),
+          takeUntil(this.pretplateSubject)
       ).subscribe(
           //Uzimam odgovor
           (pacijenti) => {

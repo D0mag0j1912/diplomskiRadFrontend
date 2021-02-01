@@ -51,12 +51,11 @@ export class MedSestraAzuriranjePodatciComponent implements OnInit, OnDestroy{
 
       //Ako forma nije validna
       if(!form.valid){
-        return;
+          return;
       }
 
       //Pretplaćujem se na Observable koji je vratio podatke za ažuriranje osobnih podataka
       this.medSestraService.editPersonalData(this.idMedSestra,form.value.email,form.value.ime,form.value.prezime,form.value.adresa,form.value.specijalizacija).pipe(
-          takeUntil(this.pretplateSubject),
           tap(
             (response) => {
               //Ako postoji odgovor
@@ -67,7 +66,8 @@ export class MedSestraAzuriranjePodatciComponent implements OnInit, OnDestroy{
                 this.responsePoruka = response["message"];
               }    
             }
-          )  
+          ),
+          takeUntil(this.pretplateSubject)
       ).subscribe();
     }
 

@@ -7,7 +7,6 @@ import { Mjesto } from 'src/app/shared/modeli/mjesto.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { RadniStatus } from 'src/app/shared/modeli/radniStatus.model';
 import { StatusPacijent } from 'src/app/shared/modeli/statusPacijent.model';
-import { MedSestraService } from '../../../med-sestra/med-sestra.service';
 import { ObradaService } from '../obrada.service';
 import { OsnovniPodatciService } from './osnovni-podatci.service';
 @Component({

@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, forkJoin, merge, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { concatMap, debounceTime, take, takeUntil, tap } from 'rxjs/operators';
 import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
@@ -208,7 +208,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             merge(
             //Slušam promjene u polju unosa primarne dijagnoze
             this.forma.get('primarnaDijagnoza').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 tap(value => {
                     console.log("U promjenama primarne dijagnoze sam!");
                     //Ako se unesena vrijednost NALAZI u nazivima dijagnoza, onda znam da je liječnik unio vrijednost primarne dijagnoze
@@ -234,11 +233,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         this.forma.get('sekundarnaDijagnoza').reset();
                         this.forma.get('sekundarnaDijagnoza').disable({onlySelf:true,emitEvent: false});
                     }
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa MKB šifre primarne dijagnoze
             this.forma.get('mkbPrimarnaDijagnoza').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 tap(value => {
                     console.log("u promjenama mkb šifre dijagnoze sam!");
                     //Ako se unesena vrijednost NALAZI u MKB šiframa dijagnoza, onda znam da je liječnik unio vrijednost MKB šifre dijagnoze
@@ -267,11 +266,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             this.forma.get('sekundarnaDijagnoza').disable({onlySelf:true,emitEvent: false});
                         }
                     }
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa lijeka sa osnovne liste pomoću dropdowna
             this.forma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 tap(value => {
                     console.log("u dropdownu OSNOVNE LISTE LIJEKOVA sam!");
                     //Ako se unesena vrijednost NALAZI u polju OSNOVNE LISTE LIJEKOVA
@@ -307,7 +306,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         Promjene.promjenaDostatnostiLijek(this.forma,this.receptService,this.pretplateSubject),
                         this.receptService.getOznakaLijek(value)
                     ]).pipe(
-                        takeUntil(this.pretplateSubject),
                         //Ulazim u još jedan concatMap da predam dostatnost u danima metodi koja vraća DATUM vrijediDo
                         concatMap(value => {
                             console.log(value);
@@ -316,11 +314,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 //Postavi dostatnost u polje unosa dostatnosti
                                 this.forma.get('trajanje.dostatnost').patchValue(value[0],{onlySelf: true, emitEvent: false});
                                 return this.receptService.getDatumDostatnost(value[0].toString()).pipe(
-                                    takeUntil(this.pretplateSubject),
                                     //Dohvati datum do kada vrijedi terapija i postavi ga u polje datuma
                                     tap(value => {
                                         this.forma.get('trajanje.vrijediDo').patchValue(value,{onlySelf: true, emitEvent: false});
-                                    })
+                                    }),
+                                    takeUntil(this.pretplateSubject)
                                 );
                             }
                             //Ako je server vratio da ima oznake "RS" na izabranom lijeku
@@ -335,13 +333,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 this.isSpecijalist = false;
                                 return of(null);
                             }
-                        })
+                        }),
+                        takeUntil(this.pretplateSubject)
                     )
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa lijeka sa dopunske liste pomoću dropdowna
             this.forma.get('dopunskaListaLijek.dopunskaListaLijekDropdown').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 tap(value => {
                     console.log("u dropdownu DOPUNSKE LISTE LIJEKOVA sam!");
                     //Ako se unesena vrijednost NALAZI u polju DOPUNSKE LISTE LIJEKOVA
@@ -379,7 +378,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         this.receptService.getOznakaLijek(value),
                         Promjene.promjenaDostatnostiLijek(this.forma,this.receptService,this.pretplateSubject)
                     ]).pipe(
-                        takeUntil(this.pretplateSubject),
                         tap(value => {
                             console.log(value);
                             //Postavljam vrijednosti cijena u formu
@@ -394,11 +392,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 //Postavi dostatnost u polje unosa dostatnosti
                                 this.forma.get('trajanje.dostatnost').patchValue(value[2],{onlySelf: true, emitEvent: false});
                                 return this.receptService.getDatumDostatnost(value[2].toString()).pipe(
-                                    takeUntil(this.pretplateSubject),
                                     //Dohvati datum do kada vrijedi terapija i postavi ga u polje datuma
                                     tap(value => {
                                         this.forma.get('trajanje.vrijediDo').patchValue(value,{onlySelf: true, emitEvent: false});
-                                    })
+                                    }),
+                                    takeUntil(this.pretplateSubject)
                                 );
                             }
                             //Ako je server vratio da ovaj lijek IMA oznaku "RS":
@@ -412,13 +410,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 this.isSpecijalist = false;
                                 return of(null);
                             }
-                        })
+                        }),
+                        takeUntil(this.pretplateSubject)
                     )
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa mag. pripravka sa osnovne liste pomoću dropdowna
             this.forma.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 tap(value => {
                     console.log("u dropdownu OSNOVNE LISTE MAG. PRIPRAVAKA SAM!");
                     //Ako se unesena vrijednost NALAZI u polju MAGISTRALNIH PRIPRAVAKA OSNOVNE LISTE
@@ -451,7 +450,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }),
                 concatMap(value => {
                     return this.receptService.getOznakaMagistralniPripravak(value).pipe(
-                        takeUntil(this.pretplateSubject),
                         tap(value => {
                             console.log(value);
                             //Ako je server vratio da ima oznake "RS" na izabranom magistralnom pripravku
@@ -464,13 +462,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 //Označavam da treba sakriti polje unosa šifre specijalista
                                 this.isSpecijalist = false;
                             }
-                        })
+                        }),
+                        takeUntil(this.pretplateSubject)
                     );
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa mag. pripravka sa dopunske liste pomoću dropdowna
             this.forma.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 tap(value => {
                     console.log("u dropdownu DOPUNSKE LISTE MAG. PRIPRAVAKA SAM!");
                     //Ako se unesena vrijednost NALAZI u polju MAGISTRALNIH PRIPRAVAKA DOPUNSKE LISTE
@@ -505,7 +504,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         this.receptService.getCijenaMagPripravakDL(value),
                         this.receptService.getOznakaMagistralniPripravak(value)
                     ]).pipe(
-                        takeUntil(this.pretplateSubject),
                         tap(value => {
                             console.log(value);
                             //Postavljam cijene magistralnih pripravaka u formu
@@ -522,16 +520,17 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 //Označavam da treba sakriti polje unosa šifre specijalista
                                 this.isSpecijalist = false;
                             }
-                        })
+                        }),
+                        takeUntil(this.pretplateSubject)
                     )
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             )
         ).subscribe();
         //Pretplaćujem se na promjene u tekstualnim poljima lijekova i mag.pripravaka
         const drugiDio = merge(
             //Slušam promjene u polju unosa lijeka sa osnovne liste pomoću pretrage
             this.forma.get('osnovnaListaLijek.osnovnaListaLijekText').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 debounceTime(100),
                 tap(value => {
                     console.log("U osnovnoj listi lijekova texta sam!");
@@ -546,11 +545,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     return this.receptPretragaService.getLijekOsnovnaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa lijeka sa dopunske liste pomoću pretrage
             this.forma.get('dopunskaListaLijek.dopunskaListaLijekText').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 debounceTime(100),
                 tap(value => {
                     console.log("U dopunskoj listi lijekova texta sam!");
@@ -565,11 +564,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     return this.receptPretragaService.getLijekDopunskaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa mag. pripravka sa osnovne liste pomoću pretrage
             this.forma.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 debounceTime(100),
                 tap(value => {
                     console.log("U osnovnoj listi mag. pripravaka sam!");
@@ -584,11 +583,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     return this.receptPretragaService.getMagPripravciOsnovnaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa mag. pripravka sa dopunske liste pomoću pretrage
             this.forma.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').valueChanges.pipe(
-                takeUntil(this.pretplateSubject),
                 debounceTime(100),
                 tap(value => {
                     console.log("U dopunskoj listi mag. pripravaka sam!");
@@ -603,7 +602,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     return this.receptPretragaService.getMagPripravciDopunskaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
-                })
+                }),
+                takeUntil(this.pretplateSubject)
             )
         ).subscribe(
             (odgovor) => {
@@ -842,7 +842,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.receptService.getCijenaLijekDL(lijek),
             this.receptService.getOznakaLijek(lijek)
         ]).pipe(
-            takeUntil(this.pretplateSubject),
             tap(odgovor => {
                 //Postavljam dohvaćene cijene u formu
                 this.forma.get('cijenaDopunskaLista.cijenaUkupno').patchValue(`${odgovor[0][0].cijenaLijek} kn`,{onlySelf: true,emitEvent: false});
@@ -857,7 +856,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 else{
                     this.isSpecijalist = false;
                 }
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
     }
     //Metoda koja se poziva kada liječnik unese ispravan unos MAG.PRIPRAVKA iz OSNOVNE LISTE
@@ -913,7 +913,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.receptService.getCijenaMagPripravakDL(magPripravak),
             this.receptService.getOznakaMagistralniPripravak(magPripravak)
         ]).pipe(
-            takeUntil(this.pretplateSubject),
             tap(value => {
                 console.log(value);
                 //Postavljam cijene magistralnog pripravka u formu
@@ -929,7 +928,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 else{
                     this.isSpecijalist = false;
                 }
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
     }
     //Metoda koja se pokreće kada liječnik izabere neki proizvod iz liste pretrage

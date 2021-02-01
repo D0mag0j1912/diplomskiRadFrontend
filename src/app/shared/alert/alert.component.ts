@@ -7,19 +7,20 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild }
 })
 export class AlertComponent implements OnInit {
 
-  //Inicijalizacija poruke te omogućavam da se može njezina vrijednost postaviti iz neke druge komponente
-  @Input() message: string = null;
+    //Inicijalizacija poruke te omogućavam da se može njezina vrijednost postaviti iz neke druge komponente
+    @Input() message: string = null;
 
-  //Kreiram event i omogućavam da se može slušati iz vanjskih komponenti
-  @Output() close = new EventEmitter<any>();
-  @ViewChild('alertBoxActions') alertBoxActions : ElementRef;
-  constructor() { }
+    //Kreiram event i omogućavam da se može slušati iz vanjskih komponenti
+    @Output() close = new EventEmitter<any>();
+    @ViewChild('alertBoxActions') alertBoxActions : ElementRef;
+    constructor() { }
 
-  ngOnInit(){
-  }
-  //Kada se klikne button "Close" ili negdje izvan prozora, počinjem emitirati event
-  onClose(){
-    this.close.emit();
-  }
+    //Metoda koja se poziva kada se komponenta inicijalizira
+    ngOnInit(){}
+
+    //Kada se klikne button "Close" ili negdje izvan prozora, počinjem emitirati event
+    onClose(){
+        this.close.emit();
+    }
 
 }
