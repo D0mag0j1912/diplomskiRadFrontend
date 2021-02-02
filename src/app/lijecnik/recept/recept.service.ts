@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { throwError } from "rxjs";
+import { BehaviorSubject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 @Injectable({
@@ -9,11 +9,23 @@ import { catchError } from "rxjs/operators";
 export class ReceptService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
-
+    //Kreiram BehaviourSubject kojim ću poslati ID pacijenta za inicijalni prikaz dijagnoza u unosu recepta
+    inicijalneDijagnozeSubject = new BehaviorSubject<number>(null);
+    //Kreiram Observable od Subjecta
+    inicijalneDijagnozeObs = this.inicijalneDijagnozeSubject.asObservable();
     constructor(
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Metoda koja šalje ID pacijenta te vraća Observable u kojemu se nalazi odgovor servera na dohvat dijagnoza za unos recepta
+    getInicijalnoDijagnoze(id: number){
+        const params = new HttpParams().append("idPacijent",id.toString());
+        return this.http.get<any>(this.baseUrl + 'recept/getInicijalnoDijagnoze.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
 
     //Metoda koja vraća Observable u kojemu se nalazi ukupno trajanje terapije
     getDostatnost(lijek: string, kolicina: string,doza: string){

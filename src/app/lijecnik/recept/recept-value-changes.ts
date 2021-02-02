@@ -33,9 +33,6 @@ export function azuriranjeDostatnosti(forma: AbstractControl,receptService: Rece
     }
     //Ako NISU popunjeni unosi lijeka, količine lijeka i doziranja lijeka, vrati null
     else{
-        //Polje dostatnosti i polje datuma stavljam na null
-        forma.get('trajanje.dostatnost').patchValue(null,{onlySelf: true,emitEvent: false});
-        forma.get('trajanje.vrijediDo').patchValue(null,{onlySelf: true,emitEvent: false});
         return of(null);
     }
 }

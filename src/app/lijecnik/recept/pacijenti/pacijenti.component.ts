@@ -84,7 +84,9 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     }
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"
-    izdajRecept(){
+    izdajRecept(id: number){
+        //Pošalji ID pacijenta u backend da mogu inicijalno prikazati njegove dijagnoze na unosu recepta
+        this.receptService.inicijalneDijagnozeSubject.next(id);
         //Otvara se prozor za izdavanje recepta
         this.isIzdajRecept = true;
     }

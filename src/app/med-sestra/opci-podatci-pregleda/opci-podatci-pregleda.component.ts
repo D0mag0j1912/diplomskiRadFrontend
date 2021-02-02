@@ -249,37 +249,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 }
             );
 
-            /* //Pretplaćujem se na Subject da doznam ID aktivne medicinske sestre
-            this.headerService.getIDMedSestra().pipe(
-                takeUntil(this.pretplateSubject),
-                //Dohvaćam podatak ID-a medicinske sestre
-                tap((response) => {
-                    //Podatak iz Subjecta spremam u svoju varijablu
-                    this.idMedSestra = response[0].idMedSestra;
-                    console.log(this.idMedSestra);
-                })
-            ).subscribe();
-            //Pretplaćujem se na Subject koji označava je li pregled završen ili nije
-            this.subsZavrsenPregled = this.obradaService.obsZavrsenPregled.subscribe(
-                (podatci) => {
-                  //Ako je pregled završen
-                  if(podatci === "zavrsenPregled"){
-                    //Postavljam da pacijent više nije aktivan
-                    this.isAktivan = false;
-                    //Resetiram formu osnovnih podataka pacijenta
-                    this.forma.reset();
-                    //Uklanjam validatore sa forme
-                    this.forma.clearValidators();
-                    this.forma.updateValueAndValidity({emitEvent: false});
-                    //Za svaki form control u formi
-                    for(let field in this.forma.controls){
-                      //Ukloni mu validator i ažuriraj stanje forme
-                      this.forma.get(field).clearValidators();
-                      this.forma.get(field).updateValueAndValidity({emitEvent: false});
-                    }
-                  }
-                }
-            ); */ 
             const combined2 = combineLatest([
                 this.headerService.getIDMedSestra(),
                 this.obradaService.obsZavrsenPregled

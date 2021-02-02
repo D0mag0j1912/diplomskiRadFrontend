@@ -112,7 +112,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                       }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null})
                     }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
                     //Na početku onemogućavam unos sekundarne dijagnoze
-                    this.forma.get('sekundarnaDijagnoza').disable();
+                    this.forma.get('sekundarnaDijagnoza').disable({onlySelf: true, emitEvent: false});
                 }
               ),
               takeUntil(this.pretplateSubject)
@@ -124,40 +124,10 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               (dijagnoza) => {
                   if(dijagnoza){
                       //Kada je primarna dijagnoza unesena, unos sekundarne dijagnoze je omogućen
-                      this.forma.get('sekundarnaDijagnoza').enable();
+                      this.forma.get('sekundarnaDijagnoza').enable({onlySelf: true, emitEvent: false});
                   }
               }
           );
-
-          /* //Pretplaćujem se na Observable da dobijem ID trenutno aktivnog liječnika
-          this.subsAktivniLijecnik = this.headerService.getIDLijecnik().subscribe(
-              //Dohvaćam ID liječnika
-              (idLijecnik) => {
-                  //Spremam ID liječnika
-                  this.idLijecnik = idLijecnik[0].idLijecnik;
-              }
-          );
-          //Pretplaćujem se na Subject koji označava je li pregled završen ili nije
-          this.subsZavrsenPregled = this.obradaService.obsZavrsenPregled.subscribe(
-            (podatci) => {
-              //Ako je pregled završen
-              if(podatci === "zavrsenPregled"){
-                //Postavljam da pacijent više nije aktivan
-                this.isAktivan = false;
-                //Resetiram formu osnovnih podataka pacijenta
-                this.forma.reset();
-                //Uklanjam validatore sa forme
-                this.forma.clearValidators();
-                this.forma.updateValueAndValidity({emitEvent: false});
-                //Za svaki form control u formi
-                for(let field in this.forma.controls){
-                  //Ukloni mu validator i ažuriraj stanje forme
-                  this.forma.get(field).clearValidators();
-                  this.forma.get(field).updateValueAndValidity({emitEvent: false});
-                }
-              }
-            }
-          ); */
 
           const combined = combineLatest([
               this.headerService.getIDLijecnik(),
@@ -303,17 +273,17 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                     this.onDeleteDiagnosis(-1); 
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                    this.primarnaDijagnoza.setValue(this.primarnaDijagnozaOtvoreniSlucaj);
+                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
                     //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                    this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaOtvoreniSlucaj);
+                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
                     //Zatvaram prozor otvorenog slučaja
                     this.otvoren = false;
                     //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
                     this.ponistiPovezaniSlucaj = true;
                     //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                    this.povezanSlucaj.setValue(true);
+                    this.povezanSlucaj.patchValue(true,{onlySelf: true, emitEvent: false});
                     //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                    this.povezanSlucaj.disable();
+                    this.povezanSlucaj.disable({onlySelf: true, emitEvent: false});
                     //Resetiram checkbox novog slučaja da ne ostane da su oba true
                     this.noviSlucaj.reset();
                 }
@@ -331,7 +301,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               this.sekundarnaDijagnoza.clear();
               this.sekundarnaDijagnozaOtvoreniSlucaj = [];
               this.onAddDiagnosis();
-              this.primarnaDijagnoza.setValue(null);
+              this.primarnaDijagnoza.patchValue(null,{onlySelf: true, emitEvent: false});
               //Skrivam button "Poništi povezani slučaj"
               this.ponistiPovezaniSlucaj = false;
               //Resetiram checkbox povezanog slučaja
@@ -349,13 +319,13 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     (odgovor) => {
                         console.log(odgovor);
                         //Popuni polja povijesti bolesti sa rezultatima sa servera
-                        this.razlogDolaska.patchValue(odgovor[0].razlogDolaska);
-                        this.anamneza.patchValue(odgovor[0].anamneza);
-                        this.status.patchValue(odgovor[0].statusPacijent);
-                        this.nalaz.patchValue(odgovor[0].nalaz);
-                        this.terapija.patchValue(odgovor[0].terapija);
-                        this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik);
-                        this.napomena.patchValue(odgovor[0].napomena);
+                        this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{onlySelf: true, emitEvent: false});
+                        this.anamneza.patchValue(odgovor[0].anamneza,{onlySelf: true, emitEvent: false});
+                        this.status.patchValue(odgovor[0].statusPacijent,{onlySelf: true, emitEvent: false});
+                        this.nalaz.patchValue(odgovor[0].nalaz,{onlySelf: true, emitEvent: false});
+                        this.terapija.patchValue(odgovor[0].terapija,{onlySelf: true, emitEvent: false});
+                        this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik,{onlySelf: true, emitEvent: false});
+                        this.napomena.patchValue(odgovor[0].napomena,{onlySelf: true, emitEvent: false});
                         //Resetiram formu sekundarnih dijagnoza
                         this.sekundarnaDijagnoza.clear();
                         //Resetiram svoje polje sekundarnih dijagnoza
@@ -375,17 +345,17 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                         //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                         this.onDeleteDiagnosis(-1); 
                         //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                        this.primarnaDijagnoza.setValue(this.primarnaDijagnozaPovijestBolesti);
+                        this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{onlySelf: true, emitEvent: false});
                         //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                        this.sekundarnaDijagnoza.setValue(this.sekundarnaDijagnozaPovijestBolesti);
+                        this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaPovijestBolesti,{onlySelf: true, emitEvent: false});
                         //Zatvaram prozor povijesti bolesti
                         this.otvorenPovijestBolesti = false;
                         //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
                         this.ponistiPovezaniSlucaj = true;
                         //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                        this.povezanSlucaj.setValue(true);
+                        this.povezanSlucaj.patchValue(true,{onlySelf: true, emitEvent: false});
                         //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                        this.povezanSlucaj.disable();
+                        this.povezanSlucaj.disable({onlySelf: true, emitEvent: false});
                         //Resetiram checkbox novog slučaja da ne ostane da su oba true
                         this.noviSlucaj.reset();
                     }
