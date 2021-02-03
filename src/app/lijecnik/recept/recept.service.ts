@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, throwError } from "rxjs";
-import { catchError } from "rxjs/operators";
+import { BehaviorSubject, of, throwError } from "rxjs";
+import { catchError, switchMap, take } from "rxjs/operators";
 
 @Injectable({
     providedIn: 'root'
@@ -9,10 +9,7 @@ import { catchError } from "rxjs/operators";
 export class ReceptService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
-    //Kreiram BehaviourSubject kojim ću poslati ID pacijenta za inicijalni prikaz dijagnoza u unosu recepta
-    inicijalneDijagnozeSubject = new BehaviorSubject<number>(null);
-    //Kreiram Observable od Subjecta
-    inicijalneDijagnozeObs = this.inicijalneDijagnozeSubject.asObservable();
+    
     constructor(
         //Dohvaćam http
         private http: HttpClient

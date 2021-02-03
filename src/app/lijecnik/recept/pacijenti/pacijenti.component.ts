@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { concatMap, distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 import { ReceptService } from '../recept.service';
@@ -29,7 +29,9 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
         //Dohvaćam servis recepta
-        private receptService: ReceptService
+        private receptService: ReceptService,
+        //Dohvaćam router
+        private router: Router
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
@@ -40,14 +42,12 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         });
         //Pretplaćivam se na podatke iz Resolvera 
         this.route.data.pipe(
-            tap(
-                (podatci : {pacijenti: any}) => {
-                    //Spremam pacijente za tablicu
+            tap((podatci : {pacijenti: any}) => {
                     this.pacijenti = podatci.pacijenti;
-                    console.log(this.pacijenti);
-            }),
+                }
+            ),
             takeUntil(this.pretplateSubject)
-        ).subscribe(); 
+        ).subscribe();
         //Pretplaćujem se na liječnikovu pretragu u formi pretrage
         this.formaPretraga.get('pretraga').valueChanges.pipe(
             //Ne ponavljam iste zahtjeve
@@ -85,17 +85,18 @@ export class PacijentiComponent implements OnInit, OnDestroy {
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"
     izdajRecept(id: number){
-        //Pošalji ID pacijenta u backend da mogu inicijalno prikazati njegove dijagnoze na unosu recepta
-        this.receptService.inicijalneDijagnozeSubject.next(id);
-        //Otvara se prozor za izdavanje recepta
-        this.isIzdajRecept = true;
+        //Preusmjeri liječnika na prozor izdavanja recepta
+        this.router.navigate(['./',id],{relativeTo: this.route});
+        /* //Otvara se prozor za izdavanje recepta
+        this.isIzdajRecept = true; */
     }
 
-    //Metoda koja zatvara prozor izdavanja recepta
+    /* //Metoda koja zatvara prozor izdavanja recepta
     onClose(){
         //Zatvori prozor
         this.isIzdajRecept = false;
-    }
+        this.router.navigate(['./'],{relativeTo: this.route});
+    } */
 
     //Ova metoda se izvodi kada se komponenta uništi
     ngOnDestroy(){

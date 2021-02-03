@@ -9,7 +9,7 @@ import { ReceptService } from './recept.service';
 @Injectable({
     providedIn: 'root'
 })
-export class ReceptImportiResolverService implements Resolve<any>{
+export class IzdajReceptResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam importi recept servis
@@ -29,7 +29,8 @@ export class ReceptImportiResolverService implements Resolve<any>{
             this.receptImportiService.getLijekoviDopunskaLista(),
             this.receptImportiService.getMagistralniPripravciOsnovnaLista(),
             this.receptImportiService.getMagistralniPripravciDopunskaLista(),
-            this.receptService.getDatumDostatnost("30")
+            this.receptService.getDatumDostatnost("30"),
+            this.receptService.getInicijalnoDijagnoze(+route.params['id'])
         ]).pipe(
             map(result => {
                 return {
@@ -38,7 +39,8 @@ export class ReceptImportiResolverService implements Resolve<any>{
                     lijekoviDopunskaLista: result[2],
                     magistralniPripravciOsnovnaLista: result[3],
                     magistralniPripravciDopunskaLista: result[4],
-                    datum: result[5]
+                    datum: result[5],
+                    inicijalneDijagnoze: result[6]
                 };    
             })
         );
