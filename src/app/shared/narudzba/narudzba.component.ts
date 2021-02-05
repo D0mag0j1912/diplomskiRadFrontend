@@ -142,9 +142,9 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                         'napomena': new FormControl(this.isPacijent ? this.narudzba[0].napomenaNarucivanje : null)
                     });
                     //Postavljam inicijalnu vrijednost dropdowna na vrijednost PACIJENTA koji je kliknut u ćeliji tablice
-                    this.forma.get('pacijenti').patchValue(this.selectedPacijent,{onlySelf: true, emitEvent: false});
+                    this.forma.get('pacijenti').patchValue(this.selectedPacijent,{emitEvent: false});
                     //Postavljam inicijalnu vrijednost dropdowna na vrijednost VRSTU PREGLEDA koju kliknuti pacijent ima
-                    this.forma.get('vrstaPregleda').patchValue(this.selectedVrstaPregled,{onlySelf: true, emitEvent: false}); 
+                    this.forma.get('vrstaPregleda').patchValue(this.selectedVrstaPregled,{emitEvent: false}); 
                 }
             ),
             takeUntil(this.pretplateSubject)

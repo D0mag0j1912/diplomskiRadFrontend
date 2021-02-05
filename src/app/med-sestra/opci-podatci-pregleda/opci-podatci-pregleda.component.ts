@@ -153,28 +153,28 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //AKO JE PACIJENT AKTIVAN
         if(this.isAktivan){
             //Inicijalno onemogućavam unos nekih polja u formi
-            this.forma.get('sifUred').disable({onlySelf:true,emitEvent: false});
-            this.forma.get('sifUredOzljeda').disable({onlySelf:true,emitEvent: false});
-            this.forma.get('podrucniUred').disable({onlySelf:true,emitEvent: false});
-            this.forma.get('ozljeda').disable({onlySelf:true,emitEvent: false});
-            this.forma.get('poduzece').disable({onlySelf:true,emitEvent: false});
-            this.forma.get('oznakaOsiguranika').disable({onlySelf:true,emitEvent: false});
-            this.forma.get('sekundarnaDijagnoza').disable({onlySelf:true,emitEvent: false});
+            this.forma.get('sifUred').disable({emitEvent: false});
+            this.forma.get('sifUredOzljeda').disable({emitEvent: false});
+            this.forma.get('podrucniUred').disable({emitEvent: false});
+            this.forma.get('ozljeda').disable({emitEvent: false});
+            this.forma.get('poduzece').disable({emitEvent: false});
+            this.forma.get('oznakaOsiguranika').disable({emitEvent: false});
+            this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
 
             //Prolazim poljem zdravstvenih podataka
             for(let podatci of this.zdravstveniPodatci){
                 console.log(podatci);
                 //Inicijalno popunjam polja zdravstvenih podataka trenutno aktivnog pacijenta
-                this.forma.get('kategorijaOsiguranja').patchValue(podatci.opisOsiguranika,{onlySelf:true,emitEvent: false});
+                this.forma.get('kategorijaOsiguranja').patchValue(podatci.opisOsiguranika,{emitEvent: false});
                 //Pozivam metodu koja će popuniti oznaku osiguranika
                 this.opisOsiguranikaToOznaka(podatci.opisOsiguranika);
-                this.forma.get('drzavaOsiguranja').patchValue(podatci.drzavaOsiguranja,{onlySelf:true,emitEvent: false});
-                this.forma.get('mbrPacijent').patchValue(podatci.mboPacijent,{onlySelf:true,emitEvent: false});
+                this.forma.get('drzavaOsiguranja').patchValue(podatci.drzavaOsiguranja,{emitEvent: false});
+                this.forma.get('mbrPacijent').patchValue(podatci.mboPacijent,{emitEvent: false});
                 //Ako pacijent ima broj iskaznice dopunskog
                 if(podatci.brojIskazniceDopunsko !== null){
                     //Postavljam validatore na broj iskaznice dopunskog
                     this.forma.get('brIskDopunsko').setValidators([Validators.required,Validators.pattern("^\\d{8}$"), this.isValidDopunsko.bind(this)])
-                    this.forma.get('brIskDopunsko').patchValue(podatci.brojIskazniceDopunsko,{onlySelf:true,emitEvent: false});
+                    this.forma.get('brIskDopunsko').patchValue(podatci.brojIskazniceDopunsko,{emitEvent: false});
                 }
             }
 
@@ -213,7 +213,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         //Ako nije ispravan
                         else{
                           //Treba biti prazno
-                          this.forma.get('oznakaOsiguranika').patchValue(null,{onlySelf: true, emitEvent: false});
+                          this.forma.get('oznakaOsiguranika').patchValue(null,{emitEvent: false});
                         }
                     }
                     //Ako se unesena vrijednost u formi NALAZI u nazivima područnih ureda
@@ -226,7 +226,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         //Ako nije ispravan
                         else{
                           //Treba biti prazno
-                          this.forma.get('sifUred').patchValue(null,{onlySelf: true, emitEvent: false});
+                          this.forma.get('sifUred').patchValue(null,{emitEvent: false});
                         }  
                         //Ako je form control ispravan
                         if(this.forma.get('ozljeda').valid){
@@ -236,14 +236,14 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         //Ako nije ispravan
                         else{
                             //Treba biti prazno
-                            this.forma.get('sifUredOzljeda').patchValue(null,{onlySelf: true, emitEvent: false});
+                            this.forma.get('sifUredOzljeda').patchValue(null,{emitEvent: false});
                         }   
                     }
                     //Ako se unesena vrijednost u formi NALAZI u nazivima primarnih dijagnoza
                     if(this.naziviDijagnoze.indexOf(value) !== -1){
                         if(this.forma.get('primarnaDijagnoza').valid){
                             //Kada je primarna dijagnoza unesena, unos sekundarne dijagnoze je omogućen
-                            this.forma.get('sekundarnaDijagnoza').enable({onlySelf: true, emitEvent: false});
+                            this.forma.get('sekundarnaDijagnoza').enable({emitEvent: false});
                         }
                     }
                 }
@@ -335,7 +335,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
           //Ako je trenutna vrijednost načina plaćanja "poduzeće"
           if(value === 'poduzece'){
             //Omogućavam unos poduzeća
-            this.poduzece.enable({onlySelf: true, emitEvent: false});
+            this.poduzece.enable({emitEvent: false});
             //Naziv poduzeća mora biti unesen
             this.poduzece.setValidators(Validators.required);
             //Restiram polja područnih ureda
@@ -345,8 +345,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.sifUred.reset();
             this.sifUredOzljeda.reset();
             //Disablam područne urede
-            this.podrucniUred.disable({onlySelf: true, emitEvent: false});
-            this.ozljeda.disable({onlySelf: true, emitEvent: false});
+            this.podrucniUred.disable({emitEvent: false});
+            this.ozljeda.disable({emitEvent: false});
           }
           else{
             //Gasim validatore za poduzeće
@@ -357,7 +357,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             //Resetiram šifre područnih ureda ozljede
             this.sifUredOzljeda.reset();
             //Omogućavam unos područnog ureda HZZO
-            this.podrucniUred.enable({onlySelf: true, emitEvent: false});
+            this.podrucniUred.enable({emitEvent: false});
             //Područni ured mora biti unesen
             this.podrucniUred.setValidators([Validators.required,this.isValidPodrucniUred.bind(this)]);
             //Broj iskaznice dopunskog mora biti unesen
@@ -367,8 +367,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.ozljeda.reset();
             this.poduzece.reset();
             //Onemogućavam unos područnog ureda ozljede na radu te naziva poduzeća
-            this.ozljeda.disable({onlySelf: true, emitEvent: false});
-            this.poduzece.disable({onlySelf: true, emitEvent: false});
+            this.ozljeda.disable({emitEvent: false});
+            this.poduzece.disable({emitEvent: false});
           }
           else{
             //Odbaci validatore
@@ -381,15 +381,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             //Resetiram šifre područnih ureda
             this.sifUred.reset();
             //Omogućavam unos područnog ureda ozljede na radu
-            this.ozljeda.enable({onlySelf: true, emitEvent: false});
+            this.ozljeda.enable({emitEvent: false});
             //Područni ured ozljede mora biti unesen
             this.ozljeda.setValidators([Validators.required, this.isValidPodrucniUred.bind(this)]);
             //Resetiram polja područnog ureda HZZO-a i poduzeća
             this.podrucniUred.reset();
             this.poduzece.reset();
             //Onemogućavam unos područnog ureda i poduzeća
-            this.podrucniUred.disable({onlySelf: true, emitEvent: false});
-            this.poduzece.disable({onlySelf: true, emitEvent: false});
+            this.podrucniUred.disable({emitEvent: false});
+            this.poduzece.disable({emitEvent: false});
           }
           else{
             //Odbaci validatore
@@ -405,9 +405,9 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.ozljeda.reset();
             this.poduzece.reset();
             //Onemogućavam unos područnim uredima i poduzeću
-            this.podrucniUred.disable({onlySelf: true, emitEvent: false});
-            this.ozljeda.disable({onlySelf: true, emitEvent: false});
-            this.poduzece.disable({onlySelf: true, emitEvent: false});
+            this.podrucniUred.disable({emitEvent: false});
+            this.ozljeda.disable({emitEvent: false});
+            this.poduzece.disable({emitEvent: false});
           }
           //Ako je trenutna vrijednost načina plaćanja "ozljeda" ili "hzzo"
           if(value === 'hzzo' || value === 'ozljeda' || value === 'poduzece'){
@@ -444,7 +444,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
         if(value === ured["nazivSluzbe"]){
           //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUred').patchValue(ured["sifUred"],{onlySelf: true, emitEvent: false});
+          this.forma.get('sifUred').patchValue(ured["sifUred"],{emitEvent: false});
         }
       }
       this.forma.get('sifUred').updateValueAndValidity({emitEvent: false}); 
@@ -456,7 +456,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
         if(value === ured["nazivSluzbe"]){
           //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUredOzljeda').patchValue(ured["sifUred"],{onlySelf: true, emitEvent: false});
+          this.forma.get('sifUredOzljeda').patchValue(ured["sifUred"],{emitEvent: false});
         }
       }
       this.forma.get('sifUredOzljeda').updateValueAndValidity({emitEvent: false}); 
@@ -469,7 +469,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
         if(value === osiguranje["opisOsiguranika"]){
           //Postavi oznaku osiguranika na onu oznaku koja odgovora odabranom opisu osiguranika
-          this.forma.get('oznakaOsiguranika').patchValue(osiguranje["oznakaOsiguranika"],{onlySelf: true, emitEvent: false});
+          this.forma.get('oznakaOsiguranika').patchValue(osiguranje["oznakaOsiguranika"],{emitEvent: false});
         }
       }
       this.forma.get('oznakaOsiguranika').updateValueAndValidity({emitEvent: false}); 
@@ -585,17 +585,17 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                     this.onDeleteDiagnosis(-1); 
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
+                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
                     //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
+                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
                     //Zatvaram prozor otvorenog slučaja
                     this.otvoren = false;
                     //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
                     this.ponistiPovezaniSlucaj = true;
                     //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                    this.povezanSlucaj.patchValue(true,{onlySelf: true, emitEvent: false});
+                    this.povezanSlucaj.patchValue(true,{emitEvent: false});
                     //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                    this.povezanSlucaj.disable({onlySelf: true, emitEvent: false});
+                    this.povezanSlucaj.disable({emitEvent: false});
                     //Resetiram checkbox novog slučaja da ne ostane da su oba true
                     this.noviSlucaj.reset();
                 }),
@@ -612,7 +612,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.sekundarnaDijagnoza.clear();
             this.sekundarnaDijagnozaOtvoreniSlucaj = [];
             this.onAddDiagnosis();
-            this.primarnaDijagnoza.patchValue(null,{onlySelf: true, emitEvent: false});
+            this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
             //Skrivam button "Poništi povezani slučaj"
             this.ponistiPovezaniSlucaj = false;
             //Resetiram checkbox povezanog slučaja

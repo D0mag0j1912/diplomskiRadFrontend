@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AlertComponent } from './alert/alert.component';
 import { DropdownDirective } from './direktive/dropdown.directive';
-import { SpinnerComponent } from './spinner/spinner.component';
 import { BrisanjePacijentaAlertComponent } from './brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
 import { PretragaPacijentComponent } from './pretraga-pacijent/pretraga-pacijent.component';
 import { OtvoreniSlucajComponent } from './otvoreni-slucaj/otvoreni-slucaj.component';
@@ -14,7 +13,6 @@ import { DetaljiPregledaComponent } from './cekaonica/detalji-pregleda/detalji-p
 @NgModule({
     declarations: [
         AlertComponent,
-        SpinnerComponent,
         DropdownDirective,
         BrisanjePacijentaAlertComponent,
         PretragaPacijentComponent,
@@ -30,7 +28,6 @@ import { DetaljiPregledaComponent } from './cekaonica/detalji-pregleda/detalji-p
     ],
     exports: [
         AlertComponent,
-        SpinnerComponent,
         DropdownDirective,
         BrisanjePacijentaAlertComponent,
         PretragaPacijentComponent,

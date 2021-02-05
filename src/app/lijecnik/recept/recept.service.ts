@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, of, throwError } from "rxjs";
-import { catchError, switchMap, take } from "rxjs/operators";
+import { throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
 
 @Injectable({
     providedIn: 'root'
@@ -25,15 +25,17 @@ export class ReceptService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi ukupno trajanje terapije
-    getDostatnost(lijek: string, kolicina: string,doza: string){
+    getDostatnost(lijek: string, kolicina: string,doza: string,brojPonavljanja: string){
         //Kodiram specijalne znakove
         lijek = encodeURIComponent(lijek);
         kolicina = encodeURIComponent(kolicina);
         doza = encodeURIComponent(doza);
+        brojPonavljanja = encodeURIComponent(brojPonavljanja);
         //Kreiram paramse da ih mogu poslati u backend
         let params = new HttpParams().append("lijek",lijek);
         params = params.append("kolicina",kolicina);
         params = params.append("doza",doza);
+        params = params.append("brojPonavljanja",brojPonavljanja);
         return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDostatnost.php',
         {
             params: params

@@ -1,6 +1,21 @@
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
 
+//Funkcija koja provjerava je li unesen broj ponavljanja recepta ako je "ponovljiv" checked
+export function provjeriBrojPonavljanja(): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        if(group){
+            //Ako je "ponovljiv checked" te ako nije unesen broj ponavljanja
+            if(group.get('ponovljivost').value && !group.get('brojPonavljanja').value){
+                //Vrati grešku
+                return {'mustBrojPonavljanja': true};
+            }
+            //Inače, vrati da je u redu
+            return null;
+        }
+    }
+}
+
 //Funkcija koja provjerava ispravnost liječnikova unosa dostatnosti
 export function provjeriDostatnost(): ValidatorFn{
     return (control: FormControl): {[key: string]:boolean} | null => {
@@ -16,11 +31,12 @@ export function provjeriDostatnost(): ValidatorFn{
 //Funkcija koja provjerava ispravnost MKB šifre primarne dijagnoze
 export function provjeriMKB(mkbSifre: string[]): ValidatorFn{
     return (control: FormControl): {[key: string]:boolean} | null => {
-        if(control){
-            //Ako se vrijednost unosa MKB šifre nalazi u polju MKB šifri
-            if(mkbSifre.indexOf(control.value) !== -1){
-                //Vrati da je u redu
-                return null;
+        if(control.value !== null){
+            //Prolazim kroz sve MKB šifre
+            for(const mkbSifra of mkbSifre){
+                if(mkbSifra.toLowerCase() === control.value.toLowerCase()){
+                    return null;
+                }
             }
             //Vrati pogrešku
             return {'neispravanMKB': true};
@@ -33,13 +49,13 @@ export function MKBtoNaziv(mkbSifra: string,dijagnoze: any,forma: FormGroup){
     //Prolazim kroz nazive i šifre svih dijagnoza
     for(const dijagnoza of dijagnoze){
         //Ako je unesena MKB šifra JEDNAKA MKB šifri iz importanog polja
-        if(dijagnoza.mkbSifra === mkbSifra){
+        if(dijagnoza.mkbSifra.toLowerCase() === mkbSifra.toLowerCase()){
             //U polje naziva primarne dijagnoze postavljam naziv koji odgovara toj jednakoj MKB šifri
-            forma.get('primarnaDijagnoza').patchValue(dijagnoza.imeDijagnoza,{onlySelf: true,emitEvent: false});
+            forma.get('primarnaDijagnoza').patchValue(dijagnoza.imeDijagnoza,{emitEvent: false});
         }
     }
     //Ažuriram promjene u polje naziva primarne dijagnoze
-    forma.get('primarnaDijagnoza').updateValueAndValidity({onlySelf:true,emitEvent: false});
+    forma.get('primarnaDijagnoza').updateValueAndValidity({emitEvent: false});
 }
 
 //Metoda koja popunjava polje MKB šifre dijagnoze kada se unese ime primarne dijagnoze
@@ -49,10 +65,10 @@ export function nazivToMKB(nazivPrimarna: string,dijagnoze: any,forma: FormGroup
         //Ako je uneseni naziv primarne dijagnoze od strane liječnika JEDNAK nazivu primarne dijagnoze u importanom polju
         if(dijagnoza.imeDijagnoza === nazivPrimarna){
             //U polje MKB šifre primarne dijagnoze ubacivam MKB šifru te dijagnoze koja je jednaka
-            forma.get('mkbPrimarnaDijagnoza').patchValue(dijagnoza.mkbSifra,{onlySelf: true,emitEvent: false});
+            forma.get('mkbPrimarnaDijagnoza').patchValue(dijagnoza.mkbSifra,{emitEvent: false});
         }
     }
-    forma.get('mkbPrimarnaDijagnoza').updateValueAndValidity({onlySelf: true,emitEvent: false});
+    forma.get('mkbPrimarnaDijagnoza').updateValueAndValidity({emitEvent: false});
 }
 //Metoda koja provjerava je li proizvod unesen
 export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopunskaListaOJP:string[],
@@ -148,14 +164,19 @@ export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopun
         }
     }
 } 
-//Metoda koja provjerava je li doziranje uneseno PRIJE količine 
-export function doziranjePrijeKolicina(): ValidatorFn{
+//Metoda koja provjerava je li doziranje uneseno PRIJE proizvoda
+export function doziranjePrijeProizvod(): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
-        //Ako je doziranje ispravno uneseno, a da NIJE unesena količina proizvoda
-        if(group.get('doziranje.doziranjeFrekvencija').valid 
-            && !group.get('kolicina.kolicinaDropdown').value){
-            //Vraćam grešku
-            return {'doziranjePrijeKolicina': true};
+        //Ako doziranje ima upisanu ispravnu vrijednost
+        if(group.get('doziranje.doziranjeFrekvencija').value && group.get('doziranje.doziranjeFrekvencija').valid){
+            //Ako forma ima errora
+            if(group.errors){
+                //Ako proizvod nije unesen
+                if('baremJedan' in group.errors){
+                    //Vrati grešku
+                    return {'doziranjePrijeProizvod': true};
+                }
+            }
         }
         //Ako je sve u redu, vraćam null
         return null;
@@ -165,17 +186,15 @@ export function doziranjePrijeKolicina(): ValidatorFn{
 export function kolicinaPrijeProizvod(): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
         //Ako je količina unesena, a da nije unesen proizvod
-        if(group.get('kolicina.kolicinaDropdown').value 
-            && (!group.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value  && 
-            !group.get('osnovnaListaLijek.osnovnaListaLijekText').value && 
-            !group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value && 
-            !group.get('dopunskaListaLijek.dopunskaListaLijekText').value && 
-            !group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakDropdown').value && 
-            !group.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value && 
-            !group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value && 
-            !group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value)){
-            //Vraćam grešku
-            return {'kolicinaPrijeProizvod': true};
+        if(group.get('kolicina.kolicinaDropdown').value && group.get('kolicina.kolicinaDropdown').valid){
+            //Ako forma ima errora
+            if(group.errors){
+                //Ako proizvod nije unesen
+                if('baremJedan' in group.errors){
+                    //Vrati grešku
+                    return {'kolicinaPrijeProizvod': true};
+                }
+            }
         }
         //Ako je sve u redu, vraćam null
         return null;

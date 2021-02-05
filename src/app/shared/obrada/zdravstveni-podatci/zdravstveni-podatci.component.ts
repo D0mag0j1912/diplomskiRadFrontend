@@ -128,7 +128,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                 }, {validators: this.isPodatciAktivni ? [this.bothForbiddenParticipacija] : null}),
               }, {validators: this.isPodatciAktivni ? [this.atLeastOneRequiredOsnovno, this.mustOslobodenParticipacija, this.bothForbiddenOsnovno] : null});
               //Inicijalno onemogućavam unos u polje šifre područnog ureda
-              this.forma.controls["sifUred"].disable({onlySelf: true, emitEvent: false});
+              this.forma.controls["sifUred"].disable({emitEvent: false});
             }
           ),
           takeUntil(this.pretplateSubject)
@@ -154,7 +154,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                               //Ako nije ispravan
                               else{
                                 //Treba biti prazno
-                                this.forma.get('sifUred').patchValue(null,{onlySelf: true, emitEvent: false});
+                                this.forma.get('sifUred').patchValue(null,{emitEvent: false});
                               } 
                           }
                         }
@@ -170,8 +170,8 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                             //Ako je upisana vrijednost u polje broja iskaznice dopunskog osiguranja
                             if(this.forma.get('brIskDopunsko').value && this.forma.get('brIskDopunsko').valid){
                                 //Omogućavam unos datuma dopunskog osiguranja
-                                this.forma.get('datumiDopunsko.dopunskoOd').enable({onlySelf: true,emitEvent: false});
-                                this.forma.get('datumiDopunsko.dopunskoDo').enable({onlySelf: true,emitEvent: false});
+                                this.forma.get('datumiDopunsko.dopunskoOd').enable({emitEvent: false});
+                                this.forma.get('datumiDopunsko.dopunskoDo').enable({emitEvent: false});
                                 //Postavljam validatore na datume dopunskog osiguranja
                                 this.forma.get('datumiDopunsko.dopunskoOd').setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
                                 this.forma.get('datumiDopunsko.dopunskoDo').setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
@@ -181,8 +181,8 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                                 this.forma.get('datumiDopunsko.dopunskoOd').clearValidators();
                                 this.forma.get('datumiDopunsko.dopunskoDo').clearValidators();
                                 //Onemogućavam unos datuma dopunskog osiguranja
-                                this.forma.get('datumiDopunsko.dopunskoOd').disable({onlySelf: true,emitEvent: false});
-                                this.forma.get('datumiDopunsko.dopunskoDo').disable({onlySelf: true,emitEvent: false});
+                                this.forma.get('datumiDopunsko.dopunskoOd').disable({emitEvent: false});
+                                this.forma.get('datumiDopunsko.dopunskoDo').disable({emitEvent: false});
                                 //Resetiram polja datuma
                                 this.forma.get('datumiDopunsko.dopunskoOd').reset();
                                 this.forma.get('datumiDopunsko.dopunskoDo').reset();
@@ -410,14 +410,14 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           this.forma.get('datumiOsnovno.osnovnoOd').reset();
           this.forma.get('datumiOsnovno.osnovnoDo').reset();
           //Onemogućavam unos datuma osnovnog osiguranja
-          this.forma.get('datumiOsnovno.osnovnoOd').disable({onlySelf: true, emitEvent: false});
-          this.forma.get('datumiOsnovno.osnovnoDo').disable({onlySelf: true, emitEvent: false});
+          this.forma.get('datumiOsnovno.osnovnoOd').disable({emitEvent: false});
+          this.forma.get('datumiOsnovno.osnovnoDo').disable({emitEvent: false});
         }
         //Ako trajno osiguranje nije checked
         else{
           //Omogućavam unos datuma osnovnog osiguranja
-          this.forma.get('datumiOsnovno.osnovnoOd').enable({onlySelf: true, emitEvent: false});
-          this.forma.get('datumiOsnovno.osnovnoDo').enable({onlySelf: true, emitEvent: false});
+          this.forma.get('datumiOsnovno.osnovnoOd').enable({emitEvent: false});
+          this.forma.get('datumiOsnovno.osnovnoDo').enable({emitEvent: false});
           //Postavljam validatore na datum početka osnovnog osiguranja
           this.osnovnoOd.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
           //Postavljam validatore na datum završetka osnovnog osiguranja
@@ -437,7 +437,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           //Postavljam glavnoj formi validaciju za participaciju
           this.forma.setValidators(this.atLeastOneRequiredParticipacija);
           //Omogućavam unos članka participacije i postavljam mu validatore
-          this.forma.get('participacija.clanakParticipacija').enable({onlySelf: true, emitEvent: false});
+          this.forma.get('participacija.clanakParticipacija').enable({emitEvent: false});
           //Postavljam članku validatore
           this.forma.get('participacija.clanakParticipacija').setValidators([Validators.required, this.isValidParticipacija.bind(this)]);
       }
@@ -448,9 +448,9 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           this.forma.get('participacija.trajnoParticipacija').reset();
           this.forma.get('participacija.participacijaDo').reset();
           //Onemogućavam unos svim poljima koja se tiču participacije
-          this.forma.get('participacija.clanakParticipacija').disable({onlySelf: true, emitEvent: false});
-          this.forma.get('participacija.trajnoParticipacija').disable({onlySelf: true, emitEvent: false});
-          this.forma.get('participacija.participacijaDo').disable({onlySelf: true, emitEvent: false});
+          this.forma.get('participacija.clanakParticipacija').disable({emitEvent: false});
+          this.forma.get('participacija.trajnoParticipacija').disable({emitEvent: false});
+          this.forma.get('participacija.participacijaDo').disable({emitEvent: false});
           //Dižem im validatore
           this.forma.get('participacija.clanakParticipacija').clearValidators();
           this.forma.get('participacija.trajnoParticipacija').clearValidators();
@@ -471,8 +471,8 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
         //Ako je korisnik izabrao neku vrijednost iz dropdowna
         if(event.target.value){
           //Omogući unos trajne participacije i datuma participacije
-          this.forma.get('participacija.trajnoParticipacija').enable({onlySelf: true, emitEvent: false});
-          this.forma.get('participacija.participacijaDo').enable({onlySelf: true, emitEvent: false});
+          this.forma.get('participacija.trajnoParticipacija').enable({emitEvent: false});
+          this.forma.get('participacija.participacijaDo').enable({emitEvent: false});
         }
     }
   } 
@@ -486,7 +486,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           //Resetiram polje datuma participacije
           this.forma.get('participacija.participacijaDo').reset();
           //Onemogući unos datuma participacije
-          this.forma.get('participacija.participacijaDo').disable({onlySelf: true, emitEvent: false});
+          this.forma.get('participacija.participacijaDo').disable({emitEvent: false});
           //Dižem validatore za datum participacije
           this.forma.get('participacija.participacijaDo').clearValidators();
         }
@@ -495,7 +495,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           //Ako je "oslobodenParticipacije" checked
           if(this.oslobodenParticipacije.value){
               //Omogući unos datuma participacije
-              this.forma.get('participacija.participacijaDo').enable({onlySelf: true, emitEvent: false});
+              this.forma.get('participacija.participacijaDo').enable({emitEvent: false});
               //Postavljam validatore na datum participacije
               this.forma.get('participacija.participacijaDo').setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
           }

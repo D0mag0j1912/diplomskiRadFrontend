@@ -112,7 +112,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                       }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null})
                     }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
                     //Na početku onemogućavam unos sekundarne dijagnoze
-                    this.forma.get('sekundarnaDijagnoza').disable({onlySelf: true, emitEvent: false});
+                    this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
                 }
               ),
               takeUntil(this.pretplateSubject)
@@ -124,7 +124,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               (dijagnoza) => {
                   if(dijagnoza){
                       //Kada je primarna dijagnoza unesena, unos sekundarne dijagnoze je omogućen
-                      this.forma.get('sekundarnaDijagnoza').enable({onlySelf: true, emitEvent: false});
+                      this.forma.get('sekundarnaDijagnoza').enable({emitEvent: false});
                   }
               }
           );
@@ -273,17 +273,17 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                     this.onDeleteDiagnosis(-1); 
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
+                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
                     //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{onlySelf: true, emitEvent: false});
+                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
                     //Zatvaram prozor otvorenog slučaja
                     this.otvoren = false;
                     //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
                     this.ponistiPovezaniSlucaj = true;
                     //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                    this.povezanSlucaj.patchValue(true,{onlySelf: true, emitEvent: false});
+                    this.povezanSlucaj.patchValue(true,{emitEvent: false});
                     //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                    this.povezanSlucaj.disable({onlySelf: true, emitEvent: false});
+                    this.povezanSlucaj.disable({emitEvent: false});
                     //Resetiram checkbox novog slučaja da ne ostane da su oba true
                     this.noviSlucaj.reset();
                 }
@@ -301,7 +301,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               this.sekundarnaDijagnoza.clear();
               this.sekundarnaDijagnozaOtvoreniSlucaj = [];
               this.onAddDiagnosis();
-              this.primarnaDijagnoza.patchValue(null,{onlySelf: true, emitEvent: false});
+              this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
               //Skrivam button "Poništi povezani slučaj"
               this.ponistiPovezaniSlucaj = false;
               //Resetiram checkbox povezanog slučaja
@@ -319,13 +319,13 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     (odgovor) => {
                         console.log(odgovor);
                         //Popuni polja povijesti bolesti sa rezultatima sa servera
-                        this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{onlySelf: true, emitEvent: false});
-                        this.anamneza.patchValue(odgovor[0].anamneza,{onlySelf: true, emitEvent: false});
-                        this.status.patchValue(odgovor[0].statusPacijent,{onlySelf: true, emitEvent: false});
-                        this.nalaz.patchValue(odgovor[0].nalaz,{onlySelf: true, emitEvent: false});
-                        this.terapija.patchValue(odgovor[0].terapija,{onlySelf: true, emitEvent: false});
-                        this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik,{onlySelf: true, emitEvent: false});
-                        this.napomena.patchValue(odgovor[0].napomena,{onlySelf: true, emitEvent: false});
+                        this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{emitEvent: false});
+                        this.anamneza.patchValue(odgovor[0].anamneza,{emitEvent: false});
+                        this.status.patchValue(odgovor[0].statusPacijent,{emitEvent: false});
+                        this.nalaz.patchValue(odgovor[0].nalaz,{emitEvent: false});
+                        this.terapija.patchValue(odgovor[0].terapija,{emitEvent: false});
+                        this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik,{emitEvent: false});
+                        this.napomena.patchValue(odgovor[0].napomena,{emitEvent: false});
                         //Resetiram formu sekundarnih dijagnoza
                         this.sekundarnaDijagnoza.clear();
                         //Resetiram svoje polje sekundarnih dijagnoza
@@ -345,17 +345,17 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                         //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                         this.onDeleteDiagnosis(-1); 
                         //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                        this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{onlySelf: true, emitEvent: false});
+                        this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
                         //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                        this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaPovijestBolesti,{onlySelf: true, emitEvent: false});
+                        this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaPovijestBolesti,{emitEvent: false});
                         //Zatvaram prozor povijesti bolesti
                         this.otvorenPovijestBolesti = false;
                         //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
                         this.ponistiPovezaniSlucaj = true;
                         //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                        this.povezanSlucaj.patchValue(true,{onlySelf: true, emitEvent: false});
+                        this.povezanSlucaj.patchValue(true,{emitEvent: false});
                         //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                        this.povezanSlucaj.disable({onlySelf: true, emitEvent: false});
+                        this.povezanSlucaj.disable({emitEvent: false});
                         //Resetiram checkbox novog slučaja da ne ostane da su oba true
                         this.noviSlucaj.reset();
                     }

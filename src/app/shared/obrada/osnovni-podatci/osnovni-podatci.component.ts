@@ -143,7 +143,7 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                           //Ako nije ispravan
                           else{
                             //Treba pisati "Odaberite mjesto stanovanja"
-                            this.forma.get('mjesto').patchValue(null,{onlySelf: true, emitEvent: false});
+                            this.forma.get('mjesto').patchValue(null,{emitEvent: false});
                           }
                       }
                   ),
