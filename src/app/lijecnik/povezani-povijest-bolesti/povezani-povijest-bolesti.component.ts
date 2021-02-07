@@ -1,7 +1,7 @@
 import { Component, OnInit,Output,EventEmitter, OnDestroy } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { forkJoin, of, Subject, Subscription } from 'rxjs';
-import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { concatMap, debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -104,8 +104,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] !== "false"){
                         //Omogući pretraživanje po raznim parametrima
                         const pretraga = this.forma.get('parametar').valueChanges.pipe(
+                            debounceTime(100),
+                            distinctUntilChanged(),
                             //Koristim concatMap da se vrijednosti sekvencijalno šalju na backend
-                            concatMap(value => {
+                            switchMap(value => {
                                 return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.idPacijent,value).pipe(
                                     takeUntil(this.pretplateSubject)
                                 );

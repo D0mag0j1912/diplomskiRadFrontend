@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { concatMap, debounceTime, map, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
 import { ReceptService } from '../../recept.service';
@@ -78,6 +78,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     isPonovljiv: boolean = false;
     //Inicijalno stavljam trajanje terapije na 30 dana
     trajanjeTerapije: number = 30;
+    indexSekundarna: number = 0;
 
     constructor(
         //Dohvaćam trenutni route
@@ -132,7 +133,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     'primarnaDijagnoza': new FormControl(null,[Validators.required]),
                     'mkbPrimarnaDijagnoza': new FormControl(null,[Validators.required,Validacija.provjeriMKB(this.mkbSifre)]),
                     'sekundarnaDijagnoza': new FormArray([
-                        new FormControl(null)
+                        new FormGroup({
+                            'nazivSekundarna': new FormControl(null),
+                            'mkbSifraSekundarna': new FormControl(null),
+                            'indexSekundarna': new FormControl(0)
+                        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]})
                     ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
                     'tip': new FormControl("lijek"),
                     'osnovnaListaLijek': new FormGroup({
@@ -166,7 +171,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         'doziranjePeriod': new FormControl("dnevno")
                     }),
                     'trajanje': new FormGroup({
-                        'dostatnost': new FormControl("30",[Validacija.provjeriDostatnost(),Validators.pattern("^[0-9]*$"),Validators.required]),
+                        'dostatnost': new FormControl("30"),
                         'vrijediDo': new FormControl(podatci.datum)
                     }),
                     'sifraSpecijalist': new FormControl(),
@@ -177,20 +182,20 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         'rijecimaBrojPonavljanja': new FormControl("jedan put")
                     },{validators: Validacija.provjeriBrojPonavljanja()})
                 });
-                //Onemogućavam inicijalno unos sekundarne dijagnoze
-                this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
+                //Inicijalno onemogućavam unos sekundarnih dijagnoza
+                this.sekundarnaDijagnoza.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos rimske oznake količine
-                this.forma.get('kolicina.kolicinaRimski').disable({emitEvent: false});
+                this.kolicinaRimski.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos ukupne cijene
-                this.forma.get('cijenaDopunskaLista.cijenaUkupno').disable({emitEvent: false});
+                this.cijenaUkupno.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos cijene koje plaća Zavod
-                this.forma.get('cijenaDopunskaLista.cijenaZavod').disable({emitEvent: false});
+                this.cijenaZavod.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos cijene koje plaća osiguranik
-                this.forma.get('cijenaDopunskaLista.cijenaOsiguranik').disable({emitEvent: false});
+                this.cijenaOsiguranik.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos polja u kojemu se prikaziva datum isteka dostatnosti
-                this.forma.get('trajanje.vrijediDo').disable({emitEvent: false});
+                this.vrijediDo.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos riječima broja ponavljanja
-                this.forma.get('ostaliPodatci.rijecimaBrojPonavljanja').disable({emitEvent: false});
+                this.rijecimaBrojPonavljanja.disable({emitEvent: false});
                 //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
                 this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
                                         this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
@@ -200,6 +205,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                         Validacija.kolicinaPrijeProizvod()]);
                 //Ažuriram stanje validacije
                 this.forma.updateValueAndValidity({emitEvent: false});
+
+                //Postavljam validatore na polje dostatnosti
+                this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
+                //Ažuriram validaciju
+                this.dostatnost.updateValueAndValidity({emitEvent: false});
                 
                 //Dohvaćam inicijalne dijagnoze ako ih ovaj pacijent ima
                 if(podatci.inicijalneDijagnoze !== null){
@@ -208,6 +218,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.sekundarnaDijagnoza.clear();
                     //Resetiram svoje polje sekundarnih dijagnoza
                     this.sekundarnaDijagnozaPovijestBolesti = [];
+                    //Dodavam jedan form control u polje sekundarnih dijagnoza
                     this.onAddDiagnosis();
                     //Prolazim poljem odgovora servera
                     for(let dijagnoza of podatci.inicijalneDijagnoze){
@@ -222,15 +233,20 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.onDeleteDiagnosis(-1);  
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                     this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
-                    //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaPovijestBolesti,{emitEvent: false});
                     //Postavljam MKB šifru na osnove odabranog naziva primarne dijagnoze
                     Validacija.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
+                    //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
+                    this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
+                        //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                        (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
+                        //Postavljam MKB šifre sek.dijagnoza
+                        Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                    });
                 }
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
-        
+        console.log(this.indexSekundarna);
         //Pretplaćujem se na promjene u pojedinim dijelovima forme
         const prviDio = merge(
             //Slušam promjene u polju unosa primarne dijagnoze
@@ -299,13 +315,13 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa lijeka sa osnovne liste pomoću dropdowna
-            this.forma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').valueChanges.pipe(
+            this.osnovnaListaLijekDropdown.valueChanges.pipe(
                 tap(value => {
                     console.log("u dropdownu OSNOVNE LISTE LIJEKOVA sam!");
                     //Ako se unesena vrijednost NALAZI u polju OSNOVNE LISTE LIJEKOVA
                     if(this.lijekoviOsnovnaListaOJP.indexOf(value) !== -1){
                         //Te ako je popunjen dropdown OSNOVNE LISTE LIJEKOVA
-                        if(this.lijekoviOsnovnaListaOJP.indexOf(this.forma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').value) !== -1/*  
+                        if(this.lijekoviOsnovnaListaOJP.indexOf(this.osnovnaListaLijekDropdown.value) !== -1/*  
                             || this.lijekoviOsnovnaListaOJP.indexOf(this.forma.get('osnovnaListaLijek.osnovnaListaLijekText').value) !== -1 */){
                             //Resetiram poruku da nema rezultata
                             this.porukaNemaRezultata = null;
@@ -314,9 +330,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Ažurira validaciju cijele forme
                             this.forma.updateValueAndValidity({emitEvent: false});
                             //Resetiraj polja dopunske liste lijekova te tekstualno polje osnovne liste lijekova
-                            this.forma.get('dopunskaListaLijek.dopunskaListaLijekDropdown').patchValue(null,{emitEvent: false});   
-                            this.forma.get('dopunskaListaLijek.dopunskaListaLijekText').patchValue("",{emitEvent: false});
-                            this.forma.get('osnovnaListaLijek.osnovnaListaLijekText').patchValue("",{emitEvent:false});
+                            this.dopunskaListaLijekDropdown.patchValue(null,{emitEvent: false});   
+                            this.dopunskaListaLijekText.patchValue("",{emitEvent: false});
+                            this.osnovnaListaLijekText.patchValue("",{emitEvent:false});
                             //Zatvori liste ako su bile otvorene
                             if(this.isPretragaLijekOsnovnaLista){
                                 this.isPretragaLijekOsnovnaLista = false;
@@ -350,11 +366,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Ako server nije vratio null za dostatnost
                             if(value[0] !== null){
                                 //Postavi dostatnost u polje unosa dostatnosti
-                                this.forma.get('trajanje.dostatnost').patchValue(value[0].toString(),{emitEvent: false});
+                                this.dostatnost.patchValue(value[0].toString(),{emitEvent: false});
                                 return this.receptService.getDatumDostatnost(value[0].toString()).pipe(
                                     //Dohvati datum do kada vrijedi terapija i postavi ga u polje datuma
                                     tap(value => {
-                                        this.forma.get('trajanje.vrijediDo').patchValue(value,{emitEvent: false});
+                                        this.vrijediDo.patchValue(value,{emitEvent: false});
                                     }),
                                     takeUntil(this.pretplateSubject)
                                 );
@@ -370,14 +386,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                                         }
                                         //Postavi dostatnost inicijalno na 30 dana
-                                        this.forma.get('trajanje.dostatnost').patchValue(this.trajanjeTerapije.toString(),{emitEvent: false});
+                                        this.dostatnost.patchValue(this.trajanjeTerapije.toString(),{emitEvent: false});
                                     }),
                                     //Kada server vrati null za dostatnost, pozovi funkciju koja ažurira datum "vrijediDo"
                                     concatMap(value => {
                                         return this.receptService.getDatumDostatnost(this.trajanjeTerapije.toString()).pipe(
                                             tap(datum => {
                                                 //Postavi datum
-                                                this.forma.get('trajanje.vrijediDo').patchValue(datum,{emitEvent: false});
+                                                this.vrijediDo.patchValue(datum,{emitEvent: false});
                                             }),
                                             takeUntil(this.pretplateSubject)
                                         );
@@ -392,13 +408,13 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa lijeka sa dopunske liste pomoću dropdowna
-            this.forma.get('dopunskaListaLijek.dopunskaListaLijekDropdown').valueChanges.pipe(
+            this.dopunskaListaLijekDropdown.valueChanges.pipe(
                 tap(value => {
                     console.log("u dropdownu DOPUNSKE LISTE LIJEKOVA sam!");
                     //Ako se unesena vrijednost NALAZI u polju DOPUNSKE LISTE LIJEKOVA
                     if(this.lijekoviDopunskaListaOJP.indexOf(value) !== -1){
                         //Te ako je popunjen dropdown DOPUNSKE LISTE LIJEKOVA
-                        if(this.lijekoviDopunskaListaOJP.indexOf(this.forma.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value) !== -1/*  
+                        if(this.lijekoviDopunskaListaOJP.indexOf(this.dopunskaListaLijekDropdown.value) !== -1/*  
                             || this.lijekoviDopunskaListaOJP.indexOf(this.forma.get('dopunskaListaLijek.dopunskaListaLijekText').value) !== -1 */){
                             //Resetiram poruku da nema rezultata
                             this.porukaNemaRezultata = null;
@@ -407,9 +423,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Ažuriram validaciju cijele forme
                             this.forma.updateValueAndValidity({emitEvent: false});
                             //Resetiraj polja osnovne liste lijekova te tekstualno polje dopunske liste lijekova
-                            this.forma.get('osnovnaListaLijek.osnovnaListaLijekDropdown').patchValue(null,{emitEvent: false});  
-                            this.forma.get('osnovnaListaLijek.osnovnaListaLijekText').patchValue("",{emitEvent: false});
-                            this.forma.get('dopunskaListaLijek.dopunskaListaLijekText').patchValue("",{emitEvent: false});
+                            this.osnovnaListaLijekDropdown.patchValue(null,{emitEvent: false});  
+                            this.osnovnaListaLijekText.patchValue("",{emitEvent: false});
+                            this.dopunskaListaLijekText.patchValue("",{emitEvent: false});
                             //Zatvori liste ako su ostale otvorene
                             if(this.isPretragaLijekOsnovnaLista){
                                 this.isPretragaLijekOsnovnaLista = false;
@@ -439,19 +455,19 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 this.isSpecijalist = false;
                             }
                             //Postavljam vrijednosti cijena u formu
-                            this.forma.get('cijenaDopunskaLista.cijenaUkupno').patchValue(`${value[0][0].cijenaLijek} kn`,{emitEvent: false});
-                            this.forma.get('cijenaDopunskaLista.cijenaZavod').patchValue(`${value[0][0].cijenaZavod} kn`,{emitEvent: false});
-                            this.forma.get('cijenaDopunskaLista.cijenaOsiguranik').patchValue(`${value[0][0].doplataLijek} kn`,{emitEvent: false}); 
+                            this.cijenaUkupno.patchValue(`${value[0][0].cijenaLijek} kn`,{emitEvent: false});
+                            this.cijenaZavod.patchValue(`${value[0][0].cijenaZavod} kn`,{emitEvent: false});
+                            this.cijenaOsiguranik.patchValue(`${value[0][0].doplataLijek} kn`,{emitEvent: false}); 
                         }),
                         concatMap(value => {
                             //Ako server nije vratio null za dostatnost
                             if(value[2] !== null){
                                 //Postavi dostatnost u polje unosa dostatnosti
-                                this.forma.get('trajanje.dostatnost').patchValue(value[2].toString(),{emitEvent: false});
+                                this.dostatnost.patchValue(value[2].toString(),{emitEvent: false});
                                 return this.receptService.getDatumDostatnost(value[2].toString()).pipe(
                                     //Dohvati datum do kada vrijedi terapija i postavi ga u polje datuma
                                     tap(value => {
-                                        this.forma.get('trajanje.vrijediDo').patchValue(value,{emitEvent: false});
+                                        this.vrijediDo.patchValue(value,{emitEvent: false});
                                     }),
                                     takeUntil(this.pretplateSubject)
                                 );
@@ -468,14 +484,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                                         }
                                         //Postavi dostatnost inicijalno na 30 dana
-                                        this.forma.get('trajanje.dostatnost').patchValue(this.trajanjeTerapije.toString(),{emitEvent: false});
+                                        this.dostatnost.patchValue(this.trajanjeTerapije.toString(),{emitEvent: false});
                                     }),
                                     //Kada server vrati null za dostatnost, pozovi funkciju koja ažurira datum "vrijediDo"
                                     concatMap(value => {
                                         return this.receptService.getDatumDostatnost(this.trajanjeTerapije.toString()).pipe(
                                             tap(datum => {
                                                 //Postavi datum
-                                                this.forma.get('trajanje.vrijediDo').patchValue(datum,{emitEvent: false});
+                                                this.vrijediDo.patchValue(datum,{emitEvent: false});
                                             }),
                                             takeUntil(this.pretplateSubject)
                                         );
@@ -684,8 +700,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Pretplaćujem se na promjene u tekstualnim poljima lijekova i mag.pripravaka
         const drugiDio = merge(
             //Slušam promjene u polju unosa lijeka sa osnovne liste pomoću pretrage
-            this.forma.get('osnovnaListaLijek.osnovnaListaLijekText').valueChanges.pipe(
+            this.osnovnaListaLijekText.valueChanges.pipe(
                 debounceTime(100),
+                distinctUntilChanged(),
                 tap(value => {
                     console.log("U osnovnoj listi lijekova texta sam!");
                     //Označavam da je liječnik počeo pretraživati LIJEKOVE OSNOVNE liste
@@ -695,7 +712,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.isPretragaMagPripravakOsnovnaLista = false;
                     this.isPretragaMagPripravakDopunskaLista = false;
                 }),
-                concatMap(value => {
+                switchMap(value => {
                     return this.receptPretragaService.getLijekOsnovnaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
@@ -703,8 +720,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa lijeka sa dopunske liste pomoću pretrage
-            this.forma.get('dopunskaListaLijek.dopunskaListaLijekText').valueChanges.pipe(
+            this.dopunskaListaLijekText.valueChanges.pipe(
                 debounceTime(100),
+                distinctUntilChanged(),
                 tap(value => {
                     console.log("U dopunskoj listi lijekova texta sam!");
                     //Označavam da je liječnik počeo pretraživati LIJEKOVE DOPUNSKE liste
@@ -714,7 +732,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.isPretragaMagPripravakOsnovnaLista = false;
                     this.isPretragaMagPripravakDopunskaLista = false;
                 }),
-                concatMap(value => {
+                switchMap(value => {
                     return this.receptPretragaService.getLijekDopunskaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
@@ -722,8 +740,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa mag. pripravka sa osnovne liste pomoću pretrage
-            this.forma.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').valueChanges.pipe(
+            this.osnovnaListaMagPripravakText.valueChanges.pipe(
                 debounceTime(100),
+                distinctUntilChanged(),
                 tap(value => {
                     console.log("U osnovnoj listi mag. pripravaka sam!");
                     //Označavam da je liječnik počeo pretraživati MAGISTRALNE PRIPRAVKE sa OSNOVNE LISTE
@@ -733,7 +752,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.isPretragaLijekOsnovnaLista = false;
                     this.isPretragaLijekDopunskaLista = false;
                 }),
-                concatMap(value => {
+                switchMap(value => {
                     return this.receptPretragaService.getMagPripravciOsnovnaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
@@ -741,8 +760,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplateSubject)
             ),
             //Slušam promjene u polju unosa mag. pripravka sa dopunske liste pomoću pretrage
-            this.forma.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').valueChanges.pipe(
+            this.dopunskaListaMagPripravakText.valueChanges.pipe(
                 debounceTime(100),
+                distinctUntilChanged(),
                 tap(value => {
                     console.log("U dopunskoj listi mag. pripravaka sam!");
                     //Označavam da je liječnik počeo pretraživati MAGISTRALNE PRIPRAVKE sa DOPUNSKE LISTE
@@ -752,7 +772,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.isPretragaLijekOsnovnaLista = false;
                     this.isPretragaLijekDopunskaLista = false;
                 }),
-                concatMap(value => {
+                switchMap(value => {
                     return this.receptPretragaService.getMagPripravciDopunskaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
                     );
@@ -1296,6 +1316,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             return;
         }
         console.log(this.forma.getRawValue());
+
+
     }
 
     //Metoda se poziva kada liječnik promijeni količinu (broj pakiranja proizvoda)
@@ -1316,26 +1338,46 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         if(brojPonavljanja === "1"){
             //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
             this.rijecimaBrojPonavljanja.patchValue("jedan put",{emitEvent: false});
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 2:
         else if(brojPonavljanja === "2"){
             //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
             this.rijecimaBrojPonavljanja.patchValue("dva puta",{emitEvent: false});
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 3:
         else if(brojPonavljanja === "3"){
             //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
             this.rijecimaBrojPonavljanja.patchValue("tri puta",{emitEvent: false});
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 4:
         else if(brojPonavljanja === "4"){
             //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
             this.rijecimaBrojPonavljanja.patchValue("četiri puta",{emitEvent: false});
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 5:
         else if(brojPonavljanja === "5"){
             //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
             this.rijecimaBrojPonavljanja.patchValue("pet puta",{emitEvent: false});
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
     }
 
@@ -1378,15 +1420,15 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Prolazim kroz array 
         for(let control of array.controls){
             //Ako se vrijednost sekundarne dijagnoze VEĆ NALAZI u pom polju, ali da nije "Odaberite sekundarnu dijagnozu"
-            if(pom.indexOf(control.value) !== -1 && control.value !== null){
+            if(pom.indexOf(control.value.nazivSekundarna) !== -1 && control.value.nazivSekundarna !== null){
                 //U svoju varijablu spremam sekundarnu dijagnozu koja je duplikat
-                this.sekDijagnoza = control.value;
+                this.sekDijagnoza = control.value.nazivSekundarna;
                 return {'duplikat': true};
             }
             //Ako se vrijednost sekundarne dijagnoze NE NALAZI u pom polju
             else{
                 //Dodaj ga u pom polje
-                pom.push(control.value);
+                pom.push(control.value.nazivSekundarna);
             }
         }
         return null;
@@ -1397,9 +1439,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
       //Prolazim kroz polje sekundarnih dijagnoza
       for(let control of (group.get('sekundarnaDijagnoza') as FormArray).controls){
           //Ako je vrijednost primarne dijagnoze jednaka vrijednosti sekundarne dijagnoze, ali da oba dvije nisu null, jer bih bilo (Odaberite dijagnozu === Odaberite dijagnozu)
-          if(group.get('primarnaDijagnoza').value === control.value && (group.get('primarnaDijagnoza') !== null && control.value !== null)){
+          if(group.get('primarnaDijagnoza').value === control.value.nazivSekundarna && (group.get('primarnaDijagnoza') !== null && control.value.nazivSekundarna !== null)){
               //Spremam vrijednost sekundarne dijagnoze koja je jednaka primarnoj dijagnozi
-              this.dijagnoza = control.value;
+              this.dijagnoza = control.value.nazivSekundarna;
               return {'primarnaJeIstaKaoSekundarna': true};
           }
       }
@@ -1417,6 +1459,10 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = AzurirajDostatnost.azuriranjeDostatnostiHandler(this.forma,this.receptService,
                                                                                     this.pretplateSubject,this.trajanjeTerapije).subscribe();
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako "ponovljiv" NIJE CHECKED
         else{
@@ -1427,6 +1473,10 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = AzurirajDostatnost.azuriranjeDostatnostiHandler(this.forma,this.receptService,
                                                                                     this.pretplateSubject,this.trajanjeTerapije).subscribe();
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
     }
 
@@ -1434,21 +1484,54 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     onClose(){
         this.router.navigate(['../'],{relativeTo: this.route});
     }
+
+    //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
+    onChangeNazivSekundarna(nazivSekundarna: string, index: number){
+        //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
+        Validacija.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+    }
+
     //Dohvaća pojedine form controlove unutar polja 
     getControlsSekundarna(){
-      return (this.forma.get('sekundarnaDijagnoza') as FormArray).controls;
+        return (this.forma.get('sekundarnaDijagnoza') as FormArray).controls;
     }
 
     //Kada se klikne button "Dodaj dijagnozu"
     onAddDiagnosis(){
-      (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(
-        new FormControl(null) 
-      );
+        this.indexSekundarna++;
+        //Kreiram novi form group
+        (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(new FormGroup({
+            'nazivSekundarna': new FormControl(null),
+            'mkbSifraSekundarna': new FormControl(null),
+            'indexSekundarna': new FormControl(this.indexSekundarna)
+        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]}));
+
+        /* //Pretplaćivam se na promjene u poljima MKB šifri sek. dijagnoza
+        formGroup.valueChanges.pipe(
+            tap((value) => {
+                //Dohvaćam index promjenjenog polja
+                const groupIndex = value.indexSekundarna;
+                console.log(groupIndex);
+                //Ako je form group na određenom indexu validan
+                if((<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(groupIndex)).valid){
+                    //Prolazim kroz sve MKB šifre
+                    for(const mkb of this.mkbSifre){
+                        //Ako se upisana vrijednost nalazi u polju MKB šifri
+                        if(mkb.toLowerCase() === value.mkbSifraSekundarna.toLowerCase()){
+                            //U polje MKB šifri postavi šifru velikim slovima
+                            (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(groupIndex)).get('mkbSifraSekundarna').patchValue(mkb,{emitEvent: false});
+                        }
+                    }
+                    //Pozivam metodu koja će automatski unijeti naziv sekundarne dijagnoze kada se unesene MKB šifra
+                    Validacija.MKBtoNazivSekundarna(value.mkbSifraSekundarna,this.dijagnoze,this.forma,groupIndex);
+                }
+            })
+        ).subscribe();  */
     }
 
     //Kada se klikne button "X"
     onDeleteDiagnosis(index: number){
-      (<FormArray>this.forma.get('sekundarnaDijagnoza')).removeAt(index);
+        (<FormArray>this.forma.get('sekundarnaDijagnoza')).removeAt(index);
     }
 
     //Ova metoda se poziva kada se komponenta inicijalizira

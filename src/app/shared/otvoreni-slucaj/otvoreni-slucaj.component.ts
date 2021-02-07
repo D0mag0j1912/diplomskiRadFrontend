@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject} from 'rxjs';
-import { switchMap,distinctUntilChanged, concatMap, takeUntil } from 'rxjs/operators';
+import { switchMap,distinctUntilChanged, concatMap, takeUntil, debounceTime } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { Obrada } from '../modeli/obrada.model';
 import { ObradaService } from '../obrada/obrada.service';
@@ -103,8 +103,9 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
               if(podatci !== "Nema aktivnih pacijenata!" && podatci[0]["success"] !== "false"){
                   //Pretplaćujem se na promjene u formi pretrage 
                   this.forma.get('parametar').valueChanges.pipe(
+                      debounceTime(100),
                       distinctUntilChanged(),
-                      concatMap(value => {
+                      switchMap(value => {
                           return this.otvoreniSlucajService.getOtvoreniSlucajPretraga(this.tipKorisnik,value,this.idPacijent);
                       }),
                       takeUntil(this.pretplateSubject)

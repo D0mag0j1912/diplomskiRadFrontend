@@ -44,32 +44,62 @@
                             <td></td>
                         </tr>
                         <tr formArrayName="sekundarnaDijagnoza" *ngFor="let dijagnozaCtrl of getControlsSekundarna(); let i = index">
-                            <td><label for="sekundarnaDijagnoza" 
-                                        *ngIf="i<1" 
-                                        style="font-family: Verdana, sans-serif;margin-top:6px;">Sekundarna dijagnoza:</label></td>
-                            <td>
-                                <select class="form-control" style="width:350px;height:35px" [formControlName]="i">
-                                    <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
-                                    <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
-                                </select>
-                                <span 
-                                    class="help-block" 
-                                    *ngIf="(sekundarnaDijagnoza.touched || sekundarnaDijagnoza.dirty) && !sekundarnaDijagnoza.valid" 
-                                    style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                    <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
-                                    <span *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value === sekDijagnoza">Duplikati nisu dozvoljeni!</span>
-                                </span> 
-                                <span 
-                                    class="help-block" 
-                                    *ngIf="(sekundarnaDijagnoza.touched || sekundarnaDijagnoza.dirty) && !forma.valid" 
-                                    style="font-weight: bold;font-family: Verdana, sans-serif;"> 
-                                    <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value === dijagnoza">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
-                                </span> 
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-danger" (click)="onDeleteDiagnosis(i)">X</button>
-                            </td>
-                            <td></td>
+                            <ng-container [formGroupName]="i">
+                                    <td><label for="sekundarnaDijagnoza" 
+                                                *ngIf="i<1" 
+                                                style="font-family: Verdana, sans-serif;margin-top:6px;">Sekundarna dijagnoza:</label></td>
+                                    <td>
+                                        <select 
+                                            class="form-control" 
+                                            style="width:350px;height:35px" 
+                                            formControlName="nazivSekundarna" 
+                                            (change)="onChangeNazivSekundarna(dijagnozaCtrl.value.nazivSekundarna,i)">
+                                            <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
+                                            <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
+                                        </select>
+                                        <span
+                                            class="help-block" 
+                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid" 
+                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
+                                            <span 
+                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obavezna za unos!</span>
+                                            <span 
+                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB" 
+                                                style="display: block;">Neispravan unos MKB šifre!</span>
+                                            <span 
+                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna" 
+                                                style="display: block;">Naziv sekundarne dijagnoze je obavezan za unos!</span>
+                                            <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
+                                            <span 
+                                                *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza" 
+                                                style="display: block;">Duplikati nisu dozvoljeni!</span>
+                                            <span>{{dijagnozaCtrl.value.nazivSekundarna}}</span>
+                                            <span>{{sekDijagnoza}}</span>
+                                        </span> 
+                                        <span 
+                                            class="help-block" 
+                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !forma.valid" 
+                                            style="font-weight: bold;font-family: Verdana, sans-serif;"> 
+                                            <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza" 
+                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
+                                        </span> 
+                                    </td>
+                                    <td>
+                                        <input 
+                                            type="text"
+                                            class="form-control"
+                                            style="width:100px;height:35px" 
+                                            formControlName="mkbSifraSekundarna"
+                                            placeholder="MKB šifra">
+                                    </td>
+                                    <td>
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-danger" 
+                                            style="right:150px;position: relative;"
+                                            (click)="onDeleteDiagnosis(i)">X</button>
+                                    </td>
+                            </ng-container>
                         </tr>
                         <tr>
                             <td></td>
@@ -418,7 +448,14 @@
                                     *ngIf="!dostatnost.valid" 
                                     style="font-family: Verdana, sans-serif;font-weight: bold;"> 
                                     <span *ngIf="dostatnost.errors?.najvise30 && !dostatnost.errors?.pattern && !dostatnost.errors?.required">Maksimalni unos je 30 dana!</span>
-                                    <span *ngIf="dostatnost.errors?.pattern && !dostatnost.errors?.required && !dostatnost.errors?.najvise30">Samo su cjelobrojne vrijednosti dozvoljene!</span>
+                                    <span *ngIf="dostatnost.errors?.najvise60 && !dostatnost.errors?.pattern && !dostatnost.errors?.required">Maksimalni unos je 60 dana!</span>
+                                    <span *ngIf="dostatnost.errors?.najvise90 && !dostatnost.errors?.pattern && !dostatnost.errors?.required">Maksimalni unos je 90 dana!</span>
+                                    <span *ngIf="dostatnost.errors?.najvise120 && !dostatnost.errors?.pattern && !dostatnost.errors?.required">Maksimalni unos je 120 dana!</span>
+                                    <span *ngIf="dostatnost.errors?.najvise150 && !dostatnost.errors?.pattern && !dostatnost.errors?.required">Maksimalni unos je 150 dana!</span>
+                                    <span *ngIf="dostatnost.errors?.najvise180 && !dostatnost.errors?.pattern && !dostatnost.errors?.required">Maksimalni unos je 180 dana!</span>
+                                    <span *ngIf="dostatnost.errors?.pattern && !dostatnost.errors?.required && !dostatnost.errors?.najvise30 
+                                                && !dostatnost.errors?.najvise60 && !dostatnost.errors?.najvise90 && !dostatnost.errors?.najvise120 
+                                                && !dostatnost.errors?.najvise150 && !dostatnost.errors?.najvise180">Samo su cjelobrojne vrijednosti dozvoljene!</span>
                                     <span *ngIf="dostatnost.errors?.required">Trajanje terapije je obavezno za unos!</span>
                                 </span>
                             </td>

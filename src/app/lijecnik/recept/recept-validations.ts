@@ -1,6 +1,81 @@
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
 
+//Funkcija koja popunjava unos naziva sekundarne dijagnoze, kada je unesena njena MKB šifra u polje unosa MKB šifre
+export function MKBtoNazivSekundarna(mkbSifra: string,dijagnoze: any,forma: FormGroup,index: number){
+    //Prolazim kroz nazive i šifre svih dijagnoza
+    for(const dijagnoza of dijagnoze){
+        //Ako je unesena MKB šifra JEDNAKA MKB šifri iz importanog polja
+        if(dijagnoza.mkbSifra.toLowerCase() === mkbSifra.toLowerCase()){
+            //U polje naziva sekundarne dijagnoze postavljam naziv koji odgovara toj jednakoj MKB šifri
+            (<FormGroup>(<FormArray>forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(dijagnoza.imeDijagnoza,{emitEvent: false});
+        }
+    }
+    //Ažuriram promjene u polju sekundarnih dijagnoza
+    (<FormGroup>(<FormArray>forma.get('sekundarnaDijagnoza')).at(index)).updateValueAndValidity({emitEvent: false});
+}
+
+//Metoda koja popunjava polje MKB šifre SEKUNDARNE dijagnoze kada se unese NAZIV SEKUNDARNE dijagnoze
+export function nazivToMKBSekundarna(nazivSekundarna: string,dijagnoze: any,forma: FormGroup,index: number){
+    //Prolazim kroz polje naziva i MKB šifri dijagnoza
+    for(const dijagnoza of dijagnoze){
+        //Ako je uneseni naziv sekundarne dijagnoze od strane liječnika JEDNAK nazivu sekundarne dijagnoze u importanom polju
+        if(dijagnoza.imeDijagnoza === nazivSekundarna){
+            //U polje MKB šifre sekundarne dijagnoze ubacivam MKB šifru te dijagnoze koja je jednaka
+            (<FormGroup>(<FormArray>forma.get('sekundarnaDijagnoza')).at(index)).get('mkbSifraSekundarna').patchValue(dijagnoza.mkbSifra,{emitEvent: false});
+        }
+    }
+    (<FormGroup>(<FormArray>forma.get('sekundarnaDijagnoza')).at(index)).updateValueAndValidity({emitEvent: false});
+}
+
+//Funkcija koja nadodava REQUIRED validator na NAZIV sek. dijagnoze
+export function requiredNazivSekundarna(): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        if(group){
+            //Ako je unesena MKB šifra sek. dijagnoze, postavi REQUIRED validator na NAZIV sek. dijagnoze
+            if(!group.get('nazivSekundarna').value && group.get('mkbSifraSekundarna').value){
+                //Vrati grešku
+                return {'requiredNazivSekundarna': true};
+            }
+            //Ako je sve u redu
+            return null;
+        }
+    }
+}
+
+//Funkcija koja nadodava REQUIRED validator na MKB šifru sek. dijagnoze
+export function requiredMKBSifraSekundarna(): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        if(group){
+            //Ako je unesen naziv sekundarne dijagnoze, postavi REQUIRED validator na MKB šifru sekundarne dijagnoze
+            if(group.get('nazivSekundarna').value && !group.get('mkbSifraSekundarna').value){
+                //Vrati grešku
+                return {'requiredMKB': true};
+            }
+            //Ako je sve u redu
+            return null;
+        }
+    }
+}
+
+//Funkcija koja nadodava ISPRAVNOST? validator na MKB šifru sek. dijagnoze 
+export function provjeriMKBSifraSekundarna(mkbSifre: string[]): ValidatorFn{
+    return (group: FormGroup): {[key: string]:boolean} | null => {
+        //Ako su popunjeni i naziv sekundarne dijagnoze i njezina MKB šifra
+        if(group.get('mkbSifraSekundarna').value){
+            //Prolazim kroz sve MKB šifre
+            for(const mkbSifra of mkbSifre){
+                //Ako unesena MKB šifra postoji u polju ispravnih MKB šifri (bilo kojim slovima)
+                if(mkbSifra.toLowerCase() === group.get('mkbSifraSekundarna').value.toLowerCase()){
+                    return null;
+                }
+            }
+            //Vrati pogrešku
+            return {'neispravanMKB': true};
+        }
+    }
+}
+
 //Funkcija koja provjerava je li unesen broj ponavljanja recepta ako je "ponovljiv" checked
 export function provjeriBrojPonavljanja(): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
@@ -17,13 +92,49 @@ export function provjeriBrojPonavljanja(): ValidatorFn{
 }
 
 //Funkcija koja provjerava ispravnost liječnikova unosa dostatnosti
-export function provjeriDostatnost(): ValidatorFn{
+export function provjeriDostatnost(isPonovljiv: boolean, brojPonavljanja: string): ValidatorFn{
     return (control: FormControl): {[key: string]:boolean} | null => {
-        if(control){
-            if(+control.value > 30){
-                return {'najvise30': true};
+        //Ako je definiran ovaj form control
+        if(control){    
+            //Ako je recept ponovljiv
+            if(isPonovljiv){
+                //Ako je broj ponavljanja 1 i vrijednost trajanja terapije je veća od 60:
+                if(+brojPonavljanja === 1 && +control.value > 60){
+                    //Vrati grešku
+                    return {'najvise60': true};
+                }
+                //Ako je broj ponavljanja 2 i vrijednost trajanja terapije je veća od 90:
+                else if(+brojPonavljanja === 2 && +control.value > 90){
+                    //Vrati grešku
+                    return {'najvise90': true};
+                }
+                //Ako je broj ponavljanja 3 i vrijednost trajanja terapije je veća od 120:
+                else if(+brojPonavljanja === 3 && +control.value > 120){
+                    //Vrati grešku
+                    return {'najvise120': true};
+                }
+                //Ako je broj ponavljanja 4 i vrijednost trajanja terapije je veća od 150:
+                else if(+brojPonavljanja === 4 && +control.value > 150){
+                    //Vrati grešku
+                    return {'najvise150': true};
+                }
+                //Ako je broj ponavljanja 5 i vrijednost trajanja terapije je veća od 180:
+                else if(+brojPonavljanja === 5 && +control.value > 180){
+                    //Vrati grešku
+                    return {'najvise180': true};
+                }
+                //Ako je sve u redu
+                return null;
             }
-            return null;
+            //Ako je recept običan:
+            else{
+                //Ako je broj dana veći od 30:
+                if(+control.value > 30){
+                    return {'najvise30': true};
+                }
+                //Ako je sve u redu
+                return null;
+            }
         }
     }
 }

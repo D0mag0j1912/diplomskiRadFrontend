@@ -76,7 +76,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
                   }
                   //Računam koliki je rok trajanja tokena 
                   let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-                  console.log(expirationDuration);
+                  
                   //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
                   this.tokenExpirationTimer = setTimeout(() => {
                       //Ako je tip prijavljenog korisnika "lijecnik":

@@ -1,6 +1,6 @@
 import { AbstractControl, FormGroup } from "@angular/forms";
 import { Observable, of, Subject } from "rxjs";
-import { tap, concatMap, takeUntil } from "rxjs/operators";
+import { tap, concatMap, takeUntil, switchMap } from "rxjs/operators";
 import {ReceptService} from './recept.service';
 
 //Funkcija koja vraća Observable u kojemu se nalazi dostatnost u danima
@@ -48,7 +48,7 @@ export function azuriranjeDostatnostiHandler(forma: FormGroup,receptService: Rec
             forma.get('trajanje.dostatnost').patchValue(value === null ? value : value.toString(),{emitEvent: false});
         }),
         //Svaku vrijednost dostatnosti prosljeđujem funkciji koja izvodi DATUM od te DOSTATNOSTI
-        concatMap(value => {
+        switchMap(value => {
             //Ako vrijednost dostatnosti nije null
             if(value !== null){
                 return receptService.getDatumDostatnost(value.toString()).pipe(
