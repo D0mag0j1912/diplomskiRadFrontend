@@ -21,7 +21,38 @@ export class ReceptService{
                 osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
                 dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
                 ponovljiv: string, brojPonavljanja: string){
-        
+        //Kodiram lijek koji je unesen
+        if(osnovnaListaLijekDropdown){
+            osnovnaListaLijekDropdown = encodeURIComponent(osnovnaListaLijekDropdown);
+        }
+        else if(osnovnaListaLijekText){
+            osnovnaListaLijekText = encodeURIComponent(osnovnaListaLijekText);
+        }
+        else if(dopunskaListaLijekDropdown){
+            dopunskaListaLijekDropdown = encodeURIComponent(dopunskaListaLijekDropdown);
+        }
+        else if(dopunskaListaLijekText){
+            dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
+        }
+         
+        return this.http.post<any>(this.baseUrl + 'recept/dodajRecept.php',{
+            mkbSifraPrimarna,
+            mkbSifraSekundarna,
+            osnovnaListaLijekDropdown,
+            osnovnaListaLijekText,
+            dopunskaListaLijekDropdown,
+            dopunskaListaLijekText,
+            osnovnaListaMagPripravakDropdown,
+            osnovnaListaMagPripravakText,
+            dopunskaListaMagPripravakDropdown,
+            dopunskaListaMagPripravakText,
+            kolicina,
+            doziranje,
+            dostatnost,
+            hitnost,
+            ponovljiv,
+            brojPonavljanja
+        }).pipe(catchError(this.handleError));
     }
 
     //Metoda koja šalje ID pacijenta te vraća Observable u kojemu se nalazi odgovor servera na dohvat dijagnoza za unos recepta

@@ -1,6 +1,24 @@
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
 
+//Funkcija koja provjerava je li šifra specijalista unesena
+export function provjeraSifraSpecijalist(isSpecijalist: boolean): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        if(group){
+            //Ako je unesen proizvod koji traži šifru specijalista
+            if(isSpecijalist){
+                //Ako polje šifre specijalista nije uneseno
+                if(!group.get('sifraSpecijalist').value){
+                    //Vrati grešku
+                    return {'requiredSpecijalist': true};
+                }
+                //Inače vrati da je u redu
+                return null;
+            }
+        }
+    }
+}
+
 //Funkcija koja popunjava unos naziva sekundarne dijagnoze, kada je unesena njena MKB šifra u polje unosa MKB šifre
 export function MKBtoNazivSekundarna(mkbSifra: string,dijagnoze: any,forma: FormGroup,index: number){
     //Prolazim kroz nazive i šifre svih dijagnoza

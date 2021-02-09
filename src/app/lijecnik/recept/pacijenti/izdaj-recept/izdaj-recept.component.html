@@ -69,13 +69,16 @@
                                             <span 
                                                 *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna" 
                                                 style="display: block;">Naziv sekundarne dijagnoze je obavezan za unos!</span>
+                                        </span>
+                                        <span 
+                                            class="help-block" 
+                                            style="font-weight: bold;font-family: Verdana, sans-serif;" 
+                                            *ngIf="!sekundarnaDijagnoza.valid">
                                             <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
                                             <span 
                                                 *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza" 
                                                 style="display: block;">Duplikati nisu dozvoljeni!</span>
-                                            <span>{{dijagnozaCtrl.value.nazivSekundarna}}</span>
-                                            <span>{{sekDijagnoza}}</span>
-                                        </span> 
+                                        </span>
                                         <span 
                                             class="help-block" 
                                             *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !forma.valid" 
@@ -90,7 +93,8 @@
                                             class="form-control"
                                             style="width:100px;height:35px" 
                                             formControlName="mkbSifraSekundarna"
-                                            placeholder="MKB šifra">
+                                            placeholder="MKB šifra" 
+                                            (input)="onChangeMKB(dijagnozaCtrl.value.mkbSifraSekundarna,i)">
                                     </td>
                                     <td>
                                         <button 
@@ -472,6 +476,10 @@
                                     formControlName="sifraSpecijalist" 
                                     placeholder="Šifra specijalista..." 
                                     style="width:250px;height:35px;left:150px;margin-top:-30px;position: relative;">
+                                <span 
+                                    class="help-block" 
+                                    *ngIf="forma.errors?.requiredSpecijalist" 
+                                    style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Morate unijeti šifru specijalista!</span>
                             </td>
                         </tr>
                         <tr formGroupName="ostaliPodatci">

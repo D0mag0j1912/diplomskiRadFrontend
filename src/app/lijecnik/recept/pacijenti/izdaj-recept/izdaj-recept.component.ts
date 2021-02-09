@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
 import { concatMap, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
 import { ReceptService } from '../../recept.service';
 import * as AzurirajDostatnost from '../../recept-azuriraj-dostatnost';
+import {azurirajValidatore} from '../../azuriraj-validatore';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -79,7 +80,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     //Inicijalno stavljam trajanje terapije na 30 dana
     trajanjeTerapije: number = 30;
     indexSekundarna: number = 0;
-
+    pomIndex: number = 0;
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
@@ -97,7 +98,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         this.route.data.pipe(
             map(podatci => podatci.importi),
             tap((podatci) => {
-                console.log(podatci);
                 //Spremam sve dijagnoze u svoje polje
                 this.dijagnoze = podatci.dijagnoze;
 
@@ -137,7 +137,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             'nazivSekundarna': new FormControl(null),
                             'mkbSifraSekundarna': new FormControl(null),
                             'indexSekundarna': new FormControl(0)
-                        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]})
+                        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]})  
                     ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
                     'tip': new FormControl("lijek"),
                     'osnovnaListaLijek': new FormGroup({
@@ -196,16 +196,19 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.vrijediDo.disable({emitEvent: false});
                 //Inicijalno onemogućavam unos riječima broja ponavljanja
                 this.rijecimaBrojPonavljanja.disable({emitEvent: false});
-                //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                /* //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
                 this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
                                         this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
                                         this.isLijek,this.isMagPripravak),
                                         this.isValidDijagnoze.bind(this),
                                         Validacija.doziranjePrijeProizvod(),
-                                        Validacija.kolicinaPrijeProizvod()]);
+                                        Validacija.kolicinaPrijeProizvod(),
+                                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
                 //Ažuriram stanje validacije
-                this.forma.updateValueAndValidity({emitEvent: false});
-
+                this.forma.updateValueAndValidity({emitEvent: false}); */
+                azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                    this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                    this.isMagPripravak, this.isSpecijalist);
                 //Postavljam validatore na polje dostatnosti
                 this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
                 //Ažuriram validaciju
@@ -246,7 +249,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
-        console.log(this.indexSekundarna);
+        
         //Pretplaćujem se na promjene u pojedinim dijelovima forme
         const prviDio = merge(
             //Slušam promjene u polju unosa primarne dijagnoze
@@ -353,11 +356,21 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             if(value[1]["success"] === "true"){
                                 //Označavam da treba prikazati polje unosa šifre specijalista
                                 this.isSpecijalist = true;
+                                //Ažuriram ponovno sve validatore
+                                azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                                    this.isMagPripravak, this.isSpecijalist);
                             }
                             //Ako je server vratio da NEMA oznake "RS" na izabranom lijeku
                             else if(value[1]["success"] === "false"){
                                 //Označavam da treba sakriti polje unosa šifre specijalista
                                 this.isSpecijalist = false;
+                                
+                                this.sifraSpecijalist.patchValue("",{emitEvent: false});
+                                //Ažuriram ponovno sve validatore
+                                azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                                    this.isMagPripravak, this.isSpecijalist);
                             }
                         }),
                         //Ulazim u još jedan concatMap da predam dostatnost u danima metodi koja vraća DATUM vrijediDo
@@ -449,10 +462,30 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             if(value[1].success === "true"){
                                 //Označavam da treba prikazati polje unosa šifre specijalista
                                 this.isSpecijalist = true;
+                                //Ažuriram ponovno sve validatore
+                                this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                                    this.isLijek,this.isMagPripravak),
+                                    this.isValidDijagnoze.bind(this),
+                                    Validacija.doziranjePrijeProizvod(),
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                                //Ažuriram stanje validacije
+                                this.forma.updateValueAndValidity({emitEvent: false});
                             }
                             //Ako je server vratio da ovaj lijek NEMA oznaku "RS":
                             else{
                                 this.isSpecijalist = false;
+                                //Ažuriram ponovno sve validatore
+                                this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                                    this.isLijek,this.isMagPripravak),
+                                    this.isValidDijagnoze.bind(this),
+                                    Validacija.doziranjePrijeProizvod(),
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                                //Ažuriram stanje validacije
+                                this.forma.updateValueAndValidity({emitEvent: false});
                             }
                             //Postavljam vrijednosti cijena u formu
                             this.cijenaUkupno.patchValue(`${value[0][0].cijenaLijek} kn`,{emitEvent: false});
@@ -553,11 +586,31 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             if(value[0]["success"] === "true"){
                                 //Označavam da treba prikazati polje unosa šifre specijalista
                                 this.isSpecijalist = true;
+                                //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                                    this.isLijek,this.isMagPripravak),
+                                    this.isValidDijagnoze.bind(this),
+                                    Validacija.doziranjePrijeProizvod(),
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                                //Ažuriram stanje validacije
+                                this.forma.updateValueAndValidity({emitEvent: false});
                             }
                             //Ako je server vratio da NEMA oznake "RS" na izabranom lijeku
                             else{
                                 //Označavam da treba sakriti polje unosa šifre specijalista
                                 this.isSpecijalist = false;
+                                //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                                    this.isLijek,this.isMagPripravak),
+                                    this.isValidDijagnoze.bind(this),
+                                    Validacija.doziranjePrijeProizvod(),
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                                //Ažuriram stanje validacije
+                                this.forma.updateValueAndValidity({emitEvent: false});
                             }
                             //U polje datuma postavljam datum
                             this.vrijediDo.patchValue(value[1],{emitEvent: false});
@@ -620,11 +673,31 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             if(value[1]["success"] === "true"){
                                 //Označavam da treba prikazati polje unosa šifre specijalista
                                 this.isSpecijalist = true;
+                                //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                                    this.isLijek,this.isMagPripravak),
+                                    this.isValidDijagnoze.bind(this),
+                                    Validacija.doziranjePrijeProizvod(),
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                                //Ažuriram stanje validacije
+                                this.forma.updateValueAndValidity({emitEvent: false});
                             }
                             //Ako je server vratio da NEMA oznake "RS" na izabranom lijeku
                             else{
                                 //Označavam da treba sakriti polje unosa šifre specijalista
                                 this.isSpecijalist = false;
+                                //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                    this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                                    this.isLijek,this.isMagPripravak),
+                                    this.isValidDijagnoze.bind(this),
+                                    Validacija.doziranjePrijeProizvod(),
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                                //Ažuriram stanje validacije
+                                this.forma.updateValueAndValidity({emitEvent: false});
                             }
                             //U polje datuma postavljam vrijednost datuma
                             this.vrijediDo.patchValue(value[2],{emitEvent: false});
@@ -995,10 +1068,30 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 if(odgovor[0].success === "true"){
                     //Označavam da treba prikazati polje unosa šifre specijalista
                     this.isSpecijalist = true;
+                    //Ažuriram ponovno sve validatore
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
                 //Ako je server vratio da ovaj lijek NEMA oznaku "RS":
                 else{
                     this.isSpecijalist = false;
+                    //Ažuriram ponovno sve validatore
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
             }),
             concatMap(value => {
@@ -1072,10 +1165,30 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 if(odgovor[1].success === "true"){
                     //Označavam da treba prikazati polje unosa šifre specijalista
                     this.isSpecijalist = true;
+                    //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
                 //Ako je server vratio da ovaj lijek NEMA oznaku "RS":
                 else{
                     this.isSpecijalist = false;
+                    //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
             }),
             concatMap(odgovor => {
@@ -1154,10 +1267,30 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 if(odgovor[0].success === "true"){
                     //Označavam da treba prikazati polje unosa šifre specijalista
                     this.isSpecijalist = true;
+                    //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
                 //Ako je server vratio da ovaj mag.pripravak NEMA oznaku "RS":
                 else{
                     this.isSpecijalist = false;
+                    //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
                 //Postavljam datum 
                 this.vrijediDo.patchValue(odgovor[1],{emitEvent: false});
@@ -1201,10 +1334,30 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 if(value[1].success === "true"){
                     //Označavam da treba prikazati polje unosa šifre specijalista
                     this.isSpecijalist = true;
+                    //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
                 //Ako je server vratio da ovaj lijek NEMA oznaku "RS":
                 else{
                     this.isSpecijalist = false;
+                    //Inicijalno dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                    this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                        this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
+                        this.isLijek,this.isMagPripravak),
+                        this.isValidDijagnoze.bind(this),
+                        Validacija.doziranjePrijeProizvod(),
+                        Validacija.kolicinaPrijeProizvod(),
+                        Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
+                    //Ažuriram stanje validacije
+                    this.forma.updateValueAndValidity({emitEvent: false});
                 }
                 //Postavljam datum
                 this.vrijediDo.patchValue(value[2],{emitEvent: false});
@@ -1262,15 +1415,19 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.isMagPripravak = false;
             //Označavam da liječnik želi unijeti lijek
             this.isLijek = true;
-            //Dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+            /* //Dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
             this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
                                     this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
                                     this.isLijek,this.isMagPripravak),
                                     this.isValidDijagnoze.bind(this),
                                     Validacija.doziranjePrijeProizvod(),
-                                    Validacija.kolicinaPrijeProizvod()]);
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
             //Ažuriram stanje validacije
-            this.forma.updateValueAndValidity({emitEvent: false});
+            this.forma.updateValueAndValidity({emitEvent: false}); */
+            azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                this.isMagPripravak, this.isSpecijalist);
             //Sakrij cijene
             this.isCijene = false;
             //Resetiram sva polja vezana za magistralne pripravke
@@ -1288,15 +1445,19 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.isMagPripravak = true;
             //Označavam da liječnik ne želi unijeti lijek
             this.isLijek = false;
-            //Dinamački postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+            /* //Dinamački postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
             this.forma.setValidators([Validacija.isUnesenProizvod(this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
                                     this.magPripravciOsnovnaLista,this.magPripravciDopunskaLista,
                                     this.isLijek,this.isMagPripravak),
                                     this.isValidDijagnoze.bind(this),
                                     Validacija.doziranjePrijeProizvod(),
-                                    Validacija.kolicinaPrijeProizvod()]);
+                                    Validacija.kolicinaPrijeProizvod(),
+                                    Validacija.provjeraSifraSpecijalist(this.isSpecijalist)]);
             //Ažuriram stanje validacije
-            this.forma.updateValueAndValidity({emitEvent: false});
+            this.forma.updateValueAndValidity({emitEvent: false}); */
+            azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                this.isMagPripravak, this.isSpecijalist);
             //Sakrij cijene
             this.isCijene = false;
             //Resetiram sva polja vezana uz lijekove
@@ -1316,8 +1477,27 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             return;
         }
         console.log(this.forma.getRawValue());
-
-
+        //Pomoćno polje u koje spremam samo MKB šifre sek. dijagnoza
+        let mkbPolje: string[] = [];
+        //Prolazim kroz polje sekundarnih dijagnoza i uzimam samo MKB šifre
+        for(const el of this.getControlsSekundarna()){
+            if(el.value.mkbSifraSekundarna !== null){
+                mkbPolje.push(el.value.mkbSifraSekundarna);
+            }
+        }
+        //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
+        this.receptService.dodajRecept(this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
+                                    this.osnovnaListaLijekText.value,this.dopunskaListaLijekDropdown.value,this.dopunskaListaLijekText.value,
+                                    this.osnovnaListaMagPripravakDropdown.value,this.osnovnaListaMagPripravakText.value,
+                                    this.dopunskaListaMagPripravakDropdown.value,this.dopunskaListaMagPripravakText.value,
+                                    this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
+                                    this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
+                                    this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value).pipe(
+            tap(odgovor => {
+                console.log(odgovor);
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();  
     }
 
     //Metoda se poziva kada liječnik promijeni količinu (broj pakiranja proizvoda)
@@ -1435,7 +1615,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     }  
     
     //Metoda koja provjerava je li primarna dijagnoza ista kao i neka od sekundarnih dijagnoza
-    isValidDijagnoze(group: FormGroup): {[key: string]: boolean} {
+    isValidDijagnoze(group: FormGroup): {[key: string]: boolean} | null{
       //Prolazim kroz polje sekundarnih dijagnoza
       for(let control of (group.get('sekundarnaDijagnoza') as FormArray).controls){
           //Ako je vrijednost primarne dijagnoze jednaka vrijednosti sekundarne dijagnoze, ali da oba dvije nisu null, jer bih bilo (Odaberite dijagnozu === Odaberite dijagnozu)
@@ -1498,40 +1678,39 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
 
     //Kada se klikne button "Dodaj dijagnozu"
     onAddDiagnosis(){
-        this.indexSekundarna++;
         //Kreiram novi form group
-        (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(new FormGroup({
+        const formGroup = new FormGroup({
             'nazivSekundarna': new FormControl(null),
-            'mkbSifraSekundarna': new FormControl(null),
-            'indexSekundarna': new FormControl(this.indexSekundarna)
-        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]}));
-
-        /* //Pretplaćivam se na promjene u poljima MKB šifri sek. dijagnoza
-        formGroup.valueChanges.pipe(
-            tap((value) => {
-                //Dohvaćam index promjenjenog polja
-                const groupIndex = value.indexSekundarna;
-                console.log(groupIndex);
-                //Ako je form group na određenom indexu validan
-                if((<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(groupIndex)).valid){
-                    //Prolazim kroz sve MKB šifre
-                    for(const mkb of this.mkbSifre){
-                        //Ako se upisana vrijednost nalazi u polju MKB šifri
-                        if(mkb.toLowerCase() === value.mkbSifraSekundarna.toLowerCase()){
-                            //U polje MKB šifri postavi šifru velikim slovima
-                            (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(groupIndex)).get('mkbSifraSekundarna').patchValue(mkb,{emitEvent: false});
-                        }
-                    }
-                    //Pozivam metodu koja će automatski unijeti naziv sekundarne dijagnoze kada se unesene MKB šifra
-                    Validacija.MKBtoNazivSekundarna(value.mkbSifraSekundarna,this.dijagnoze,this.forma,groupIndex);
+            'mkbSifraSekundarna': new FormControl(null)
+        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]});
+        //Nadodavam novi form group u form array
+        (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(formGroup);
+    }
+    //Ova metoda se poziva kada se liječnik krene upisivati vrijednosti u polja MKB šifri sek. dijagnoze
+    onChangeMKB(mkbSifra: string,index:number){
+        //Ako je MKB ispravno unesen (ako je prošao validaciju)
+        if(this.sekundarnaDijagnoza.at(index).valid){
+            //Prolazim kroz sve MKB šifre
+            for(const mkb of this.mkbSifre){
+                //Ako se upisana vrijednost nalazi u polju MKB šifri
+                if(mkb.toLowerCase() === mkbSifra.toLowerCase()){
+                    //U polje MKB šifri postavi šifru velikim slovima
+                    (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('mkbSifraSekundarna').patchValue(mkb,{emitEvent: false});
                 }
-            })
-        ).subscribe();  */
+            }
+            //Pozivam metodu da popuni polje naziva primarne dijagnoze
+            Validacija.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
+        }
+        //Ako je MKB neispravno unesen
+        else{
+            (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(null,{emitEvent: false});
+        }
     }
 
     //Kada se klikne button "X"
     onDeleteDiagnosis(index: number){
-        (<FormArray>this.forma.get('sekundarnaDijagnoza')).removeAt(index);
+        //Obriši form group na indexu kliknutog retka
+        this.sekundarnaDijagnoza.removeAt(index);
     }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
