@@ -7,6 +7,7 @@ import { ListaReceptiComponent } from './lista-recepti/lista-recepti.component';
 import { ReactiveFormsModule } from "@angular/forms";
 import { IzdajReceptComponent } from './pacijenti/izdaj-recept/izdaj-recept.component';
 import { ReceptDirective } from "./recept.directive";
+import { SharedModule } from "src/app/shared/shared.module";
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { ReceptDirective } from "./recept.directive";
     imports: [
         CommonModule,
         ReceptRoutingModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        SharedModule
     ],
     exports: [
         ReceptComponent,

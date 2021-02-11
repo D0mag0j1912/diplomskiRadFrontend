@@ -15,12 +15,26 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na prekoračenje maksimalne doze
+    getMaksimalnaDoza(lijek: string,doza: string){
+        //Kodiram specijalne znakove
+        lijek = encodeURIComponent(lijek);
+        doza = encodeURIComponent(doza);
+        //Kreiram paramse da ih mogu poslati u backend
+        let params = new HttpParams().append("lijek",lijek);
+        params = params.append("doza",doza);
+        return this.http.get<any>(this.baseUrl + 'recept/getMaksimalnaDoza.php',
+        {
+            params: params
+        }).pipe(catchError(this.handleError));
+    }
+
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
     dodajRecept(mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
                 osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
                 osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
                 dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
-                ponovljiv: string, brojPonavljanja: string){
+                ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string){
         //Kodiram lijek koji je unesen
         if(osnovnaListaLijekDropdown){
             osnovnaListaLijekDropdown = encodeURIComponent(osnovnaListaLijekDropdown);
@@ -51,7 +65,8 @@ export class ReceptService{
             dostatnost,
             hitnost,
             ponovljiv,
-            brojPonavljanja
+            brojPonavljanja,
+            sifraSpecijalist
         }).pipe(catchError(this.handleError));
     }
 

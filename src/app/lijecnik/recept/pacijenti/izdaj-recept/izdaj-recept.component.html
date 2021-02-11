@@ -1,5 +1,6 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
+    <app-alert (close)="onCloseAlert()" [message]="responsePoruka" *ngIf="response"></app-alert>
     <h3 
         style="text-align: center;color:#337ab7;font-family: Verdana, sans-serif;font-weight: bold;">Unos novog recepta</h3>
     <h4 
@@ -424,6 +425,34 @@
                                     style="font-family: Verdana, sans-serif;font-weight: bold;"> 
                                     <span *ngIf="forma.errors?.doziranjePrijeProizvod">Prvo morate unijeti proizvod!</span>
                                 </span>  
+                                <span 
+                                    *ngIf="doziranje.errors?.prekoracenje && 
+                                    !doziranjeFrekvencija.errors?.required && 
+                                    !forma.errors?.baremJedan" 
+                                    class="help-block" 
+                                    style="font-family: Verdana, sans-serif;font-weight: bold;">Prekoračili ste dnevno definiranu dozu! 
+                                    <span style="display: block;">Definirana doza: 
+                                        <input 
+                                            type="text"
+                                            formControlName="dddLijek"
+                                            style="border:0;width:100px;
+                                            height:35px;color:#337ab7;text-align: center;" 
+                                            readonly>
+                                    </span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="isValidatorDDD">
+                            <td colspan="4">
+                                <input 
+                                    type="checkbox" 
+                                    class="form-check-input" 
+                                    formControlName="svjesnoPrekoracenje" 
+                                    (change)="onChangeSvjesnoPrekoracenje($event)">
+                                <label 
+                                    class="form-check-label" 
+                                    for="svjesnoPrekoracenje"
+                                    style="left:20px;position: relative;font-family: Verdana, sans-serif">Svjesno prekoračenje</label>
                             </td>
                         </tr>
                         <tr formGroupName="trajanje">
@@ -541,7 +570,7 @@
                                 <h4 
                                     style="text-align: right;color:#006600; 
                                     font-family: Verdana, sans-serif;font-weight: bold;" 
-                                    *ngIf="forma.valid">Svi podatci su ispravno uneseni!</h4>
+                                    *ngIf="forma.valid">Recept je spreman za unos!</h4>
                             </td>
                         </tr> 
                     </tbody>

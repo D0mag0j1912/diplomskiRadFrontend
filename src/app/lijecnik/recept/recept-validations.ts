@@ -1,6 +1,25 @@
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
 
+//Funkcija koja provjerava je li doziranje prešlo max dozu
+export function prekoracenjeDoze(objekt:{success:string,message:string,maxDoza:string} | null): ValidatorFn{
+    return (group: FormGroup): {[key: string]: boolean} | null => {
+        if(group){
+            //Ako je server vratio poruku da je doziranje PREŠLO max dnevnu dozu
+            if(objekt.success === "false"){
+                return {'prekoracenje': true};
+            }
+            //Ako je server vratio poruku da doziranje NIJE PREŠLO max dnevnu dozu
+            else if(objekt.success === "true"){
+                return null;
+            }
+            else if(objekt === null){
+                return null;
+            }
+        }
+    }
+}
+
 //Funkcija koja provjerava je li šifra specijalista unesena
 export function provjeraSifraSpecijalist(isSpecijalist: boolean): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
