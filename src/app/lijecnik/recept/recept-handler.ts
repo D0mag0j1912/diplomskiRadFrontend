@@ -76,8 +76,7 @@ export function azuriranjeDostatnosti(forma: AbstractControl,receptService: Rece
 }
 //Funkcija koja vraća Observable ažuriranja dostatnosti te koja ažurira potrebna polja
 export function azuriranjeDostatnostiHandler(forma: FormGroup,receptService: ReceptService,
-                                            pretplateSubject: Subject<boolean>,trajanjeTerapije: number,
-                                            doziranje: FormGroup) : Observable<any>{
+                                            pretplateSubject: Subject<boolean>,trajanjeTerapije: number) : Observable<any>{
     return forkJoin([
         azuriranjeDostatnosti(forma,receptService)
     ]).pipe(
