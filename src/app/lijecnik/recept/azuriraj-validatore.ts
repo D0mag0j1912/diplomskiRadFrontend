@@ -10,7 +10,7 @@ export function azurirajValidatore(forma: FormGroup,lijekoviOsnovnaListaOJP: str
         isValidDijagnoze, 
         Validacija.doziranjePrijeProizvod(),
         Validacija.kolicinaPrijeProizvod(),
-        Validacija.provjeraSifraSpecijalist(isSpecijalist)]);
+        Validacija.requiredSifraSpecijalist(isSpecijalist)]);
     //Ažuriram stanje validacije
     forma.updateValueAndValidity({emitEvent: false});
 }

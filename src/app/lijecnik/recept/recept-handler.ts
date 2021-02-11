@@ -1,4 +1,4 @@
-import { AbstractControl, FormGroup } from "@angular/forms";
+import { AbstractControl, FormArray, FormGroup } from "@angular/forms";
 import { forkJoin, Observable, of, Subject } from "rxjs";
 import { tap, takeUntil, switchMap } from "rxjs/operators";
 import {ReceptService} from './recept.service';
@@ -100,7 +100,7 @@ export function azuriranjeDostatnostiHandler(forma: FormGroup,receptService: Rec
             //Ako je dostatnost null (uključuje da je odabran mag.pripravak ili je prazno doziranje, lijek ili količina)
             else{
                 //Ponovno postavljam trajanje terapije na 30 dana
-                trajanjeTerapije = 30;
+                trajanjeTerapije = 30 * +forma.get('kolicina.kolicinaDropdown').value;
                 //Ako je postavljen broj ponavljanja
                 if(forma.get('ostaliPodatci.brojPonavljanja').value){
                     //Računam trajanje terapije
@@ -137,6 +137,8 @@ export function doziranjePresloDDD(forma: FormGroup, receptService: ReceptServic
             if(value !== null){
                 //Ako je server vratio da je doziranje prekoračilo dnevno definiranu dozu
                 if(value["success"] === "false"){
+                    //Resetiram checkbox "Svjesno prekoračenje" da liječnik ponovno mora kliknut da je svjestan prekoračenja doze
+                    forma.get('svjesnoPrekoracenje').reset();
                     //U polje unosa definirane doze postavljam vrijednost sa servera
                     forma.get('doziranje').get('dddLijek').patchValue(value["maxDoza"],{emitEvent: false});
                     //Pozivam validator za prekoračenje doze
@@ -146,14 +148,19 @@ export function doziranjePresloDDD(forma: FormGroup, receptService: ReceptServic
             }
             //Ako je server vratio null ILI je vratio da je success === true, tj. da doziranje ne prelazi dnevno definiranu dozu
             if(value === null || value["success"] === "true"){
-                //Praznim polje unosa DDD-a 
-                forma.get('doziranje').get('dddLijek').patchValue(null,{emitEvent: false});
-                //Resetiram vrijednosti svjesnog prekoračenja
-                forma.get('svjesnoPrekoracenje').reset();
-                //Dižem validatore koji su vezani za DDD
-                forma.get('doziranje').clearValidators();
-                forma.get('doziranje').updateValueAndValidity({emitEvent: false});
+                resetirajSvjesnoPrekoracenje(forma);
             }
         })
     );
+}
+
+//Funkcija koja resetira te diže svjesno prekoračenje te diže validatore dnevno definirane doze
+export function resetirajSvjesnoPrekoracenje(forma: FormGroup){
+    //Praznim polje unosa DDD-a 
+    forma.get('doziranje.dddLijek').patchValue(null,{emitEvent: false});
+    //Resetiram vrijednosti svjesnog prekoračenja
+    forma.get('svjesnoPrekoracenje').reset();
+    //Dižem validatore koji su vezani za DDD
+    forma.get('doziranje').clearValidators();
+    forma.get('doziranje').updateValueAndValidity({emitEvent: false});
 }

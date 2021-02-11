@@ -15,6 +15,6 @@ export class PacijentiResolverService implements Resolve<any>{
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
             Observable<any> | Promise<any> | any {
         //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa Korisnik 
-        return this.receptService.getAllPatients();
+        return this.receptService.getInicijalnoAktivanPacijent();
     }
 } 

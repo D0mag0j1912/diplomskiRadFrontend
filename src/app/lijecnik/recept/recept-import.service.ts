@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { ZdravstveniRadnik } from "src/app/shared/modeli/zdravstveniRadnik.model";
 
 @Injectable({
     providedIn: 'root'
@@ -15,6 +16,12 @@ export class ReceptImportiService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Metoda koja šalje zahtjev serveru te od njega traži dohvati svih tipova zdravstvenih radnika
+    getZdravstveniRadnici(){
+        //Vraća Observable sa svim zdravstvenim radnicima
+        return this.http.get<ZdravstveniRadnik[]>(this.baseUrl + 'recept/importi/getZdravstveniRadnici.php').pipe(catchError(this.handleError));
+    }
 
     //Metoda koja vraća Observable sa svim lijekovima sa osnovne liste
     getLijekoviOsnovnaLista(){

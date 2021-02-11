@@ -146,9 +146,9 @@ export class ReceptService{
     }
 
     //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
-    getAllPatients(){
+    getInicijalnoAktivanPacijent(){
 
-        return this.http.get<any>(this.baseUrl + 'recept/getAllPatients.php').pipe(
+        return this.http.get<any>(this.baseUrl + 'recept/getInicijalnoAktivanPacijent.php').pipe(
             catchError(this.handleError)
         );
     }

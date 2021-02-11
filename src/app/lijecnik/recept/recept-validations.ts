@@ -1,5 +1,6 @@
 import { FormArray, FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
+import { ZdravstveniRadnik } from "src/app/shared/modeli/zdravstveniRadnik.model";
 
 //Funkcija koja provjerava je li doziranje prešlo max dozu
 export function prekoracenjeDoze(objekt:{success:string,message:string,maxDoza:string} | null): ValidatorFn{
@@ -20,14 +21,46 @@ export function prekoracenjeDoze(objekt:{success:string,message:string,maxDoza:s
     }
 }
 
+//Funkcija koja popunjava polje tipa specijaliste ovisno o unesenoj šifri specijalista
+export function sifraSpecijalistToTip(sifraSpecijalist: string,zdravstveniRadnici: ZdravstveniRadnik[],forma: FormGroup){
+    //Prolazim poljem zdravstvenih radnika
+    for(const radnik of zdravstveniRadnici){
+        //Ako unesena vrijednost šifre specijalista odgovara nekoj šifri specijalista u polju
+        if(radnik.sifraSpecijalist == +sifraSpecijalist){
+            //Popuni polje tipa specijalista ovisno o toj šifri
+            forma.get('specijalist.tipSpecijalist').patchValue(radnik.tipSpecijalist,{emitEvent: false});
+        }
+    }
+    //Ažuriram vrijednosti
+    forma.get('specijalist.tipSpecijalist').updateValueAndValidity({emitEvent: false});
+}
+
+//Funkcija koja provjerava JE LI šifra specijalista ISPRAVNO UNESENA
+export function provjeraSifraSpecijalist(zdravstveniRadnici: ZdravstveniRadnik[]): ValidatorFn{
+    return (control: FormControl): {[key: string]: boolean} | null => {
+        if(control){
+            //Prolazim kroz polje zdravstvenih radnika
+            for(const radnik of zdravstveniRadnici){
+                //Ako se unesena vrijednost nalazi u šiframa specijalista
+                if(control.value === radnik.sifraSpecijalist){
+                    //Vrati da je u redu
+                    return null;
+                }
+            }
+            //Ako se unesena vrijednost NE NALAZI u šiframa specijalista, vrati grešku
+            return {'neispravnaSifraSpecijalista': true};
+        }
+    }
+}
+
 //Funkcija koja provjerava je li šifra specijalista unesena
-export function provjeraSifraSpecijalist(isSpecijalist: boolean): ValidatorFn{
+export function requiredSifraSpecijalist(isSpecijalist: boolean): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
         if(group){
             //Ako je unesen proizvod koji traži šifru specijalista
             if(isSpecijalist){
                 //Ako polje šifre specijalista nije uneseno
-                if(!group.get('sifraSpecijalist').value){
+                if(!group.get('specijalist.sifraSpecijalist').value){
                     //Vrati grešku
                     return {'requiredSpecijalist': true};
                 }

@@ -1,1 +1,36 @@
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Lista recepata</h3>
+<form [formGroup]="formaPretraga">
+    <div class="col-md-offset-1">
+        <p style="font-family: Verdana, sans-serif;"><strong>Pretraži:</strong></p>
+        <input 
+            type="text" 
+            class="form-control" 
+            formControlName="pretraga" 
+            placeholder="Pretražite recept..." 
+            style="width:300px;left:80px;position: relative;margin-top:-35px;">
+        <!-- <span class="help-block" *ngIf="!isPretraga" style="font-weight: bold;">{{porukaPretraga}}</span> -->
+    </div>
+</form>
+<form [formGroup]="forma">
+    <!-- <div class="table-responsive-sm" style="margin-top:10px;">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td> -->
+                        <ng-container style="border:1px solid black"> 
+                            <label for="vrstaRecept">Vrsta recepta:</label>
+                            <input 
+                                type="text"
+                                formControlName="vrstaRecept" 
+                                class="form-control"
+                                readonly 
+                                style="width:200px;height:35px; 
+                                    font-family: Verdana, sans-serif;
+                                    display:inline;left:5px;position: relative;">
+                        </ng-container>
+                   <!--  </td>
+                </tr>
+            </tbody>
+        </table>
+    </div> -->
+</form>

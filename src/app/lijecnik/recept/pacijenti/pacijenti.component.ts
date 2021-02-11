@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { concatMap, debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ReceptService } from '../recept.service';
 
 @Component({
@@ -42,6 +42,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         this.route.data.pipe(
             tap((podatci : {pacijenti: any}) => {
                     this.pacijenti = podatci.pacijenti;
+                    console.log(this.pacijenti);
                 }
             ),
             takeUntil(this.pretplateSubject)
@@ -49,7 +50,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Pretplaćujem se na liječnikovu pretragu u formi pretrage
         this.formaPretraga.get('pretraga').valueChanges.pipe(
             //Namjerno kašnjenje
-            debounceTime(100),
+            debounceTime(200),
             //Ne ponavljam iste zahtjeve
             distinctUntilChanged(), 
             //Uzimam vrijednost pretrage te ga predavam HTTP zahtjevu
@@ -62,6 +63,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         ).subscribe(
             //Dohvaćam odgovor servera na liječnikovu pretragu
             (odgovor) => {
+                console.log(odgovor);
                 //Ako je odgovor servera uspješan tj. vratio je neke pacijente
                 if(odgovor["success"] !== "false"){
                     //Označavam da ima vraćenih pacijenata

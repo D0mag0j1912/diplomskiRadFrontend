@@ -30,7 +30,8 @@ export class IzdajReceptResolverService implements Resolve<any>{
             this.receptImportiService.getMagistralniPripravciOsnovnaLista(),
             this.receptImportiService.getMagistralniPripravciDopunskaLista(),
             this.receptService.getDatumDostatnost("30"),
-            this.receptService.getInicijalnoDijagnoze(+route.params['id'])
+            this.receptService.getInicijalnoDijagnoze(+route.params['id']),
+            this.receptImportiService.getZdravstveniRadnici()
         ]).pipe(
             map(result => {
                 return {
@@ -40,7 +41,8 @@ export class IzdajReceptResolverService implements Resolve<any>{
                     magistralniPripravciOsnovnaLista: result[3],
                     magistralniPripravciDopunskaLista: result[4],
                     datum: result[5],
-                    inicijalneDijagnoze: result[6]
+                    inicijalneDijagnoze: result[6],
+                    zdravstveniRadnici: result[7]
                 };    
             })
         );
