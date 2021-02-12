@@ -1,18 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
+import { Recept } from 'src/app/shared/modeli/recept.model';
 
 @Component({
   selector: 'app-lista-recepti',
   templateUrl: './lista-recepti.component.html',
   styleUrls: ['./lista-recepti.component.css']
 })
-export class ListaReceptiComponent implements OnInit {
+export class ListaReceptiComponent implements OnInit,OnDestroy{
 
+    //Kreiram Subject
+    pretplateSubject = new Subject<boolean>();
     //Definiram forme
     forma: FormGroup;
     formaPretraga: FormGroup;
+    //Oznaka je li recept ponovljiv
+    isPonovljiv: boolean = false;
+    //Spremam inicijalne recepte
+    inicijalniRecepti: Recept[] = [];
 
-    constructor() { }
+    constructor(
+        //Dohvaćam router
+        private router: Router,
+        //Dohvaćam trenutni route
+        private route: ActivatedRoute
+    ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit() {
@@ -21,37 +36,38 @@ export class ListaReceptiComponent implements OnInit {
         this.formaPretraga = new FormGroup({
             'pretraga': new FormControl(null)
         });
-        //Kreiram formu
-        this.forma = new FormGroup({
-            'vrstaRecept': new FormControl(null),
-            'brojPonavljanja': new FormControl(null),
-            'podatciPacijenta': new FormGroup({
-                'imePrezime': new FormControl(null),
-                'datumRodenja': new FormControl(null),
-                'adresa': new FormControl(null)
+
+        //Pretplaćujem se na podatke Resolvera tj. na recepte
+        this.route.data.pipe(
+            map(podatci => podatci.podatci.recepti),
+            tap((recepti: any) => {
+                //Inicijaliziram varijablu u kojoj ću spremiti podatke recepata
+                let recept;
+                //Prolazim kroz objekte sa servera
+                for(const r of recepti){
+                    //Za svaki objekt recepta, kreiram svoj objekt tipa "Recept"
+                    recept = new Recept(r);
+                    //Objekt tipa recept dodavam u polje
+                    this.inicijalniRecepti.push(recept);
+                }
+                for(const recept of this.inicijalniRecepti){
+                    console.log(recept);
+                }
             }),
-            'datumRecept': new FormControl(null),
-            'ustanova': new FormGroup({
-                'naziv': new FormControl(null),
-                'telefon': new FormControl(null),
-                'adresa': new FormControl(null),
-                'imePrezimeLijecnik': new FormControl(null)
-            }),
-            'primarnaDijagnoza': new FormControl(null),
-            'sekundarnaDijagnoza': new FormControl(null),
-            'proizvod': new FormGroup({
-                'ime': new FormControl(null),
-                'kolicina': new FormControl(null),
-                'doziranje': new FormControl(null),
-                'nacinUpotrebe': new FormControl(null),
-                'dostatnost': new FormControl(null),
-                'vrijediDo': new FormControl(null)
-            }),
-            'specijalist': new FormGroup({
-                'sifraSpecijalist': new FormControl(null),
-                'tipSpecijalist': new FormControl(null)
-            })
-        });
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
+    }
+
+    podiNaPrikaz(){
+        //Preusmjeri liječnika na prozor izdavanja recepta
+        this.router.navigate(['./',23],{relativeTo: this.route});
+    }
+
+    //Metoda koja se poziva kada se komponenta uništi
+    ngOnDestroy(){
+        //Izađi iz pretplata
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 
 }

@@ -15,6 +15,15 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalaze svi recepti za INICIJALNO POSTAVLJENE PACIJENTE u LISTI RECEPATA
+    getInicijalniRecepti(){
+
+        return this.http.get<any>(this.baseUrl + 'recept/listaRecepti/getInicijalniRecepti.php')
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na prekoračenje maksimalne doze
     getMaksimalnaDoza(lijek: string,doza: string){
         //Kodiram specijalne znakove
@@ -34,7 +43,7 @@ export class ReceptService{
                 osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
                 osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
                 dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
-                ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string){
+                ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string,idPacijent: string){
         //Kodiram lijek koji je unesen
         if(osnovnaListaLijekDropdown){
             osnovnaListaLijekDropdown = encodeURIComponent(osnovnaListaLijekDropdown);
@@ -66,7 +75,8 @@ export class ReceptService{
             hitnost,
             ponovljiv,
             brojPonavljanja,
-            sifraSpecijalist
+            sifraSpecijalist,
+            idPacijent
         }).pipe(catchError(this.handleError));
     }
 
@@ -148,7 +158,7 @@ export class ReceptService{
     //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
     getInicijalnoAktivanPacijent(){
 
-        return this.http.get<any>(this.baseUrl + 'recept/getInicijalnoAktivanPacijent.php').pipe(
+        return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getInicijalnoAktivanPacijent.php').pipe(
             catchError(this.handleError)
         );
     }
@@ -156,7 +166,7 @@ export class ReceptService{
     //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti koji odgovaraju pretrazi
     getPacijentiPretraga(value: string){
         let params = new HttpParams().append("pretraga",value);
-        return this.http.get<any>(this.baseUrl + 'recept/getPacijentiPretraga.php',{params: params}).pipe(catchError(this.handleError));
+        return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getPacijentiPretraga.php',{params: params}).pipe(catchError(this.handleError));
     }
 
     //Metoda za errore

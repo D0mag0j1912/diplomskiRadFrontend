@@ -1,0 +1,110 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <div class="col-xs-12 col-md-12">
+        <form [formGroup]="forma" *ngIf="forma" (ngSubmit)="onSubmit()">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label 
+                                    for="vrstaRecept" 
+                                    style="font-family: Verdana, sans-serif; 
+                                        float:left">Vrsta recepta:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="vrstaRecept" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:74%;height:30px; 
+                                        font-family: Verdana, sans-serif;
+                                        left:10px;position: relative; 
+                                        display: block;overflow: hidden; 
+                                        margin-top:-2px;background-color: white; 
+                                        border:0"> 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label 
+                                    for="brojPonavljanja" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left">Broj ponavljanja:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="brojPonavljanja" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:100px;height:30px; 
+                                        font-family: Verdana, sans-serif;
+                                        left:10px;position: relative; 
+                                        display: block;overflow: hidden; 
+                                        margin-top:-2px;background-color: white; 
+                                        border:0"> 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h4  
+                                    style="font-family: Verdana, sans-serif; 
+                                    color:#337ab7">Podatci pacijenta</h4>
+                            </td> 
+                        </tr>
+                        <tr formGroupName="podatciPacijenta">
+                            <td>
+                                <label 
+                                    for="imePrezimePacijent" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left">Ime i prezime:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="imePrezimePacijent" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:74%;height:30px; 
+                                        font-family: Verdana, sans-serif;
+                                        left:10px;position: relative; 
+                                        display: block;overflow: hidden; 
+                                        margin-top:-2px;background-color: white; 
+                                        border:0"> 
+                                <label 
+                                    for="datumRodenjaPacijent" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left;margin-top:5px">Datum rođenja:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="datumRodenjaPacijent" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:73%;height:30px; 
+                                        font-family: Verdana, sans-serif;
+                                        left:10px;position: relative; 
+                                        display: block;overflow: hidden; 
+                                        margin-top:5px;background-color: white; 
+                                        border:0"> 
+                                <label 
+                                    for="adresaPacijent" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left;margin-top:5px">Adresa:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="adresaPacijent" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:85%;height:30px; 
+                                        font-family: Verdana, sans-serif;
+                                        left:10px;position: relative; 
+                                        display: block;overflow: hidden; 
+                                        margin-top:5px;background-color: white; 
+                                        border:0">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+    <div class="alert-box-actions" #alertBoxActions>
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

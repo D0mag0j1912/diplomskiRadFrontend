@@ -1,3 +1,4 @@
+<router-outlet></router-outlet>
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Lista recepata</h3>
 <form [formGroup]="formaPretraga">
     <div class="col-md-offset-1">
@@ -11,26 +12,38 @@
         <!-- <span class="help-block" *ngIf="!isPretraga" style="font-weight: bold;">{{porukaPretraga}}</span> -->
     </div>
 </form>
-<form [formGroup]="forma">
-    <!-- <div class="table-responsive-sm" style="margin-top:10px;">
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td> -->
-                        <ng-container style="border:1px solid black"> 
-                            <label for="vrstaRecept">Vrsta recepta:</label>
-                            <input 
-                                type="text"
-                                formControlName="vrstaRecept" 
-                                class="form-control"
-                                readonly 
-                                style="width:200px;height:35px; 
-                                    font-family: Verdana, sans-serif;
-                                    display:inline;left:5px;position: relative;">
-                        </ng-container>
-                   <!--  </td>
-                </tr>
-            </tbody>
-        </table>
-    </div> -->
-</form>
+<div class="row" style="border:1px solid #337ab7; 
+                    border-radius: 5px;margin-top:10px;">
+    <div class="col-xs-12">
+        <input 
+            type="text" 
+            class="form-control col-xs-offset-2" 
+            readonly
+            style="width:300px;height:30px; 
+                font-family: Verdana, sans-serif;
+                background-color: white; 
+                border:0;margin-top:5px;">
+        <div class="table-responsive-sm" style="margin-top:5px;">
+            <table class="table table-striped table-bordered tablica">
+                <thead>
+                    <th scope="col" style="width:25%;font-family: Verdana, sans-serif;">Akcija</th>
+                    <th scope="col" style="width:25%;font-family: Verdana, sans-serif;">Datum</th>
+                    <th scope="col" style="width:15%;font-family: Verdana, sans-serif;">MKB</th>
+                    <th scope="col" style="width:30%;font-family: Verdana, sans-serif;">Lijek/Mag.pripravak</th>
+                    <th scope="col" style="width:5%;font-family: Verdana, sans-serif;">Dostatnost</th>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let recept of inicijalniRecepti">
+                        <td><button 
+                                type="button" 
+                                class="btn btn-info btn-sm">Prikaži recept</button></td>
+                        <td>{{recept.datumRecept}}</td>
+                        <td>{{recept.mkbSifraPrimarna}}</td>
+                        <td style="white-space:pre-wrap; word-wrap:break-word">{{recept.proizvod}}</td>
+                        <td>{{recept.dostatnost}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div> 
+</div>    

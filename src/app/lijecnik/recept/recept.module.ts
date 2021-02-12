@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { IzdajReceptComponent } from './pacijenti/izdaj-recept/izdaj-recept.component';
 import { ReceptDirective } from "./recept.directive";
 import { SharedModule } from "src/app/shared/shared.module";
+import { PrikazReceptComponent } from './lista-recepti/prikaz-recept/prikaz-recept.component';
 
 @NgModule({
     declarations: [
@@ -15,7 +16,8 @@ import { SharedModule } from "src/app/shared/shared.module";
         PacijentiComponent,
         ListaReceptiComponent,
         IzdajReceptComponent,
-        ReceptDirective
+        ReceptDirective,
+        PrikazReceptComponent
     ],
     imports: [
         CommonModule,
@@ -28,7 +30,8 @@ import { SharedModule } from "src/app/shared/shared.module";
         PacijentiComponent,
         ListaReceptiComponent,
         IzdajReceptComponent,
-        ReceptDirective
+        ReceptDirective,
+        PrikazReceptComponent
     ]
 })
 export class ReceptModule{

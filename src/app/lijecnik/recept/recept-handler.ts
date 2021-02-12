@@ -1,8 +1,9 @@
-import { AbstractControl, FormArray, FormGroup } from "@angular/forms";
+import { AbstractControl, FormArray, FormGroup, Validators } from "@angular/forms";
 import { forkJoin, Observable, of, Subject } from "rxjs";
 import { tap, takeUntil, switchMap } from "rxjs/operators";
 import {ReceptService} from './recept.service';
 import * as Validacija from './recept-validations';
+import { ZdravstveniRadnik } from "src/app/shared/modeli/zdravstveniRadnik.model";
 
 //Funkcija koja vraća Observable u kojemu se nalazi MAKSIMALNA doza nekog lijeka (dnevna/tjedna)
 export function dohvatiDefiniranaDoza(forma: AbstractControl, receptService: ReceptService): Observable<any>{
@@ -163,4 +164,21 @@ export function resetirajSvjesnoPrekoracenje(forma: FormGroup){
     //Dižem validatore koji su vezani za DDD
     forma.get('doziranje').clearValidators();
     forma.get('doziranje').updateValueAndValidity({emitEvent: false});
+}
+
+//Funkcija koja nadodava validatore šifri specijalista
+export function setValidatorsSifraSpecijalist(forma: FormGroup,zdravstveniRadnici: ZdravstveniRadnik[],isSpecijalist: boolean){
+    //Postavljam validatore šifri specijalista
+    forma.get('specijalist.sifraSpecijalist').setValidators([Validators.pattern("^[0-9]*$"), 
+                                        Validacija.provjeraSifraSpecijalist(zdravstveniRadnici,isSpecijalist)]);
+    //Ažuriram validatore šifre specijalista
+    forma.get('specijalist.sifraSpecijalist').updateValueAndValidity({emitEvent: false});
+}
+
+//Funkcija koja BRIŠE VALIDATORE šifri specijalista
+export function clearValidatorsSifraSpecijalist(forma: FormGroup){
+    //Obriši validatore
+    forma.get('specijalist.sifraSpecijalist').clearValidators();
+    //Ažuriraj promjene
+    forma.get('specijalist.sifraSpecijalist').updateValueAndValidity({emitEvent: false});
 }

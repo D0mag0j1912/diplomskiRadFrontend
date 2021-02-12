@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ReceptService } from '../recept.service';
 
 @Component({
@@ -22,6 +22,10 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     isPretraga: boolean = true;
     //Spremam poruku servera da nema rezultata za pretragu
     porukaPretraga: string = null;
+    //Oznaka ima li inicijalno vraćenih pacijenata
+    isPacijenti: boolean = false;
+    //Spremam poruku da nema pacijenata
+    nemaPacijenata: string = null;
 
     constructor(
         //Dohvaćam trenutni route
@@ -40,11 +44,21 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         });
         //Pretplaćivam se na podatke iz Resolvera 
         this.route.data.pipe(
-            tap((podatci : {pacijenti: any}) => {
-                    this.pacijenti = podatci.pacijenti;
-                    console.log(this.pacijenti);
+            map(podatci => podatci.podatci.pacijenti),
+            tap((podatci) => {
+                //Ako je server vratio da IMA pacijenata u bazi podataka
+                if(podatci["success"] !== "false"){
+                    //Označavam da ima pacijenata 
+                    this.isPacijenti = true;
+                    //Spremam pacijente u svoje polje
+                    this.pacijenti = podatci;
                 }
-            ),
+                //Ako je server vratio da NEMA pacijenata u bazi podataka
+                else if(podatci["success"] === "false"){
+                    //Spremam odgovor servera u svoju varijablu
+                    this.nemaPacijenata = podatci["message"];
+                } 
+            }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
         //Pretplaćujem se na liječnikovu pretragu u formi pretrage

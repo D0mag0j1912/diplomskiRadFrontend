@@ -1,11 +1,12 @@
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import {Injectable} from '@angular/core';
 import { ReceptService } from './recept.service';
+import { map } from 'rxjs/operators';
 @Injectable({
     providedIn: 'root'
 })
-export class PacijentiResolverService implements Resolve<any>{
+export class ReceptResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam servis recepta
@@ -15,6 +16,16 @@ export class PacijentiResolverService implements Resolve<any>{
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
             Observable<any> | Promise<any> | any {
         //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa Korisnik 
-        return this.receptService.getInicijalnoAktivanPacijent();
+        return forkJoin([
+            this.receptService.getInicijalnoAktivanPacijent(),
+            this.receptService.getInicijalniRecepti()
+        ]).pipe(
+            map(result => {
+                return {
+                    pacijenti: result[0],
+                    recepti: result[1]
+                };
+            })
+        );
     }
 } 
