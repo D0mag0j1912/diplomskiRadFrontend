@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { EMPTY, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
 
 @Component({
@@ -33,7 +34,9 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Dohvaćam servis recepta
         private receptService: ReceptService,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis liste recepata
+        private listaReceptiService: ListaReceptiService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
@@ -70,32 +73,33 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             //Uzimam vrijednost pretrage te ga predavam HTTP zahtjevu
             switchMap(value => {
                 return this.receptService.getPacijentiPretraga(value).pipe(
+                    //Dohvaćam odgovor servera na liječnikovu pretragu
+                    tap((odgovor) => {
+                        //Ako je odgovor servera uspješan tj. vratio je neke pacijente
+                        if(odgovor["success"] !== "false"){
+                            //Označavam da ima vraćenih pacijenata
+                            this.isPretraga = true;
+                            //Odgovor servera za pretragu spremam u svoje polje pacijenata
+                            this.pacijenti = odgovor;
+                            for(const pacijent of this.pacijenti){
+                                this.listaReceptiService.prijenosnik.next(pacijent.idPacijent);
+                            }
+                            //Praznim poruku pretrage
+                            this.porukaPretraga = null;
+                        }
+                        //Ako je odgovor servera neuspješan
+                        else{
+                            //Označavam da nema rezultata pretrage
+                            this.isPretraga = false;
+                            //Spremam poruku servera
+                            this.porukaPretraga = odgovor["message"];
+                        }
+                    }),
                     takeUntil(this.pretplateSubject)
                 );
             }),
             takeUntil(this.pretplateSubject)
-        ).subscribe(
-            //Dohvaćam odgovor servera na liječnikovu pretragu
-            (odgovor) => {
-                console.log(odgovor);
-                //Ako je odgovor servera uspješan tj. vratio je neke pacijente
-                if(odgovor["success"] !== "false"){
-                    //Označavam da ima vraćenih pacijenata
-                    this.isPretraga = true;
-                    //Odgovor servera za pretragu spremam u svoje polje pacijenata
-                    this.pacijenti = odgovor;
-                    //Praznim poruku pretrage
-                    this.porukaPretraga = null;
-                }
-                //Ako je odgovor servera neuspješan
-                else{
-                    //Označavam da nema rezultata pretrage
-                    this.isPretraga = false;
-                    //Spremam poruku servera
-                    this.porukaPretraga = odgovor["message"];
-                }
-            }
-        );
+        ).subscribe();
     }
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"

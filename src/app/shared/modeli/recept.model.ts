@@ -1,45 +1,42 @@
 import { Time } from "@angular/common";
 
-/* export interface Recept{
-    idRecept?: number;
-    mkbSifraPrimarna: string;
-    mkbSifraSekundarna?: string[];
-    proizvod: string;
-    oblikJacinaPakiranjeLijek?:string;
-    kolicina?: string;
-    doziranje?: string;
-    dostatnost: string;
-    hitnost?: string;
-    ponovljivost?: string;
-    brojPonavljanja?: string;
-    sifraSpecijalist?: number;
-    idPacijent?: number;
-    imePrezimePacijent?: string;
-    datumRecept: Date;
-    vrijemeRecept?: Time;
-} */
 export class Recept{
-    private mkbSifraPrimarna: string;
-    private proizvod: string;
-    private dostatnost: string;
-    private datumRecept: Date;
-    private mkbSifraSekundarna?: string[];
-    private idRecept?: number;
-    private oblikJacinaPakiranjeLijek?:string;
-    private kolicina?: string;
-    private doziranje?: string;
-    private hitnost?: string;
-    private ponovljivost?: string;
-    private brojPonavljanja?: string;
-    private sifraSpecijalist?: number;
-    private idPacijent?: number;
-    private imePrezimePacijent?: string;
-    private vrijemeRecept?: Time;
+    //Definiram propertye ovog objekta
+    public mkbSifraPrimarna: string;
+    public proizvod: string;
+    public dostatnost: string;
+    public datumRecept: Date;
+    public mkbSifraSekundarna?: string[];
+    public idRecept?: number;
+    public oblikJacinaPakiranjeLijek?:string;
+    public kolicina?: string;
+    public doziranje?: string;
+    public hitnost?: string;
+    public ponovljivost?: string;
+    public brojPonavljanja?: string;
+    public sifraSpecijalist?: number;
+    public idPacijent?: number;
+    public imePrezimePacijent?: string;
+    public vrijemeRecept?: Time;
+    //U ovoj metodi dohvaćam cijeli objekt koji dolazi sa servera te podatke iz njega spremam u svoje varijable
     constructor(response: any){
-        this.datumRecept = response.Datum;
-        this.imePrezimePacijent = response.Pacijent;
-        this.dostatnost = response.dostatnost;
-        this.mkbSifraPrimarna = response.mkbSifraPrimarna;
-        this.proizvod = response.proizvod;
+        if(response.Datum){
+            this.datumRecept = response.Datum;
+        }
+        if(response.Pacijent){
+            this.imePrezimePacijent = response.Pacijent;
+        }
+        if(response.dostatnost){
+            this.dostatnost = response.dostatnost;
+        }
+        if(response.mkbSifraPrimarna){
+            this.mkbSifraPrimarna = response.mkbSifraPrimarna;
+        }
+        if(response.proizvod){
+            this.proizvod = response.proizvod;
+        }
+        if(response.idPacijent){
+            this.idPacijent = response.idPacijent;
+        }
     }
 }

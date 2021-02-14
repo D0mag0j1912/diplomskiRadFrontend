@@ -15,15 +15,6 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
-    //Metoda koja vraća Observable u kojemu se nalaze svi recepti za INICIJALNO POSTAVLJENE PACIJENTE u LISTI RECEPATA
-    getInicijalniRecepti(){
-
-        return this.http.get<any>(this.baseUrl + 'recept/listaRecepti/getInicijalniRecepti.php')
-            .pipe(
-                catchError(this.handleError)
-            );
-    }
-
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na prekoračenje maksimalne doze
     getMaksimalnaDoza(lijek: string,doza: string){
         //Kodiram specijalne znakove

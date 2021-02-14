@@ -11,18 +11,24 @@
             style="width:300px;left:80px;position: relative;margin-top:-35px;">
         <span 
             class="help-block" 
-            *ngIf="!isPretraga" 
+            *ngIf="!isPretraga && porukaPretraga" 
             style="font-weight: bold;left:50px; 
             position: relative;">{{porukaPretraga}}</span>
     </div>
 </form>
-<div class="row" style="margin-top:10px;" *ngIf="!isPacijenti">
+<div 
+    class="row" 
+    style="margin-top:10px;" 
+    *ngIf="!isPacijenti">
     <h3 style="text-align: center; 
             color:#a94442;font-family: Verdana, sans-serif; 
             left:30px;position: relative;">Nema evidentiranih pacijenata!</h3>
 </div>
-<div class="table-responsive-sm" style="margin-top:10px;">
-    <table class="table table-striped table-bordered tablicaPretraga" *ngIf="isPretraga && isPacijenti">
+<div 
+    class="table-responsive-sm" 
+    style="margin-top:10px;" 
+    *ngIf="isPretraga && isPacijenti">
+    <table class="table table-striped table-bordered tablicaPretraga">
         <thead>
             <th scope="col" style="width:15%;font-family: Verdana, sans-serif;">Ime</th>
             <th scope="col" style="width:25%;font-family: Verdana, sans-serif;">Prezime</th>
