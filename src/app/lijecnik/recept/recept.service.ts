@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { throwError } from "rxjs";
+import { Subject, throwError, BehaviorSubject } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 @Injectable({
@@ -9,7 +9,8 @@ import { catchError } from "rxjs/operators";
 export class ReceptService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
-    
+    messenger = new Subject<boolean>();
+    messengerObs = this.messenger.asObservable();
     constructor(
         //Dohvaćam http
         private http: HttpClient

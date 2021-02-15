@@ -9,6 +9,7 @@ import { ReceptService } from '../../recept.service';
 import * as receptHandler from '../../recept-handler';
 import {azurirajValidatore} from '../../azuriraj-validatore';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
+import { EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -1667,6 +1668,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.response = true;
                 //Spremam poruku servera u svoju varijablu i prikazujem je
                 this.responsePoruka = odgovor.message;
+                //Emitiraj event Subjectom prema komponenti pacijenata (lijevoj tablici)
+                this.receptService.messenger.next(true);
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();  

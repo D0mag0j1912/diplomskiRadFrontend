@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EMPTY, Subject } from 'rxjs';
+import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
@@ -27,6 +27,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     isPacijenti: boolean = false;
     //Spremam poruku da nema pacijenata
     nemaPacijenata: string = null;
+    //Spremam ID-ove pacijenata koji se trenutno nalaze u tablici pacijenata
+    ids: string[] = [];
 
     constructor(
         //Dohvaćam trenutni route
@@ -51,54 +53,80 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             tap((podatci) => {
                 //Ako je server vratio da IMA pacijenata u bazi podataka
                 if(podatci["success"] !== "false"){
+                    //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
+                    this.nemaPacijenata = null;
                     //Označavam da ima pacijenata 
                     this.isPacijenti = true;
                     //Spremam pacijente u svoje polje
                     this.pacijenti = podatci;
+                    //Kreiram novo polje u koje spremam samo ID-ove pacijenata koji se trenutno nalaze u tablici pacijenata
+                    this.ids = this.pacijenti.map((objekt) => {
+                        return objekt.idPacijent;
+                    });
+                    console.log(this.ids);
                 }
                 //Ako je server vratio da NEMA pacijenata u bazi podataka
                 else if(podatci["success"] === "false"){
+                    //Označavam da nema rezultata za pretragu pacijenata
+                    this.isPretraga = false;
                     //Spremam odgovor servera u svoju varijablu
                     this.nemaPacijenata = podatci["message"];
                 } 
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
-        //Pretplaćujem se na liječnikovu pretragu u formi pretrage
-        this.formaPretraga.get('pretraga').valueChanges.pipe(
-            //Namjerno kašnjenje
-            debounceTime(200),
-            //Ne ponavljam iste zahtjeve
-            distinctUntilChanged(), 
-            //Uzimam vrijednost pretrage te ga predavam HTTP zahtjevu
-            switchMap(value => {
-                return this.receptService.getPacijentiPretraga(value).pipe(
-                    //Dohvaćam odgovor servera na liječnikovu pretragu
-                    tap((odgovor) => {
-                        //Ako je odgovor servera uspješan tj. vratio je neke pacijente
-                        if(odgovor["success"] !== "false"){
-                            //Označavam da ima vraćenih pacijenata
-                            this.isPretraga = true;
-                            //Odgovor servera za pretragu spremam u svoje polje pacijenata
-                            this.pacijenti = odgovor;
-                            for(const pacijent of this.pacijenti){
-                                this.listaReceptiService.prijenosnik.next(pacijent.idPacijent);
+
+        const combined = merge(
+            //Pretplaćujem se na liječnikovu pretragu u formi pretrage
+            this.formaPretraga.get('pretraga').valueChanges.pipe(
+                //Namjerno kašnjenje
+                debounceTime(200),
+                //Ne ponavljam iste zahtjeve
+                distinctUntilChanged(), 
+                //Uzimam vrijednost pretrage te ga predavam HTTP zahtjevu
+                switchMap(value => {
+                    return this.receptService.getPacijentiPretraga(value).pipe(
+                        //Dohvaćam odgovor servera na liječnikovu pretragu
+                        tap((odgovor) => {
+                            //Ako je odgovor servera uspješan tj. vratio je neke pacijente
+                            if(odgovor["success"] !== "false"){
+                                //Označavam da ima vraćenih pacijenata
+                                this.isPretraga = true;
+                                //Odgovor servera za pretragu spremam u svoje polje pacijenata
+                                this.pacijenti = odgovor;
+                                //Kreiram svoje novo polje koje će uzeti samo ID-ove iz polja rezultata
+                                this.ids = this.pacijenti.map((objekt) => {
+                                    return objekt.idPacijent;
+                                });
+                                //Pošalji te ID-eve listi recepata
+                                this.listaReceptiService.prijenosnik.next(this.ids);
+                                //Praznim poruku pretrage
+                                this.porukaPretraga = null;
                             }
-                            //Praznim poruku pretrage
-                            this.porukaPretraga = null;
-                        }
-                        //Ako je odgovor servera neuspješan
-                        else{
-                            //Označavam da nema rezultata pretrage
-                            this.isPretraga = false;
-                            //Spremam poruku servera
-                            this.porukaPretraga = odgovor["message"];
-                        }
-                    }),
-                    takeUntil(this.pretplateSubject)
-                );
-            }),
-            takeUntil(this.pretplateSubject)
+                            //Ako je odgovor servera neuspješan
+                            else{
+                                //Označavam da nema rezultata pretrage
+                                this.isPretraga = false;
+                                //Spremam poruku servera
+                                this.porukaPretraga = odgovor["message"];
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na vrijednost Subjecta pomoću kojega dobivam informaciju kada poslati ID-ove pacijenata
+            this.receptService.messengerObs.pipe(
+                tap(value => {
+                    //Ako je vrijednost Subjecta true
+                    if(value){
+                        //Pošalji listi recepata trenutno stanje ID-ova u tablici pacijenata
+                        this.listaReceptiService.prijenosnik.next(this.ids);
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            )
         ).subscribe();
     }
 

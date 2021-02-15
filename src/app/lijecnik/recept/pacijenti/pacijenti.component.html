@@ -19,15 +19,15 @@
 <div 
     class="row" 
     style="margin-top:10px;" 
-    *ngIf="!isPacijenti">
+    *ngIf="!isPacijenti && nemaPacijenata">
     <h3 style="text-align: center; 
             color:#a94442;font-family: Verdana, sans-serif; 
-            left:30px;position: relative;">Nema evidentiranih pacijenata!</h3>
+            left:30px;position: relative;">{{nemaPacijenata}}</h3>
 </div>
 <div 
     class="table-responsive-sm" 
     style="margin-top:10px;" 
-    *ngIf="isPretraga && isPacijenti">
+    *ngIf="isPretraga && isPacijenti && !nemaPacijenata">
     <table class="table table-striped table-bordered tablicaPretraga">
         <thead>
             <th scope="col" style="width:15%;font-family: Verdana, sans-serif;">Ime</th>

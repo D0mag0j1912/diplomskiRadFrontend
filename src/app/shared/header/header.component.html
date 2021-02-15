@@ -10,7 +10,12 @@
     <div class="collapse navbar-collapse" id="collapse_target">
         <ul class="nav navbar-nav">
             <div class="navbar-header">
-                <a routerLink="/" class="navbar-brand" (click)="onClearStorage()" style="cursor: pointer;font-family: Verdana, sans-serif;">Ordinacija opće/obiteljske medicine</a> 
+                <a 
+                    routerLink="/" 
+                    class="navbar-brand" 
+                    (click)="onClearStorage()" 
+                    style="cursor: pointer;
+                        font-family: Verdana, sans-serif;color:#337ab7">Ordinacija opće/obiteljske medicine</a> 
             </div>
             <li routerLinkActive="active" *ngIf="!prijavljen" class="nav-item">
                 <a routerLink="/login" style="cursor: pointer;font-family: Verdana, sans-serif;" class="nav-link">Prijava</a>

@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject, throwError } from "rxjs";
+import { Subject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 @Injectable({
@@ -10,7 +10,7 @@ export class ListaReceptiService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
     //Definiram BehaviourSubject pomoću kojega ću prenijeti ID pacijenta s lijeve tablice u desnu tablicu
-    prijenosnik = new Subject<number>();
+    prijenosnik = new Subject<string[]>();
     //Kreiram Observable od njega
     prijenosnikObs = this.prijenosnik.asObservable();
 
@@ -20,7 +20,7 @@ export class ListaReceptiService{
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalaze svi recepti koji odgovaraju pacijentima čiji ID mi je poslan Subjectom
-    getReceptiTablica(ids: number[]){
+    getReceptiTablica(ids: string[]){
         let params = new HttpParams().append("ids",JSON.stringify(ids));
         return this.http.get<any>(this.baseUrl + 'recept/listaRecepti/getReceptiTablica.php',{params: params}) 
             .pipe(catchError(this.handleError));

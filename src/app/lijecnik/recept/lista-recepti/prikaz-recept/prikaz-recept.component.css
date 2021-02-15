@@ -10,15 +10,16 @@
 .alert-box{
     position:fixed;
     top:10vh;
-    left: 25vw;
-    width: 55vw;
-    height:40vw;
+    left: 30vw;
+    width: 40vw;
+    height:25vw;
     padding: 16px;
     z-index: 100;
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
     overflow-x:hidden;
     overflow-y:auto;
+    border-radius: 7px;
 }
 
 .alert-box-actions{
