@@ -5,6 +5,7 @@ import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
+import { PacijentiService } from './pacijenti.service';
 
 @Component({
   selector: 'app-pacijenti',
@@ -38,7 +39,9 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Dohvaćam router
         private router: Router,
         //Dohvaćam servis liste recepata
-        private listaReceptiService: ListaReceptiService
+        private listaReceptiService: ListaReceptiService,
+        //Dohvaćam servis pacijenata
+        private pacijentiService: PacijentiService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
@@ -59,6 +62,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     this.isPacijenti = true;
                     //Spremam pacijente u svoje polje
                     this.pacijenti = podatci;
+                    //Označavam da liječnik pretraživa pacijente
+                    this.isPretraga = true;
                     //Kreiram novo polje u koje spremam samo ID-ove pacijenata koji se trenutno nalaze u tablici pacijenata
                     this.ids = this.pacijenti.map((objekt) => {
                         return objekt.idPacijent;
@@ -85,11 +90,13 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                 distinctUntilChanged(), 
                 //Uzimam vrijednost pretrage te ga predavam HTTP zahtjevu
                 switchMap(value => {
-                    return this.receptService.getPacijentiPretraga(value).pipe(
+                    return this.pacijentiService.getPacijentiPretraga(value).pipe(
                         //Dohvaćam odgovor servera na liječnikovu pretragu
                         tap((odgovor) => {
                             //Ako je odgovor servera uspješan tj. vratio je neke pacijente
                             if(odgovor["success"] !== "false"){
+                                //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
+                                this.nemaPacijenata = null;
                                 //Označavam da ima vraćenih pacijenata
                                 this.isPretraga = true;
                                 //Odgovor servera za pretragu spremam u svoje polje pacijenata
@@ -99,7 +106,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                     return objekt.idPacijent;
                                 });
                                 //Pošalji te ID-eve listi recepata
-                                this.listaReceptiService.prijenosnik.next(this.ids);
+                                this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
                                 //Praznim poruku pretrage
                                 this.porukaPretraga = null;
                             }
@@ -122,7 +129,33 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     //Ako je vrijednost Subjecta true
                     if(value){
                         //Pošalji listi recepata trenutno stanje ID-ova u tablici pacijenata
-                        this.listaReceptiService.prijenosnik.next(this.ids);
+                        this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na ID-ove pacijenata iz liste recepata
+            this.pacijentiService.prijenosnikUTablicuPacijenataObs.pipe(
+                debounceTime(100),
+                distinctUntilChanged(),
+                switchMap(value => {
+                    //Ako ima nekih vraćenih ID-ova
+                    if(value){
+                        return this.pacijentiService.getPacijenti(value).pipe(
+                            tap(pacijenti => {
+                                //Ako ima nekih pacijenata
+                                if(pacijenti){
+                                    console.log(pacijenti);
+                                    //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
+                                    this.nemaPacijenata = null;
+                                    //Označavam da ima pacijenata 
+                                    this.isPacijenti = true;
+                                    //Spremam pacijente u svoje polje
+                                    this.pacijenti = pacijenti;
+                                }
+                            }),
+                            takeUntil(this.pretplateSubject)
+                        );
                     }
                 }),
                 takeUntil(this.pretplateSubject)

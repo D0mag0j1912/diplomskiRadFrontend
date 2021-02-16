@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject, throwError, BehaviorSubject } from "rxjs";
+import { Subject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 @Injectable({
@@ -145,20 +145,6 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaLijekDL.php',
             {params: params}
         ).pipe(catchError(this.handleError));
-    }
-
-    //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
-    getInicijalnoAktivanPacijent(){
-
-        return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getInicijalnoAktivanPacijent.php').pipe(
-            catchError(this.handleError)
-        );
-    }
-
-    //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti koji odgovaraju pretrazi
-    getPacijentiPretraga(value: string){
-        let params = new HttpParams().append("pretraga",value);
-        return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getPacijentiPretraga.php',{params: params}).pipe(catchError(this.handleError));
     }
 
     //Metoda za errore

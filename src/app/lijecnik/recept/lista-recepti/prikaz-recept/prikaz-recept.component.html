@@ -6,119 +6,384 @@
             font-weight: bold;">Prikaz recepta</h3>
     <div class="col-xs-12 col-md-12">
         <form [formGroup]="forma" *ngIf="forma" (ngSubmit)="onSubmit()">
-            <div class="table-responsive-sm">
+            <div class="column">
+                <div class="table-responsive-sm">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr class="table-primary">
+                                <td colspan="3">
+                                    <h4  
+                                        style="font-family: Verdana, sans-serif;font-weight: bold;">Administrativni dio</h4>
+                                </td>  
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <h5  
+                                        style="font-family: Verdana, sans-serif; 
+                                        color:#337ab7;font-weight: bold;">Zdravstvena ustanova</h5>
+                                </td>
+                            </tr>
+                            <tr formGroupName="ustanova">
+                                <td>
+                                    <label 
+                                        for="imePrezimeLijecnik" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left">Liječnik:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="imePrezimeLijecnik" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:90%;height:30px; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; border:0"> 
+                                    <label 
+                                        for="pbrUstanova" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;margin-top:25px;">Poštanski broj:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="pbrUstanova" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:70%;height:30px; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0"> 
+                                </td>
+                                <td>
+                                    <label 
+                                        for="nazivUstanova" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left">Naziv:</label>
+                                    <textarea 
+                                        rows="2"
+                                        formControlName="nazivUstanova" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; border:0;
+                                            resize:none;cursor: pointer;"></textarea>
+                                    <label 
+                                        for="mjestoUstanova" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left">Mjesto:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="mjestoUstanova" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0;">
+                                </td>
+                                <td>
+                                    <label 
+                                        for="adresaUstanova" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left">Adresa:</label>
+                                    <textarea 
+                                        rows="2"
+                                        formControlName="adresaUstanova" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                    <label 
+                                        for="telefonUstanova" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left">Telefon:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="telefonUstanova" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <h5  
+                                        style="font-family: Verdana, sans-serif; 
+                                        color:#337ab7;font-weight: bold;">Podatci pacijenta</h5>
+                                </td> 
+                            </tr>
+                            <tr formGroupName="podatciPacijenta">
+                                <td>
+                                    <label 
+                                        for="imePrezimePacijent" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left">Ime i prezime:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="imePrezimePacijent" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:90%;height:30px; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0"> 
+                                </td>
+                                <td>
+                                    <label 
+                                        for="datumRodenjaPacijent" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;">Datum rođenja:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="datumRodenjaPacijent" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%;height:30px; 
+                                            font-family: Verdana, sans-serif; 
+                                            background-color: white; 
+                                            border:0"> 
+                                </td>
+                                <td>
+                                    <label 
+                                        for="adresaPacijent" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;">Adresa:</label>
+                                    <textarea 
+                                        rows="2"
+                                        formControlName="adresaPacijent" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <h5  
+                                        style="font-family: Verdana, sans-serif; 
+                                        color:#337ab7;font-weight: bold;">Dijagnoze</h5>
+                                </td> 
+                            </tr>
+                            <tr formGroupName="dijagnoze">
+                                <td colspan="2">
+                                    <label 
+                                        for="primarnaDijagnoza" 
+                                        style="font-family: Verdana, sans-serif;float:left;">Primarna dijagnoza:</label>
+                                    <textarea 
+                                        rows="2"
+                                        formControlName="primarnaDijagnoza" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                </td>
+                                <td>
+                                    <label 
+                                        for="sekundarnaDijagnoza" 
+                                        style="font-family: Verdana, sans-serif;float:left;">Sekundarna dijagnoza:</label>
+                                    <textarea 
+                                        rows="2"
+                                        formControlName="sekundarnaDijagnoza" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%; 
+                                            font-family: Verdana, sans-serif;
+                                            background-color: white; 
+                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="column2">
                 <table class="table table-striped">
                     <tbody>
-                        <tr>
+                        <tr class="table-primary">
                             <td colspan="3">
                                 <h4  
                                     style="font-family: Verdana, sans-serif; 
-                                    color:#337ab7;font-weight: bold;">Administrativni dio</h4>
+                                    font-weight: bold;">Stručni dio</h4>
                             </td>  
                         </tr>
                         <tr>
                             <td colspan="3">
                                 <h5  
                                     style="font-family: Verdana, sans-serif; 
-                                    color:#337ab7;font-weight: bold;">Zdravstvena ustanova</h5>
+                                    color:#337ab7;font-weight: bold;">Detalji recepta</h5>
                             </td>
                         </tr>
-                        <tr formGroupName="ustanova">
-
-                        </tr>
-                        <tr>
-                            <td colspan="3">
-                                <h5  
-                                    style="font-family: Verdana, sans-serif; 
-                                    color:#337ab7;font-weight: bold;">Podatci pacijenta</h5>
-                            </td> 
-                        </tr>
-                        <tr formGroupName="podatciPacijenta">
+                        <tr formGroupName="recept">
                             <td>
-                                <label 
-                                    for="imePrezimePacijent" 
-                                    style="font-family: Verdana, sans-serif; 
-                                            float:left">Ime i prezime:</label>
-                                <input 
-                                    type="text"
-                                    formControlName="imePrezimePacijent" 
-                                    class="form-control"
-                                    readonly
-                                    style="width:90%;height:30px; 
-                                        font-family: Verdana, sans-serif;
-                                        display: block;overflow: hidden; 
-                                        margin-top:-2px;background-color: white; 
-                                        border:0"> 
-                            </td>
-                            <td>
-                                <label 
-                                    for="datumRodenjaPacijent" 
-                                    style="font-family: Verdana, sans-serif; 
-                                            float:left;margin-top:5px">Datum rođenja:</label>
-                                <input 
-                                    type="text"
-                                    formControlName="datumRodenjaPacijent" 
-                                    class="form-control"
-                                    readonly
-                                    style="width:73%;height:30px; 
-                                        font-family: Verdana, sans-serif;
-                                        display: block;overflow: hidden; 
-                                        margin-top:5px;background-color: white; 
-                                        border:0"> 
-                            </td>
-                            <td>
-                                <label 
-                                    for="adresaPacijent" 
-                                    style="font-family: Verdana, sans-serif; 
-                                            float:left;margin-top:5px">Adresa:</label>
-                                <textarea 
-                                    rows="2"
-                                    formControlName="adresaPacijent" 
-                                    class="form-control"
-                                    readonly
-                                    style="width:100%; 
-                                        font-family: Verdana, sans-serif;
-                                        display: block;overflow: hidden; 
-                                        margin-top:5px;background-color: white; 
-                                        border:0;resize:none;cursor: pointer;"></textarea>
-                            </td>
-                        </tr>
-                        <!-- <tr formGroupName="recept">
-                            <td colspan="2">
                                 <label 
                                     for="tipRecept" 
                                     style="font-family: Verdana, sans-serif; 
-                                        float:left">Tip recepta:</label>
+                                            float:left;">Tip recepta:</label>
                                 <input 
                                     type="text"
                                     formControlName="tipRecept" 
                                     class="form-control"
                                     readonly
-                                    style="width:70%;height:30px; 
-                                        font-family: Verdana, sans-serif;
-                                        left:10px;position: relative; 
-                                        display: block;overflow: hidden; 
-                                        margin-top:-2px;background-color: white; 
-                                        border:0"> 
+                                    style="width:100%;height:30px; 
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white; 
+                                        border:0">
+                                <ng-container *ngIf="isPonovljiv">
+                                    <label 
+                                        for="brojPonavljanja" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;">Broj ponavljanja:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="brojPonavljanja" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:30%;height:30px; 
+                                            font-family: Verdana, sans-serif; 
+                                            background-color: white; 
+                                            border:0">
+                                </ng-container>
                             </td>
                             <td>
                                 <label 
-                                    for="brojPonavljanja"
-                                    style="font-family: Verdana, sans-serif;
-                                        float:left;">Broj ponavljanja:</label>
+                                    for="datumRecept" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left;">Datum izdavanja recepta:</label>
                                 <input 
                                     type="text"
-                                    formControlName="brojPonavljanja" 
+                                    formControlName="datumRecept" 
                                     class="form-control"
                                     readonly
-                                    style="width:20%;height:30px; 
-                                        font-family: Verdana, sans-serif;
-                                        left:10px;position: relative; 
-                                        display: block;overflow: hidden; 
-                                        margin-top:-2px;background-color: white; 
-                                        border:0"> 
+                                    style="width:100%;height:30px; 
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white; 
+                                        border:0">
                             </td>
-                        </tr> -->
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <h5  
+                                    style="font-family: Verdana, sans-serif; 
+                                    color:#337ab7;font-weight: bold;">Proizvod</h5>
+                            </td>
+                        </tr>
+                        <tr formGroupName="proizvod">
+                            <td colspan="2">
+                                <label 
+                                    for="imeProizvod" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left;">Lijek/Mag.pripravak:</label>
+                                <textarea 
+                                    rows="2"
+                                    formControlName="imeProizvod" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:100%; 
+                                        font-family: Verdana, sans-serif;
+                                        background-color: white; 
+                                        border:0;resize:none;cursor: pointer;"></textarea>
+                            </td>
+                        </tr>
+                        <tr formGroupName="detaljiProizvod">
+                            <td>
+                                <label 
+                                    for="kolicinaProizvod" 
+                                    style="font-family: Verdana, sans-serif;float:left;">Količina:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="kolicinaProizvod" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:80%;height:30px; 
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white; 
+                                        border:0"> 
+                                <label 
+                                    for="dostatnostProizvod" 
+                                    style="font-family: Verdana, sans-serif;float:left;">Dostatnost:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="dostatnostProizvod" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:80%;height:30px; 
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white;border:0"> 
+                            </td>
+                            <td>
+                                <label 
+                                    for="doziranjeProizvod" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left;">Doziranje:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="doziranjeProizvod" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:100%;height:30px; 
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white; 
+                                        border:0"> 
+                                <label 
+                                    for="vrijediDoProizvod" 
+                                    style="font-family: Verdana, sans-serif;float:left;">Vrijedi do:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="vrijediDoProizvod" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:100%;height:30px; 
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white;border:0">
+                            </td>
+                        </tr>
+                        <ng-container *ngIf="isSpecijalist">
+                            <tr>
+                                <td colspan="3">
+                                    <h5  
+                                        style="font-family: Verdana, sans-serif; 
+                                        color:#337ab7;font-weight: bold;">Specijalist</h5>
+                                </td>
+                            </tr>
+                            <tr formGroupName="specijalist">
+                                <td>
+                                    <label 
+                                        for="sifraSpecijalist" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;">Šifra specijalista:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="sifraSpecijalist" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%;height:30px; 
+                                            font-family: Verdana, sans-serif; 
+                                            background-color: white; 
+                                            border:0"> 
+                                </td>
+                                <td>
+                                    <label 
+                                        for="tipSpecijalist" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;">Tip specijalista:</label>
+                                    <textarea 
+                                        rows="2"
+                                        formControlName="tipSpecijalist" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:100%;font-family: Verdana, sans-serif; 
+                                            background-color: white; 
+                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                </td>
+                            </tr>
+                        </ng-container>
                     </tbody>
                 </table>
             </div>

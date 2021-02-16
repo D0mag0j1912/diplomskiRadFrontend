@@ -9,10 +9,10 @@ import { catchError } from "rxjs/operators";
 export class ListaReceptiService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
-    //Definiram BehaviourSubject pomoću kojega ću prenijeti ID pacijenta s lijeve tablice u desnu tablicu
-    prijenosnik = new Subject<string[]>();
+    //Definiram Subject pomoću kojega ću prenijeti ID pacijenta s lijeve tablice u desnu tablicu
+    prijenosnikUListuRecepata = new Subject<string[]>();
     //Kreiram Observable od njega
-    prijenosnikObs = this.prijenosnik.asObservable();
+    prijenosnikUListuRecepataObs = this.prijenosnikUListuRecepata.asObservable();
 
     constructor(
         //Dohvaćam http

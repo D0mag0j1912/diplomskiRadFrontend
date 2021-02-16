@@ -10,15 +10,15 @@
 .alert-box{
     position:fixed;
     top:10vh;
-    left: 30vw;
-    width: 40vw;
-    height:25vw;
+    left: 15vw;
+    width: 70vw;
+    height:35vw;
     padding: 16px;
     z-index: 100;
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
     overflow-x:hidden;
-    overflow-y:auto;
+    overflow-y:auto; 
     border-radius: 7px;
 }
 
@@ -27,4 +27,14 @@
 }
 span{
     color:#a94442;
+}
+.column {
+    float: left;
+    width: 65%;
+    padding: 3px;
+}
+.column2 {
+    float: left;
+    width: 35%;
+    padding: 3px;
 }

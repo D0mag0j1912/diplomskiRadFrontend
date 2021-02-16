@@ -1,3 +1,4 @@
+import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -5,7 +6,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { PacijentRecept } from 'src/app/shared/modeli/pacijentRecept.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
-import { ReceptService } from '../recept.service';
+import { PacijentiService } from '../pacijenti/pacijenti.service';
 import { ListaReceptiService } from './lista-recepti.service';
 
 @Component({
@@ -17,8 +18,8 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
 
     //Oznaka je li prikazan prozor prikaza recepta
     prikaz: boolean = false;
-    //Spremam ID pacijenta kojemu sam kliknuo na red
-    id: number;
+    //Spremam podatke Recepta kojemu sam kliknuo na red
+    poslaniRecept: Recept;
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
     formaPretraga: FormGroup;
@@ -38,14 +39,16 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     isPretraga: boolean = true;
     //Poruka koja se prikazuje kada server vrati da nema rezultata pretrage
     porukaPretraga: string = null;
+    //Kreiram polje u koje ću spremiti ID-ove pacijenata koji posjeduju recepte u listi recepata
+    ids: string[] = [];
 
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
         //Dohvaćam servis liste recepata
         private listaReceptiService: ListaReceptiService,
-        //Dohvaćam servis recepata
-        private receptService: ReceptService
+        //Dohvaćam servis pacijenata
+        private pacijentiService: PacijentiService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
@@ -56,7 +59,9 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
             'pretraga': new FormControl(null)
         });
         //Pretplaćujem se na Subject koji šalje ID-ove pacijenata 
-        this.listaReceptiService.prijenosnikObs.pipe(
+        this.listaReceptiService.prijenosnikUListuRecepataObs.pipe(
+            debounceTime(100),
+            distinctUntilChanged(),
             switchMap(vrijednost => {
                 console.log(vrijednost);
                 //Ako je dobivena vrijednost polje
@@ -87,6 +92,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                         //Objekt tipa "Recept" dodavam u polje
                                         this.recepti.push(recept);
                                     }
+                                    console.log(this.recepti);
                                     //Kreiram novo polje koje se sastoji od samo podataka pacijenata koji sudjeluju u receptima (ID, imePrezime)
                                     let pacijent = this.recepti.map((objekt) => {
                                         const pom = {idPacijent: objekt.idPacijent, imePrezimePacijent: objekt.imePrezimePacijent};
@@ -207,6 +213,12 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                             this.pacijenti = [];
                             //Samo jedinstvene pacijente nadodavam u svoje polje 
                             this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.idPacijent === objekt.idPacijent)) === index);
+                            //Kreiram svoje novo polje koje će uzeti samo ID-ove iz polja rezultata
+                            this.ids = this.pacijenti.map((objekt) => {
+                                return objekt.idPacijent.toString();
+                            });
+                            //Pošalji te ID-eve tablici pacijenata
+                            this.pacijentiService.prijenosnikUTablicuPacijenata.next(this.ids); 
                         }
                         //Ako je server vratio da nema rezultata
                         else{
@@ -224,9 +236,10 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     }
 
     //Metoda koja se poziva kada liječnik klikne na button "Prikaži recept"
-    podiNaPrikaz(id: number){
+    podiNaPrikaz(recept: Recept){
         //Šaljem prikazu recepta podatke iz ovog retka recepta
-        this.id = id;
+        this.poslaniRecept = new Recept(recept);
+        console.log(this.poslaniRecept);
         //Omogućavam prikaz recepta
         this.prikaz = true;
     }

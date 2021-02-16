@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Recept } from 'src/app/shared/modeli/recept.model';
 
 @Component({
   selector: 'app-prikaz-recept',
@@ -8,52 +9,59 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class PrikazReceptComponent implements OnInit {
 
+    //Oznaka je li recept ponovljiv ili nije
+    isPonovljiv: boolean = false;
+    //Oznaka je li recept ima šifru specijalista
+    isSpecijalist: boolean = false;
     //Kreiram formu
     forma: FormGroup;
     //Kreiram event emitter
     @Output() close = new EventEmitter<any>();
-    //Dohvaćam ID pacijenta iz roditeljske komponente (retka tablice liste recepata)
-    @Input() idPacijent: number;
+    //Dohvaćam podatke recepta iz retka tablice liste recepata
+    @Input() primljeniRecept: Recept;
 
     constructor() { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
-        console.log(this.idPacijent);
+        console.log(this.primljeniRecept);
         //Kreiram formu
         this.forma = new FormGroup({
            'ustanova': new FormGroup({
+                'imePrezimeLijecnik': new FormControl(null),
                 'nazivUstanova': new FormControl(null),
-                'telefonUstanova': new FormControl(null),
                 'adresaUstanova': new FormControl(null),
-                'imePrezimeLijecnik': new FormControl(null)
+                'pbrUstanova': new FormControl(null),
+                'mjestoUstanova': new FormControl(null),
+                'telefonUstanova': new FormControl(null)
            }),
           'recept': new FormGroup({
                 'tipRecept': new FormControl(null),
                 'brojPonavljanja': new FormControl(null),
+                'datumRecept': new FormControl(null)
           }),
           'podatciPacijenta': new FormGroup({
               'imePrezimePacijent': new FormControl(null),
               'datumRodenjaPacijent': new FormControl(null),
               'adresaPacijent': new FormControl(null)
           }),
-          'datumRecept': new FormControl(null),
           'dijagnoze': new FormGroup({
             'primarnaDijagnoza': new FormControl(null),
             'sekundarnaDijagnoza': new FormControl(null)
           }),
           'proizvod': new FormGroup({
-              'imeProizvod': new FormControl(null),
-              'kolicinaProizvod': new FormControl(null),
-              'doziranjeProizvod': new FormControl(null),
-              'nacinUpotrebeProizvod': new FormControl(null),
-              'dostatnostProizvod': new FormControl(null),
-              'vrijediDoProizvod': new FormControl(null)
-          }),
+              'imeProizvod': new FormControl(null)
+           }),
+           'detaljiProizvod': new FormGroup({
+               'kolicinaProizvod': new FormControl(null),
+               'doziranjeProizvod': new FormControl(null),
+               'dostatnostProizvod': new FormControl(null),
+               'vrijediDoProizvod': new FormControl(null)
+           }),
           'specijalist': new FormGroup({
               'sifraSpecijalist': new FormControl(null),
               'tipSpecijalist': new FormControl(null)
-          })
+           })
       });
     }
 
@@ -86,7 +94,7 @@ export class PrikazReceptComponent implements OnInit {
         return this.forma.get('podatciPacijenta.adresaPacijent') as FormControl;
     }
     get datumRecept(): FormControl{
-        return this.forma.get('datumRecept') as FormControl;
+        return this.forma.get('recept.datumRecept') as FormControl;
     }
     get ustanova(): FormGroup{
         return this.forma.get('ustanova') as FormGroup;
@@ -102,6 +110,12 @@ export class PrikazReceptComponent implements OnInit {
     }
     get imePrezimeLijecnik(): FormControl{
         return this.forma.get('ustanova.imePrezimeLijecnik') as FormControl;
+    }
+    get pbrUstanova(): FormControl{
+        return this.forma.get('ustanova.pbrUstanova') as FormControl;
+    }
+    get mjestoUstanova(): FormControl{
+        return this.forma.get('ustanova.mjestoUstanova') as FormControl;
     }
     get dijagnoze(): FormGroup{
         return this.forma.get('dijagnoze') as FormGroup;
@@ -119,19 +133,16 @@ export class PrikazReceptComponent implements OnInit {
         return this.forma.get('proizvod.imeProizvod') as FormControl;
     }
     get kolicinaProizvod(): FormControl{
-        return this.forma.get('proizvod.kolicinaProizvod') as FormControl;
+        return this.forma.get('detaljiProizvod.kolicinaProizvod') as FormControl;
     }
     get doziranjeProizvod(): FormControl{
-        return this.forma.get('proizvod.doziranjeProizvod') as FormControl;
-    }
-    get nacinUpotrebeProizvod(): FormControl{
-        return this.forma.get('proizvod.nacinUpotrebeProizvod') as FormControl;
+        return this.forma.get('detaljiProizvod.doziranjeProizvod') as FormControl;
     }
     get dostatnostProizvod(): FormControl{
-        return this.forma.get('proizvod.dostatnostProizvod') as FormControl;
+        return this.forma.get('detaljiProizvod.dostatnostProizvod') as FormControl;
     }
     get vrijediDoProizvod(): FormControl{
-        return this.forma.get('proizvod.vrijediDoProizvod') as FormControl;
+        return this.forma.get('detaljiProizvod.vrijediDoProizvod') as FormControl;
     }
     get specijalist(): FormGroup{
         return this.forma.get('specijalist') as FormGroup;

@@ -38,5 +38,8 @@ export class Recept{
         if(response.idPacijent){
             this.idPacijent = response.idPacijent;
         }
+        if(response.vrijemeRecept){
+            this.vrijemeRecept = response.vrijemeRecept;
+        }
     }
 }

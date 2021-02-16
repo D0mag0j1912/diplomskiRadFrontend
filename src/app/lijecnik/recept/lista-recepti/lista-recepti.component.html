@@ -1,4 +1,4 @@
-<app-prikaz-recept [idPacijent]="id" (close)="onClosePrikaz()" *ngIf="prikaz"></app-prikaz-recept>
+<app-prikaz-recept [primljeniRecept]="poslaniRecept" (close)="onClosePrikaz()" *ngIf="prikaz"></app-prikaz-recept>
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Lista recepata</h3>
 <form [formGroup]="formaPretraga">
     <div class="col-md-offset-1">
@@ -77,7 +77,7 @@
                                     <button 
                                         type="button" 
                                         class="btn btn-info btn-sm" 
-                                        (click)="podiNaPrikaz(recept.idPacijent)">Prikaži recept</button></td>
+                                        (click)="podiNaPrikaz(recept)">Prikaži recept</button></td>
                                 <td 
                                     style="padding:2px;text-align: center;
                                     font-family: Verdana, sans-serif;">{{recept.datumRecept}}</td>
