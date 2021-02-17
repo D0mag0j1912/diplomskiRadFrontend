@@ -1,20 +1,20 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { throwError,BehaviorSubject, Subscription } from 'rxjs';
-import { catchError,tap } from 'rxjs/operators';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { catchError,takeUntil,tap } from 'rxjs/operators';
 import { Korisnik } from '../shared/modeli/korisnik.model';
+import {handleError} from '../shared/rxjs-error';
 
 @Injectable({
     providedIn: 'root'
 })
 
-export class LoginService implements OnInit, OnDestroy{
+export class LoginService implements OnDestroy{
+    //Kreiram Subject koji poništava pretplate
+    pretplateSubject = new Subject<boolean>();
     //Kreiram boolean varijablu u kojoj ću označiti je li se korisnik automatski odjavio. Ako jest, vrijednost će biti true i neće se prikazati liječnički header
     isAutologin: boolean = false;
-    //Kreiram varijablu u kojoj ću spremiti pretplatu na logout()
-    subLogout: Subscription;
-
     //Varijabla koja označava je li došao odgovor od servera
     response: boolean = false;
     //Varijabla u koju spremam odgovor servera
@@ -27,10 +27,6 @@ export class LoginService implements OnInit, OnDestroy{
     baseUrl: string = "http://localhost:8080/angularPHP/";
 
     private tokenExpirationTimer: any;
-
-    //Metoda koja se poziva kada se komponenta loada
-    ngOnInit(){
-    }
 
     constructor(
         //Dohvaćam http da mogu raditi http requestove sa backendom
@@ -49,7 +45,7 @@ export class LoginService implements OnInit, OnDestroy{
                 lozinka: lozinka
             }
             //Provjeravam greške
-            ).pipe(catchError(this.handleError));
+            ).pipe(catchError(handleError));
     }
 
     //Metoda koja sprema novo prijavljenog korisnika u Subject
@@ -62,8 +58,10 @@ export class LoginService implements OnInit, OnDestroy{
     ){
         //Uzimamo trenutni datum i nadodavamo rok trajanja tokena i tako kreiram novi Date objekt u kojemu stoji rok trajanja tokena
         const expirationDate = new Date(new Date().getTime() + expiresIn*1000);
+        //Kreiram pomoćni objekt u kojega ću spremiti podatke koje prosljeđujem konstruktoru modela "Korisnik"
+        const objekt: any = {tip:tip,email:email,_tokenExpirationDate: expirationDate,lozinka: lozinka,_token:token};
         //Kreiram novog prijavljenog korisnika
-        const user = new Korisnik(tip,email,expirationDate,lozinka,token);
+        const user = new Korisnik(objekt);
         //Spremam prijavljenog korisnika u Subject
         this.user.next(user);
         //Čim se korisnik prijavi, odmah pozivam metodu za automatsku odjavu
@@ -96,7 +94,7 @@ export class LoginService implements OnInit, OnDestroy{
                 tip: userData.tip,
                 token: userData._token  
             }).pipe(
-                catchError(this.handleError),
+                catchError(handleError),
                 tap(podatci=> {
                     //U BehaviorSubject stavljam vrijednost null
                     this.user.next(null);
@@ -118,7 +116,9 @@ export class LoginService implements OnInit, OnDestroy{
         //Nakon isteka roka trajanja, odjavi korisnika
         this.tokenExpirationTimer = setTimeout(() => {
             //Pretplaćujem se na logout() metodu da mogu uspješno spremiti podatke u bazu
-            this.subLogout = this.logout().subscribe();
+            this.logout().pipe(
+                takeUntil(this.pretplateSubject)
+            ).subscribe();
         },expirationDuration);
     }
 
@@ -138,14 +138,7 @@ export class LoginService implements OnInit, OnDestroy{
             return;
         }
         //Ako podatci postoje, kreiraj novi objekt korisnika koji je trenutno prijavljen
-        const loadedUser = new Korisnik(
-            userData.tip,
-            userData.email,
-            new Date(userData._tokenExpirationDate),
-            userData.lozinka,
-            userData._token
-        );
-
+        const loadedUser = new Korisnik(userData);
         //Ako postoji token korisnika:
         if(loadedUser.token){
             //Spremi u Subject prijavljenog korisnika
@@ -156,29 +149,10 @@ export class LoginService implements OnInit, OnDestroy{
         }
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-        // The response body may contain clues as to what went wrong.
-        console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
 
     //Pozivam ovu metodu kada se servis uništi
     ngOnDestroy(){
-        //Ako postoji pretplata
-        if(this.subLogout){
-            //Izađi iz pretplate
-            this.subLogout.unsubscribe();
-        }
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 }

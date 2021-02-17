@@ -94,30 +94,30 @@
                             <!--Ako je liječnik prijavljen i liječnik je dodao ovaj redak == "Vi".-->
                             <!--Ako je medicinska sestra prijavljena i medicinska sestra je dodala ovaj redak == "Vi"-->
                             <!--Inače ispiši pravo ime liječnika/medicinske sestre-->
-                            <td>{{ (isLijecnik && pacijent.tip === 'lijecnik') ? "Vi" : (isMedSestra && pacijent.tip === 'sestra') ? "Vi" : pacijent.OdgovornaOsoba }}</td>
+                            <td>{{ (isLijecnik && pacijent.tipKorisnik === 'lijecnik') ? "Vi" : (isMedSestra && pacijent.tipKorisnik === 'sestra') ? "Vi" : pacijent.odgovornaOsoba }}</td>
                             <td>{{pacijent.imePacijent}}</td>
                             <td>{{pacijent.prezPacijent}}</td>
-                            <td>{{pacijent.DatumDodavanja}}</td>
+                            <td>{{pacijent.datumDodavanja}}</td>
                             <td>{{pacijent.vrijemeDodavanja}}</td>
-                            <td>{{pacijent.statusCekaonica}}</td>
+                            <td>{{pacijent.status}}</td>
                             <td><button 
                                     type="button" 
                                     class="btn btn-primary btn-sm" 
                                     (click)="onDodajObrada(pacijent.idPacijent)" 
-                                    [disabled]="(pacijent.statusCekaonica != 'Čeka na pregled') || (tipKorisnik !== pacijent.tip)" 
-                                    *ngIf="pacijent.statusCekaonica === 'Čeka na pregled' || pacijent.statusCekaonica === 'Na pregledu'">Dodaj u obradu</button>
+                                    [disabled]="(pacijent.status != 'Čeka na pregled') || (tipKorisnik !== pacijent.tipKorisnik)" 
+                                    *ngIf="pacijent.status === 'Čeka na pregled' || pacijent.status === 'Na pregledu'">Dodaj u obradu</button>
                                 <button 
                                     type="button" 
                                     class="btn btn-primary btn-sm" 
-                                    (click)="onOtvoriDetalje(pacijent.idObrada,pacijent.tip)" 
-                                    *ngIf="pacijent.statusCekaonica === 'Završen pregled'">Pogledaj detalje pregleda</button>
+                                    (click)="onOtvoriDetalje(pacijent.idObrada,pacijent.tipKorisnik)" 
+                                    *ngIf="pacijent.status === 'Završen pregled'">Pogledaj detalje pregleda</button>
                                 || <button 
                                         type="button" 
                                         class="btn btn-danger btn-sm" 
-                                        [disabled]="tipKorisnik !== pacijent.tip"
+                                        [disabled]="tipKorisnik !== pacijent.tipKorisnik"
                                         (click)="onGetTableData(pacijent.idObrada,
                                                 pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,
-                                                pacijent.DatumDodavanja,pacijent.vrijemeDodavanja,pacijent.statusCekaonica,pacijent.tip)"
+                                                pacijent.datumDodavanja,pacijent.vrijemeDodavanja,pacijent.status,pacijent.tipKorisnik)"
                                         >Izbriši iz čekaonice</button></td>
                         </tr>
                     </tbody>

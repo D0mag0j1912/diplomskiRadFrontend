@@ -20,24 +20,37 @@ export class Recept{
     public vrijemeRecept?: Time;
     //U ovoj metodi dohvaćam cijeli objekt koji dolazi sa servera te podatke iz njega spremam u svoje varijable
     constructor(response: any){
+        //Spremam datum recepta
         if(response.Datum){
             this.datumRecept = response.Datum;
         }
+        else if(response.datumRecept){
+            this.datumRecept = response.datumRecept;
+        }
+        //Spremam ime i prezime pacijenta
         if(response.Pacijent){
             this.imePrezimePacijent = response.Pacijent;
         }
+        else if(response.imePrezimePacijent){
+            this.imePrezimePacijent = response.imePrezimePacijent;
+        }
+        //Spremam dostatnost
         if(response.dostatnost){
             this.dostatnost = response.dostatnost;
         }
+        //Spremam šifru primarne dijagnoze
         if(response.mkbSifraPrimarna){
             this.mkbSifraPrimarna = response.mkbSifraPrimarna;
         }
+        //Spremam naziv proizvoda
         if(response.proizvod){
             this.proizvod = response.proizvod;
         }
+        //Spremam ID pacijenta čiji je recept 
         if(response.idPacijent){
             this.idPacijent = response.idPacijent;
         }
+        //Spremam vrijeme kada je nastao recept
         if(response.vrijemeRecept){
             this.vrijemeRecept = response.vrijemeRecept;
         }

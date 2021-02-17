@@ -19,7 +19,6 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
     pretplateSubject = new Subject<boolean>();
     //Kreiram objekt tipa Korisnik u kojemu će se nalaziti svi osobni podatci liječnika
     osobniPodatci: Korisnik;
-
     //Varijabla u koju spremam ID liječnika 
     idLijecnik: number;
     //Oznaka je li postoji odgovor od backenda (za alert)
@@ -39,11 +38,11 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
       //Pretplaćujem se na podatke koji su poslani preko Resolvera 
       this.route.data.pipe(
           tap(
-            (data : {podatci: Korisnik}) => {
-              //Podatke koje je backend vratio (baza), pridružujem svom objektu i pomoću ngModel te vrijednosti lijepim na template
-              this.osobniPodatci = data.podatci;
+            (data : {podatci: any}) => {
+              //Kreiram objekt tipa "Korisnik" i u njega stavljam podatke sa servera
+              this.osobniPodatci = new Korisnik(data.podatci[0]);
               //ID liječnika koji je backend vratio spremam u varijablu
-              this.idLijecnik = this.osobniPodatci[0].idLijecnik;
+              this.idLijecnik = this.osobniPodatci.idLijecnik;
             }
           ),
           takeUntil(this.pretplateSubject)

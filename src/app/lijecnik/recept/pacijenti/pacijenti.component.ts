@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
 import { PacijentiService } from './pacijenti.service';
@@ -18,8 +19,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     formaPretraga: FormGroup;
     //Definiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Spremam pacijente za tablicu
-    pacijenti: any;
     //Oznaka ima li rezultata pretrage
     isPretraga: boolean = true;
     //Spremam poruku servera da nema rezultata za pretragu
@@ -30,6 +29,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     nemaPacijenata: string = null;
     //Spremam ID-ove pacijenata koji se trenutno nalaze u tablici pacijenata
     ids: string[] = [];
+    //Kreiram polje pacijenata
+    pacijenti: Pacijent[] = [];
 
     constructor(
         //Dohvaćam trenutni route
@@ -56,17 +57,24 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             tap((podatci) => {
                 //Ako je server vratio da IMA pacijenata u bazi podataka
                 if(podatci["success"] !== "false"){
+                    //Inicijaliziram praznu varijablu
+                    let pacijent;
                     //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
                     this.nemaPacijenata = null;
                     //Označavam da ima pacijenata 
                     this.isPacijenti = true;
-                    //Spremam pacijente u svoje polje
-                    this.pacijenti = podatci;
+                    //Prolazim kroz polje pacijenata sa servera
+                    for(const pac of podatci){
+                        //Za svaki JS objekt kreiram novi svoj objekt tipa "Pacijent"
+                        pacijent = new Pacijent(pac);
+                        //Svaki novo kreirani objekt nadodavam u polje
+                        this.pacijenti.push(pacijent);
+                    }
                     //Označavam da liječnik pretraživa pacijente
                     this.isPretraga = true;
                     //Kreiram novo polje u koje spremam samo ID-ove pacijenata koji se trenutno nalaze u tablici pacijenata
                     this.ids = this.pacijenti.map((objekt) => {
-                        return objekt.idPacijent;
+                        return objekt.id.toString();
                     });
                     console.log(this.ids);
                 }
@@ -95,15 +103,24 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                         tap((odgovor) => {
                             //Ako je odgovor servera uspješan tj. vratio je neke pacijente
                             if(odgovor["success"] !== "false"){
+                                //Inicijaliziram praznu varijablu
+                                let pacijent;
                                 //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
                                 this.nemaPacijenata = null;
                                 //Označavam da ima vraćenih pacijenata
                                 this.isPretraga = true;
-                                //Odgovor servera za pretragu spremam u svoje polje pacijenata
-                                this.pacijenti = odgovor;
+                                //Praznim inicijalno polje pacijenata
+                                this.pacijenti = [];
+                                //Prolazim kroz polje pacijenata sa servera
+                                for(const pac of odgovor){
+                                    //Za svaki JS objekt kreiram novi svoj objekt tipa "Pacijent"
+                                    pacijent = new Pacijent(pac);
+                                    //Svaki novo kreirani objekt nadodavam u polje
+                                    this.pacijenti.push(pacijent);
+                                }
                                 //Kreiram svoje novo polje koje će uzeti samo ID-ove iz polja rezultata
                                 this.ids = this.pacijenti.map((objekt) => {
-                                    return objekt.idPacijent;
+                                    return objekt.id.toString();
                                 });
                                 //Pošalji te ID-eve listi recepata
                                 this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
@@ -142,16 +159,25 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     //Ako ima nekih vraćenih ID-ova
                     if(value){
                         return this.pacijentiService.getPacijenti(value).pipe(
-                            tap(pacijenti => {
+                            tap(primljeniPacijenti => {
                                 //Ako ima nekih pacijenata
-                                if(pacijenti){
-                                    console.log(pacijenti);
+                                if(primljeniPacijenti){
+                                    console.log(primljeniPacijenti);
+                                    //Inicijaliziram praznu varijablu
+                                    let pacijent;
                                     //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
                                     this.nemaPacijenata = null;
                                     //Označavam da ima pacijenata 
                                     this.isPacijenti = true;
-                                    //Spremam pacijente u svoje polje
-                                    this.pacijenti = pacijenti;
+                                    //Praznim inicijalno polje pacijenata
+                                    this.pacijenti = [];
+                                    //Prolazim kroz polje pacijenata sa servera
+                                    for(const pac of primljeniPacijenti){
+                                        //Za svaki JS objekt kreiram novi svoj objekt tipa "Pacijent"
+                                        pacijent = new Pacijent(pac);
+                                        //Svaki novo kreirani objekt nadodavam u polje
+                                        this.pacijenti.push(pacijent);
+                                    }
                                 }
                             }),
                             takeUntil(this.pretplateSubject)

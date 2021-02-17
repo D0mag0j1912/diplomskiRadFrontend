@@ -38,13 +38,13 @@
         </thead>
         <tbody>
             <tr *ngFor="let pacijent of pacijenti">
-                <td style="font-family: Verdana, sans-serif;">{{pacijent.imePacijent}}</td>
-                <td style="font-family: Verdana, sans-serif;">{{pacijent.prezPacijent}}</td>
-                <td style="font-family: Verdana, sans-serif;">{{pacijent.Datum}}</td>
-                <td style="font-family: Verdana, sans-serif;">{{pacijent.mboPacijent}}</td>
+                <td style="font-family: Verdana, sans-serif;">{{pacijent.ime}}</td>
+                <td style="font-family: Verdana, sans-serif;">{{pacijent.prezime}}</td>
+                <td style="font-family: Verdana, sans-serif;">{{pacijent.datRod}}</td>
+                <td style="font-family: Verdana, sans-serif;">{{pacijent.mbo}}</td>
                 <td style="font-family: Verdana, sans-serif;"><button 
                         type="button" 
-                        (click)="izdajRecept(pacijent.idPacijent)" 
+                        (click)="izdajRecept(pacijent.id)" 
                         class="btn btn-primary">Izdaj recept</button></td>
             </tr>
         </tbody>

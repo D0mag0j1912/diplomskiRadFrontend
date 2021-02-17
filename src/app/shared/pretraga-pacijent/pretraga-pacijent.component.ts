@@ -23,7 +23,7 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     imePacijent: string = null;
     prezimePacijent: string = null;
     //Spremam sve dohvaćene pacijente u polje
-    pacijenti: Pacijent[];
+    pacijenti: Pacijent[] = [];
     //Spremam ukupni broj stranica (pagination)
     brojStranica: number;
     //Spremam broj trenutne stranice
@@ -52,14 +52,22 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
       this.obradaService.imePrezimePacijent.pipe(
           //Dohvaćam vrijednosti koje se nalaze u Subjectu
           switchMap(pacijenti => {
+              console.log(pacijenti);
               return combineLatest([
                   //Vrijednosti iz Subjecta davam ovim dvaju metodama
                   this.obradaService.getPatients(pacijenti.ime,pacijenti.prezime,pacijenti.stranica),
                   this.obradaService.getData(pacijenti.ime,pacijenti.prezime)
               ]).pipe(
                   tap(odgovor => {
-                      //Odgovor sa servera spremam u svoje varijable
-                      this.pacijenti = odgovor[0];
+                      //Inicijaliziram praznu varijablu
+                      let pacijent;
+                      //Prolazim kroz sve JS objekte (pacijente) sa servera
+                      for(const pac of odgovor[0]){
+                          //Kreiram novi objekt tipa "Pacijent"
+                          pacijent = new Pacijent(pac);
+                          //Novo kreirani objekt nadodavam u polje pacijenata
+                          this.pacijenti.push(pacijent);
+                      }
                       this.imePacijent = pacijenti.ime;
                       this.prezimePacijent = pacijenti.prezime;
                       this.stranica = pacijenti.stranica;
@@ -79,10 +87,18 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
           
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti koji odgovaraju trenutnoj stranici (1.stranica = prvih 5 pacijenata, 2.stranica = od 5. do 10. itd..)
         this.obradaService.getPatients(this.imePacijent,this.prezimePacijent,brojTrenutneStranice).pipe(
-            tap(
-                (pacijenti)=> {
-                  //U polje pacijenata spremam novih 5 pacijenata koji odgovaraju trenutnoj stranici
-                  this.pacijenti = pacijenti;
+            tap((pacijenti)=> {
+                  //Praznim inicijalno polje pacijenata
+                  this.pacijenti = [];    
+                  //Inicijaliziram praznu varijablu
+                  let pacijent;
+                  //Prolazim kroz sve JS objekte (pacijente) sa servera
+                  for(const pac of pacijenti){
+                      //Kreiram novi objekt tipa "Pacijent"
+                      pacijent = new Pacijent(pac);
+                      //Novo kreirani objekt nadodavam u polje pacijenata
+                      this.pacijenti.push(pacijent);
+                  }
                   //Ažuriram svoju varijablu trenutne stranice
                   this.stranica = brojTrenutneStranice;
                   console.log(this.stranica);

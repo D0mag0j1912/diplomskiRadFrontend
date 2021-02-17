@@ -1,7 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject, throwError } from "rxjs";
+import { Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
+import {handleError} from '../../shared/rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -27,7 +28,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/getMaksimalnaDoza.php',
         {
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
@@ -69,7 +70,7 @@ export class ReceptService{
             brojPonavljanja,
             sifraSpecijalist,
             idPacijent
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja šalje ID pacijenta te vraća Observable u kojemu se nalazi odgovor servera na dohvat dijagnoza za unos recepta
@@ -78,7 +79,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/getInicijalnoDijagnoze.php',
         {
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi ukupno trajanje terapije
@@ -96,7 +97,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDostatnost.php',
         {
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi DATUM do kada vrijedi terapija
@@ -105,7 +106,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDatumDostatnost.php',
         {
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li MAGISTRALNI PRIPRAVAK ima oznaku "RS"
@@ -115,7 +116,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/oznake/getOznakaMagPripravak.php',
         {
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li LIJEK ima oznaku "RS"
@@ -125,7 +126,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/oznake/getOznakaLijek.php', 
         {
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi cijena MAGISTRALNOG PRIPRAVKA sa DOPUNSKE LISTE
@@ -135,7 +136,7 @@ export class ReceptService{
         return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaMagPripravakDL.php',
         {   
             params: params
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi cijena LIJEKA sa DOPUNSKE LISTE
@@ -144,23 +145,7 @@ export class ReceptService{
         let params = new HttpParams().append("lijek",lijek);
         return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaLijekDL.php',
             {params: params}
-        ).pipe(catchError(this.handleError));
+        ).pipe(catchError(handleError));
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong.
-            console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
 }

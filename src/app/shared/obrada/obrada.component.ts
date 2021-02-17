@@ -7,6 +7,7 @@ import { concatMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { HeaderService } from '../header/header.service';
+import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from './obrada.service';
 
 @Component({
@@ -32,8 +33,10 @@ export class ObradaComponent implements OnInit, OnDestroy {
     forma: FormGroup;
     //Definiram broj trenutne stranice tablice 1
     stranica: number = 1;
-    //Spremam pacijenta 
-    pacijenti: Obrada;
+    //Spremam podatke obrade trenutno aktivnog pacijenta
+    trenutnoAktivniPacijent: Obrada;
+    //Spremam osobne podatke trenutno aktivnog pacijenta
+    pacijent: Pacijent;
     //Spremam sljedećeg pacijenta koji čeka na pregled
     sljedeciPacijent: string;
     //Spremam poruku sljedećeg pacijenta
@@ -133,10 +136,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
                           if(podatci[3]["pacijent"]["success"] !== "false"){
                               //Označavam da je pacijent aktivan
                               this.isAktivan = true;
-                              //Spremam podatke aktivnog pacijenta u svoje polje pacijenata
-                              this.pacijenti = podatci[3]["pacijent"];
+                              //Spremam podatke trenutno aktivnog pacijenta
+                              this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent[0]);
+                              this.pacijent = new Pacijent(podatci[3].pacijent[0]);
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
-                              this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"][0].idPacijent;
+                              this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je med. sestra obradila aktivnog pacijenta danas
                               polje.push(this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent));
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
@@ -149,10 +153,11 @@ export class ObradaComponent implements OnInit, OnDestroy {
                           if(podatci[3]["pacijent"]["pacijent"]["success"] !== "false"){
                               //Označavam da je pacijent aktivan
                               this.isAktivan = true;
-                              //Spremam podatke aktivnog pacijenta u svoje polje pacijenata
-                              this.pacijenti = podatci[3]["pacijent"]["pacijent"];
+                              //Spremam podatke trenutno aktivnog pacijenta
+                              this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent.pacijent[0]);
+                              this.pacijent = new Pacijent(podatci[3].pacijent.pacijent[0]);
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
-                              this.idTrenutnoAktivniPacijent = podatci[3]["pacijent"]["pacijent"][0].idPacijent;
+                              this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je med. sestra obradila aktivnog pacijenta danas
                               polje.push(this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent));
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
@@ -223,7 +228,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
         this.headerService.tipKorisnikaObs.pipe(
             switchMap(podatci => {
                 return combineLatest([
-                    this.obradaService.editPatientStatus(this.pacijenti[0].idObrada,podatci,this.pacijenti[0].idPacijent),
+                    this.obradaService.editPatientStatus(this.trenutnoAktivniPacijent.idObrada,podatci,this.trenutnoAktivniPacijent.idPacijent),
                     this.obradaService.getPatientProcessing(podatci)
                 ]).pipe(
                     takeUntil(this.pretplateSubject)
@@ -243,15 +248,15 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Dohvaćam ime i prezime pacijenta
     getImePrezime(){
-      return this.pacijenti[0].imePacijent + ' ' + this.pacijenti[0].prezPacijent;
+      return this.pacijent.ime + ' ' + this.pacijent.prezime;
     }
     //Dohvaćam datum rođenja pacijenta
     getDatRod(){
-      return this.pacijenti[0].DatumRodenja;
+      return this.pacijent.datRod;
     }
     //Dohvaćam adresu pacijenta
     getAdresa(){
-      return this.pacijenti[0].adresaPacijent;
+      return this.pacijent.adresa;
     }
 
     //Custom validator koji provjerava je li barem jedno od polja imena ili prezimena uneseno

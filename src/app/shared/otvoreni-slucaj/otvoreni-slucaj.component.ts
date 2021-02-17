@@ -37,6 +37,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     dijagnoze: any;
     //Kreiram svoju formu
     forma: FormGroup;
+    //Spremam podatke obrade trenutno aktivnog pacijenta
     pacijent: Obrada;
     //Spremam tip prijavljenog korisnika
     tipKorisnik: string = null;
@@ -71,9 +72,9 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     //Označavam da je pacijent aktivan u obradi
                     this.isAktivan = true;
                     //Spremam mu podatke
-                    this.pacijent = response;
+                    this.pacijent = new Obrada(response[0]);
                     //Spremam ID pacijenta
-                    this.idPacijent = this.pacijent[0].idPacijent;
+                    this.idPacijent = this.pacijent.idPacijent;
                     //Kreiram svoju formu
                     this.forma = new FormGroup({
                       'parametar': new FormControl(null)

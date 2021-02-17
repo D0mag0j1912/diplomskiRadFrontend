@@ -1,8 +1,7 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
-import {Korisnik} from '../shared/modeli/korisnik.model';
 import {catchError} from 'rxjs/operators';
+import {handleError} from '../shared/rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -27,7 +26,7 @@ export class SignupService{
         ponovnoLozinka: string){
         
         //Vraćam Observable u kojemu se nalaze podatci koje je PHP vratio
-        return this.http.post<Korisnik>(this.baseUrl + 'auth/signup.php', 
+        return this.http.post<any>(this.baseUrl + 'auth/signup.php', 
                 {
                     tip: tip,
                     ime: ime,
@@ -38,24 +37,6 @@ export class SignupService{
                     lozinka: lozinka,
                     ponovnoLozinka: ponovnoLozinka
                 })
-                .pipe(catchError(this.handleError));
-    }
-
-
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-        // The response body may contain clues as to what went wrong.
-        console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
+                .pipe(catchError(handleError));
     }
 }

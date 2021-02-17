@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
-import { Korisnik } from '../shared/modeli/korisnik.model';
 import { SignupService } from './signup.service';
 
 @Component({
@@ -18,8 +17,6 @@ export class SignupComponent implements OnInit, OnDestroy {
     response: boolean = false;
     //Varijabla koja pohranjuje vrijednost odgovora backenda
     responsePoruka: string = null;
-    //Inicijalizacija instance objekta "Korisnik"
-    noviKorisnik: Korisnik = null;
     
     //Kreiram instancu servisa
     constructor(

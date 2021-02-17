@@ -38,10 +38,11 @@ export class MedSestraAzuriranjePodatciComponent implements OnInit, OnDestroy{
       this.route.data.pipe(
           takeUntil(this.pretplateSubject)
       ).subscribe(
-          (data: {podatci: Korisnik}) => {
-              this.osobniPodatci = data.podatci;
+          (data: {podatci: any}) => {
+              //Kreiram objekt tipa "Korisnik" i u njega stavljam podatke sa servera
+              this.osobniPodatci = new Korisnik(data.podatci[0]);
               //Dohvaćam ID medicinske sestre
-              this.idMedSestra = this.osobniPodatci[0].idMedSestra;
+              this.idMedSestra = this.osobniPodatci.idMedSestra;
       });
       
     }

@@ -9,6 +9,7 @@ import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { OtvoreniSlucajService } from 'src/app/shared/otvoreni-slucaj/otvoreni-slucaj.service';
 import { PovijestBolestiService } from './povijest-bolesti.service';
 import { takeUntil, tap } from 'rxjs/operators';
+import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 
 @Component({
   selector: 'app-povijest-bolesti',
@@ -32,7 +33,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Kreiram formu 
       forma: FormGroup;
       //Spremam dijagnoze
-      dijagnoze: any;
+      dijagnoze: Dijagnoza[] = [];
       //Spremam trenutno aktivnog pacijenta
       trenutnoAktivniPacijent: Obrada;
       //Oznaka je li pacijent aktivan u obradi
@@ -79,20 +80,23 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                 //Dohvaćam podatke iz Resolvera
                 (podatci: {podatci: any,pacijent: Obrada | any}) => {
                     console.log(podatci.podatci);
-                    //Spremam dijagnoze iz Resolvera u svoje polje
-                    this.dijagnoze = podatci.podatci["dijagnoze"];
+                    //Inicijaliziram varijablu u koju spremam objekte tipa "Dijagnoza"
+                    let objektDijagnoza;
+                    //Prolazim poljem dijagnoza sa servera
+                    for(const d of podatci.podatci["dijagnoze"]){
+                        objektDijagnoza = new Dijagnoza(d);
+                        this.dijagnoze.push(objektDijagnoza);
+                    }
                     //Ako je Resolver vratio aktivnog pacijenta
                     if(podatci.pacijent["success"] !== "false"){
                       //Označavam da je pacijent aktivan u obradi
                       this.isAktivan = true;
-                      //Spremam mu podatke
-                      this.trenutnoAktivniPacijent = podatci.pacijent;
+                      //Spremam podatke obrade trenutno aktivnog pacijenta
+                      this.trenutnoAktivniPacijent = new Obrada(podatci.pacijent[0]);
                       //Spremam ID trenutno aktivnog pacijenta
-                      this.idPacijent = this.trenutnoAktivniPacijent[0].idPacijent;
+                      this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                       //Spremam ID obrade
-                      this.idObrada = this.trenutnoAktivniPacijent[0].idObrada;
-                      console.log(this.idObrada);
-                      console.log(this.idPacijent);
+                      this.idObrada = this.trenutnoAktivniPacijent.idObrada;
                     }
                     this.forma = new FormGroup({
                       'razlogDolaska': new FormControl(null),

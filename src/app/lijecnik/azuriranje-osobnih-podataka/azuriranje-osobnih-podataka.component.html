@@ -3,7 +3,7 @@
         <div class="col-xs-12 col-md-6 col-md-offset-3">
             <h3>Ažuriraj osobne podatke</h3>
             <h3>Profil </h3>
-            <p><strong>Datum registracije profila: {{osobniPodatci[0].datKreirLijecnik}}</strong></p>
+            <p><strong>Datum registracije profila: {{osobniPodatci.datKreir}}</strong></p>
             <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
             <form #forma="ngForm" (ngSubmit)="onSubmit(forma)">
                 <div class="form-group">
@@ -12,7 +12,7 @@
                         type="text" 
                         name="ime" 
                         class="form-control" 
-                        [(ngModel)]="osobniPodatci[0].imeLijecnik"
+                        [(ngModel)]="osobniPodatci.ime"
                         required>
                 </div>
                 <div class="form-group">
@@ -21,7 +21,7 @@
                         type="text" 
                         name="prezime" 
                         class="form-control" 
-                        [(ngModel)]="osobniPodatci[0].prezLijecnik"
+                        [(ngModel)]="osobniPodatci.prezime"
                         required>
                 </div>
                 <div class="form-group">
@@ -30,7 +30,7 @@
                         type="email" 
                         name="email" 
                         class="form-control"
-                        [(ngModel)]="osobniPodatci[0].email"
+                        [(ngModel)]="osobniPodatci.email"
                         email 
                         required>
                 </div>
@@ -40,7 +40,7 @@
                         type="text" 
                         name="adresa" 
                         class="form-control" 
-                        [(ngModel)]="osobniPodatci[0].adrLijecnik"  
+                        [(ngModel)]="osobniPodatci.adresa"  
                         required>
                 </div>
                 <div class="form-group">
@@ -49,7 +49,7 @@
                         type="text" 
                         name="specijalizacija" 
                         class="form-control" 
-                        [(ngModel)]="osobniPodatci[0].nazSpecLijecnik" 
+                        [(ngModel)]="osobniPodatci.specijalizacija" 
                         required>
                 </div>
                 <div>

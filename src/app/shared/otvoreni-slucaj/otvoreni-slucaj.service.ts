@@ -1,7 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import {handleError} from '../rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -22,7 +23,7 @@ export class OtvoreniSlucajService{
         let params = new HttpParams().append("id",id.toString());
         params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucaj.php', {params: params}).pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         ); 
     }
 
@@ -32,7 +33,7 @@ export class OtvoreniSlucajService{
         let params = new HttpParams().append("id",id.toString());
         params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnoze.php', {params: params}).pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         ); 
     }
 
@@ -45,7 +46,7 @@ export class OtvoreniSlucajService{
         params = params.append("id", id.toString());
 
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getDijagnozePovezanSlucaj.php', {params: params}).pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         );
     }
 
@@ -58,7 +59,7 @@ export class OtvoreniSlucajService{
         params = params.append("id", id.toString());
         params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucajPretraga.php', {params: params}).pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         );
     }
 
@@ -71,24 +72,8 @@ export class OtvoreniSlucajService{
         params = params.append("id", id.toString());
 
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnozePretraga.php', {params: params}).pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         );
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong.
-            console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
 }

@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CekaonicaService } from './cekaonica.service';
-import { Cekaonica } from '../modeli/cekaonica.model';
 import { HeaderService } from '../header/header.service';
 import { switchMap, take } from 'rxjs/operators';
 @Injectable({
     providedIn: 'root'
 })
-export class CekaonicaResolverService implements Resolve<Cekaonica[] | any>{
+export class CekaonicaResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam servis čekaonice
@@ -18,7 +17,7 @@ export class CekaonicaResolverService implements Resolve<Cekaonica[] | any>{
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
-            Observable<Cekaonica[] | any> | Promise<Cekaonica[] | any> | Cekaonica[] | any {
+            Observable<any> | Promise<any> | any {
         return this.headerService.tipKorisnikaObs.pipe(
             take(1),
             switchMap(tipKorisnik => {

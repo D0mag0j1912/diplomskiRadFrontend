@@ -12,6 +12,7 @@ import { PodrucniUred } from 'src/app/shared/modeli/podrucniUred.model';
 import { MedSestraService } from '../med-sestra.service';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { takeUntil, tap } from 'rxjs/operators';
+import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -41,23 +42,25 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     //Kreiram formu
     forma: FormGroup;
     //Spremam područne urede
-    podrucniUredi: PodrucniUred[];
+    podrucniUredi: PodrucniUred[] = [];
     //Spremam nazive područnih ureda zbog validacije
     naziviPodrucnihUreda: string[] = [];
     //Spremam kategorije osiguranja
-    katOsiguranja: KategorijaOsiguranja[];
+    katOsiguranja: KategorijaOsiguranja[] = [];
     //Spremam opise osiguranika zbog validacije
     opisiOsiguranika: string[] = [];
     //Spremam sve dijagnoze
-    dijagnoze: Dijagnoza[];
+    dijagnoze: Dijagnoza[] = [];
     //Spremam nazive svih dijagnoza zbog validacije
     naziviDijagnoze: string[] = [];
     //Spremam sve države osiguranja
-    drzave: DrzavaOsiguranja[];
+    drzave: DrzavaOsiguranja[] = [];
     //Spremam sve nazive država zbog validacije
     naziviDrzave: string[] = [];
     //Spremam podatke trenutno aktivnog pacijenta
-    pacijent: Obrada;
+    trenutnoAktivniPacijent: Obrada;
+    //Spremam osobne podatke pacijenta
+    pacijent: Pacijent;
     //Spremam trenutno izabranu sekundarnu dijagnozu zbog validacije duplikata
     sekDijagnoza: string;
     //Spremam dijagnozu koja je ista kod primarne i kod sekundarne dijagnoze
@@ -87,25 +90,52 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         //Pretplaćujem se na route da mogu dohvatiti podatke od njega
         this.route.data.pipe(
             tap((response: {podatci: any, pacijent: Obrada | any}) => {
-                //Podatke iz Resolvera dohvaćavam i spremam u svoje polje ureda
-                this.podrucniUredi = response.podatci["uredi"];
+                //Kreiram praznu varijablu u kojoj spremam objekte tipa "PodrucniUred"
+                let objektPodrucniUred;
+                //Prolazim kroz JS objekte područnih ureda
+                for(const ured of response.podatci.uredi){
+                    //Za svaki odgovor sa servera, kreiraj novi objekt tipa "PodrucniUred"
+                    objektPodrucniUred = new PodrucniUred(ured);
+                    //Dodaj taj objekt u polje
+                    this.podrucniUredi.push(objektPodrucniUred);
+                }
+                console.log(this.podrucniUredi);
+                //Inicijaliziram varijablu u koju spremam objekte tipa "KategorijaOsiguranja"
+                let objektKatOsiguranja;
+                //Prolazim poljem dijagnoza sa servera
+                for(const kat of response.podatci.kategorijeOsiguranja){
+                    objektKatOsiguranja = new KategorijaOsiguranja(kat);
+                    this.katOsiguranja.push(objektKatOsiguranja);
+                }
                 //Podatke iz Resolver dohvaćam i spremam u svoje polje kategorija osiguranja
                 this.katOsiguranja = response.podatci["kategorijeOsiguranja"];
-                //Podatke iz Resolver dohvaćam i spremam u svoje polje dijagnoza
-                this.dijagnoze = response.podatci["dijagnoze"];
-                //Podatke iz Resolvera dohvaćam i spremam u svoje polje država osiguranja
-                this.drzave = response.podatci["drzave"];
-
+                //Inicijaliziram varijablu u koju spremam objekte tipa "Dijagnoza"
+                let objektDijagnoza;
+                //Prolazim poljem dijagnoza sa servera
+                for(const d of response.podatci["dijagnoze"]){
+                    objektDijagnoza = new Dijagnoza(d);
+                    this.dijagnoze.push(objektDijagnoza);
+                }
+                let objektDrzava;
+                //Prolazim kroz odgovor servera
+                for(const drzava of response.podatci.drzave){
+                    objektDrzava = new DrzavaOsiguranja(drzava);
+                    this.drzave.push(objektDrzava);
+                }
                 //Ako je Resolver vratio aktivnog pacijenta
                 if(response.pacijent.pacijent["success"] !== "false"){
                   //Označavam da je pacijent aktivan u obradi
                   this.isAktivan = true;
-                  //Spremam mu podatke
-                  this.pacijent = response.pacijent.pacijent;
+                  //Spremam podatke obrade trenutno aktivnog pacijenta
+                  this.trenutnoAktivniPacijent = new Obrada(response.pacijent.pacijent[0]);
+                  console.log(this.trenutnoAktivniPacijent);
+                  //Spremam osobne podatke trenutno aktivnog pacijenta
+                  this.pacijent = new Pacijent(response.pacijent.pacijent[0]);
+                  console.log(this.pacijent);
                   //Spremam ID pacijenta
-                  this.idPacijent = this.pacijent[0].idPacijent;
+                  this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                   //Spremam ID obrade
-                  this.idObrada = this.pacijent[0].idObrada;
+                  this.idObrada = this.trenutnoAktivniPacijent.idObrada;
                   //Spremam zdravstvene podatke trenutno aktivnog pacijenta
                   this.zdravstveniPodatci = response.pacijent.podatci;
                 }
@@ -163,7 +193,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
             //Prolazim poljem zdravstvenih podataka
             for(let podatci of this.zdravstveniPodatci){
-                console.log(podatci);
                 //Inicijalno popunjam polja zdravstvenih podataka trenutno aktivnog pacijenta
                 this.forma.get('kategorijaOsiguranja').patchValue(podatci.opisOsiguranika,{emitEvent: false});
                 //Pozivam metodu koja će popuniti oznaku osiguranika
@@ -285,7 +314,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     //Metoda koja provjerava je li uneseni MBO jednak MBO-u koji ima trenutno aktivni pacijent
     isValidMBO(control: FormControl): {[key: string]: boolean}{
       //Ako uneseni MBO pacijenta nije jednak MBO-u pacijenta koji je trenutno aktivan u obradi
-      if(control.value !== this.pacijent[0].mboPacijent){
+      if(control.value !== this.pacijent.mbo){
         return {'nePostojiMBO':true};
       }
       return null;
@@ -294,7 +323,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     //Metoda koja provjerava je li uneseni BROJ ISKAZNICE DOPUNSKOG OSIGURANJA jednak BROJU koji ima trenutno aktivni pacijent
     isValidDopunsko(control: FormControl): {[key: string]: boolean}{
       //Ako uneseni broj iskaznice  NIJE JEDNAK broju koji ima trenutno aktivni pacijent
-      if(control.value !== this.pacijent[0].brojIskazniceDopunsko){
+      if(control.value !== this.pacijent.brIskDopunsko){
           return {'nePostojiBrojDopunsko':true};  
       }
       return null;

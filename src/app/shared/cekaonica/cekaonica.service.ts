@@ -1,8 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, combineLatest, throwError } from "rxjs";
-import { Cekaonica } from "../modeli/cekaonica.model";
+import { BehaviorSubject, combineLatest } from "rxjs";
 import { catchError, switchMap } from 'rxjs/operators';
+import {handleError} from '../rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -26,14 +26,14 @@ export class CekaonicaService{
         {   
             id: id,
             tip:tip
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja šalje zahtjev serveru za dohvaćanje pacijenata iz čekaonice te vraća Observable u kojemu se nalaze pronađeni pacijenti
     getPatientsWaitingRoom(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/cekaonica.php',{params: params}).pipe(
-            catchError(this.handleError)
+        return this.http.get<any>(this.baseUrl + 'cekaonica/cekaonica.php',{params: params}).pipe(
+            catchError(handleError)
         );
     }
 
@@ -41,8 +41,8 @@ export class CekaonicaService{
     getTenLast(tip: string){
         let params = new HttpParams().append("tip",tip);
         //Vraćam Observable u kojemu se nalazi odgovor servera na dohvat 10 zadnjih pacijenata
-        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/getTenLastWaitingRoom.php',{params: params}).pipe(
-            catchError(this.handleError)
+        return this.http.get<any>(this.baseUrl + 'cekaonica/getTenLastWaitingRoom.php',{params: params}).pipe(
+            catchError(handleError)
         );
     }
 
@@ -50,7 +50,7 @@ export class CekaonicaService{
     getPatientByStatus(tip: string,statusi: string[]){
         let params = new HttpParams().append("tip",tip);
         params = params.append("statusi",JSON.stringify(statusi));
-        return this.http.get<Cekaonica[]>(this.baseUrl + 'cekaonica/getPatientByStatus.php',{params: params}).pipe(catchError(this.handleError));
+        return this.http.get<any>(this.baseUrl + 'cekaonica/getPatientByStatus.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
@@ -68,14 +68,14 @@ export class CekaonicaService{
         };
         //Kreiram i vraćam Observable za brisanje pacijenta 
         return this.http.delete(this.baseUrl + 'cekaonica/izbrisiPacijentCekaonica.php', options).pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         );
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera koliko ima još pacijenata u čekaonici
     checkCountCekaonica(){
 
-        return this.http.get<number>(this.baseUrl + 'cekaonica/checkCountCekaonica.php').pipe(catchError(this.handleError));
+        return this.http.get<number>(this.baseUrl + 'cekaonica/checkCountCekaonica.php').pipe(catchError(handleError));
     }
 
     //Metoda koja dohvaća ime, prezime te datum pregleda pacijenta u svrhu prikazivanja na detaljima pregleda
@@ -85,7 +85,7 @@ export class CekaonicaService{
         params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getImePrezimeDatum.php',
                                 {params: params}).
-                                pipe(catchError(this.handleError));
+                                pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
@@ -96,7 +96,7 @@ export class CekaonicaService{
         params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
                                 {params: params})
-                                .pipe(catchError(this.handleError));
+                                .pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze ILI opći podatci pregleda ILI povijest bolesti pacijenta
@@ -105,7 +105,7 @@ export class CekaonicaService{
         params = params.append("idObrada",idObrada.toString());
         return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getPodatciPregleda.php',
                                 {params: params})
-                                .pipe(catchError(this.handleError));
+                                .pipe(catchError(handleError));
     }
 
     //Metoda koja dohvaća odgovore servera više metoda te ih kombinira
@@ -116,25 +116,9 @@ export class CekaonicaService{
                 return combineLatest([
                     this.getImePrezimeDatum(podatci.tip,podatci.idObrada),
                     this.getPodatciPregleda(podatci.tip,podatci.idObrada)
-                ]);
+                ]).pipe(catchError(handleError));
             })
         );   
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong.
-            console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
 }

@@ -10,6 +10,7 @@ import * as receptHandler from '../../recept-handler';
 import {azurirajValidatore} from '../../azuriraj-validatore';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
 import { EventEmitter } from '@angular/core';
+import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -52,7 +53,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     //Spremam dijagnozu koja je ista kod primarne i kod sekundarne dijagnoze
     dijagnoza: string;
     //Spremam sve dijagnoze
-    dijagnoze: any;
+    dijagnoze: Dijagnoza[] = [];
     //Dohvaćam sve zdravstvene radnike
     zdravstveniRadnici: ZdravstveniRadnik[];
     //Spremam sve lijekove sa osnovne liste
@@ -111,8 +112,12 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             tap((podatci) => {
                 //Spremam ID pacijenta
                 this.idPacijent = this.route.snapshot.paramMap.get('id');
-                //Spremam sve dijagnoze u svoje polje
-                this.dijagnoze = podatci.dijagnoze;
+                //Inicijaliziram praznu varijablu u kojoj ću spremiti objekte tipa "Dijagnoza"
+                let objektDijagnoza;
+                for(const d of podatci.dijagnoze){
+                    objektDijagnoza = new Dijagnoza(d);
+                    this.dijagnoze.push(objektDijagnoza);
+                }
                 //Spremam sve zdravstvene radnike u svoje polje
                 this.zdravstveniRadnici = podatci.zdravstveniRadnici;
                 //Prolazim kroz polje svih dijagnoza

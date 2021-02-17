@@ -31,20 +31,22 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
     //Kreiram svoju formu
     forma: FormGroup;
     //Polje za mjesta
-    mjesta: Mjesto[];
+    mjesta: Mjesto[] = [];
     naziviMjesta: string[] = [];
     pbrMjesta: number[] = [];
     //Polje za bračna stanja
-    bracnaStanja: BracnoStanje[];
+    bracnaStanja: BracnoStanje[] = [];
     naziviBracnihStanja: string[] = [];
     //Polje za radne statuse
-    radniStatusi: RadniStatus[];
+    radniStatusi: RadniStatus[] = [];
     naziviRadniStatusi: string[] = [];
     //Polje za statuse pacijenta
-    statusiPacijenta: StatusPacijent[];
+    statusiPacijenta: StatusPacijent[] = [];
     naziviStatusaPacijenata: string[] = [];
     //Objekt tipa Pacijent u kojega ću spremati osnovne podatke pacijenta
     pacijent: Pacijent;
+    //Spremam pbr i naziv mjesta u objekt tipa "Mjesto"
+    pacijentMjesto: Mjesto;
     //Spremam ID pacijenta
     idPacijent: number;
 
@@ -65,23 +67,50 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
         tap(
           //Dohvaćam podatke
           (response : {podatci: any, pacijenti: Pacijent | any}) => {
-            //Mjesta iz Resolvera spremam u svoje polje
-            this.mjesta = response.podatci["mjesta"];
-            //Bračna stanja iz Resolvera spremam u svoje polje
-            this.bracnaStanja = response.podatci["bracnaStanja"];
-            //Radne statuse iz Resolvera spremam u svoje polje
-            this.radniStatusi = response.podatci["radniStatusi"];
-            //Statuse pacijenata iz Resolvera spremam u svoje polje
-            this.statusiPacijenta = response.podatci["statusiPacijent"];
-            
+            //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Bracno stanje"
+            let brStanje;
+            //Prolazim JS objektom bračnih stanja 
+            for(const stanje of response.podatci.bracnaStanja){
+                //Kreiram objekte tipa "BracnoStanje"
+                brStanje = new BracnoStanje(stanje);
+                //Dodavam objekte u polje bračnih stanja
+                this.bracnaStanja.push(brStanje);
+            }
+            //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Mjesto"
+            let objektMjesto;
+            //Prolazim JS objektom mjesta
+            for(const mj of response.podatci.mjesta){
+                //Kreiram objekte tipa "Mjesto"
+                objektMjesto = new Mjesto(mj);
+                //Nadodavam ih u polje
+                this.mjesta.push(objektMjesto);
+            }
+            //Kreiram praznu varijablu u koju ću spremati objekte tipa "RadniStatus"
+            let objektRadniStatus;
+            for(const status of response.podatci.radniStatusi){
+                //Za svaki odgovor servera kreiram jedan JS objekt
+                objektRadniStatus = new RadniStatus(status);
+                //Nadodavam ih u polje
+                this.radniStatusi.push(objektRadniStatus);
+            }
+            //Kreiram praznu varijablu u koju ću spremiti objekte tipa "StatusPacijent"
+            let objektStatusPacijent;
+            //Prolazim kroz sve odgovore servera
+            for(const status of response.podatci.statusiPacijent){
+                //Kreiram objekte tipa "StatusPacijent"
+                objektStatusPacijent = new StatusPacijent(status);
+                //Nadodavam ih u polje
+                this.statusiPacijenta.push(objektStatusPacijent);
+            }
             //Ako je server uspješno vratio pacijenta, a ne grešku
             if(response.pacijenti["success"] !== "false"){
-              //Označavam da su podatci aktivni
-              this.isPodatciAktivni = true;
-              //Podatke iz Resolvera za pacijenta spremam u svoje polje za podatke pacijenta
-              this.pacijent = response.pacijenti;
-              //Spremam ID pacijenta
-              this.idPacijent = this.pacijent[0].idPacijent;
+                //Označavam da su podatci aktivni
+                this.isPodatciAktivni = true;
+                //Podatke iz Resolvera za pacijenta spremam u svoje polje za podatke pacijenta
+                this.pacijent = new Pacijent(response.pacijenti[0]);
+                this.pacijentMjesto = new Mjesto(response.pacijenti[0]);
+                //Spremam ID pacijenta
+                this.idPacijent = this.pacijent.id;
             }
             console.log(this.isPodatciAktivni);
             //Sve nazive mjesta stavljam u posebno polje zbog validacije
@@ -107,19 +136,19 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
             console.log(this.isPodatciAktivni);
             //Kreiram svoju formu:
             this.forma = new FormGroup({
-              'ime': new FormControl(this.isPodatciAktivni ? this.pacijent[0].imePacijent : null, this.isPodatciAktivni ? [Validators.required,this.validacijaImePrezime.bind(this)] : []),
-              'prezime': new FormControl(this.isPodatciAktivni ? this.pacijent[0].prezPacijent : null, this.isPodatciAktivni ? [Validators.required,this.validacijaImePrezime.bind(this)] : []),
-              'datRod': new FormControl(this.isPodatciAktivni ? this.pacijent[0].datRodPacijent: null, this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
-              'adresa': new FormControl(this.isPodatciAktivni ? this.pacijent[0].adresaPacijent: null, this.isPodatciAktivni ? [Validators.required] : []),
-              'oib': new FormControl(this.isPodatciAktivni ? this.pacijent[0].oibPacijent: null, this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
-              'email': new FormControl(this.isPodatciAktivni ? this.pacijent[0].emailPacijent: null, this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
-              'spol': new FormControl(this.isPodatciAktivni ? this.pacijent[0].spolPacijent: null,this.isPodatciAktivni ? [Validators.required] : []),
-              'pbr': new FormControl(this.isPodatciAktivni ? this.pacijent[0].pbrMjestoPacijent: null, this.isPodatciAktivni ? [Validators.required, this.isValidPostanskiBroj.bind(this)] : []),
-              'mjesto': new FormControl(this.isPodatciAktivni ? this.pacijent[0].nazivMjesto: null, this.isPodatciAktivni ? [this.isValidMjesto.bind(this)] : []),
-              'mobitel': new FormControl(this.isPodatciAktivni ? this.pacijent[0].mobitelPacijent: null, this.isPodatciAktivni ? [Validators.pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/)] : []),
-              'bracnoStanje': new FormControl(this.isPodatciAktivni ? this.pacijent[0].bracnoStanjePacijent: null, this.isPodatciAktivni ? this.isValidBracnoStanje.bind(this) : null),
-              'radniStatus': new FormControl(this.isPodatciAktivni ? this.pacijent[0].radniStatusPacijent: null,this.isPodatciAktivni ? this.isValidRadniStatus.bind(this) : null),
-              'status': new FormControl(this.isPodatciAktivni ? this.pacijent[0].statusPacijent: null, this.isPodatciAktivni ? [Validators.required, this.isValidStatusPacijent.bind(this)] : null)
+              'ime': new FormControl(this.isPodatciAktivni ? this.pacijent.ime : null, this.isPodatciAktivni ? [Validators.required,this.validacijaImePrezime.bind(this)] : []),
+              'prezime': new FormControl(this.isPodatciAktivni ? this.pacijent.prezime : null, this.isPodatciAktivni ? [Validators.required,this.validacijaImePrezime.bind(this)] : []),
+              'datRod': new FormControl(this.isPodatciAktivni ? this.pacijent.datRod: null, this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
+              'adresa': new FormControl(this.isPodatciAktivni ? this.pacijent.adresa: null, this.isPodatciAktivni ? [Validators.required] : []),
+              'oib': new FormControl(this.isPodatciAktivni ? this.pacijent.oib: null, this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
+              'email': new FormControl(this.isPodatciAktivni ? this.pacijent.email: null, this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
+              'spol': new FormControl(this.isPodatciAktivni ? this.pacijent.spol: null,this.isPodatciAktivni ? [Validators.required] : []),
+              'pbr': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null, this.isPodatciAktivni ? [Validators.required, this.isValidPostanskiBroj.bind(this)] : []),
+              'mjesto': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null, this.isPodatciAktivni ? [this.isValidMjesto.bind(this)] : []),
+              'mobitel': new FormControl(this.isPodatciAktivni ? this.pacijent.mobitel: null, this.isPodatciAktivni ? [Validators.pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/)] : []),
+              'bracnoStanje': new FormControl(this.isPodatciAktivni ? this.pacijent.bracnoStanje: null, this.isPodatciAktivni ? this.isValidBracnoStanje.bind(this) : null),
+              'radniStatus': new FormControl(this.isPodatciAktivni ? this.pacijent.radniStatus: null,this.isPodatciAktivni ? this.isValidRadniStatus.bind(this) : null),
+              'status': new FormControl(this.isPodatciAktivni ? this.pacijent.status: null, this.isPodatciAktivni ? [Validators.required, this.isValidStatusPacijent.bind(this)] : null)
             }, {validators: this.isPodatciAktivni ? this.isValidKombinacija.bind(this) : null});
           }
         ),

@@ -24,8 +24,8 @@ export class LijecnikComponent implements OnInit, OnDestroy {
         this.route.data.pipe(
             takeUntil(this.pretplateSubject),
             tap(
-              (data: {podatci: Korisnik}) => {
-                  this.osobniPodatci = data.podatci;
+              (data: {podatci: any}) => {
+                  this.osobniPodatci = new Korisnik(data.podatci[0]);
             })
         ).subscribe();
     } 

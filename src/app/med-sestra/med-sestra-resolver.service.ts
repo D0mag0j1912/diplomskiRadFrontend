@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Korisnik } from '../shared/modeli/korisnik.model';
 import { MedSestraService } from './med-sestra.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class MedSestraResolverService implements Resolve<Korisnik>{
+export class MedSestraResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam servis medicinske sestre
@@ -15,8 +14,8 @@ export class MedSestraResolverService implements Resolve<Korisnik>{
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
-            Observable<Korisnik> | Promise<Korisnik> | Korisnik {
-        //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa Korisnik 
+            Observable<any> | Promise<any> | any {
+        //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa any 
         return this.medSestraService.getPersonalData();
     }
 }

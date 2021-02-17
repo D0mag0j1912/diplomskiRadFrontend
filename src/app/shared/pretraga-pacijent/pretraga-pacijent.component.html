@@ -15,12 +15,12 @@
             </thead>
             <tbody>
                 <tr *ngFor="let pacijent of pacijenti">
-                    <td>{{pacijent.idPacijent}}</td>
-                    <td>{{pacijent.imePacijent}}</td>
-                    <td>{{pacijent.prezPacijent}}</td>
-                    <td>{{pacijent.datRodPacijent}}</td>
-                    <td>{{pacijent.adresaPacijent}}</td>
-                    <td><button type="button" class="btn btn-info" (click)="onDodajCekaonica(pacijent.idPacijent)">Dodaj u čekaonicu</button></td>
+                    <td>{{pacijent.id}}</td>
+                    <td>{{pacijent.ime}}</td>
+                    <td>{{pacijent.prezime}}</td>
+                    <td>{{pacijent.datRod}}</td>
+                    <td>{{pacijent.adresa}}</td>
+                    <td><button type="button" class="btn btn-info" (click)="onDodajCekaonica(pacijent.id)">Dodaj u čekaonicu</button></td>
                 </tr>
             </tbody>
         </table>

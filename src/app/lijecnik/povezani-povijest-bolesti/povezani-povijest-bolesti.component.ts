@@ -1,9 +1,10 @@
 import { Component, OnInit,Output,EventEmitter, OnDestroy } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
-import { concatMap, debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
+import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { PovezaniPovijestBolestiService } from './povezani-povijest-bolesti.service';
 
@@ -31,7 +32,9 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
     //Oznaka je li pacijent trenutno aktivan u obradi
     isAktivan: boolean = false;
     //Spremam podatke trenutno aktivnog pacijenta
-    pacijent: Obrada;
+    trenutnoAktivniPacijent: Obrada;
+    //Spremam osobne podatke trenutno aktivnog pacijenta
+    pacijent: Pacijent;
     //Spremam ID trenutno aktivnog pacijenta
     idPacijent: number;
     //Oznaka jesu li inicijalno pronađeni podatci povijesti bolesti za ovog pacijenta
@@ -67,11 +70,12 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                 if(response["success"] !== "false"){
                     //Označavam da je pacijent aktivan u obradi
                     this.isAktivan = true;
-                    //Spremam mu podatke
-                    this.pacijent = response;
+                    //Spremam podatke trenutno aktivnog pacijenta u objekt tipa "Obrada"
+                    this.trenutnoAktivniPacijent = new Obrada(response[0]);
+                    //Spremam osobne podatke pacijenta u objekt tipa "Pacijent"
+                    this.pacijent = new Pacijent(response[0]);
                     //Spremam ID pacijenta
-                    this.idPacijent = this.pacijent[0].idPacijent;
-                    console.log(this.idPacijent);
+                    this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                     //Kreiram formu
                     this.forma = new FormGroup({
                         'parametar': new FormControl(null)

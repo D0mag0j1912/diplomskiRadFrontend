@@ -3,13 +3,12 @@ import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/r
 import { forkJoin, Observable } from 'rxjs';
 import { map, switchMap, take} from 'rxjs/operators';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
-import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { HeaderService } from '../header/header.service';
 import { ObradaService } from './obrada.service';
 @Injectable({
     providedIn: 'root'
 })
-export class ObradaResolverService implements Resolve<Obrada | any>{
+export class ObradaResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam servis obrade
@@ -21,7 +20,7 @@ export class ObradaResolverService implements Resolve<Obrada | any>{
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
-            Observable<Obrada | any> | Promise<Obrada | any> | Obrada | any {
+            Observable<any> | Promise<any> | any {
         //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa Obrada ili any
         return this.headerService.tipKorisnikaObs.pipe(
             take(1),

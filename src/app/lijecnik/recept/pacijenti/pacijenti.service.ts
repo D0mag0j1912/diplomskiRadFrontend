@@ -1,8 +1,8 @@
-import { HttpParams, HttpErrorResponse, HttpClient } from '@angular/common/http';
+import { HttpParams, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import {handleError} from '../../../shared/rxjs-error';
 
 @Injectable({
   providedIn: 'root'
@@ -22,37 +22,21 @@ export class PacijentiService {
     getPacijenti(ids: string[]){
         let params = new HttpParams().append("ids",JSON.stringify(ids));
         return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getPacijenti.php',{params: params}) 
-            .pipe(catchError(this.handleError));
+            .pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable sa svim pacijentima za prikaz u tablici
     getInicijalnoAktivanPacijent(){
 
         return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getInicijalnoAktivanPacijent.php').pipe(
-            catchError(this.handleError)
+            catchError(handleError)
         );
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti koji odgovaraju pretrazi
     getPacijentiPretraga(value: string){
         let params = new HttpParams().append("pretraga",value);
-        return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getPacijentiPretraga.php',{params: params}).pipe(catchError(this.handleError));
+        return this.http.get<any>(this.baseUrl + 'recept/pacijenti/getPacijentiPretraga.php',{params: params}).pipe(catchError(handleError));
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-      if(error.error instanceof ErrorEvent){
-          console.error("An error occured: "+error.error.message);
-      }
-      else{
-          // The backend returned an unsuccessful response code.
-          // The response body may contain clues as to what went wrong.
-          console.error(
-          `Backend returned code ${error.status}, ` +
-          `body was: ${error.error}`);
-      }
-      // Return an observable with a user-facing error message.
-      return throwError(
-          'Something bad happened; please try again later.');
-  }
 }

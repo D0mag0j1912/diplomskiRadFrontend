@@ -1,10 +1,9 @@
-import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { PacijentRecept } from 'src/app/shared/modeli/pacijentRecept.model';
+import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
 import { PacijentiService } from '../pacijenti/pacijenti.service';
 import { ListaReceptiService } from './lista-recepti.service';
@@ -34,7 +33,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     //Spremam inicijalne recepte
     recepti: Recept[] = [];
     //Spremam imena i prezimena u pomoćno polje
-    pacijenti: PacijentRecept[];
+    pacijenti: Pacijent[];
     //Oznaka je li se pretražuje
     isPretraga: boolean = true;
     //Poruka koja se prikazuje kada server vrati da nema rezultata pretrage
@@ -96,12 +95,15 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                     //Kreiram novo polje koje se sastoji od samo podataka pacijenata koji sudjeluju u receptima (ID, imePrezime)
                                     let pacijent = this.recepti.map((objekt) => {
                                         const pom = {idPacijent: objekt.idPacijent, imePrezimePacijent: objekt.imePrezimePacijent};
-                                        return pom;
+                                        const pac = new Pacijent(pom);
+                                        return pac;
                                     });
+                                    console.log(pacijent);
                                     //Resetiram polje u koje spremam ID-eve i imena/prezimena pacijenata kojima su evidentirani recepti
                                     this.pacijenti = [];
                                     //Samo jedinstvene pacijente nadodavam u svoje polje 
-                                    this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.idPacijent === objekt.idPacijent)) === index);
+                                    this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
+                                    console.log(this.pacijenti);
                                 }
                                 //Ako je poslan samo JEDAN ID pacijenta (zato što je u tablici pacijenata samo jedan redak), te on NEMA evidentiranih recepata
                                 else{
@@ -126,7 +128,6 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         this.route.data.pipe(
             map(podatci => podatci.podatci.recepti),
             tap((podatci: any) => {
-                console.log(podatci);
                 //Ako je server vratio da ima evidentiranih pacijenata u bazi ILI da aktivni pacijent ima evidentiranih recepata
                 if(podatci["success"] !== "false"){
                     //Resetiram poruke koja je potrebno resetirati da se prikažu recepti
@@ -147,15 +148,17 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                         //Objekt tipa "Recept" dodavam u polje
                         this.recepti.push(recept);
                     }
+                    console.log(this.recepti);
                     //Kreiram novo polje koje se sastoji od samo podataka pacijenata koji sudjeluju u receptima (ID, imePrezime)
                     let pacijent = this.recepti.map((objekt) => {
                         const pom = {idPacijent: objekt.idPacijent, imePrezimePacijent: objekt.imePrezimePacijent};
-                        return pom;
+                        const pac = new Pacijent(pom);
+                        return pac;
                     });
                     //Resetiram polje u koje spremam ID-eve i imena/prezimena pacijenata kojima su evidentirani recepti
                     this.pacijenti = [];
                     //Samo jedinstvene pacijente nadodavam u svoje polje 
-                    this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.idPacijent === objekt.idPacijent)) === index);
+                    this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
                 }
                 //Ako je server inicijalno vratio da nema registriranih pacijenata u bazi 
                 else if(podatci["success"] === "false" && podatci["message"] === "Nema pronađenih pacijenata!"){
@@ -207,15 +210,16 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                             //Kreiram novo polje koje se sastoji od samo podataka pacijenata koji sudjeluju u receptima (ID, imePrezime)
                             let pacijent = this.recepti.map((objekt) => {
                                 const pom = {idPacijent: objekt.idPacijent, imePrezimePacijent: objekt.imePrezimePacijent};
-                                return pom;
+                                const pac = new Pacijent(pom);
+                                return pac;
                             });
                             //Praznim polje pacijenata
                             this.pacijenti = [];
                             //Samo jedinstvene pacijente nadodavam u svoje polje 
-                            this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.idPacijent === objekt.idPacijent)) === index);
+                            this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
                             //Kreiram svoje novo polje koje će uzeti samo ID-ove iz polja rezultata
                             this.ids = this.pacijenti.map((objekt) => {
-                                return objekt.idPacijent.toString();
+                                return objekt.id.toString();
                             });
                             //Pošalji te ID-eve tablici pacijenata
                             this.pacijentiService.prijenosnikUTablicuPacijenata.next(this.ids); 

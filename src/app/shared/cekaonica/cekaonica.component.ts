@@ -38,7 +38,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     forma: FormGroup;
     formaStatus: FormGroup;
     //Spremam pacijente
-    pacijenti: Cekaonica[];
+    pacijenti: Cekaonica[] = [];
     //Definiram broj početne stranice u pretrazi
     stranica: number = 1;
     //Oznaka je li cekaonica prazna
@@ -121,10 +121,13 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             this.alertComponent = content;
             //Dohvaćam div u toj komponenti (class = "alert-box")
             const div = this.alertComponent.alertBoxActions.nativeElement;
+            if(div.querySelector(".podiUObradu")){
+                div.querySelector(".podiUObradu").remove();
+            }
             //Kreiram novi button
             const button = document.createElement("button");
             //Uređivam button
-            button.className = "btn btn-info";
+            button.className = "btn btn-info podiUObradu";
             button.type = "button";
             button.innerHTML = "Pođi u obradu";
             button.style.margin = "5px";
@@ -193,8 +196,15 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
           (odgovor)=>{
               //Ako je odgovor servera da je cekaonica NIJE prazna:
               if(odgovor.pacijenti["success"] !== "false"){
-                //Dohvaćene pacijente spremam u polje
-                this.pacijenti = odgovor.pacijenti;
+                //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                let cekaonica;
+                //Prolazim odgovorom servera (JS objektima)
+                for(const cek of odgovor.pacijenti){
+                    //Kreiram nove objekte tipa "Cekaonica"
+                    cekaonica = new Cekaonica(cek);
+                    //Nadodavam ih u polje
+                    this.pacijenti.push(cekaonica);
+                }
                 console.log(this.pacijenti);
                 //Označavam da čekaonica nije prazna
                 this.isPrazna = false;
@@ -206,6 +216,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja otvara prozor detalja pregleda
     onOtvoriDetalje(idObrada: number,tip: string){
+        this.isDodanObrada = false;
         console.log(idObrada);
         console.log(tip);
         //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
@@ -294,9 +305,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         this.selectedStatusValues = [];
         //Prolazimo kroz polje forma controlova
         this.poljeStatusa.controls.forEach((control, i) => {
-          if(control.value){
-            this.selectedStatusValues.push(this.statusi[i]);
-          }
+            if(control.value){
+              this.selectedStatusValues.push(this.statusi[i]);
+            }
         });
         
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti određenog statusa
@@ -307,9 +318,19 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             takeUntil(this.pretplateSubject)
         ).subscribe(
             //Dohvaćam odgovor servera (pacijente)
-            (pacijenti) => {
-              //Dohvaćene pacijente spremam u svoje polje pacijenata
-              this.pacijenti = pacijenti;
+            (odgovor) => {
+              //Praznim polje pacijenata
+              this.pacijenti = [];
+              //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+              let cekaonica;
+              //Prolazim odgovorom servera (JS objektima)
+              for(const cek of odgovor){
+                  //Kreiram nove objekte tipa "Cekaonica"
+                  cekaonica = new Cekaonica(cek);
+                  //Nadodavam ih u polje
+                  this.pacijenti.push(cekaonica);
+              }
+              console.log(this.pacijenti);
             }
         );
     }
@@ -326,6 +347,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada korisnik klikne button "Dodaj u obradu"
     onDodajObrada(id: number){
+        //Označavam da ne dodavam još pacijenta u obradu
+        this.isDodanObrada = false;
         let tipKorisnik;
         //Ako je prijavljen liječnik:
         if(this.isLijecnik){
@@ -337,31 +360,46 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         }
         //Pretplaćujem se na rezultate da ih dohvatim
         this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
-          switchMap(odgovor => {
-              return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
-                  tap(pacijenti => {
-                      //Označavam da ima odgovora servera 
-                      this.response = true;
-                      //Spremam poruku servera 
-                      this.responsePoruka = odgovor["message"];
-                      //Ako je server vratio da je pacijent uspješno dodan u obradu
-                      if(this.responsePoruka !== "Već postoji aktivan pacijent!"){
-                          //Označavam da je pacijent dodan u obradu
-                          this.isDodanObrada = true;
-                      }
-                      //Spremam novu verziju pacijenata
-                      this.pacijenti = pacijenti;
-                  }),
-                  takeUntil(this.pretplateSubject)
-              );
-          }),
-          takeUntil(this.pretplateSubject)
+            tap(odgovor => {
+                //Označavam da ima odgovora servera 
+                this.response = true;
+                //Spremam poruku servera 
+                this.responsePoruka = odgovor["message"];
+                console.log(this.responsePoruka);
+                //Ako je server vratio da je pacijent uspješno dodan u obradu
+                if(this.responsePoruka !== "Već postoji aktivan pacijent!"){
+                    //Označavam da je pacijent dodan u obradu
+                    this.isDodanObrada = true;
+                }
+            }),
+            switchMap(odgovor => {
+                return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
+                    tap(odgovor => {
+                        //Praznim polje pacijenata
+                        this.pacijenti = [];
+                        //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                        let cekaonica;
+                        //Prolazim odgovorom servera (JS objektima)
+                        for(const cek of odgovor){
+                            //Kreiram nove objekte tipa "Cekaonica"
+                            cekaonica = new Cekaonica(cek);
+                            //Nadodavam ih u polje
+                            this.pacijenti.push(cekaonica);
+                        }
+                        console.log(this.pacijenti);
+                    }),
+                    takeUntil(this.pretplateSubject)
+                );
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
       
     }
 
     //Metoda se pokreće kada korisnik klikne "Pretraži"
     onSubmit(){
+        //Označavam da ne dodavam pacijenta u obradu
+        this.isDodanObrada = false;
         //Ako forma nije ispravna
         if(!this.forma.valid){
           return;
@@ -406,11 +444,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             takeUntil(this.pretplateSubject)
         ).subscribe(
           //Uzimam pacijente
-          (pacijenti) => {
+          (odgovor) => {
               //Označavam da čekaonica više nije prazna
               this.isPrazna = false;
-              //Spremam pacijente u svoje polje da mogu ažurirati template
-              this.pacijenti = pacijenti;
+              //Praznim polje pacijenata
+              this.pacijenti = [];
+              //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+              let cekaonica;
+              //Prolazim odgovorom servera (JS objektima)
+              for(const cek of odgovor){
+                  //Kreiram nove objekte tipa "Cekaonica"
+                  cekaonica = new Cekaonica(cek);
+                  //Nadodavam ih u polje
+                  this.pacijenti.push(cekaonica);
+              }
+              console.log(this.pacijenti);
           }
         );
     }
@@ -428,12 +476,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
           takeUntil(this.pretplateSubject)
       ).subscribe(
           //Uzimam odgovor
-          (pacijenti) => {
-            //Pacijente iz odgovora spremam u svoje polje
-            this.pacijenti = pacijenti;
+          (odgovor) => {
+            //Praznim polje pacijenata
+            this.pacijenti = [];
+            //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+            let cekaonica;
+            //Prolazim odgovorom servera (JS objektima)
+            for(const cek of odgovor){
+                //Kreiram nove objekte tipa "Cekaonica"
+                cekaonica = new Cekaonica(cek);
+                //Nadodavam ih u polje
+                this.pacijenti.push(cekaonica);
+            }
+            console.log(this.pacijenti);
             //Označi checkboxove neaktivnima
             this.formaStatus.reset();
-            console.log(this.pacijenti);
           }
       );
     }

@@ -1,8 +1,7 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
+import {handleError} from '../../rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -21,8 +20,8 @@ export class OsnovniPodatciService{
     //Metoda koja vraća Observable u kojemu se nalaze svi OSNOVNI podatci pacijenta koji je aktivan u obradi
     getMainDataPatient(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<Pacijent | any>(this.baseUrl + 'osnovniPodatciPacijent/getMainDataPatient.php',{params: params}).pipe(
-            catchError(this.handleError)
+        return this.http.get<any>(this.baseUrl + 'osnovniPodatciPacijent/getMainDataPatient.php',{params: params}).pipe(
+            catchError(handleError)
         );
     }
 
@@ -45,23 +44,7 @@ export class OsnovniPodatciService{
             bracnoStanje: bracnoStanje,
             radniStatus: radniStatus,
             status: status
-        }).pipe(catchError(this.handleError));
+        }).pipe(catchError(handleError));
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong.
-            console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
 }
