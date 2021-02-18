@@ -1,14 +1,22 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
+import { Mjesto } from 'src/app/shared/modeli/mjesto.model';
+import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
+import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
+import { PrikazReceptService } from './prikaz-recept.service';
 
 @Component({
   selector: 'app-prikaz-recept',
   templateUrl: './prikaz-recept.component.html',
   styleUrls: ['./prikaz-recept.component.css']
 })
-export class PrikazReceptComponent implements OnInit {
+export class PrikazReceptComponent implements OnInit, OnDestroy {
 
+    //Kreiram Subject koji upravlja pretplatama
+    pretplateSubject = new Subject<boolean>();
     //Oznaka je li recept ponovljiv ili nije
     isPonovljiv: boolean = false;
     //Oznaka je li recept ima šifru specijalista
@@ -19,56 +27,88 @@ export class PrikazReceptComponent implements OnInit {
     @Output() close = new EventEmitter<any>();
     //Dohvaćam podatke recepta iz retka tablice liste recepata
     @Input() primljeniRecept: Recept;
-
-    constructor() { }
+    //Spremam podatke zdravstvene ustanove
+    zdrUstanova: ZdravstvenaUstanova;
+    //Spremam podatke poštanskog broja i naziva mjesta
+    mjesto: Mjesto;
+    //Spremam podatke recepta
+    objektRecept: Recept;
+    //Spremam podatke pacijenta
+    pacijent: Pacijent;
+    constructor(
+        //Dohvaćam servis prikaza recepta
+        private prikazService: PrikazReceptService
+    ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
-        console.log(this.primljeniRecept);
-        //Kreiram formu
-        this.forma = new FormGroup({
-           'ustanova': new FormGroup({
-                'imePrezimeLijecnik': new FormControl(null),
-                'nazivUstanova': new FormControl(null),
-                'adresaUstanova': new FormControl(null),
-                'pbrUstanova': new FormControl(null),
-                'mjestoUstanova': new FormControl(null),
-                'telefonUstanova': new FormControl(null)
-           }),
-          'recept': new FormGroup({
-                'tipRecept': new FormControl(null),
-                'brojPonavljanja': new FormControl(null),
-                'datumRecept': new FormControl(null)
-          }),
-          'podatciPacijenta': new FormGroup({
-              'imePrezimePacijent': new FormControl(null),
-              'datumRodenjaPacijent': new FormControl(null),
-              'adresaPacijent': new FormControl(null)
-          }),
-          'dijagnoze': new FormGroup({
-            'primarnaDijagnoza': new FormControl(null),
-            'sekundarnaDijagnoza': new FormControl(null)
-          }),
-          'proizvod': new FormGroup({
-              'imeProizvod': new FormControl(null)
-           }),
-           'detaljiProizvod': new FormGroup({
-               'kolicinaProizvod': new FormControl(null),
-               'doziranjeProizvod': new FormControl(null),
-               'dostatnostProizvod': new FormControl(null),
-               'vrijediDoProizvod': new FormControl(null)
-           }),
-          'specijalist': new FormGroup({
-              'sifraSpecijalist': new FormControl(null),
-              'tipSpecijalist': new FormControl(null)
-           })
-      });
+        //Pretplaćivam se podatke koje trebam prikazati u prikazu recepta
+        const combined = forkJoin([
+            this.prikazService.getPacijentRecept(this.primljeniRecept),
+            this.prikazService.getZdrUst()
+        ]).pipe(
+            tap(podatci => {
+                console.log(podatci);
+                //Spremam podatke sa servera u svoje objekte
+                this.zdrUstanova = new ZdravstvenaUstanova(podatci[1][0]);
+                this.mjesto = new Mjesto(podatci[1][0]);
+                this.objektRecept = new Recept(podatci[0][0]);
+                this.pacijent = new Pacijent(podatci[0][0]);
+                console.log(this.objektRecept);
+                console.log(this.pacijent);
+                //Kreiram formu
+                this.forma = new FormGroup({
+                    'ustanova': new FormGroup({
+                        'imePrezimeLijecnik': new FormControl(this.zdrUstanova.lijecnik),
+                        'nazivUstanova': new FormControl(this.zdrUstanova.naziv),
+                        'adresaUstanova': new FormControl(this.zdrUstanova.adresa),
+                        'pbrUstanova': new FormControl(this.mjesto.pbrMjesto),
+                        'mjestoUstanova': new FormControl(this.mjesto.nazivMjesto),
+                        'telefonUstanova': new FormControl(this.zdrUstanova.telefon)
+                    }),
+                    'recept': new FormGroup({
+                            'tipRecept': new FormControl(null),
+                            'brojPonavljanja': new FormControl(null),
+                            'datumRecept': new FormControl(null)
+                    }),
+                    'podatciPacijenta': new FormGroup({
+                        'imePrezimePacijent': new FormControl(null),
+                        'datumRodenjaPacijent': new FormControl(null),
+                        'adresaPacijent': new FormControl(null)
+                    }),
+                    'dijagnoze': new FormGroup({
+                        'primarnaDijagnoza': new FormControl(null),
+                        'sekundarnaDijagnoza': new FormControl(null)
+                    }),
+                    'proizvod': new FormGroup({
+                        'imeProizvod': new FormControl(null)
+                    }),
+                    'detaljiProizvod': new FormGroup({
+                        'kolicinaProizvod': new FormControl(null),
+                        'doziranjeProizvod': new FormControl(null),
+                        'dostatnostProizvod': new FormControl(null),
+                        'vrijediDoProizvod': new FormControl(null)
+                    }),
+                    'specijalist': new FormGroup({
+                        'sifraSpecijalist': new FormControl(null),
+                        'tipSpecijalist': new FormControl(null)
+                    })
+                });
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe(); 
     }
 
     //Ova metoda se poziva kada korisnik klikne "Izađi" ili negdje izvan prozora
     onClose(){
         //Emitiraj event prema roditeljskoj komponenti
         this.close.emit();
+    }
+
+    //Ova metoda se poziva kada se komponenta uništi
+    ngOnDestroy(){
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 
     get recept(): FormGroup{

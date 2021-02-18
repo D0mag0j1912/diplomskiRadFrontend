@@ -8,6 +8,9 @@ export class Mjesto{
         else if(response.pbrMjestoPacijent){
             this.pbrMjesto = response.pbrMjestoPacijent;
         }
+        else if(response.pbrZdrUst){
+            this.pbrMjesto = response.pbrZdrUst;
+        }
         if(response.nazivMjesto){
             this.nazivMjesto = response.nazivMjesto;
         }

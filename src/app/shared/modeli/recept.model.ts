@@ -6,7 +6,7 @@ export class Recept{
     public proizvod: string;
     public dostatnost: string;
     public datumRecept: Date;
-    public mkbSifraSekundarna?: string[];
+    public mkbSifraSekundarna?: string;
     public idRecept?: number;
     public oblikJacinaPakiranjeLijek?:string;
     public kolicina?: string;
@@ -53,6 +53,30 @@ export class Recept{
         //Spremam vrijeme kada je nastao recept
         if(response.vrijemeRecept){
             this.vrijemeRecept = response.vrijemeRecept;
+        }
+        //Spremam doziranje recepta
+        if(response.doziranje){
+            this.doziranje = response.doziranje;
+        }
+        //Spremam količinu recepta
+        if(response.kolicina){
+            this.kolicina = response.kolicina;
+        }
+        //Spremam šifre sek. dijagnoza
+        if(response.mkbSifraSekundarna){
+            this.mkbSifraSekundarna = response.mkbSifraSekundarna;
+        }
+        //Spremam ponovljivost recepta
+        if(response.ponovljiv){
+            this.ponovljivost = response.ponovljiv;
+        }
+        //Spremam OJP 
+        if(response.oblikJacinaPakiranjeLijek){
+            this.oblikJacinaPakiranjeLijek = response.oblikJacinaPakiranjeLijek;
+        }
+        //Spremam broj ponavljanja
+        if(response.brojPonavljanja){
+            this.brojPonavljanja = response.brojPonavljanja;
         }
     }
 }

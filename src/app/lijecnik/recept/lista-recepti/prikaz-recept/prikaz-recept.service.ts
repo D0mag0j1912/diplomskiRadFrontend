@@ -15,14 +15,22 @@ export class PrikazReceptService {
         private http: HttpClient
     ) { }
 
-    //Metoda koja vraća Observable sa svim podatcima recepta koji je poslan iz liste recepata u prikaz recepta
-    getRecept(recept: Recept){
+    //Metoda koja vraća Observable sa podatcima recepta i podatcima pacijenta koji je poslan iz liste recepata u prikaz recepta
+    getPacijentRecept(recept: Recept){
+        //Kodiram proizvod
+        recept.proizvod = encodeURIComponent(recept.proizvod);
         let params = new HttpParams().append("dostatnost",recept.dostatnost);
+        params = params.append("datumRecept", recept.datumRecept.toString());
         params = params.append("idPacijent",recept.idPacijent.toString());
         params = params.append("mkbSifraPrimarna",recept.mkbSifraPrimarna);
         params = params.append("proizvod", recept.proizvod);
         params = params.append("vrijemeRecept", recept.vrijemeRecept.toString());
-        return this.http.get<any>(this.baseUrl + '',{params: params}) 
+        return this.http.get<any>(this.baseUrl + 'recept/prikaz-recept/getPacijentRecept.php',{params: params}) 
             .pipe(catchError(handleError));
+    }
+
+    //Metoda koja vraća Observable sa podatcima zdravstvene ustanove 
+    getZdrUst(){
+        return this.http.get<any>(this.baseUrl + 'recept/prikaz-recept/getZdrUst.php').pipe(catchError(handleError));
     }
 }

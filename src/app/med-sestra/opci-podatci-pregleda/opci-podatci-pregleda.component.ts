@@ -99,7 +99,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     //Dodaj taj objekt u polje
                     this.podrucniUredi.push(objektPodrucniUred);
                 }
-                console.log(this.podrucniUredi);
                 //Inicijaliziram varijablu u koju spremam objekte tipa "KategorijaOsiguranja"
                 let objektKatOsiguranja;
                 //Prolazim poljem dijagnoza sa servera
@@ -128,10 +127,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   this.isAktivan = true;
                   //Spremam podatke obrade trenutno aktivnog pacijenta
                   this.trenutnoAktivniPacijent = new Obrada(response.pacijent.pacijent[0]);
-                  console.log(this.trenutnoAktivniPacijent);
                   //Spremam osobne podatke trenutno aktivnog pacijenta
                   this.pacijent = new Pacijent(response.pacijent.pacijent[0]);
-                  console.log(this.pacijent);
                   //Spremam ID pacijenta
                   this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                   //Spremam ID obrade
