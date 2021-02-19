@@ -15,6 +15,20 @@ export class PrikazReceptService {
         private http: HttpClient
     ) { }
 
+    //Metoda koja vraća Observable sa tipom specijalista na osnovu predane šifre specijalista
+    getTipSpecijalist(sifraSpecijalist: number){
+        let params = new HttpParams().append("sifraSpecijalist",sifraSpecijalist.toString());
+        return this.http.get<string>(this.baseUrl + 'recept/prikaz-recept/getTipSpecijalist.php',{params: params}) 
+            .pipe(catchError(handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalaze šifre i nazivi sekundarnih dijagnoza
+    getSekundarneDijagnoze(mkbSifre: string){
+        let params = new HttpParams().append("mkbSifre",mkbSifre);
+        return this.http.get<any>(this.baseUrl + 'recept/prikaz-recept/getSekundarneDijagnoze.php',{params: params}) 
+            .pipe(catchError(handleError));
+    }
+
     //Metoda koja vraća Observable sa podatcima recepta i podatcima pacijenta koji je poslan iz liste recepata u prikaz recepta
     getPacijentRecept(recept: Recept){
         //Kodiram proizvod

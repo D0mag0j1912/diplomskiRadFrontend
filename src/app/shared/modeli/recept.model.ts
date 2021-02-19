@@ -18,6 +18,7 @@ export class Recept{
     public idPacijent?: number;
     public imePrezimePacijent?: string;
     public vrijemeRecept?: Time;
+    public vrijediDo?: Date;
     //U ovoj metodi dohvaćam cijeli objekt koji dolazi sa servera te podatke iz njega spremam u svoje varijable
     constructor(response: any){
         //Spremam datum recepta
@@ -77,6 +78,10 @@ export class Recept{
         //Spremam broj ponavljanja
         if(response.brojPonavljanja){
             this.brojPonavljanja = response.brojPonavljanja;
+        }
+        //Spremam šifru specijalista
+        if(response.sifraSpecijalist){
+            this.sifraSpecijalist = response.sifraSpecijalist;
         }
     }
 }

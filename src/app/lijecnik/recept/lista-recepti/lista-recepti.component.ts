@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
@@ -47,7 +47,9 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         //Dohvaćam servis liste recepata
         private listaReceptiService: ListaReceptiService,
         //Dohvaćam servis pacijenata
-        private pacijentiService: PacijentiService
+        private pacijentiService: PacijentiService,
+        //Dohvaćam router zbog preusmjeravanja na ažuriranje recepta
+        private router: Router
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
@@ -243,9 +245,15 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     podiNaPrikaz(recept: Recept){
         //Šaljem prikazu recepta podatke iz ovog retka recepta
         this.poslaniRecept = new Recept(recept);
-        console.log(this.poslaniRecept);
         //Omogućavam prikaz recepta
         this.prikaz = true;
+    }
+
+    //Metoda koja se poziva kada liječnik klikne na button "Ažuriraj recept"
+    azurirajRecept(recept: Recept){
+        console.log(recept);
+        //Preusmjeri liječnika na prozor izdavanja recepta
+        this.router.navigate(['./',recept.idPacijent],{relativeTo: this.route});
     }
 
     //Metoda koja se poziva kada se klikne "Izađi" ili negdje izvan prikaza recepta

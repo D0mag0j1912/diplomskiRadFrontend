@@ -103,7 +103,7 @@ export class ReceptService{
     //Metoda koja vraća Observable u kojemu se nalazi DATUM do kada vrijedi terapija
     getDatumDostatnost(dostatnost: string){
         let params = new HttpParams().append("dostatnost",dostatnost);
-        return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDatumDostatnost.php',
+        return this.http.get<Date>(this.baseUrl + 'recept/dostatnost/getDatumDostatnost.php',
         {
             params: params
         }).pipe(catchError(handleError));

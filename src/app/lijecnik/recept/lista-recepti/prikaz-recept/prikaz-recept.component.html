@@ -170,11 +170,11 @@
                                 </td> 
                             </tr>
                             <tr formGroupName="dijagnoze">
-                                <td colspan="2">
+                                <td>
                                     <label 
                                         for="primarnaDijagnoza" 
                                         style="font-family: Verdana, sans-serif;float:left;">Primarna dijagnoza:</label>
-                                    <textarea 
+                                    <textarea
                                         rows="2"
                                         formControlName="primarnaDijagnoza" 
                                         class="form-control"
@@ -182,9 +182,9 @@
                                         style="width:100%; 
                                             font-family: Verdana, sans-serif;
                                             background-color: white; 
-                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                            border:0;resize:none;"></textarea>
                                 </td>
-                                <td>
+                                <td colspan="2">
                                     <label 
                                         for="sekundarnaDijagnoza" 
                                         style="font-family: Verdana, sans-serif;float:left;">Sekundarna dijagnoza:</label>
@@ -196,7 +196,7 @@
                                         style="width:100%; 
                                             font-family: Verdana, sans-serif;
                                             background-color: white; 
-                                            border:0;resize:none;cursor: pointer;"></textarea>
+                                            border:0;resize:none;"></textarea>
                                 </td>
                             </tr>
                         </tbody>
@@ -279,7 +279,7 @@
                                 <label 
                                     for="imeProizvod" 
                                     style="font-family: Verdana, sans-serif; 
-                                            float:left;">Lijek/Mag.pripravak:</label>
+                                            float:left;">{{isLijek ? 'Lijek:' : 'Magistralni pripravak'}}</label>
                                 <textarea 
                                     rows="2"
                                     formControlName="imeProizvod" 
@@ -291,7 +291,7 @@
                                         border:0;resize:none;cursor: pointer;"></textarea>
                             </td>
                         </tr>
-                        <tr formGroupName="detaljiProizvod">
+                        <tr formGroupName="detaljiProizvod" style="border-bottom: 1px solid #ddd">
                             <td>
                                 <label 
                                     for="kolicinaProizvod" 
@@ -303,8 +303,7 @@
                                     readonly
                                     style="width:80%;height:30px; 
                                         font-family: Verdana, sans-serif; 
-                                        background-color: white; 
-                                        border-style:solid"> 
+                                        background-color: white;border:0;"> 
                                 <label 
                                     for="dostatnostProizvod" 
                                     style="font-family: Verdana, sans-serif;float:left;">Dostatnost:</label>
@@ -315,7 +314,7 @@
                                     readonly
                                     style="width:80%;height:30px; 
                                         font-family: Verdana, sans-serif; 
-                                        background-color: white;border-style:solid"> 
+                                        background-color: white;border:0;"> 
                             </td>
                             <td>
                                 <label 
@@ -329,8 +328,7 @@
                                     readonly
                                     style="width:100%;height:30px; 
                                         font-family: Verdana, sans-serif; 
-                                        background-color: white; 
-                                        border-style:solid"> 
+                                        background-color: white;border:0;"> 
                                 <label 
                                     for="vrijediDoProizvod" 
                                     style="font-family: Verdana, sans-serif;float:left;">Vrijedi do:</label>
@@ -341,7 +339,7 @@
                                     readonly
                                     style="width:100%;height:30px; 
                                         font-family: Verdana, sans-serif; 
-                                        background-color: white;border-style:solid">
+                                        background-color: white;border:0;">
                             </td>
                         </tr>
                         <ng-container *ngIf="isSpecijalist">
@@ -352,7 +350,7 @@
                                         color:#337ab7;font-weight: bold;">Specijalist</h5>
                                 </td>
                             </tr>
-                            <tr formGroupName="specijalist">
+                            <tr formGroupName="specijalist" style="border-bottom: 1px solid #ddd">
                                 <td>
                                     <label 
                                         for="sifraSpecijalist" 

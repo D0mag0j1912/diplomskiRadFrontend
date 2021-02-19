@@ -14,6 +14,10 @@ export class ListaReceptiService{
     prijenosnikUListuRecepata = new Subject<string[]>();
     //Kreiram Observable od njega
     prijenosnikUListuRecepataObs = this.prijenosnikUListuRecepata.asObservable();
+    //Kreiram obični Subject koji će označiti početak ažuriranja recepta u komponenti "IzdajReceptComponent"
+    editMessenger = new Subject<boolean>();
+    //Kreiram Observable od njega
+    editMessengerObs = this.editMessenger.asObservable();
 
     constructor(
         //Dohvaćam http

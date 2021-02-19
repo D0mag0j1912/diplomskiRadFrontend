@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { forkJoin, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { forkJoin, of, Subject } from 'rxjs';
+import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { Mjesto } from 'src/app/shared/modeli/mjesto.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
+import { ReceptService } from '../../recept.service';
 import { PrikazReceptService } from './prikaz-recept.service';
 
 @Component({
@@ -21,6 +22,10 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
     isPonovljiv: boolean = false;
     //Oznaka je li recept ima šifru specijalista
     isSpecijalist: boolean = false;
+    //Oznaka je li recept ima sekundarnih dijagnoza
+    isSekundarna: boolean = false;
+    //Oznaka je li proizvod lijek ili mag.pripravak
+    isLijek: boolean = false;
     //Kreiram formu
     forma: FormGroup;
     //Kreiram event emitter
@@ -35,9 +40,16 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
     objektRecept: Recept;
     //Spremam podatke pacijenta
     pacijent: Pacijent;
+    //Spremam sve šifre i nazive sekundarnih dijagnoza
+    str: String;
+    //Spremam tip specijalista
+    tipSpecijalistBaza: string = null;
+
     constructor(
         //Dohvaćam servis prikaza recepta
-        private prikazService: PrikazReceptService
+        private prikazService: PrikazReceptService,
+        //Dohvaćam servis recepta
+        private receptService: ReceptService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -56,6 +68,92 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                 this.pacijent = new Pacijent(podatci[0][0]);
                 console.log(this.objektRecept);
                 console.log(this.pacijent);
+                //Ako je server vratio da je recept običan i da je broj ponavljanja null (tj. 0)
+                if(this.objektRecept.ponovljivost === "obican" && !this.objektRecept.brojPonavljanja){
+                    //Označavam da je recept običan
+                    this.isPonovljiv = false;
+                }
+                //Ako je server vratio da je recept ponovljiv i da je broj ponavljanja cijeli broj (1-5)
+                else if(this.objektRecept.ponovljivost === "ponovljiv" && this.objektRecept.brojPonavljanja){
+                    //Označavam da je recept ponovljiv
+                    this.isPonovljiv = true;
+                }
+                //Ako je server vratio šifru specijalista
+                if(this.objektRecept.sifraSpecijalist){
+                    //Označavam da treba prikazati redak sa šifrom specijalista
+                    this.isSpecijalist = true;
+                }
+                //Ako server nije vratio šifru specijalista
+                else{
+                    //Označavam da ne treba prikazati redak sa šifrom specijalista
+                    this.isSpecijalist = false;
+                }
+                //Ako je server vratio neku vrijednost za OJP, znači da je riječ o lijeku
+                if(this.objektRecept.oblikJacinaPakiranjeLijek){
+                    //Označavam da je riječ o lijeku
+                    this.isLijek = true;
+                }
+                //Ako server NIJE vratio neku vrijednost za OJP, znači da je riječ o mag.pripravku
+                else if(!this.objektRecept.oblikJacinaPakiranjeLijek){
+                    //Označavam da je riječ o magistralnom pripravku
+                    this.isLijek = false;
+                }
+            }),
+            mergeMap(()=> {
+                //Ako server nije vratio sekundarne dijagnoza tj. (mkbSifraSekundarna === null)
+                if(!this.objektRecept.mkbSifraSekundarna){
+                    //Označavam da nema sekundarnih dijagnoza i prikazivam poruku da IH NEMA u polju sek. dijagnoza
+                    this.isSekundarna = false;
+                    return this.receptService.getDatumDostatnost(this.objektRecept.dostatnost).pipe(
+                        tap(datum => {
+                            //Spremam datum "Vrijedi do" u svoj model
+                            this.objektRecept.vrijediDo = datum;
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
+                //Ako je server VRATIO sekundarne dijagnoze 
+                else{
+                    //Označavam da IMA sekundarnih dijagnoza 
+                    this.isSekundarna = true;
+                    //Predavam šifre sek. dijagnoza metodi koja dohvaća sve nazive sek. dijagnoza na osnovu tih šifri
+                    return forkJoin([
+                        this.prikazService.getSekundarneDijagnoze(this.objektRecept.mkbSifraSekundarna),
+                        this.receptService.getDatumDostatnost(this.objektRecept.dostatnost)
+                    ]).pipe(
+                        tap(podatci => {
+                            this.str = new String("");
+                            for(const dijagnoza of podatci[0]){
+                                //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
+                                this.str = this.str.concat(dijagnoza.mkbSifra + " | " + dijagnoza.imeDijagnoza + "\n");
+                            } 
+                            //Spremam datum "Vrijedi do" u svoj model
+                            this.objektRecept.vrijediDo = podatci[1];
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
+            }),
+            mergeMap(() => {
+                //Ako je server vratio šifru specijalista
+                if(this.isSpecijalist){
+                    //Pozivam metodu koja će dohvatiti tip specijalista
+                    return this.prikazService.getTipSpecijalist(this.objektRecept.sifraSpecijalist).pipe(
+                        tap(tipSpecijalist => {
+                            //Spremam tip specijalista
+                            this.tipSpecijalistBaza = tipSpecijalist;
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
+                //Ako server nije vratio šifru specijalista
+                else if(!this.isSpecijalist){
+                    return of(null).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
+            }),
+            tap(() => {
                 //Kreiram formu
                 this.forma = new FormGroup({
                     'ustanova': new FormGroup({
@@ -67,31 +165,31 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                         'telefonUstanova': new FormControl(this.zdrUstanova.telefon)
                     }),
                     'recept': new FormGroup({
-                            'tipRecept': new FormControl(null),
-                            'brojPonavljanja': new FormControl(null),
-                            'datumRecept': new FormControl(null)
+                            'tipRecept': new FormControl(this.isPonovljiv ? "Ponovljiv recept" : "Običan recept"),
+                            'brojPonavljanja': new FormControl(this.isPonovljiv ? this.objektRecept.brojPonavljanja : null),
+                            'datumRecept': new FormControl(this.objektRecept.datumRecept)
                     }),
                     'podatciPacijenta': new FormGroup({
-                        'imePrezimePacijent': new FormControl(null),
-                        'datumRodenjaPacijent': new FormControl(null),
-                        'adresaPacijent': new FormControl(null)
+                        'imePrezimePacijent': new FormControl(this.objektRecept.imePrezimePacijent),
+                        'datumRodenjaPacijent': new FormControl(this.pacijent.datRod),
+                        'adresaPacijent': new FormControl(this.pacijent.adresa)
                     }),
                     'dijagnoze': new FormGroup({
-                        'primarnaDijagnoza': new FormControl(null),
-                        'sekundarnaDijagnoza': new FormControl(null)
+                        'primarnaDijagnoza': new FormControl(this.objektRecept.mkbSifraPrimarna),
+                        'sekundarnaDijagnoza': new FormControl(this.isSekundarna ? this.str : "Nema evidentiranih sekundarnih dijagnoza!")
                     }),
                     'proizvod': new FormGroup({
-                        'imeProizvod': new FormControl(null)
+                        'imeProizvod': new FormControl(this.objektRecept.proizvod)
                     }),
                     'detaljiProizvod': new FormGroup({
-                        'kolicinaProizvod': new FormControl(null),
-                        'doziranjeProizvod': new FormControl(null),
-                        'dostatnostProizvod': new FormControl(null),
-                        'vrijediDoProizvod': new FormControl(null)
+                        'kolicinaProizvod': new FormControl(this.objektRecept.kolicina),
+                        'doziranjeProizvod': new FormControl(this.objektRecept.doziranje),
+                        'dostatnostProizvod': new FormControl(this.objektRecept.dostatnost),
+                        'vrijediDoProizvod': new FormControl(this.objektRecept.vrijediDo)
                     }),
                     'specijalist': new FormGroup({
-                        'sifraSpecijalist': new FormControl(null),
-                        'tipSpecijalist': new FormControl(null)
+                        'sifraSpecijalist': new FormControl(this.isSpecijalist ? this.objektRecept.sifraSpecijalist : null),
+                        'tipSpecijalist': new FormControl(this.isSpecijalist ? this.tipSpecijalistBaza : null)
                     })
                 });
             }),
