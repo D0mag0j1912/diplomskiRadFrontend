@@ -2,10 +2,11 @@ import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/r
 import { Observable } from 'rxjs';
 import {Injectable} from '@angular/core';
 import {forkJoin} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, switchMap, take} from 'rxjs/operators';
 import { ReceptImportiService } from './recept-import.service';
 import { ImportService } from 'src/app/med-sestra/import.service';
 import { ReceptService } from './recept.service';
+import { ListaReceptiService } from './lista-recepti/lista-recepti.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -17,12 +18,13 @@ export class IzdajReceptResolverService implements Resolve<any>{
         //Dohvaćam importi service
         private importService: ImportService,
         //Dohvaćam servis recepta
-        private receptService: ReceptService
+        private receptService: ReceptService,
+        //Dohvaćam servis liste recepata
+        private listaReceptiService: ListaReceptiService
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
             Observable<any> | Promise<any> | any {
-        //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa Korisnik 
         return forkJoin([
             this.importService.getDijagnoze(),
             this.receptImportiService.getLijekoviOsnovnaLista(),

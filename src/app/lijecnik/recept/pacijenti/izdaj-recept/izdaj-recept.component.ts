@@ -2,15 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { concatMap, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, debounceTime, distinctUntilChanged, filter, map, skip, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
 import { ReceptService } from '../../recept.service';
 import * as receptHandler from '../../recept-handler';
 import {azurirajValidatore} from '../../azuriraj-validatore';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
-import { EventEmitter } from '@angular/core';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
+import { ListaReceptiService } from '../../lista-recepti/lista-recepti.service';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -18,6 +18,8 @@ import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
   styleUrls: ['./izdaj-recept.component.css']
 })
 export class IzdajReceptComponent implements OnInit, OnDestroy{
+    //Oznaka je li komponenta u modu ažuriranja
+    editMode: boolean = false;
     //Spremam ID pacijenta
     idPacijent: string;
     //Oznaka hoće li se prikazati prozor sa porukom servera
@@ -101,15 +103,18 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Dohvaćam servis pretrage recepta
         private receptPretragaService: ReceptPretragaService,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis liste recepata
+        private listaReceptiService: ListaReceptiService
     ) {}
 
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit() {
-
+        
         this.route.data.pipe(
             map(podatci => podatci.importi),
             tap((podatci) => {
+                console.log(podatci);
                 //Spremam ID pacijenta
                 this.idPacijent = this.route.snapshot.paramMap.get('id');
                 //Inicijaliziram praznu varijablu u kojoj ću spremiti objekte tipa "Dijagnoza"

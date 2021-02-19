@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { Recept } from "src/app/shared/modeli/recept.model";
 import {handleError} from '../../../shared/rxjs-error';
 
 @Injectable({
@@ -14,8 +15,8 @@ export class ListaReceptiService{
     prijenosnikUListuRecepata = new Subject<string[]>();
     //Kreiram Observable od njega
     prijenosnikUListuRecepataObs = this.prijenosnikUListuRecepata.asObservable();
-    //Kreiram obični Subject koji će označiti početak ažuriranja recepta u komponenti "IzdajReceptComponent"
-    editMessenger = new Subject<boolean>();
+    //Kreiram Subject kojim prenosim informaciju da liječnik želi ažurirati recept
+    editMessenger = new BehaviorSubject<Recept>(null);
     //Kreiram Observable od njega
     editMessengerObs = this.editMessenger.asObservable();
 

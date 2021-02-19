@@ -191,6 +191,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"
     izdajRecept(id: number){
+        //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
+        this.listaReceptiService.editMessenger.next(null);
         //Preusmjeri liječnika na prozor izdavanja recepta
         this.router.navigate(['./',id],{relativeTo: this.route});
     }

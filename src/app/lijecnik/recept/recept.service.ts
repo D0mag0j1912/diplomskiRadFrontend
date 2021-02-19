@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
+import { Recept } from "src/app/shared/modeli/recept.model";
 import {handleError} from '../../shared/rxjs-error';
 
 @Injectable({
@@ -16,6 +17,20 @@ export class ReceptService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Metoda koja vraća Observable sa svim podatcima recepta (Ažuriranje recepta)
+    getRecept(recept: Recept){
+        //Kodiram proizvod
+        recept.proizvod = encodeURIComponent(recept.proizvod);
+        let params = new HttpParams().append("dostatnost",recept.dostatnost);
+        params = params.append("datumRecept", recept.datumRecept.toString());
+        params = params.append("idPacijent",recept.idPacijent.toString());
+        params = params.append("mkbSifraPrimarna",recept.mkbSifraPrimarna);
+        params = params.append("proizvod", recept.proizvod);
+        params = params.append("vrijemeRecept", recept.vrijemeRecept.toString());
+        return this.http.get<any>(this.baseUrl + 'recept/handleRecept/getRecept.php',{params: params}) 
+            .pipe(catchError(handleError));
+    }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na prekoračenje maksimalne doze
     getMaksimalnaDoza(lijek: string,doza: string){
@@ -51,7 +66,7 @@ export class ReceptService{
             dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
         }
          
-        return this.http.post<any>(this.baseUrl + 'recept/dodajRecept.php',{
+        return this.http.post<any>(this.baseUrl + 'recept/handleRecept/dodajRecept.php',{
             mkbSifraPrimarna,
             mkbSifraSekundarna,
             osnovnaListaLijekDropdown,

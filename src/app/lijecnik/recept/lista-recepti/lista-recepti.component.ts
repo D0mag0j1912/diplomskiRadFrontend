@@ -59,6 +59,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         this.formaPretraga = new FormGroup({
             'pretraga': new FormControl(null)
         });
+        
         //Pretplaćujem se na Subject koji šalje ID-ove pacijenata 
         this.listaReceptiService.prijenosnikUListuRecepataObs.pipe(
             debounceTime(100),
@@ -252,8 +253,10 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     //Metoda koja se poziva kada liječnik klikne na button "Ažuriraj recept"
     azurirajRecept(recept: Recept){
         console.log(recept);
-        //Preusmjeri liječnika na prozor izdavanja recepta
-        this.router.navigate(['./',recept.idPacijent],{relativeTo: this.route});
+        //Šaljem podatke recepta komponenti "IzdajReceptComponent" da se zna da se radi o AŽURIRANJU RECEPTA
+        this.listaReceptiService.editMessenger.next(recept);
+        //Preusmjeri liječnika na prozor ažuriranja recepta
+        this.router.navigate(['./',recept.idPacijent],{relativeTo: this.route}); 
     }
 
     //Metoda koja se poziva kada se klikne "Izađi" ili negdje izvan prikaza recepta
