@@ -189,7 +189,7 @@
                                         for="sekundarnaDijagnoza" 
                                         style="font-family: Verdana, sans-serif;float:left;">Sekundarna dijagnoza:</label>
                                     <textarea 
-                                        rows="2"
+                                        rows="4"
                                         formControlName="sekundarnaDijagnoza" 
                                         class="form-control"
                                         readonly
@@ -235,21 +235,19 @@
                                         font-family: Verdana, sans-serif; 
                                         background-color: white; 
                                         border:0">
-                                <ng-container *ngIf="isPonovljiv">
-                                    <label 
-                                        for="brojPonavljanja" 
-                                        style="font-family: Verdana, sans-serif; 
-                                                float:left;">Broj ponavljanja:</label>
-                                    <input 
-                                        type="text"
-                                        formControlName="brojPonavljanja" 
-                                        class="form-control"
-                                        readonly
-                                        style="width:30%;height:30px; 
-                                            font-family: Verdana, sans-serif; 
-                                            background-color: white; 
-                                            border:0">
-                                </ng-container>
+                                <label 
+                                    for="hitnost" 
+                                    style="font-family: Verdana, sans-serif; 
+                                            float:left;">Hitnost:</label>
+                                <input 
+                                    type="text"
+                                    formControlName="hitnost" 
+                                    class="form-control"
+                                    readonly
+                                    style="width:100%;height:30px;
+                                        font-family: Verdana, sans-serif; 
+                                        background-color: white; 
+                                        border:0">
                             </td>
                             <td>
                                 <label 
@@ -265,6 +263,21 @@
                                         font-family: Verdana, sans-serif; 
                                         background-color: white; 
                                         border:0">
+                                <ng-container *ngIf="isPonovljiv">
+                                    <label 
+                                        for="brojPonavljanja" 
+                                        style="font-family: Verdana, sans-serif; 
+                                                float:left;">Broj ponavljanja:</label>
+                                    <input 
+                                        type="text"
+                                        formControlName="brojPonavljanja" 
+                                        class="form-control"
+                                        readonly
+                                        style="width:60%;height:30px; 
+                                            font-family: Verdana, sans-serif; 
+                                            background-color: white; 
+                                            border:0">
+                                </ng-container>
                             </td>
                         </tr>
                         <tr>

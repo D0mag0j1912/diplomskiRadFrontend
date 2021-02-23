@@ -6,6 +6,7 @@ export class Recept{
     public proizvod: string;
     public dostatnost: string;
     public datumRecept: Date;
+    public nazivPrimarna?: string;
     public mkbSifraSekundarna?: string;
     public idRecept?: number;
     public oblikJacinaPakiranjeLijek?:string;
@@ -42,6 +43,10 @@ export class Recept{
         //Spremam šifru primarne dijagnoze
         if(response.mkbSifraPrimarna){
             this.mkbSifraPrimarna = response.mkbSifraPrimarna;
+        }
+        //Spremam naziv primarne dijagnoze 
+        if(response.nazivPrimarna){
+            this.nazivPrimarna = response.nazivPrimarna;
         }
         //Spremam naziv proizvoda
         if(response.proizvod){
@@ -82,6 +87,14 @@ export class Recept{
         //Spremam šifru specijalista
         if(response.sifraSpecijalist){
             this.sifraSpecijalist = response.sifraSpecijalist;
+        }
+        //Spremam podatak je li recept hitan
+        if(response.hitnost){
+            this.hitnost = response.hitnost;
+        }
+        //Spremam ID recepta
+        if(response.idRecept){
+            this.idRecept = response.idRecept;
         }
     }
 }

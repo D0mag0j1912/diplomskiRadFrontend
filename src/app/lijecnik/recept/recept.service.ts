@@ -1,6 +1,7 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { Time } from "@angular/common";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { Recept } from "src/app/shared/modeli/recept.model";
 import {handleError} from '../../shared/rxjs-error';
@@ -18,16 +19,62 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
+    azurirajRecept(mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
+        osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
+        osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
+        dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
+        ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string,idPacijent: string,datumRecept: Date, vrijemeRecept: Time){
+        //Kodiram lijek koji je unesen
+        if(osnovnaListaLijekDropdown){
+            osnovnaListaLijekDropdown = encodeURIComponent(osnovnaListaLijekDropdown);
+        }
+        else if(osnovnaListaLijekText){
+            osnovnaListaLijekText = encodeURIComponent(osnovnaListaLijekText);
+        }
+        else if(dopunskaListaLijekDropdown){
+            dopunskaListaLijekDropdown = encodeURIComponent(dopunskaListaLijekDropdown);
+        }
+        else if(dopunskaListaLijekText){
+            dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
+        }
+        
+        return this.http.put<any>(this.baseUrl + 'recept/handleRecept/azurirajRecept.php',{
+            mkbSifraPrimarna,
+            mkbSifraSekundarna,
+            osnovnaListaLijekDropdown,
+            osnovnaListaLijekText,
+            dopunskaListaLijekDropdown,
+            dopunskaListaLijekText,
+            osnovnaListaMagPripravakDropdown,
+            osnovnaListaMagPripravakText,
+            dopunskaListaMagPripravakDropdown,
+            dopunskaListaMagPripravakText,
+            kolicina,
+            doziranje,
+            dostatnost,
+            hitnost,
+            ponovljiv,
+            brojPonavljanja,
+            sifraSpecijalist,
+            idPacijent,
+            datumRecept,
+            vrijemeRecept
+        }).pipe(catchError(handleError));
+    }
+
     //Metoda koja vraća Observable sa svim podatcima recepta (Ažuriranje recepta)
     getRecept(recept: Recept){
+        //Kreiram kopiju poslanog objekta recepta te tu kopiju prosljeđujem dalje backendu
+        const pom = {...recept};
         //Kodiram proizvod
-        recept.proizvod = encodeURIComponent(recept.proizvod);
-        let params = new HttpParams().append("dostatnost",recept.dostatnost);
-        params = params.append("datumRecept", recept.datumRecept.toString());
-        params = params.append("idPacijent",recept.idPacijent.toString());
-        params = params.append("mkbSifraPrimarna",recept.mkbSifraPrimarna);
-        params = params.append("proizvod", recept.proizvod);
-        params = params.append("vrijemeRecept", recept.vrijemeRecept.toString());
+        pom.proizvod = encodeURIComponent(pom.proizvod); 
+        let params = new HttpParams().append("dostatnost",pom.dostatnost);
+        params = params.append("datumRecept", pom.datumRecept.toString());
+        params = params.append("idPacijent",pom.idPacijent.toString());
+        params = params.append("mkbSifraPrimarna",pom.mkbSifraPrimarna);
+        params = params.append("proizvod", pom.proizvod);
+        params = params.append("vrijemeRecept", pom.vrijemeRecept.toString());
         return this.http.get<any>(this.baseUrl + 'recept/handleRecept/getRecept.php',{params: params}) 
             .pipe(catchError(handleError));
     }

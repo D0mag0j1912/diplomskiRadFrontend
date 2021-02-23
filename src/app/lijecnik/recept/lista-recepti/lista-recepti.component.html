@@ -17,9 +17,19 @@
 </form>
 <div 
     class="row" 
+    *ngIf="nemaNitkoRecept && 
+        !inicijalnoAktivniNemaRezultata && 
+        !inicijalnoNemaPacijenata && 
+        !nemaRecepata" 
+    style="margin-top:10px;">
+    <h3 style="color:#a94442;left:130px;position: relative;">{{nemaNitkoRecept}}</h3>
+</div>
+<div 
+    class="row" 
     *ngIf="nemaRecepata && 
         !inicijalnoAktivniNemaRezultata && 
-        !inicijalnoNemaPacijenata" 
+        !inicijalnoNemaPacijenata && 
+        !nemaNitkoRecept" 
     style="margin-top:10px;">
     <h3 style="color:#a94442;left:40px;position: relative;">{{nemaRecepata}}</h3>
 </div>
@@ -27,7 +37,8 @@
     class="row" 
     *ngIf="inicijalnoNemaPacijenata && 
         !inicijalnoAktivniNemaRezultata && 
-        !nemaRecepata" 
+        !nemaRecepata && 
+        !nemaNitkoRecept" 
     style="margin-top:10px;">
     <h3 style="color:#a94442;left:40px;position: relative;">{{inicijalnoNemaPacijenata}}</h3>
 </div>
@@ -35,7 +46,8 @@
     class="row" 
     *ngIf="inicijalnoAktivniNemaRezultata && 
         !inicijalnoNemaPacijenata && 
-        !nemaRecepata" 
+        !nemaRecepata && 
+        !nemaNitkoRecept" 
     style="margin-top:10px;">
     <h3 style="color:#a94442;left:40px;position: relative;">{{inicijalnoAktivniNemaRezultata}}</h3>
 </div>
@@ -44,7 +56,8 @@
     !inicijalnoNemaPacijenata && 
     !inicijalnoAktivniNemaRezultata && 
     !porukaPretraga && 
-    !nemaRecepata">
+    !nemaRecepata && 
+    !nemaNitkoRecept">
     <!--Za svakog pacijenta koji sudjeluje u receptima, kreiraj jedan div sa plavim rubovima-->
     <div class="row" style="border:2px solid #337ab7; 
                         border-radius: 10px;margin-top:10px;" *ngFor="let pacijent of pacijenti">

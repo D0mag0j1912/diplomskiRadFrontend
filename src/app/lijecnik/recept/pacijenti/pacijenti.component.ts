@@ -118,6 +118,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                     //Svaki novo kreirani objekt nadodavam u polje
                                     this.pacijenti.push(pacijent);
                                 }
+                                //Praznim polje ID-ova koje šaljem u listu recepata
+                                this.ids = [];
                                 //Kreiram svoje novo polje koje će uzeti samo ID-ove iz polja rezultata
                                 this.ids = this.pacijenti.map((objekt) => {
                                     return objekt.id.toString();
@@ -143,8 +145,11 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             //Pretplaćujem se na vrijednost Subjecta pomoću kojega dobivam informaciju kada poslati ID-ove pacijenata
             this.receptService.messengerObs.pipe(
                 tap(value => {
+                    console.log(value);
                     //Ako je vrijednost Subjecta true
                     if(value){
+                        console.log("Šaljem ID-ove listi recepata");
+                        console.log(this.ids);
                         //Pošalji listi recepata trenutno stanje ID-ova u tablici pacijenata
                         this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
                     }

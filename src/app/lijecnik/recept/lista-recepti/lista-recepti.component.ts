@@ -28,6 +28,8 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     inicijalnoNemaPacijenata: string = null;
     //Spremam inicijalnu poruku da trenutno aktivni pacijent nema evidentiranih recepata
     inicijalnoAktivniNemaRezultata: string = null;
+    //Spremam poruku da nitko od pacijenata nema evidentianih recepata
+    nemaNitkoRecept: string = null;
     //Spremam poruku da pacijent nema evidentiranih recepata
     nemaRecepata: string = null;
     //Spremam inicijalne recepte
@@ -63,9 +65,8 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         //Pretplaćujem se na Subject koji šalje ID-ove pacijenata 
         this.listaReceptiService.prijenosnikUListuRecepataObs.pipe(
             debounceTime(100),
-            distinctUntilChanged(),
             switchMap(vrijednost => {
-                console.log(vrijednost);
+                console.log("Primljena vrijednost ID-ova: " + vrijednost);
                 //Ako je dobivena vrijednost polje
                 if(vrijednost){
                     //Dohvaćam recepte tako da prosljeđivam ID-eve pacijenata (prosljeđivam samo ako sam dobio array kao value)
@@ -81,6 +82,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                     this.inicijalnoAktivniNemaRezultata = null;
                                     this.porukaPretraga = null;
                                     this.nemaRecepata = null;
+                                    this.nemaNitkoRecept = null;
                                     //Označavam da liječnik pretražuje recepte
                                     this.isPretraga = true;
                                     //Inicijaliziram varijable u koje ću spremiti podatke recepata
@@ -94,29 +96,38 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                         //Objekt tipa "Recept" dodavam u polje
                                         this.recepti.push(recept);
                                     }
-                                    console.log(this.recepti);
                                     //Kreiram novo polje koje se sastoji od samo podataka pacijenata koji sudjeluju u receptima (ID, imePrezime)
                                     let pacijent = this.recepti.map((objekt) => {
                                         const pom = {idPacijent: objekt.idPacijent, imePrezimePacijent: objekt.imePrezimePacijent};
                                         const pac = new Pacijent(pom);
                                         return pac;
                                     });
-                                    console.log(pacijent);
                                     //Resetiram polje u koje spremam ID-eve i imena/prezimena pacijenata kojima su evidentirani recepti
                                     this.pacijenti = [];
                                     //Samo jedinstvene pacijente nadodavam u svoje polje 
                                     this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
-                                    console.log(this.pacijenti);
                                 }
                                 //Ako je poslan samo JEDAN ID pacijenta (zato što je u tablici pacijenata samo jedan redak), te on NEMA evidentiranih recepata
-                                else{
+                                else if(odgovor["success"] === "false" && odgovor["message"] !== "Nema evidentiranih recepata!"){
                                     //Resetiram poruke koje je potrebno resetirati da se prikaže sljedeća poruka
                                     this.inicijalnoAktivniNemaRezultata = null;
                                     this.inicijalnoNemaPacijenata = null;
+                                    this.nemaNitkoRecept = null;
                                     //Označavam da nema rezultata pretrage (da se sakriju recepti)
                                     this.isPretraga = false;
                                     //Spremam odgovor servera
                                     this.nemaRecepata = odgovor.message;
+                                }
+                                //Ako je poslano više ID-ova pacijenata te nijedan od njih nema evidentiranih recepata
+                                else if(odgovor["success"] === "false" && odgovor["message"] === "Nema evidentiranih recepata!"){
+                                    //Resetiram poruke koje je potrebno resetirati 
+                                    this.inicijalnoAktivniNemaRezultata = null;
+                                    this.inicijalnoNemaPacijenata = null;
+                                    this.nemaRecepata = null;
+                                    //Označavam da nema rezultata pretrage (da se sakriju recepti)
+                                    this.isPretraga = false;
+                                    //Spremam odgovor servera
+                                    this.nemaNitkoRecept = odgovor.message; 
                                 }
                             } 
                         }),
@@ -131,6 +142,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         this.route.data.pipe(
             map(podatci => podatci.podatci.recepti),
             tap((podatci: any) => {
+                console.log(podatci);
                 //Ako je server vratio da ima evidentiranih pacijenata u bazi ILI da aktivni pacijent ima evidentiranih recepata
                 if(podatci["success"] !== "false"){
                     //Resetiram poruke koja je potrebno resetirati da se prikažu recepti
@@ -138,6 +150,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                     this.inicijalnoAktivniNemaRezultata = null;
                     this.porukaPretraga = null;
                     this.nemaRecepata = null;
+                    this.nemaNitkoRecept = null;
                     //Označavam je liječnik pretražuje recepte (u slučaju da je ostala false)
                     this.isPretraga = true;
                     //Inicijaliziram varijable u koje ću spremiti podatke recepata
@@ -168,6 +181,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                     //Resetiram poruke koje je potrebno resetirati da se prikaže sljedeća poruka
                     this.nemaRecepata = null;
                     this.inicijalnoAktivniNemaRezultata = null;
+                    this.nemaNitkoRecept = null;
                     //Spremam odgovor servera u svoju varijablu
                     this.inicijalnoNemaPacijenata = podatci.message;
                 }
@@ -176,8 +190,17 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                     //Resetiram poruke koje je potrebno resetirati da se prikaže sljedeća poruka
                     this.nemaRecepata = null;
                     this.inicijalnoNemaPacijenata = null;
+                    this.nemaNitkoRecept = null;
                     //Spremam odgovor servera u svoju varijablu
                     this.inicijalnoAktivniNemaRezultata = podatci.message;
+                }
+                else if(podatci["success"] === "false" && podatci["message"] === "Nema evidentiranih recepata!"){
+                    //Resetiram poruke koje je potrebno resetirati da se prikaže sljedeća poruka
+                    this.nemaRecepata = null;
+                    this.inicijalnoNemaPacijenata = null;
+                    this.inicijalnoAktivniNemaRezultata = null;
+                    //Spremam odgovor servera u svoju varijablu
+                    this.nemaNitkoRecept = podatci.message;
                 }
             }),
             takeUntil(this.pretplateSubject)
@@ -197,6 +220,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                             this.inicijalnoNemaPacijenata = null;
                             this.inicijalnoAktivniNemaRezultata = null;
                             this.nemaRecepata = null;
+                            this.nemaNitkoRecept = null;
                             //Označavam da ima rezultata
                             this.isPretraga = true;
                             //Inicijaliziram varijable u koje ću spremiti podatke recepata
@@ -252,7 +276,6 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
 
     //Metoda koja se poziva kada liječnik klikne na button "Ažuriraj recept"
     azurirajRecept(recept: Recept){
-        console.log(recept);
         //Šaljem podatke recepta komponenti "IzdajReceptComponent" da se zna da se radi o AŽURIRANJU RECEPTA
         this.listaReceptiService.editMessenger.next(recept);
         //Preusmjeri liječnika na prozor ažuriranja recepta

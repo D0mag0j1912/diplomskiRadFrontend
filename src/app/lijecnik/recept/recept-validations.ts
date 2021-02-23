@@ -45,7 +45,6 @@ export function provjeraSifraSpecijalist(zdravstveniRadnici: ZdravstveniRadnik[]
         if(control){
             //Ako je potrebno upisati šifru specijalista:
             if(isSpecijalist){
-                console.log("tu sam");
                 //Prolazim kroz polje zdravstvenih radnika
                 for(const radnik of zdravstveniRadnici){
                     //Ako se unesena vrijednost nalazi u šiframa specijalista

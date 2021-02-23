@@ -166,6 +166,7 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                     }),
                     'recept': new FormGroup({
                             'tipRecept': new FormControl(this.isPonovljiv ? "Ponovljiv recept" : "Običan recept"),
+                            'hitnost': new FormControl(this.objektRecept.hitnost === "hitno" ? "Hitno" : "Nije hitno"),
                             'brojPonavljanja': new FormControl(this.isPonovljiv ? this.objektRecept.brojPonavljanja : null),
                             'datumRecept': new FormControl(this.objektRecept.datumRecept)
                     }),
@@ -215,6 +216,9 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
     //Kreiram gettere za Form controlove
     get tipRecept(): FormControl{
       return this.forma.get('recept.tipRecept') as FormControl;
+    }
+    get hitnost(): FormControl{
+        return this.forma.get('recept.hitnost') as FormControl;
     }
     get brojPonavljanja(): FormControl{
         return this.forma.get('recept.brojPonavljanja') as FormControl;
