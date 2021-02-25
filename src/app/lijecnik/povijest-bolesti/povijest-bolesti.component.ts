@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PovezaniPovijestBolestiService} from '../povezani-povijest-bolesti/povezani-povijest-bolesti.service';
-import { combineLatest, Subject } from 'rxjs';
+import { combineLatest, merge, Subject } from 'rxjs';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -10,6 +10,7 @@ import { OtvoreniSlucajService } from 'src/app/shared/otvoreni-slucaj/otvoreni-s
 import { PovijestBolestiService } from './povijest-bolesti.service';
 import { takeUntil, tap } from 'rxjs/operators';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
+import * as Validacija from '../recept/recept-validations';
 
 @Component({
   selector: 'app-povijest-bolesti',
@@ -48,7 +49,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       dijagnoza: string;
       //Spremam ID trenutno aktivnog liječnika
       idLijecnik: number;
-      
+      //Spremam sve MKB šifre dijagnoza
+      mkbSifre: string[] = [];
+
       //Spremam dijagnoze otvorenog slučaja
       primarnaDijagnozaOtvoreniSlucaj: string;
       sekundarnaDijagnozaOtvoreniSlucaj: string[] = [];
@@ -86,6 +89,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     for(const d of podatci.podatci["dijagnoze"]){
                         objektDijagnoza = new Dijagnoza(d);
                         this.dijagnoze.push(objektDijagnoza);
+                        //Spremam jednu po jednu MKB šifru u svoje polje
+                        this.mkbSifre.push(d.mkbSifra);
                     }
                     //Ako je Resolver vratio aktivnog pacijenta
                     if(podatci.pacijent["success"] !== "false"){
@@ -98,14 +103,19 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                       //Spremam ID obrade
                       this.idObrada = this.trenutnoAktivniPacijent.idObrada;
                     }
+
                     this.forma = new FormGroup({
                       'razlogDolaska': new FormControl(null),
                       'anamneza': new FormControl(null),
                       'status': new FormControl(null),
                       'primarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required] : []),
+                      'mkbPrimarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required,Validacija.provjeriMKB(this.mkbSifre)] : []),
                       'sekundarnaDijagnoza': new FormArray([
-                        new FormControl(null)
-                      ] , {validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
+                          new FormGroup({
+                            'nazivSekundarna': new FormControl(null),
+                            'mkbSifraSekundarna': new FormControl(null)
+                          },{validators: this.isAktivan ? [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)] : []}) 
+                      ],{validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
                       'nalaz': new FormControl(null),
                       'terapija': new FormControl(null),
                       'preporukaLijecnik': new FormControl(null),
@@ -121,17 +131,83 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               ),
               takeUntil(this.pretplateSubject)
           ).subscribe();
-          //Pretplaćujem se na promjene u primarnoj dijagnozi
-          this.forma.get('primarnaDijagnoza').valueChanges.pipe(
-              takeUntil(this.pretplateSubject)
-          ).subscribe(
-              (dijagnoza) => {
-                  if(dijagnoza){
-                      //Kada je primarna dijagnoza unesena, unos sekundarne dijagnoze je omogućen
-                      this.forma.get('sekundarnaDijagnoza').enable({emitEvent: false});
-                  }
-              }
-          );
+          
+          //Pretplaćujem se na promjene u poljima forme
+          const promjeneForme = merge(
+              //Slušam promjene u polju unosa primarne dijagnoze
+              this.primarnaDijagnoza.valueChanges.pipe(
+                tap(value => {
+                    //Na početku postavljam da nisam pronašao naziv primarne dijagnoze
+                    let pronasao = false;
+                    //Prolazim kroz sve nazive primarnih dijagnoza
+                    for(const dijagnoza of this.dijagnoze){
+                        //Ako su jednaki
+                        if(value === dijagnoza.imeDijagnoza){
+                            //Označavam da se poklapaju nazivi
+                            pronasao = true;
+                        }
+                    }
+                    //Ako je unos primarne dijagnoze ispravan
+                    if(pronasao){
+                        if(this.primarnaDijagnoza.valid){
+                            //Pozivam metodu da popuni polje MKB šifre te dijagnoze
+                            Validacija.nazivToMKB(value,this.dijagnoze,this.forma);
+                            //Omogućavam unos sekundarnih dijagnoza
+                            this.sekundarnaDijagnoza.enable({emitEvent: false});
+                        }
+                    }
+                    //Ako unos primarne dijagnoze nije ispravan ili je null
+                    if(!pronasao || !this.primarnaDijagnoza.value){
+                        //Resetiraj polje MKB šifre primarne dijagnoze
+                        this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
+                        //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+                        while(this.getControlsSekundarna().length !== 1){
+                            //Briši mu prvi element 
+                            (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+                        }
+                        //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+                        this.sekundarnaDijagnoza.reset();
+                        this.sekundarnaDijagnoza.disable({emitEvent: false});
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+              ),
+              //Slušam promjene u polju unosa MKB šifre primarne dijagnoze
+              this.mkbPrimarnaDijagnoza.valueChanges.pipe(
+                  tap(value => {
+                      //Ako je MKB ispravno unesen (ako je prošao validaciju)
+                      if(this.mkbPrimarnaDijagnoza.valid){
+                          //Prolazim kroz sve MKB šifre
+                          for(const mkb of this.mkbSifre){
+                              //Ako se upisana vrijednost nalazi u polju MKB šifri
+                              if(mkb.toLowerCase() === value.toLowerCase()){
+                                  //U polje MKB šifri postavi šifru velikim slovima
+                                  this.mkbPrimarnaDijagnoza.patchValue(mkb,{emitEvent: false});
+                              }
+                          }
+                          //Pozivam metodu da popuni polje naziva primarne dijagnoze
+                          Validacija.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
+                          //Omogućavam unos sekundarne dijagnoze
+                          this.sekundarnaDijagnoza.enable({emitEvent: false}); 
+                      }
+                      //Ako je MKB neispravno unesen
+                      else{
+                          //Postavi naziv primarne dijagnoze na null
+                          this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
+                          //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+                          while(this.getControlsSekundarna().length !== 1){
+                              //Briši mu prvi element 
+                              (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+                          }
+                          //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+                          this.sekundarnaDijagnoza.reset();
+                          this.sekundarnaDijagnoza.disable({emitEvent: false});
+                      }
+                  }),
+                  takeUntil(this.pretplateSubject)
+              )
+          ).subscribe();
+          
 
           const combined = combineLatest([
               this.headerService.getIDLijecnik(),
@@ -166,6 +242,33 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           );
       }
 
+      //Ova metoda se poziva kada se liječnik krene upisivati vrijednosti u polja MKB šifri sek. dijagnoze
+      onChangeMKB(mkbSifra: string,index:number){
+          //Ako je MKB ispravno unesen (ako je prošao validaciju)
+          if(this.sekundarnaDijagnoza.at(index).valid){
+              //Prolazim kroz sve MKB šifre
+              for(const mkb of this.mkbSifre){
+                  //Ako se upisana vrijednost nalazi u polju MKB šifri
+                  if(mkb.toLowerCase() === mkbSifra.toLowerCase()){
+                      //U polje MKB šifri postavi šifru velikim slovima
+                      (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('mkbSifraSekundarna').patchValue(mkb,{emitEvent: false});
+                  }
+              }
+              //Pozivam metodu da popuni polje naziva primarne dijagnoze
+              Validacija.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
+          }
+          //Ako je MKB neispravno unesen
+          else{
+              (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(null,{emitEvent: false});
+          }
+      }
+
+      //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
+      onChangeNazivSekundarna(nazivSekundarna: string, index: number){
+          //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
+          Validacija.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+      }
+
       //Metoda koja INICIJALNO postavlja da bude required jedan od tipova slučaja
       atLeastOneRequiredTipSlucaj(group : FormGroup) : {[s:string ]: boolean} {
         if (group) {
@@ -183,15 +286,15 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
         //Prolazim kroz array 
         for(let control of array.controls){
             //Ako se vrijednost sekundarne dijagnoze VEĆ NALAZI u pom polju, ali da nije "Odaberite sekundarnu dijagnozu"
-            if(pom.indexOf(control.value) !== -1 && control.value !== null){
+            if(pom.indexOf(control.value.nazivSekundarna) !== -1 && control.value.nazivSekundarna !== null){
                 //U svoju varijablu spremam sekundarnu dijagnozu koja je duplikat
-                this.sekDijagnoza = control.value;
+                this.sekDijagnoza = control.value.nazivSekundarna;
                 return {'duplikat': true};
             }
             //Ako se vrijednost sekundarne dijagnoze NE NALAZI u pom polju
             else{
                 //Dodaj ga u pom polje
-                pom.push(control.value);
+                pom.push(control.value.nazivSekundarna);
             }
         }
         return null;
@@ -202,9 +305,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
         //Prolazim kroz polje sekundarnih dijagnoza
         for(let control of (group.get('sekundarnaDijagnoza') as FormArray).controls){
             //Ako je vrijednost primarne dijagnoze jednaka vrijednosti sekundarne dijagnoze, ali da oba dvije nisu null, jer bih bilo (Odaberite dijagnozu === Odaberite dijagnozu)
-            if(group.get('primarnaDijagnoza').value === control.value && (group.get('primarnaDijagnoza') !== null && control.value !== null)){
+            if(group.get('primarnaDijagnoza').value === control.value.nazivSekundarna && (group.get('primarnaDijagnoza') !== null && control.value.nazivSekundarna !== null)){
                 //Spremam vrijednost sekundarne dijagnoze koja je jednaka primarnoj dijagnozi
-                this.dijagnoza = control.value;
+                this.dijagnoza = control.value.nazivSekundarna;
                 return {'primarnaJeIstaKaoSekundarna': true};
             }
         }
@@ -217,16 +320,24 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           if(!this.forma.valid){
               return;
           }
+          //Pomoćno polje u koje spremam samo MKB šifre sek. dijagnoza
+          let mkbPolje: string[] = [];
+          //Prolazim kroz polje sekundarnih dijagnoza i uzimam samo MKB šifre
+          for(const el of this.getControlsSekundarna()){
+              if(el.value.mkbSifraSekundarna !== null){
+                  mkbPolje.push(el.value.mkbSifraSekundarna);
+              }
+          }
           //Ako je pacijent aktivan u obradi
           if(this.isAktivan){
               console.log(this.forma.getRawValue());
               //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
               this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
-                                                                                  this.anamneza.value,this.status.value,this.nalaz.value,
-                                                                                  this.primarnaDijagnoza.value,this.sekundarnaDijagnoza.value,
-                                                                                  this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-                                                                                  this.terapija.value,this.preporukaLijecnik.value,
-                                                                                  this.napomena.value,this.idObrada).pipe(
+                  this.anamneza.value,this.status.value,this.nalaz.value,
+                  this.mkbPrimarnaDijagnoza.value,mkbPolje,
+                  this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+                  this.terapija.value,this.preporukaLijecnik.value,
+                  this.napomena.value,this.idObrada).pipe(
                   tap(
                     //Dohvaćam odgovor servera
                     (odgovor) => {
@@ -244,7 +355,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
             //Označavam da se prozor aktivira
             this.response = true;
             this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
-          }
+          } 
       }
 
       //Metoda koja se aktivira kada komponenta primi informaciju da se EVENT AKTIVIRAO ($event su podatci pojedinog retka otvorenog slučaja)
@@ -266,20 +377,27 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     this.onAddDiagnosis();
                     //Prolazim poljem odgovora servera
                     for(let dijagnoza of podatci){
-                      console.log(dijagnoza);
-                      //Spremam naziv primarne dijagnoze otvorenog slučaja
-                      this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
-                      //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
-                      this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
-                      //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
-                      this.onAddDiagnosis();
+                        console.log(dijagnoza);
+                        //Spremam naziv primarne dijagnoze otvorenog slučaja
+                        this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
+                        //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
+                        this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
+                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                        this.onAddDiagnosis();
                     }
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                     this.onDeleteDiagnosis(-1); 
+                    //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
+                    this.sekundarnaDijagnozaOtvoreniSlucaj.forEach((element,index) => {
+                        //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                        (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
+                        //Postavljam MKB šifre sek.dijagnoza
+                        Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                    });
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                     this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
-                    //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                    this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
+                    //Postavljam MKB šifru primarne dijagnoze
+                    Validacija.nazivToMKB(this.primarnaDijagnozaOtvoreniSlucaj,this.dijagnoze,this.forma);
                     //Zatvaram prozor otvorenog slučaja
                     this.otvoren = false;
                     //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
@@ -302,9 +420,15 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           //Ako je pacijent aktivan
           if(this.isAktivan){
               //Resetiram i čistim polja dijagnoza
-              this.sekundarnaDijagnoza.clear();
+              //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+              while(this.getControlsSekundarna().length !== 1){
+                //Briši mu prvi element 
+                (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+              }
+              //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+              this.sekundarnaDijagnoza.reset();
+              this.sekundarnaDijagnoza.disable({emitEvent: false});
               this.sekundarnaDijagnozaOtvoreniSlucaj = [];
-              this.onAddDiagnosis();
               this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
               //Skrivam button "Poništi povezani slučaj"
               this.ponistiPovezaniSlucaj = false;
@@ -350,8 +474,15 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                         this.onDeleteDiagnosis(-1); 
                         //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                         this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
-                        //Postavljam vrijednost naziva sekundarnih dijagnoza na vrijednosti koje sam dobio sa servera
-                        this.sekundarnaDijagnoza.patchValue(this.sekundarnaDijagnozaPovijestBolesti,{emitEvent: false});
+                        //Popunjavam polje MKB šifre primarne dijagnoze
+                        Validacija.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
+                        //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
+                        this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
+                            //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                            (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
+                            //Postavljam MKB šifre sek.dijagnoza
+                            Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                        });
                         //Zatvaram prozor povijesti bolesti
                         this.otvorenPovijestBolesti = false;
                         //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
@@ -398,14 +529,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           this.otvorenPovijestBolesti = false;
       }
 
-      onPoveziNalaz(){
-          console.log("tu sam");
-      }
-
-      onPoveziTerapija(){
-          console.log("tu sam terapija");
-      }
-
       //Dohvaća pojedine form controlove unutar polja 
       getControlsSekundarna(){
         return (this.forma.get('sekundarnaDijagnoza') as FormArray).controls;
@@ -413,9 +536,13 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
 
       //Kada se klikne button "Dodaj dijagnozu"
       onAddDiagnosis(){
-        (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(
-          new FormControl(null) 
-        );
+          //Kreiram novi form group
+          const formGroup = new FormGroup({
+              'nazivSekundarna': new FormControl(null),
+              'mkbSifraSekundarna': new FormControl(null)
+          },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]});
+          //Nadodavam novi form group u form array
+          (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(formGroup);
       }
 
       //Kada se klikne button "X"
@@ -446,6 +573,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       }
       get sekundarnaDijagnoza(): FormArray{
           return this.forma.get('sekundarnaDijagnoza') as FormArray;
+      }
+      get mkbPrimarnaDijagnoza(): FormControl{
+          return this.forma.get('mkbPrimarnaDijagnoza') as FormControl;
       }
       get nalaz(): FormControl{
           return this.forma.get('nalaz') as FormControl;
