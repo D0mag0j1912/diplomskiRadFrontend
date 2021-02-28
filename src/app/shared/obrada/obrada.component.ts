@@ -4,6 +4,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, forkJoin, Subject } from 'rxjs';
 import { concatMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { HeaderService } from '../header/header.service';
@@ -63,14 +64,16 @@ export class ObradaComponent implements OnInit, OnDestroy {
     vrijemeObradeLijecnik: Time;
     vrijemeObradeMedSestra: Time;
     constructor(
-      //Dohvaćam trenutni route da dohvatim podatke
-      private route: ActivatedRoute,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam login servis
-      private loginService: LoginService,
-      //Dohvaćam header service
-      private headerService: HeaderService
+        //Dohvaćam trenutni route da dohvatim podatke
+        private route: ActivatedRoute,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam login servis
+        private loginService: LoginService,
+        //Dohvaćam header service
+        private headerService: HeaderService,
+        //Dohvaćam servis povijesti bolesti
+        private povijestBolestiService: PovijestBolestiService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -224,6 +227,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Metoda koja se izvršava kada korisnik klikne button "Završi pregled"
     zavrsiPregled(){
+        //Resetiram Subject koji dava informaciju da je već upisana povijest bolesti
+        this.povijestBolestiService.isObraden.next({idPacijent: null, isObraden: false});
         //Dohvaćam tip prijavljenog korisnika te tu informaciju predavam metodama
         this.headerService.tipKorisnikaObs.pipe(
             switchMap(podatci => {
@@ -237,7 +242,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
             takeUntil(this.pretplateSubject)
         //Pretplaćivam se na odgovore servera
         ).subscribe(
-            (odgovor) => {
+            () => {
                 //Označavam da pacijent više nije aktivan
                 this.isAktivan = false;
                 //Stavljam vrijednost u Subject da je završen pregled

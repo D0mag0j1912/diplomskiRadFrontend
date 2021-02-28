@@ -3,8 +3,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
+import { PovijestBolestiService } from '../../povijest-bolesti/povijest-bolesti.service';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
 import { PacijentiService } from './pacijenti.service';
@@ -34,6 +34,11 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     ids: string[] = [];
     //Kreiram polje pacijenata
     pacijenti: Pacijent[] = [];
+    //Spremam sve dijagnoze koje prosljeđujem child komponenti "PrikaziPovijestBolesti"
+    dijagnoze: any;
+    //Spremam ID pacijenta kojega šaljem child komponenti "PrikaziPovijestBolesti"
+    idPacijent: number;
+
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
@@ -44,7 +49,9 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Dohvaćam servis liste recepata
         private listaReceptiService: ListaReceptiService,
         //Dohvaćam servis pacijenata
-        private pacijentiService: PacijentiService
+        private pacijentiService: PacijentiService,
+        //Dohvaćam servis povijesti bolesti
+        private povijestBolestiService: PovijestBolestiService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
@@ -55,6 +62,10 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         });
         //Pretplaćivam se na podatke iz Resolvera 
         this.route.data.pipe(
+            tap(podatci => {
+                //Spremam sve dijagnoze
+                this.dijagnoze = podatci.podatci.dijagnoze;
+            }),
             map(podatci => podatci.podatci.pacijenti),
             tap((podatci) => {
                 //Ako je server vratio da IMA pacijenata u bazi podataka
@@ -200,9 +211,24 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     izdajRecept(id: number){
         //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
         this.listaReceptiService.editMessenger.next(null);
-        //Preusmjeri liječnika na prozor izdavanja recepta
-        this.router.navigate(['./',id],{relativeTo: this.route}); 
-        this.isPovijestBolesti = true;
+        //Pretplaćujem se na Observable u kojemu se nalazi informacija je li unesena povijest bolesti (da ne prikazivam prozor)
+        this.povijestBolestiService.isObradenObs.pipe(
+            tap((value) => {
+                //Ako je value === true, znači da je unesena povijest bolesti već (ovo je za aktivnog pacijenta)
+                if(value.isObraden && id === value.idPacijent){
+                    //Preusmjeri liječnika na prozor izdavanja recepta
+                    this.router.navigate(['./',id],{relativeTo: this.route}); 
+                }
+                //Ako nije unesena povijest bolesti već
+                else{
+                    //Šaljem child komponenti ovaj ID pacijenta
+                    this.idPacijent = id;
+                    //Otvaram prozor povijesti bolesti
+                    this.isPovijestBolesti = true;
+                }
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Metoda koja prima poslani event od komponente "PovijestBolestiComponent"

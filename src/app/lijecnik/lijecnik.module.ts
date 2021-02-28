@@ -8,14 +8,12 @@ import { LijecnikComponent } from './lijecnik.component';
 import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podataka/azuriranje-osobnih-podataka.component';
 import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
 import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.component';
-import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/povezani-povijest-bolesti.component';
 @NgModule({
     declarations: [
         LijecnikComponent,
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
-        PovijestBolestiComponent,
-        PovezaniPovijestBolestiComponent
+        PovijestBolestiComponent
     ],
     imports: [
         CommonModule,
@@ -29,8 +27,7 @@ import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/po
         LijecnikComponent,
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
-        PovijestBolestiComponent,
-        PovezaniPovijestBolestiComponent
+        PovijestBolestiComponent
     ]
 })
 export class LijecnikModule{

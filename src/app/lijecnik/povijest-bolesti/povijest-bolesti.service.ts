@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { throwError } from "rxjs";
+import { BehaviorSubject, Subject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 @Injectable({
@@ -10,6 +10,9 @@ export class PovijestBolestiService{
 
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
+    //Kreiram Subject kojime ću obavjestiti komponentu "PacijentiComponent" je li unesena povijest bolesti za pacijenta u obradi
+    isObraden = new BehaviorSubject<{idPacijent: number, isObraden: boolean}>({idPacijent: null,isObraden: false});
+    isObradenObs = this.isObraden.asObservable();
 
     constructor(
         //Dohvaćam http

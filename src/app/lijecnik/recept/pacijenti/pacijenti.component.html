@@ -1,4 +1,9 @@
 <router-outlet></router-outlet> 
+<app-prikazi-povijest-bolesti 
+    *ngIf="isPovijestBolesti" 
+    (close)="onClosePovijestBolesti()" 
+    [primljeneDijagnoze]="dijagnoze" 
+    [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Tablica pacijenata</h3>
 <form [formGroup]="formaPretraga">
     <div class="col-md-offset-1">

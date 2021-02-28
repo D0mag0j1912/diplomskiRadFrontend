@@ -25,8 +25,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       ponistiPovezaniSlucaj: boolean = false;
       //Oznaka je li otvoren prozor sa povijestima bolesti
       otvorenPovijestBolesti: boolean = false;
-      //Oznaka je su li otvoreni slučajevi
-      otvoren: boolean = false;
       //Oznaka je li ima odgovora servera 
       response: boolean = false;
       //Spremam odgovor servera
@@ -53,11 +51,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       mkbSifre: string[] = [];
       //Oznaka je li liječnik izabrao brzi unos
       isBrziUnos: boolean = true;
-
-      //Spremam dijagnoze otvorenog slučaja
-      primarnaDijagnozaOtvoreniSlucaj: string;
-      sekundarnaDijagnozaOtvoreniSlucaj: string[] = [];
-
       //Spremam dijagnoze povezane povijesti bolesti
       primarnaDijagnozaPovijestBolesti: string;
       sekundarnaDijagnozaPovijestBolesti: string[] = [];
@@ -65,8 +58,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       constructor(
           //Dohvaćam trenutni route da dohvatim podatke iz Resolvera
           private route: ActivatedRoute,
-          //Dohvaćam servis otvorenog slučaja
-          private otvoreniSlucajService: OtvoreniSlucajService,
           //Dohvaćam servis headera
           private headerService: HeaderService,
           //Dohvaćam servis obrade
@@ -358,6 +349,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   tap(
                     //Dohvaćam odgovor servera
                     (odgovor) => {
+                      //Označavam da je povijest bolesti unesena preko Subjecta
+                      this.povijestBolestiService.isObraden.next({idPacijent: this.idPacijent,isObraden: true});
                       //Označavam da ima odgovora servera
                       this.response = true;
                       //Spremam odgovor servera
@@ -365,7 +358,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     }
                   ),
                   takeUntil(this.pretplateSubject)
-              ).subscribe();
+              ).subscribe(); 
           }
           //Ako pacijent nije aktivan u obradi
           else{
@@ -373,63 +366,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
             this.response = true;
             this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
           } 
-      }
-
-      //Metoda koja se aktivira kada komponenta primi informaciju da se EVENT AKTIVIRAO ($event su podatci pojedinog retka otvorenog slučaja)
-      onPoveziOtvoreniSlucaj($event){
-        console.log($event);
-        //Ako je pacijent aktivan
-        if(this.isAktivan){
-            //Pretplaćujem se na Observable u kojemu se nalaze NAZIV PRIMARNE DIJAGNOZE i NAZIVI NJEZINIH SEKUNDARNIH DIJAGNOZA
-            this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).pipe(
-              tap(
-                //Dohvaćam podatke
-                (podatci) => {
-                    console.log(podatci);
-                    //Resetiram formu sekundarnih dijagnoza
-                    this.sekundarnaDijagnoza.clear();
-                    //Resetiram svoje polje sekundarnih dijagnoza
-                    this.sekundarnaDijagnozaOtvoreniSlucaj = [];
-                    //Dodaj jedan form control da inicijalno bude 1
-                    this.onAddDiagnosis();
-                    //Prolazim poljem odgovora servera
-                    for(let dijagnoza of podatci){
-                        console.log(dijagnoza);
-                        //Spremam naziv primarne dijagnoze otvorenog slučaja
-                        this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
-                        //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
-                        this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
-                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
-                        this.onAddDiagnosis();
-                    }
-                    //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                    this.onDeleteDiagnosis(-1); 
-                    //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
-                    this.sekundarnaDijagnozaOtvoreniSlucaj.forEach((element,index) => {
-                        //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
-                        (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
-                        //Postavljam MKB šifre sek.dijagnoza
-                        Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
-                    });
-                    //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
-                    //Postavljam MKB šifru primarne dijagnoze
-                    Validacija.nazivToMKB(this.primarnaDijagnozaOtvoreniSlucaj,this.dijagnoze,this.forma);
-                    //Zatvaram prozor otvorenog slučaja
-                    this.otvoren = false;
-                    //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
-                    this.ponistiPovezaniSlucaj = true;
-                    //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                    this.povezanSlucaj.patchValue(true,{emitEvent: false});
-                    //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                    this.povezanSlucaj.disable({emitEvent: false});
-                    //Resetiram checkbox novog slučaja da ne ostane da su oba true
-                    this.noviSlucaj.reset();
-                }
-              ),
-              takeUntil(this.pretplateSubject)
-          ).subscribe();
-        }
       }
 
       //Metoda koja se aktivira kada korisnik klikne "Poništi povezani slučaj"
@@ -445,7 +381,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
               this.sekundarnaDijagnoza.reset();
               this.sekundarnaDijagnoza.disable({emitEvent: false});
-              this.sekundarnaDijagnozaOtvoreniSlucaj = [];
               this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
               //Skrivam button "Poništi povezani slučaj"
               this.ponistiPovezaniSlucaj = false;
@@ -517,18 +452,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           }
       }
 
-      //Kada se klikne button "Otvoreni slučaj"
-      onOpenCase(){
-        //Otvori prozor sa otvorenim slučajevima
-        this.otvoren = true;
-      }
-
-      //Kada se klikne button "Izađi"
-      onCloseCase(){
-        //Zatvori prozor sa otvorenim slučajevima
-        this.otvoren = false;
-      }
-
       //Metoda koja se izvodi kada korisnik klikne "Izađi"
       onClose(){
           //Zatvori prozor poruke
@@ -537,6 +460,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
 
       //Metoda koja se poziva kada korisnik klikne button "Poveži povijest bolesti"
       onPoveziPovijestBolesti(){
+          //Označavam preko Subjecta da ulazim u ovu komponentu preko obrade
+          this.povezaniPovijestBolestiService.isObrada.next(true);
           //Otvori prozor sa povijestima bolesti ovog pacijenta
           this.otvorenPovijestBolesti = true;
       }
