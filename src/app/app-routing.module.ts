@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 const routes: Routes = [
   //Ovo je kada prvi put posjetimo stranicu
@@ -29,10 +30,14 @@ const routes: Routes = [
     path: 'med-sestra', 
     loadChildren:() => import('./med-sestra/med-sestra.module').then(m => m.MedSestraModule)
   },
+  {
+    path: 'not-found',
+    component: PageNotFoundComponent
+  },
   //Kada korisnik upiše neki random path, apk ga preusmjerava na login stranicu (Wildcard route)
   {
     path: '**',
-    loadChildren:() => import('./wildcard/wildcard.module').then(m => m.WildCardModule)
+    redirectTo: '/not-found'
   }
 ];
 

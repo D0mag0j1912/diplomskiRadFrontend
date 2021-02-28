@@ -1,4 +1,4 @@
-<router-outlet></router-outlet>
+<router-outlet></router-outlet> 
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Tablica pacijenata</h3>
 <form [formGroup]="formaPretraga">
     <div class="col-md-offset-1">
@@ -12,8 +12,7 @@
         <span 
             class="help-block" 
             *ngIf="!isPretraga && porukaPretraga" 
-            style="font-weight: bold;left:50px; 
-            position: relative;">{{porukaPretraga}}</span>
+            style="font-weight: bold;color:#337ab7; font-size:20px">{{porukaPretraga}}</span>
     </div>
 </form>
 <div 
@@ -21,7 +20,7 @@
     style="margin-top:10px;" 
     *ngIf="!isPacijenti && nemaPacijenata">
     <h3 style="text-align: center; 
-            color:#a94442;font-family: Verdana, sans-serif; 
+            color:#337ab7;font-family: Verdana, sans-serif; 
             left:30px;position: relative;">{{nemaPacijenata}}</h3>
 </div>
 <div 

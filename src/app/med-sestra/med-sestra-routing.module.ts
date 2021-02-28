@@ -15,11 +15,6 @@ const routes = [
     //Kada se upiše /med-sestra u URL, loada se komponenta medicinske sestre 
     {path: '', component: MedSestraComponent, canActivate:[LoginGuard, MedSestraGuard],
     children: [
-        /* {path: 'obrada', component: ObradaComponent ,resolve: {pacijent: ObradaResolverService}, children: [
-            {path: 'opciPodatci', component: OpciPodatciPregledaComponent, resolve: {podatci: ImportiResolverService}},
-            {path: 'osnovniPodatci', component: OsnovniPodatciComponent, resolve: {podatci: OsnovniPodatciResolverService}},
-            {path: 'zdravstveniPodatci', component: ZdravstveniPodatciComponent}
-        ]}, */
         {path: 'obrada',loadChildren:() => import('../shared/obrada/obrada.module').then(m => m.ObradaModule)},
         {path: 'cekaonica', component: CekaonicaComponent, resolve: {pacijenti: CekaonicaResolverService}},
         {path: 'narucivanje', component: NarucivanjeComponent, resolve: {podatci: DateTimeResolverService}},

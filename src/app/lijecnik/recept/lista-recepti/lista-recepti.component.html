@@ -11,8 +11,12 @@
             style="width:300px;left:80px;position: relative;margin-top:-35px;">
         <span 
             class="help-block" 
-            *ngIf="!isPretraga && porukaPretraga" 
-            style="font-weight: bold;">{{porukaPretraga}}</span> 
+            *ngIf="!isPretraga && porukaPretraga && !nemaNitkoRecept && 
+                !inicijalnoAktivniNemaRezultata && !inicijalnoNemaPacijenata && 
+                !nemaRecepata && !nemaNitkoRecept" 
+            style="font-weight: bold;
+                color:#337ab7;
+                font-size:20px;">{{porukaPretraga}}</span> 
     </div>
 </form>
 <div 
@@ -22,7 +26,7 @@
         !inicijalnoNemaPacijenata && 
         !nemaRecepata" 
     style="margin-top:10px;">
-    <h3 style="color:#a94442;left:130px;position: relative;">{{nemaNitkoRecept}}</h3>
+    <h3 style="color:#337ab7;left:130px;position: relative;">{{nemaNitkoRecept}}</h3>
 </div>
 <div 
     class="row" 
@@ -31,7 +35,7 @@
         !inicijalnoNemaPacijenata && 
         !nemaNitkoRecept" 
     style="margin-top:10px;">
-    <h3 style="color:#a94442;left:40px;position: relative;">{{nemaRecepata}}</h3>
+    <h3 style="color:#337ab7;left:40px;position: relative;">{{nemaRecepata}}</h3>
 </div>
 <div 
     class="row" 
@@ -40,7 +44,7 @@
         !nemaRecepata && 
         !nemaNitkoRecept" 
     style="margin-top:10px;">
-    <h3 style="color:#a94442;left:40px;position: relative;">{{inicijalnoNemaPacijenata}}</h3>
+    <h3 style="color:#337ab7;left:40px;position: relative;">{{inicijalnoNemaPacijenata}}</h3>
 </div>
 <div 
     class="row" 
@@ -49,7 +53,7 @@
         !nemaRecepata && 
         !nemaNitkoRecept" 
     style="margin-top:10px;">
-    <h3 style="color:#a94442;left:40px;position: relative;">{{inicijalnoAktivniNemaRezultata}}</h3>
+    <h3 style="color:#337ab7;left:40px;position: relative;">{{inicijalnoAktivniNemaRezultata}}</h3>
 </div>
 <ng-container 
     *ngIf="isPretraga && 

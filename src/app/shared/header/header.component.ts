@@ -3,6 +3,7 @@ import { forkJoin, Subject, Subscription } from 'rxjs';
 import { LoginService } from 'src/app/login/login.service';
 import {takeUntil, tap} from 'rxjs/operators';
 import { HeaderService } from './header.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -33,10 +34,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     idMedSestra: number;
 
     constructor(
-      //Dohvaćam login servis
-      private loginService: LoginService,
-      //Dohvaćam header servis
-      private headerService: HeaderService
+        //Dohvaćam login servis
+        private loginService: LoginService,
+        //Dohvaćam header servis
+        private headerService: HeaderService,
+        //Dohvaćam router
+        private router: Router
     ) 
     {}
     //Kada se komponenta loada
@@ -142,13 +145,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
         );
     }
 
-    //Kada se klikne na "Logo" u headeru, praznim Session storage
+    //Kada se klikne na "Logo" u headeru
     onClearStorage(){
-        sessionStorage.removeItem('userData');
-        //Postavljam varijablu isLijecnik = false da označim da korisnik više nije liječnik i da se header liječnika skrije
-        this.isLijecnik = false;
-        //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
-        this.isMedSestra = false;
+        //Ako je prijavljen liječnik
+        if(this.isLijecnik){
+            //Preusmjeri me na obradu liječnika
+            this.router.navigateByUrl('/lijecnik/obrada/povijestBolesti');
+        }
+        //Ako je prijavljena medicinska sestra
+        else if(this.isMedSestra){
+            //Preusmjeri me na obradu medicinske sestre
+            this.router.navigateByUrl('/med-sestra/obrada/opciPodatci');
+        }
+        //Ako nitko nije prijavljen
+        else{
+            //Preumjeri me na login stranicu
+            this.router.navigateByUrl('/login');
+        }
     }
 
     //Ova metoda se poziva kada se komponenta uništi

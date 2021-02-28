@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
@@ -15,6 +16,8 @@ import { PacijentiService } from './pacijenti.service';
 })
 export class PacijentiComponent implements OnInit, OnDestroy {
 
+    //Oznaka hoće li se prikazati prozor povijesti bolesti
+    isPovijestBolesti: boolean = false;
     //Kreiram formu
     formaPretraga: FormGroup;
     //Definiram Subject
@@ -31,7 +34,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     ids: string[] = [];
     //Kreiram polje pacijenata
     pacijenti: Pacijent[] = [];
-
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
@@ -199,7 +201,14 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
         this.listaReceptiService.editMessenger.next(null);
         //Preusmjeri liječnika na prozor izdavanja recepta
-        this.router.navigate(['./',id],{relativeTo: this.route});
+        this.router.navigate(['./',id],{relativeTo: this.route}); 
+        this.isPovijestBolesti = true;
+    }
+
+    //Metoda koja prima poslani event od komponente "PovijestBolestiComponent"
+    onClosePovijestBolesti(){
+        //Zatvori prozor povijesti bolesti
+        this.isPovijestBolesti = false;
     }
 
     //Ova metoda se izvodi kada se komponenta uništi

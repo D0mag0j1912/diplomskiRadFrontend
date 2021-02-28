@@ -8,25 +8,29 @@
     <div class="collapse navbar-collapse" id="collapse_target1">
         <ul class="nav navbar-nav">
             <li routerLinkActive="active" class="nav-item" *ngIf="isMedSestra">
-                <a  style="cursor: pointer;" 
+                <a  style="cursor: pointer;font-family:Verdana, sans-serif" 
                     routerLink="/med-sestra/obrada/opciPodatci" 
                     class="nav-link">
                     Opći podatci pregleda</a>
             </li>
             <li routerLinkActive="active" class="nav-item" *ngIf="isLijecnik">
-                <a  style="cursor: pointer;" 
+                <a  style="cursor: pointer;font-family:Verdana, sans-serif" 
                     routerLink="/lijecnik/obrada/povijestBolesti" 
                     class="nav-link">
                     Povijest bolesti</a>
             </li>
             <li routerLinkActive="active" class="dropdown nav-item">
-                <a style="cursor: pointer;" 
+                <a style="cursor: pointer;font-family:Verdana, sans-serif" 
                     class="dropdown-toggle nav-link"
                     role="button" id="navbarDropdown" data-toggle="dropdown">Osobni podatci</a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a style="cursor: pointer;" routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a></li>
+                    <li><a 
+                            style="cursor: pointer;font-family:Verdana, sans-serif" 
+                            routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a></li>
                     <div class="dropdown-divider"></div>
-                    <li><a style="cursor: pointer;" routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a></li>
+                    <li><a 
+                            style="cursor: pointer;font-family:Verdana, sans-serif" 
+                            routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a></li>
                 </ul>
             </li>
             <!-- <li routerLinkActive="active" class="nav-item">

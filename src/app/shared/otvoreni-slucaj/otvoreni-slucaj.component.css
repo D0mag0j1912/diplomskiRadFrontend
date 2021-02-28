@@ -10,8 +10,8 @@
 .alert-box{
     position:fixed;
     top:10vh;
-    left: 20vw;
-    width: 60vw;
+    left: 25vw;
+    width: 50vw;
     height:35vw;
     overflow-y: scroll;
     padding: 16px;

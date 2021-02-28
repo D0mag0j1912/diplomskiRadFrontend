@@ -19,7 +19,7 @@ import { DetaljiPregledaComponent } from './cekaonica/detalji-pregleda/detalji-p
         OtvoreniSlucajComponent,
         NarudzbaComponent,
         CekaonicaComponent,
-        DetaljiPregledaComponent
+        DetaljiPregledaComponent,
     ],
     imports:[
         CommonModule,

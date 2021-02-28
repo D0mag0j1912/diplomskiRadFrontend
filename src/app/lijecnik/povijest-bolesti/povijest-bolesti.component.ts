@@ -51,6 +51,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       idLijecnik: number;
       //Spremam sve MKB šifre dijagnoza
       mkbSifre: string[] = [];
+      //Oznaka je li liječnik izabrao brzi unos
+      isBrziUnos: boolean = true;
 
       //Spremam dijagnoze otvorenog slučaja
       primarnaDijagnozaOtvoreniSlucaj: string;
@@ -105,8 +107,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     }
 
                     this.forma = new FormGroup({
-                      'razlogDolaska': new FormControl(null),
-                      'anamneza': new FormControl(null),
+                      'brziUnos': new FormControl(true),
+                      'razlogDolaska': new FormControl(null, this.isAktivan ? [Validators.required] : []),
+                      'anamneza': new FormControl(null, this.isAktivan ? [Validators.required] : []),
                       'status': new FormControl(null),
                       'primarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required] : []),
                       'mkbPrimarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required,Validacija.provjeriMKB(this.mkbSifre)] : []),
@@ -242,6 +245,20 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           );
       }
 
+      //Metoda koja se poziva kada liječnik promijeni checkbox "Brzi unos"
+      onChangeBrziUnos(event: any){
+        //Ako je checkbox "checked":
+        if(event.target.checked){
+            //Označavam da se prikaže brzi unos
+            this.isBrziUnos = true;
+        }
+        //Ako checkbox nije "checked"
+        else{
+            //Označavam da se prikaže i opcionalna polja
+            this.isBrziUnos = false;
+        }
+      }
+
       //Ova metoda se poziva kada se liječnik krene upisivati vrijednosti u polja MKB šifri sek. dijagnoze
       onChangeMKB(mkbSifra: string,index:number){
           //Ako je MKB ispravno unesen (ako je prošao validaciju)
@@ -272,9 +289,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Metoda koja INICIJALNO postavlja da bude required jedan od tipova slučaja
       atLeastOneRequiredTipSlucaj(group : FormGroup) : {[s:string ]: boolean} {
         if (group) {
-          if(group.controls['noviSlucaj'].value || group.controls['povezanSlucaj'].value) {
-            return null;
-          }
+            if(group.controls['noviSlucaj'].value || group.controls['povezanSlucaj'].value) {
+                return null;
+            }
         }
         return {'baremJedanTipSlucaj': true};
       }
@@ -559,6 +576,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       }
 
       //Kreiram gettere
+      get brziUnos(): FormControl{
+        return this.forma.get('brziUnos') as FormControl;
+      }
       get razlogDolaska(): FormControl{
           return this.forma.get('razlogDolaska') as FormControl;
       }

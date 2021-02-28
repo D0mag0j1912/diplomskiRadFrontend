@@ -9,7 +9,6 @@ import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podatak
 import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
 import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.component';
 import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/povezani-povijest-bolesti.component';
-import { ReceptModule } from './recept/recept.module';
 @NgModule({
     declarations: [
         LijecnikComponent,
@@ -24,8 +23,7 @@ import { ReceptModule } from './recept/recept.module';
         SharedModule,
         LijecnikRoutingModule,
         FormsModule,
-        ReactiveFormsModule,
-        ReceptModule
+        ReactiveFormsModule
     ],
     exports: [
         LijecnikComponent,

@@ -157,7 +157,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent.pacijent[0]);
                               this.pacijent = new Pacijent(podatci[3].pacijent.pacijent[0]);
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
-                              this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
+                              this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;   
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je med. sestra obradila aktivnog pacijenta danas
                               polje.push(this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent));
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
@@ -257,6 +257,10 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Dohvaćam adresu pacijenta
     getAdresa(){
       return this.pacijent.adresa;
+    }
+    //Dohvaćam MBO pacijenta
+    getMBO(){
+        return this.pacijent.mbo;
     }
 
     //Custom validator koji provjerava je li barem jedno od polja imena ili prezimena uneseno

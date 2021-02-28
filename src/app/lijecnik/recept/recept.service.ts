@@ -12,6 +12,7 @@ import {handleError} from '../../shared/rxjs-error';
 export class ReceptService{
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
+    //Subject koji šalje poruku tablici pacijenata 
     messenger = new Subject<boolean>();
     messengerObs = this.messenger.asObservable();
     constructor(

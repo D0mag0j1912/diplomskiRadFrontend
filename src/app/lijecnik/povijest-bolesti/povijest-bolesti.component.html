@@ -14,9 +14,16 @@
                 <table class="table table-striped">
                     <tbody>
                         <tr>
-                            <td colspan="4"><a 
-                                (click)="onPoveziPovijestBolesti()"
-                                style="float:right;color:#337ab7;cursor: pointer;font-weight: bold;font-family: Verdana, sans-serif;">Poveži povijest bolesti</a></td>
+                            <td colspan="4">
+                                <input  
+                                    type="checkbox" 
+                                    formControlName="brziUnos"
+                                    value="brziUnos" 
+                                    (change)="onChangeBrziUnos($event)">
+                                <label for="brziUnos" style="margin-left:2px;font-family: Verdana, sans-serif;">Brzi unos</label>
+                                <a 
+                                    (click)="onPoveziPovijestBolesti()"
+                                    style="float:right;color:#337ab7;cursor: pointer;font-weight: bold;font-family: Verdana, sans-serif;">Poveži povijest bolesti</a></td>
                         </tr>
                         <tr>
                             <td colspan="4">
@@ -42,7 +49,7 @@
                                     rows="3"></textarea>
                             </td>
                         </tr>
-                        <tr>
+                        <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label 
                                     for="status" 
@@ -54,7 +61,7 @@
                                     rows="3"></textarea>
                             </td>
                         </tr>
-                        <tr>
+                        <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label 
                                     for="nalaz" 
@@ -162,7 +169,7 @@
                         <tr>
                             <!--BUTTON JE DISABLED AKO DIJAGNOZE NISU ISPRAVNE-->
                             <td colspan="4">
-                            <div style="margin-left:200px;left:50px;position: relative;">
+                            <div style="left:250px;position: relative;">
                                 <button 
                                     type="button" 
                                     class="btn btn-info" 
@@ -197,7 +204,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr>
+                        <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label 
                                     for="terapija" 
@@ -209,7 +216,7 @@
                                     rows="3"></textarea>
                             </td>    
                         </tr>
-                        <tr>
+                        <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label 
                                     for="preporukaLijecnik" 
@@ -221,7 +228,7 @@
                                     rows="3"></textarea>
                             </td>
                         </tr>
-                        <tr>
+                        <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label 
                                     for="napomena" 
@@ -236,12 +243,11 @@
                         <tr>
                             <!--Sve dok podatci u formi nisu ispravno uneseni, button se neće moći stisnuti-->
                             <td colspan="4">
-                                <div style="margin-left:200px;">
+                                <div style="margin-left:250px;">
                                     <button 
                                         type="submit" 
                                         class="btn btn-primary" 
-                                        [disabled]="!forma.valid" 
-                                        style="float:left">Potvrdi povijest bolesti</button>
+                                        [disabled]="!forma.valid">Potvrdi povijest bolesti</button>
                                 </div>
                             </td>
                         </tr>

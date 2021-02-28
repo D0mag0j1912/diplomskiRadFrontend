@@ -1,6 +1,8 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <h4 style="text-align: center;">Narudžba</h4>
+    <h3 style="text-align: center; 
+        font-family: Verdana, sans-serif; 
+        color: #337ab7">Narudžba</h3>
     <div class="row">
         <app-alert *ngIf="response" [message]="responsePoruka" (close)="onCloseAlert()"></app-alert>
         <form [formGroup]="forma" *ngIf="forma">

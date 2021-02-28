@@ -20,7 +20,10 @@
             *ngIf="isDetaljiPregleda"
             (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>
         <div class="col-xs-12 col-md-12">
-            <h2 style="text-align: center;">Popis pacijenata u čekaonici</h2>
+            <h2 
+                style="text-align: center;
+                    font-family:Verdana, sans-serif; 
+                    color:#337ab7;">Popis pacijenata u čekaonici</h2>
         </div>
     </div>
     <div class="row">
@@ -74,7 +77,9 @@
                     <label class="form-check-label" for="inlineCheckBox{{i}}">{{statusi[i]}}</label>
                 </div>
             </div>
-            <h4>Tablica pacijenata</h4>
+            <h4 
+                style="font-family:Verdana, sans-serif; 
+                    color:#337ab7;">Tablica pacijenata</h4>
             <button type="button" class="btn btn-info" style="float: right;margin-top:-30px;" (click)="prikazi10zadnjih()">Prikaži 10 zadnjih</button>
             <div class="table-responsive-sm">
                 <table class="table table-striped">

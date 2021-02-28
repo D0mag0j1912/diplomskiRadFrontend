@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
@@ -61,7 +61,6 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         this.formaPretraga = new FormGroup({
             'pretraga': new FormControl(null)
         });
-        
         //Pretplaćujem se na Subject koji šalje ID-ove pacijenata 
         this.listaReceptiService.prijenosnikUListuRecepataObs.pipe(
             debounceTime(100),
@@ -213,6 +212,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
             switchMap(value => {
                 return this.listaReceptiService.getReceptiPretraga(value).pipe(
                     tap(odgovor => {
+                        console.log(odgovor);
                         //Ako je server vratio neke rezultate (recepte)
                         if(odgovor["success"] !== "false"){
                             //Praznim poruke da nema rezultata
