@@ -8,6 +8,7 @@ import { tap, takeUntil } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
 import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.service';
+import { ObradaService } from '../obrada/obrada.service';
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
   templateUrl: './prikazi-povijest-bolesti.component.html',
@@ -55,12 +56,13 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Dohvaćam servis povijesti bolesti
         private povijestBolestiService: PovijestBolestiService,
         //Dohvaćam servis povezanih povijesti bolesti
-        private povezaniPovijestBolestiService: PovezaniPovijestBolestiService
+        private povezaniPovijestBolestiService: PovezaniPovijestBolestiService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.idPacijent);
         //Inicijaliziram varijablu u koju spremam objekte tipa "Dijagnoza"
         let objektDijagnoza;
         //Prolazim poljem dijagnoza sa servera
@@ -99,6 +101,14 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
         //Pretplaćujem se na promjene u poljima forme
         const promjeneForme = merge(
+          //Pretplaćujem se na Observable u kojemu se nalazi ID obrade trenutno aktivnog pacijenta kojega šalje komponenta "ObradaComponent"
+          this.obradaService.podatciObradaObs.pipe(
+            tap(idObrada => {
+                //Spremam ID obrade 
+                this.idObrada = idObrada;
+            }),
+            takeUntil(this.pretplateSubject)
+          ),
           //Slušam promjene u polju unosa primarne dijagnoze
           this.primarnaDijagnoza.valueChanges.pipe(
             tap(value => {
@@ -311,22 +321,21 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 mkbPolje.push(el.value.mkbSifraSekundarna);
             }
         }
-        console.log(mkbPolje);
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
         this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
-          this.anamneza.value,this.status.value,this.nalaz.value,
-          this.mkbPrimarnaDijagnoza.value,mkbPolje,
-          this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-          this.terapija.value,this.preporukaLijecnik.value,
-          this.napomena.value,this.idObrada).pipe(
-          tap(() => {
-              //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
-              this.close.emit();
-              //Preusmjeri liječnika na prozor izdavanja recepta
-              this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
-            }
-          ),
-          takeUntil(this.pretplateSubject)
+            this.anamneza.value,this.status.value,this.nalaz.value,
+            this.mkbPrimarnaDijagnoza.value,mkbPolje,
+            this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+            this.terapija.value,this.preporukaLijecnik.value,
+            this.napomena.value,this.idObrada).pipe(
+            tap(() => {
+                //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
+                this.close.emit();
+                //Preusmjeri liječnika na prozor izdavanja recepta
+                this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+              }
+            ),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
     }
 

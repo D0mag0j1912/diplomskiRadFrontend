@@ -236,13 +236,18 @@
                         </tr>
                         <tr>
                             <!--Sve dok podatci u formi nisu ispravno uneseni, button se neće moći stisnuti-->
-                            <td colspan="4">
-                                <div style="margin-left:250px;">
-                                    <button 
-                                        type="submit" 
-                                        class="btn btn-primary" 
-                                        [disabled]="!forma.valid">Potvrdi povijest bolesti</button>
-                                </div>
+                            <td colspan="2">
+                                <button 
+                                    type="submit" 
+                                    class="btn btn-primary" 
+                                    [disabled]="!forma.valid" 
+                                    style="left:250px;position:relative">Potvrdi povijest bolesti</button>
+                            </td>
+                            <td colspan="2">
+                                <h4 
+                                    style="color:#006600; 
+                                    font-family: Verdana, sans-serif;font-weight: bold;" 
+                                    *ngIf="forma.valid">Podatci su spremni za unos!</h4>
                             </td>
                         </tr>
                     </tbody>

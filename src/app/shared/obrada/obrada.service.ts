@@ -12,8 +12,13 @@ export class ObradaService{
 
     //Kreiram BehaviourSubject u kojega spremam ime i prezime pacijenta
     imePrezimePacijent = new BehaviorSubject<{ime: string, prezime: string,stranica: number}>({ime:'unknown',prezime:'unknown',stranica:1});
+    //Kreiram Subject kojim ću obavjestiti komponentu obrade da je pregled završio
     zavrsenPregled = new BehaviorSubject<string>(null);
     obsZavrsenPregled = this.zavrsenPregled.asObservable();
+    //Kreiram Subject kojim ću prenijeti trenutni ID obrade u komponentu "PrikaziPovijestBolestiComponent"
+    podatciObrada = new BehaviorSubject<number>(null);
+    podatciObradaObs = this.podatciObrada.asObservable();
+    
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
 
@@ -21,6 +26,14 @@ export class ObradaService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+    //Metoda koja dohvaća ID obrade iz Local Storagea te ga stavlja u Subject
+    refreshPodatciObrada(){
+        const idObrada = JSON.parse(localStorage.getItem("idObrada"));
+        if(!idObrada){
+            return;
+        }
+        this.podatciObrada.next(idObrada);
+    }
 
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalaze traženi pacijenti 
     getPatients(ime: string, prezime: string, trenutnaStranica: number){

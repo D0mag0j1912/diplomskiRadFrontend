@@ -250,6 +250,8 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                             });
                             //Pošalji te ID-eve tablici pacijenata
                             this.pacijentiService.prijenosnikUTablicuPacijenata.next(this.ids); 
+                            //ID-eve pacijenata spremam u Local Storage
+                            localStorage.setItem("prijenosnikUTablicuPacijenata",JSON.stringify(this.ids));
                         }
                         //Ako je server vratio da nema rezultata
                         else{

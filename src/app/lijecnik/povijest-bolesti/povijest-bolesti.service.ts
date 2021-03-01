@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject, throwError } from "rxjs";
+import { BehaviorSubject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
 
 @Injectable({
@@ -18,11 +18,26 @@ export class PovijestBolestiService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+    //Metoda koja se pokreće kada se stranica refresha
+    refreshIsObraden(){
+        //Dohvaćam podatke iz Local Storage-a
+        const isObraden: {
+            idPacijent: number;
+            isObraden: boolean;
+        } = JSON.parse(localStorage.getItem("isObraden"));
+        //Ako nema nikakvih podataka
+        if(!isObraden){
+            return;
+        }
+        //Ako ima podataka u Local Storageu (stavljam te podatke u Subject)
+        this.isObraden.next(isObraden);
+    }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
     potvrdiPovijestBolesti(idLijecnik:number,idPacijent: number,razlogDolaska: string, anamneza: string,
                         status: string, nalaz: string, mkbPrimarnaDijagnoza: string, mkbSifre: string[],
-                        tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string,idObrada: number){
+                        tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string, 
+                        idObrada: number){
         return this.http.post<any>(this.baseUrl + 'lijecnik/povijestBolesti.php',{
             idLijecnik,
             idPacijent,

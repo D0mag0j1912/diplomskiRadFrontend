@@ -141,6 +141,10 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               this.isAktivan = true;
                               //Spremam podatke trenutno aktivnog pacijenta
                               this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent[0]);
+                              //Šaljem ID obrade komponenti "PrikaziPovijestBolestiComponent"
+                              this.obradaService.podatciObrada.next(this.trenutnoAktivniPacijent.idObrada);
+                              //ID obrade spremam u Local Storage
+                              localStorage.setItem("idObrada",JSON.stringify(this.trenutnoAktivniPacijent.idObrada));
                               this.pacijent = new Pacijent(podatci[3].pacijent[0]);
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
                               this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
@@ -158,6 +162,10 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               this.isAktivan = true;
                               //Spremam podatke trenutno aktivnog pacijenta
                               this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent.pacijent[0]);
+                              //Šaljem ID obrade komponenti "PrikaziPovijestBolestiComponent"
+                              this.obradaService.podatciObrada.next(this.trenutnoAktivniPacijent.idObrada);
+                              //ID obrade spremam u Local Storage
+                              localStorage.setItem("idObrada",JSON.stringify(this.trenutnoAktivniPacijent.idObrada));
                               this.pacijent = new Pacijent(podatci[3].pacijent.pacijent[0]);
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
                               this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;   
@@ -229,6 +237,12 @@ export class ObradaComponent implements OnInit, OnDestroy {
     zavrsiPregled(){
         //Resetiram Subject koji dava informaciju da je već upisana povijest bolesti
         this.povijestBolestiService.isObraden.next({idPacijent: null, isObraden: false});
+        //U Local Storage stavljam novu vrijednost Subjecta
+        localStorage.setItem("isObraden",JSON.stringify({idPacijent: null, isObraden: false}));
+        //Resetiram Subject u kojemu se nalazi ID obrade kojega šaljem komponenti "PrikazPovijestiBolesti"
+        this.obradaService.podatciObrada.next(null);
+        //U Local Storage stavljam novu vrijednost ID-a obrade
+        localStorage.setItem("idObrada",JSON.stringify(null));
         //Dohvaćam tip prijavljenog korisnika te tu informaciju predavam metodama
         this.headerService.tipKorisnikaObs.pipe(
             switchMap(podatci => {

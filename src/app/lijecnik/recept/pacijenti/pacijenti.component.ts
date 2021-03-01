@@ -139,6 +139,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                 });
                                 //Pošalji te ID-eve listi recepata
                                 this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
+                                //U Local Storage stavljam ID-ove pacijenata koje šaljem u listu recepata
+                                localStorage.setItem("prijenosnikUListuRecepata",JSON.stringify(this.ids));
                                 //Praznim poruku pretrage
                                 this.porukaPretraga = null;
                             }
@@ -161,10 +163,10 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     console.log(value);
                     //Ako je vrijednost Subjecta true
                     if(value){
-                        console.log("Šaljem ID-ove listi recepata");
-                        console.log(this.ids);
                         //Pošalji listi recepata trenutno stanje ID-ova u tablici pacijenata
                         this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
+                        //U Local Storage stavljam ID-ove pacijenata koje šaljem u listu recepata
+                        localStorage.setItem("prijenosnikUListuRecepata",JSON.stringify(this.ids));
                     }
                 }),
                 takeUntil(this.pretplateSubject)
@@ -214,6 +216,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Pretplaćujem se na Observable u kojemu se nalazi informacija je li unesena povijest bolesti (da ne prikazivam prozor)
         this.povijestBolestiService.isObradenObs.pipe(
             tap((value) => {
+                console.log(value);
                 //Ako je value === true, znači da je unesena povijest bolesti već (ovo je za aktivnog pacijenta)
                 if(value.isObraden && id === value.idPacijent){
                     //Preusmjeri liječnika na prozor izdavanja recepta

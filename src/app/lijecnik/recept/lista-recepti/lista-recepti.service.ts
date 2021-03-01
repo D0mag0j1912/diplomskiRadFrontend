@@ -25,6 +25,15 @@ export class ListaReceptiService{
         private http: HttpClient
     ){}
 
+    //Metoda koja se poziva kada se stranica refresha
+    refreshPrijenosnikUListuRecepata(){
+        const ids: string[] = JSON.parse(localStorage.getItem("prijenosnikUListuRecepata"));
+        if(!ids){
+            return;
+        }
+        this.prijenosnikUListuRecepata.next(ids);
+    }
+
     //Metoda koja vraća Observable u kojemu se nalaze svi recepti koji odgovaraju pacijentima čiji ID mi je poslan Subjectom
     getReceptiTablica(ids: string[]){
         let params = new HttpParams().append("ids",JSON.stringify(ids));

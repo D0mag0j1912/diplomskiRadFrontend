@@ -55,6 +55,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     isMedSestra: boolean = false;
     //Oznaka koji je tip korisnika prijavljen da ga mogu usporediti sa tipom korisnika iz retka
     tipKorisnik: string = null;
+    brojRetka: number;
     //Spremam podatke izbrisanog retka čekaonice
     idObrada: number;
     idCekaonica: number;
@@ -205,7 +206,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                     //Nadodavam ih u polje
                     this.pacijenti.push(cekaonica);
                 }
-                console.log(this.pacijenti);
+                //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                let pom: string;
+                //Inicijaliziram brojač na 0 na početku
+                let brojac = 0;
+                //Prolazim kroz sve pacijente
+                for(const pacijent of this.pacijenti){
+                    //Povećavam brojač za 1
+                    brojac++;
+                    //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                    if(pom !== pacijent.odgovornaOsoba){
+                        this.brojRetka = brojac;
+                    }
+                    //U pomoćnu varijablu stavljam odgovorne osobe
+                    pom = pacijent.odgovornaOsoba;
+                }
                 //Označavam da čekaonica nije prazna
                 this.isPrazna = false;
               }
@@ -254,6 +269,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                   this.responsePoruka = odgovor["message"];
                   //Brišem pacijenta na indexu retka na kojem je kliknut button "Izbriši iz čekaonice"
                   this.pacijenti.splice(index,1);
+                  //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                  let pom: string;
+                  //Inicijaliziram brojač na 0 na početku
+                  let brojac = 0;
+                  //Prolazim kroz sve pacijente
+                  for(const pacijent of this.pacijenti){
+                    //Povećavam brojač za 1
+                    brojac++;
+                    //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                    if(pom !== pacijent.odgovornaOsoba){
+                        this.brojRetka = brojac;
+                    }
+                    //U pomoćnu varijablu stavljam odgovorne osobe
+                    pom = pacijent.odgovornaOsoba;
+                  }
                   //Provjeravam broj pacijenata u čekaonici
                   this.checkCountCekaonica();
                   //Zatvaram prozor za brisanje
@@ -275,9 +305,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         this.vrijemeDodavanja = vrijeme;
         this.statusCekaonica = status;
         this.tip = tip;
-        console.log(this.idObrada);
-        console.log(this.tip);
-        console.log(this.idCekaonica);
         //Prvo otvaram prozor za brisanje u kojemu liječnik potvrđuje brisanje ili odustaje
         this.isBrisanje = true;
     }
@@ -290,13 +317,13 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja kreira polje koje se sastoji do form controlova statusa čekaonice
     dodajStatusKontrole(){
-      //Za svaki element u polju "statusi", kreira se novi FormControl koji nije označen defaultno
-      const arr = this.statusi.map((element) => {
-        return this.fb.control(false);
-      })
+        //Za svaki element u polju "statusi", kreira se novi FormControl koji nije označen defaultno
+        const arr = this.statusi.map(() => {
+            return this.fb.control(false);
+        })
 
-      //Vraćam polje form controlova
-      return this.fb.array(arr);
+        //Vraćam polje form controlova
+        return this.fb.array(arr);
     }
 
     //Metoda koja dohvaća 
@@ -330,7 +357,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                   //Nadodavam ih u polje
                   this.pacijenti.push(cekaonica);
               }
-              console.log(this.pacijenti);
+              //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+              let pom: string;
+              //Inicijaliziram brojač na 0 na početku
+              let brojac = 0;
+              //Prolazim kroz sve pacijente
+              for(const pacijent of this.pacijenti){
+                  //Povećavam brojač za 1
+                  brojac++;
+                  //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                  if(pom !== pacijent.odgovornaOsoba){
+                      this.brojRetka = brojac;
+                  }
+                  //U pomoćnu varijablu stavljam odgovorne osobe
+                  pom = pacijent.odgovornaOsoba;
+              }
             }
         );
     }
@@ -365,14 +406,13 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                 this.response = true;
                 //Spremam poruku servera 
                 this.responsePoruka = odgovor["message"];
-                console.log(this.responsePoruka);
                 //Ako je server vratio da je pacijent uspješno dodan u obradu
                 if(this.responsePoruka !== "Već postoji aktivan pacijent!"){
                     //Označavam da je pacijent dodan u obradu
                     this.isDodanObrada = true;
                 }
             }),
-            switchMap(odgovor => {
+            switchMap(() => {
                 return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
                     tap(odgovor => {
                         //Praznim polje pacijenata
@@ -386,7 +426,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                             //Nadodavam ih u polje
                             this.pacijenti.push(cekaonica);
                         }
-                        console.log(this.pacijenti);
+                        //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                        let pom: string;
+                        //Inicijaliziram brojač na 0 na početku
+                        let brojac = 0;
+                        //Prolazim kroz sve pacijente
+                        for(const pacijent of this.pacijenti){
+                            //Povećavam brojač za 1
+                            brojac++;
+                            //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                            if(pom !== pacijent.odgovornaOsoba){
+                                this.brojRetka = brojac;
+                            }
+                            //U pomoćnu varijablu stavljam odgovorne osobe
+                            pom = pacijent.odgovornaOsoba;
+                        }
                     }),
                     takeUntil(this.pretplateSubject)
                 );
@@ -458,7 +512,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                   //Nadodavam ih u polje
                   this.pacijenti.push(cekaonica);
               }
-              console.log(this.pacijenti);
+              //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+              let pom: string;
+              //Inicijaliziram brojač na 0 na početku
+              let brojac = 0;
+              //Prolazim kroz sve pacijente
+              for(const pacijent of this.pacijenti){
+                  //Povećavam brojač za 1
+                  brojac++;
+                  //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                  if(pom !== pacijent.odgovornaOsoba){
+                      this.brojRetka = brojac;
+                  }
+                  //U pomoćnu varijablu stavljam odgovorne osobe
+                  pom = pacijent.odgovornaOsoba;
+              }
           }
         );
     }
@@ -488,7 +556,21 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                 //Nadodavam ih u polje
                 this.pacijenti.push(cekaonica);
             }
-            console.log(this.pacijenti);
+            //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+            let pom: string;
+            //Inicijaliziram brojač na 0 na početku
+            let brojac = 0;
+            //Prolazim kroz sve pacijente
+            for(const pacijent of this.pacijenti){
+                //Povećavam brojač za 1
+                brojac++;
+                //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                if(pom !== pacijent.odgovornaOsoba){
+                    this.brojRetka = brojac;
+                }
+                //U pomoćnu varijablu stavljam odgovorne osobe
+                pom = pacijent.odgovornaOsoba;
+            }
             //Označi checkboxove neaktivnima
             this.formaStatus.reset();
           }

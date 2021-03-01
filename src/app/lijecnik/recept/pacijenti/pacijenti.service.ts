@@ -18,6 +18,15 @@ export class PacijentiService {
     
     constructor(private http: HttpClient) { }
 
+    //Metoda koja dohvaća ID-ove pacijenata iz Local Storage-a te ih predava Subjectu
+    refreshPrijenosnikUTablicuPacijenata(){
+        const ids: string[] = JSON.parse(localStorage.getItem('prijenosnikUTablicuPacijenata'));
+        if(!ids){
+            return;
+        }
+        this.prijenosnikUTablicuPacijenata.next(ids);
+    }
+
     //Metoda koja vraća Observable sa svim pacijentima čiji se recepti nalaze u listi trenutno
     getPacijenti(ids: string[]){
         let params = new HttpParams().append("ids",JSON.stringify(ids));

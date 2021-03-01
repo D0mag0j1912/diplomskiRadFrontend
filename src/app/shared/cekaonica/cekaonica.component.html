@@ -95,7 +95,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let pacijent of pacijenti;let i = index">
+                        <tr *ngFor="let pacijent of pacijenti;let i = index" [ngStyle]="{'border-top': i+1 === brojRetka ? '2px solid #337ab7' : '1px solid transparent'}">
                             <!--Ako je liječnik prijavljen i liječnik je dodao ovaj redak == "Vi".-->
                             <!--Ako je medicinska sestra prijavljena i medicinska sestra je dodala ovaj redak == "Vi"-->
                             <!--Inače ispiši pravo ime liječnika/medicinske sestre-->
