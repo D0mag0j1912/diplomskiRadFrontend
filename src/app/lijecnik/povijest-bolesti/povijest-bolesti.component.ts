@@ -349,10 +349,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   tap(
                     //Dohvaćam odgovor servera
                     (odgovor) => {
-                      //Označavam da je povijest bolesti unesena preko Subjecta
-                      this.povijestBolestiService.isObraden.next({idPacijent: this.idPacijent,isObraden: true});
-                      //Spremam ove podatke u LocalStorage
-                      localStorage.setItem("isObraden",JSON.stringify({idPacijent: this.idPacijent,isObraden: true}));
                       //Označavam da ima odgovora servera
                       this.response = true;
                       //Spremam odgovor servera

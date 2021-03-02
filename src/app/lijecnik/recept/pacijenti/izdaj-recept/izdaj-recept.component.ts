@@ -12,6 +12,7 @@ import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
 import { PrikazReceptService } from '../../lista-recepti/prikaz-recept/prikaz-recept.service';
+import { HeaderService } from 'src/app/shared/header/header.service';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -99,6 +100,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     recept: Recept;
     //Oznaka je li recept hitan ili nije
     isHitnost: boolean = false;
+    //Spremam ID liječnika
+    idLijecnik: number;
 
     constructor(
         //Dohvaćam trenutni route
@@ -110,7 +113,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Dohvaćam router
         private router: Router,
         //Dohvaćam servis prikaza recepta
-        private prikazService: PrikazReceptService
+        private prikazService: PrikazReceptService,
+        //Dohvaćam servis headera
+        private headerService: HeaderService
     ) {}
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -121,9 +126,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             tap((podatci) => {
                 //Ako se u Resolveru nalaze podatci dohvaćenog recepta, mode je AŽURIRANJE
                 if(podatci.recept){
-                    console.log(podatci.recept[0]);
                     //Spremam podatke recepta iz Resolvera u svoj model
                     this.recept = new Recept(podatci.recept[0]);
+                    console.log(this.recept);
                     //Ako je server vratio da je recept običan i da je broj ponavljanja null (tj. 0)
                     if(this.recept.ponovljivost === "obican" && !this.recept.brojPonavljanja){
                         //Označavam da je recept običan
@@ -201,7 +206,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }
                 //Kreiram formu unosa novog recepta
                 this.forma = new FormGroup({
-                    'primarnaDijagnoza': new FormControl(this.editMode ? this.recept.nazivPrimarna : null,[Validators.required]),
+                    'primarnaDijagnoza': new FormControl(this.editMode ? this.recept.nazivPrimarna.trim() : null,[Validators.required]),
                     'mkbPrimarnaDijagnoza': new FormControl(this.editMode ? this.recept.mkbSifraPrimarna.trim() : null,[Validators.required,Validacija.provjeriMKB(this.mkbSifre)]),
                     'sekundarnaDijagnoza': new FormArray([
                         new FormGroup({
@@ -362,8 +367,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     }
                 }
                 
-                //Dohvaćam inicijalne dijagnoze ako ih ovaj pacijent ima
-                if(podatci.inicijalneDijagnoze !== null){
+                //Dohvaćam inicijalne dijagnoze ako ih ovaj pacijent ima te ako je dodavanje recepta
+                if(podatci.inicijalneDijagnoze !== null && !this.editMode){
                     //Omogućavam unos sekundarne dijagnoze koja je inicijalno disable
                     this.sekundarnaDijagnoza.enable({emitEvent: false});
                     this.sekundarnaDijagnoza.clear();
@@ -393,7 +398,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         //Postavljam MKB šifre sek.dijagnoza
                         Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                     });
-                }
+                } 
             }),
             switchMap(podatci => {
                 //Ako se u Resolveru NALAZE podatci recepta (MOD AŽURIRANJA RECEPTA)
@@ -455,6 +460,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         
         //Pretplaćujem se na promjene u pojedinim dijelovima forme
         const prviDio = merge(
+            //Pretplaćivam se na dohvat ID-a liječnika
+            this.headerService.getIDLijecnik().pipe(
+                tap(idLijecnik => {
+                    //Spremam ID liječnika
+                    this.idLijecnik = idLijecnik[0].idLijecnik;
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
             //Slušam promjene u polju unosa primarne dijagnoze
             this.primarnaDijagnoza.valueChanges.pipe(
                 tap(value => {
@@ -1846,6 +1859,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 mkbPolje.push(el.value.mkbSifraSekundarna);
             }
         }
+        
         //Ako je komponenta u modu ažuriranja recepta
         if(this.editMode){
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
@@ -1870,6 +1884,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         }
         //Ako je komponenta u modu dodavanja recepta
         else{
+            //Spremam trenutni ID obrade (ili broj ili null)
+            const idObrada = +JSON.parse(localStorage.getItem("idObrada"));
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
             this.receptService.dodajRecept(this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
                 this.osnovnaListaLijekText.value,this.dopunskaListaLijekDropdown.value,this.dopunskaListaLijekText.value,
@@ -1878,7 +1894,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
                 this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
                 this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value, 
-                this.sifraSpecijalist.value,this.idPacijent).pipe(
+                this.sifraSpecijalist.value,this.idPacijent,idObrada,this.idLijecnik).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
                     this.response = true;

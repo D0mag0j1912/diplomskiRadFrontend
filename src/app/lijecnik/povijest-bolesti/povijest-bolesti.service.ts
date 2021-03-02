@@ -10,28 +10,11 @@ export class PovijestBolestiService{
 
     //Kreiram varijablu koja pohranjuje baseUrl
     baseUrl: string = "http://localhost:8080/angularPHP/";
-    //Kreiram Subject kojime ću obavjestiti komponentu "PacijentiComponent" je li unesena povijest bolesti za pacijenta u obradi
-    isObraden = new BehaviorSubject<{idPacijent: number, isObraden: boolean}>({idPacijent: null,isObraden: false});
-    isObradenObs = this.isObraden.asObservable();
 
     constructor(
         //Dohvaćam http
         private http: HttpClient
     ){}
-    //Metoda koja se pokreće kada se stranica refresha
-    refreshIsObraden(){
-        //Dohvaćam podatke iz Local Storage-a
-        const isObraden: {
-            idPacijent: number;
-            isObraden: boolean;
-        } = JSON.parse(localStorage.getItem("isObraden"));
-        //Ako nema nikakvih podataka
-        if(!isObraden){
-            return;
-        }
-        //Ako ima podataka u Local Storageu (stavljam te podatke u Subject)
-        this.isObraden.next(isObraden);
-    }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
     potvrdiPovijestBolesti(idLijecnik:number,idPacijent: number,razlogDolaska: string, anamneza: string,

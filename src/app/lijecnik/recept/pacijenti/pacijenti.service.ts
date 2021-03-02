@@ -18,13 +18,17 @@ export class PacijentiService {
     
     constructor(private http: HttpClient) { }
 
-    //Metoda koja dohvaća ID-ove pacijenata iz Local Storage-a te ih predava Subjectu
-    refreshPrijenosnikUTablicuPacijenata(){
-        const ids: string[] = JSON.parse(localStorage.getItem('prijenosnikUTablicuPacijenata'));
-        if(!ids){
-            return;
-        }
-        this.prijenosnikUTablicuPacijenata.next(ids);
+    //Metoda koja vraća Observable u kojemu se nalazi informacija je li unesena povijest bolesti za nekog pacijenta (kada pacijent NIJE AKTIVAN)
+    provjeraPovijestBolestiBezObrade(idPacijent: number){
+        let params = new HttpParams().append("idPacijent",idPacijent.toString());
+        return this.http.get<number>(this.baseUrl + 'recept/pacijenti/provjeraPovijestBolestiBezObrade.php',{params: params}).pipe(catchError(handleError));
+    }
+
+    //Metoda koja vraća Observable u kojemu se nalazi informacija je li unesena povijest bolesti za nekog pacijenta (kada JE pacijent AKTIVAN)
+    provjeraPovijestBolestiPremaObradi(idObrada: number, idPacijent: number){
+        let params = new HttpParams().append("idObrada",idObrada.toString());
+        params = params.append("idPacijent",idPacijent.toString());
+        return this.http.get<number>(this.baseUrl + 'recept/pacijenti/provjeraPovijestBolestiPremaObradi.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable sa svim pacijentima čiji se recepti nalaze u listi trenutno

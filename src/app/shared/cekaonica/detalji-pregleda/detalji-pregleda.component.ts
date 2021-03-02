@@ -119,6 +119,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             this.tip = "lijecnik";
                             //Prolazim poljem povijesti bolesti te za svaki objekt u njemu, dodavam jedan FORM GROUP U FORM ARRAY povijesti bolesti
                             for(const podatci of this.podatciPregleda){
+                                console.log(podatci);
                                 this.addControlsPovijestBolesti(podatci);
                             }
                             //Prolazim poljem povijesti bolesti.
@@ -226,7 +227,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
             new FormGroup({
                 'primarnaDijagnoza': new FormControl(povijestBolesti.mkbSifraPrimarna + " | " + povijestBolesti.NazivPrimarna),
                 'anamneza': new FormControl(povijestBolesti.anamneza),
-                'terapija': new FormControl(povijestBolesti.terapija),
+                'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
                 'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
                 'sekundarneDijagnoze': new FormControl()
             })

@@ -141,6 +141,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               this.isAktivan = true;
                               //Spremam podatke trenutno aktivnog pacijenta
                               this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent[0]);
+                              console.log(this.trenutnoAktivniPacijent);
                               //Šaljem ID obrade komponenti "PrikaziPovijestBolestiComponent"
                               this.obradaService.podatciObrada.next(this.trenutnoAktivniPacijent.idObrada);
                               //ID obrade spremam u Local Storage
@@ -152,6 +153,15 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               polje.push(this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent));
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
                               polje.push(this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent));
+                          }
+                          //Ako je server vratio da NEMA pacijenta u obradi
+                          else if(podatci[3]["pacijent"]["success"] === "false"){
+                              //Označavam da pacijent nije aktivan
+                              this.isAktivan = false;
+                              //U Subject stavljam informaciju da NE POSTOJI ID obrade
+                              this.obradaService.podatciObrada.next(null);
+                              //Local Storage također obavješavam da NE POSTOJI ID obrade
+                              localStorage.setItem("idObrada",JSON.stringify(null));
                           }
                       }
                       //Ako je prijavljeni korisnik "sestra":
@@ -174,6 +184,15 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               //U polje ubacivam Observable u kojemu se nalazi informacija je li, te ako jest, kada je liječnik obradio aktivnog pacijenta danas
                               polje.push(this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent));
                           }
+                          //Ako je server vratio da NEMA pacijenta u obradi
+                          else if(podatci[3]["pacijent"]["pacijent"]["success"] === "false"){
+                              //Označavam da pacijent nije aktivan
+                              this.isAktivan = false;
+                              //U Subject stavljam informaciju da NE POSTOJI ID obrade
+                              this.obradaService.podatciObrada.next(null);
+                              //Local Storage također obavješavam da NE POSTOJI ID obrade
+                              localStorage.setItem("idObrada",JSON.stringify(null));
+                        }
                       }
                       return forkJoin(polje);
                   }),
@@ -235,10 +254,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Metoda koja se izvršava kada korisnik klikne button "Završi pregled"
     zavrsiPregled(){
-        //Resetiram Subject koji dava informaciju da je već upisana povijest bolesti
-        this.povijestBolestiService.isObraden.next({idPacijent: null, isObraden: false});
-        //U Local Storage stavljam novu vrijednost Subjecta
-        localStorage.setItem("isObraden",JSON.stringify({idPacijent: null, isObraden: false}));
         //Resetiram Subject u kojemu se nalazi ID obrade kojega šaljem komponenti "PrikazPovijestiBolesti"
         this.obradaService.podatciObrada.next(null);
         //U Local Storage stavljam novu vrijednost ID-a obrade

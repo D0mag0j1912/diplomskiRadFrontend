@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { merge, Subject } from 'rxjs';
+import { merge, of, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { PovijestBolestiService } from '../../povijest-bolesti/povijest-bolesti.service';
@@ -139,8 +139,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                 });
                                 //Pošalji te ID-eve listi recepata
                                 this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
-                                //U Local Storage stavljam ID-ove pacijenata koje šaljem u listu recepata
-                                localStorage.setItem("prijenosnikUListuRecepata",JSON.stringify(this.ids));
                                 //Praznim poruku pretrage
                                 this.porukaPretraga = null;
                             }
@@ -165,8 +163,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     if(value){
                         //Pošalji listi recepata trenutno stanje ID-ova u tablici pacijenata
                         this.listaReceptiService.prijenosnikUListuRecepata.next(this.ids);
-                        //U Local Storage stavljam ID-ove pacijenata koje šaljem u listu recepata
-                        localStorage.setItem("prijenosnikUListuRecepata",JSON.stringify(this.ids));
                     }
                 }),
                 takeUntil(this.pretplateSubject)
@@ -213,25 +209,49 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     izdajRecept(id: number){
         //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
         this.listaReceptiService.editMessenger.next(null);
-        //Pretplaćujem se na Observable u kojemu se nalazi informacija je li unesena povijest bolesti (da ne prikazivam prozor)
-        this.povijestBolestiService.isObradenObs.pipe(
-            tap((value) => {
-                console.log(value);
-                //Ako je value === true, znači da je unesena povijest bolesti već (ovo je za aktivnog pacijenta)
-                if(value.isObraden && id === value.idPacijent){
-                    //Preusmjeri liječnika na prozor izdavanja recepta
-                    this.router.navigate(['./',id],{relativeTo: this.route}); 
-                }
-                //Ako nije unesena povijest bolesti već
-                else{
-                    //Šaljem child komponenti ovaj ID pacijenta
-                    this.idPacijent = id;
-                    //Otvaram prozor povijesti bolesti
-                    this.isPovijestBolesti = true;
-                }
-            }),
-            takeUntil(this.pretplateSubject)
-        ).subscribe();
+        
+        //Ako je pacijent aktivan u obradi
+        if(JSON.parse(localStorage.getItem("idObrada"))){
+            //Treba provjeriti je li ovaj pacijent ima već upisan povijest bolesti za ovu sesiju obrade (možda mu se upisao, pa se prozor izdavanja recepta slučajno zatvorio)
+            //Pa da se ne upisuje ponovno povijest bolesti
+            this.pacijentiService.provjeraPovijestBolestiPremaObradi(+JSON.parse(localStorage.getItem("idObrada")),id).pipe(
+                tap(brojPovijestiBolesti => {
+                    //Ako je "brojPovijestiBolesti" 0 
+                    if(+brojPovijestiBolesti === 0){
+                        //Šaljem child komponenti ovaj ID pacijenta
+                        this.idPacijent = id;
+                        //Otvaram prozor povijesti bolesti
+                        this.isPovijestBolesti = true;
+                    }
+                    else{
+                        //Preusmjeri liječnika na prozor izdavanja recepta
+                        this.router.navigate(['./',id],{relativeTo: this.route});
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            ).subscribe();
+        }
+        //Ako pacijent NIJE AKTIVAN u obradi
+        else{
+            //Treba provjeriti je li ovaj pacijent ima već upisan povijest bolesti 
+            //Pa da se ne upisuje ponovno povijest bolesti
+            this.pacijentiService.provjeraPovijestBolestiBezObrade(id).pipe(
+                tap(brojPovijestiBolesti => {
+                    //Ako je "brojPovijestiBolesti" 0 
+                    if(+brojPovijestiBolesti === 0){
+                        //Šaljem child komponenti ovaj ID pacijenta
+                        this.idPacijent = id;
+                        //Otvaram prozor povijesti bolesti
+                        this.isPovijestBolesti = true;
+                    }
+                    else{
+                        //Preusmjeri liječnika na prozor izdavanja recepta
+                        this.router.navigate(['./',id],{relativeTo: this.route});
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            ).subscribe();
+        }
     }
 
     //Metoda koja prima poslani event od komponente "PovijestBolestiComponent"
