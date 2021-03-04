@@ -218,6 +218,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               (podatci) => {
                   //Ako je pregled završen
                   if(podatci[1] === "zavrsenPregled"){
+                      //Poništavam povezani slučaj ako je povezan
+                      this.ponistiPovezaniSlucajHandler();
                       //Postavljam da pacijent više nije aktivan
                       this.isAktivan = false;
                       //Resetiram formu osnovnih podataka pacijenta
@@ -336,6 +338,14 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   mkbPolje.push(el.value.mkbSifraSekundarna);
               }
           }
+          //Definiram MKB šifru tražene dijagnoze
+          let mkbSifraPrethodna;
+          //Tražim MKB šifru prethodne dijagnoze prije nego što je liječnik ažurirao dijagnoze
+          for(const dijagnoza of this.dijagnoze){
+              if(this.primarnaDijagnozaPovijestBolesti === dijagnoza.imeDijagnoza){
+                    mkbSifraPrethodna = dijagnoza.mkbSifra;
+              }
+          }
           //Ako je pacijent aktivan u obradi
           if(this.isAktivan){
               console.log(this.forma.getRawValue());
@@ -345,7 +355,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   this.mkbPrimarnaDijagnoza.value,mkbPolje,
                   this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                   this.terapija.value,this.preporukaLijecnik.value,
-                  this.napomena.value,this.idObrada).pipe(
+                  this.napomena.value,this.idObrada,mkbSifraPrethodna).pipe(
                   tap(
                     //Dohvaćam odgovor servera
                     (odgovor) => {
@@ -366,24 +376,30 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           } 
       }
 
+      //Metoda koja poništava povezani slučaj
+      ponistiPovezaniSlucajHandler(){
+        //Resetiram i čistim polja dijagnoza
+        //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+        while(this.getControlsSekundarna().length !== 1){
+            //Briši mu prvi element 
+            (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+        }
+        //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+        this.sekundarnaDijagnoza.reset();
+        this.sekundarnaDijagnoza.disable({emitEvent: false});
+        this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
+        this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
+        //Skrivam button "Poništi povezani slučaj"
+        this.ponistiPovezaniSlucaj = false;
+        //Resetiram checkbox povezanog slučaja
+        this.povezanSlucaj.reset();
+      }
+
       //Metoda koja se aktivira kada korisnik klikne "Poništi povezani slučaj"
       onPonistiPovezaniSlucaj(){
           //Ako je pacijent aktivan
           if(this.isAktivan){
-              //Resetiram i čistim polja dijagnoza
-              //Dok ne ostane jedna sekundarna dijagnoza u arrayu
-              while(this.getControlsSekundarna().length !== 1){
-                //Briši mu prvi element 
-                (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
-              }
-              //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
-              this.sekundarnaDijagnoza.reset();
-              this.sekundarnaDijagnoza.disable({emitEvent: false});
-              this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
-              //Skrivam button "Poništi povezani slučaj"
-              this.ponistiPovezaniSlucaj = false;
-              //Resetiram checkbox povezanog slučaja
-              this.povezanSlucaj.reset();
+              this.ponistiPovezaniSlucajHandler();
           }
       }
 

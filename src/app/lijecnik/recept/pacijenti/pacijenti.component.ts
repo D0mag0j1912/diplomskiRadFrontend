@@ -209,8 +209,11 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     izdajRecept(id: number){
         //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
         this.listaReceptiService.editMessenger.next(null);
-        
-        //Ako je pacijent aktivan u obradi
+        //Šaljem child komponenti ovaj ID pacijenta
+        this.idPacijent = id;
+        //Otvaram prozor povijesti bolesti
+        this.isPovijestBolesti = true;
+        /* //Ako je pacijent aktivan u obradi
         if(JSON.parse(localStorage.getItem("idObrada"))){
             //Treba provjeriti je li ovaj pacijent ima već upisan povijest bolesti za ovu sesiju obrade (možda mu se upisao, pa se prozor izdavanja recepta slučajno zatvorio)
             //Pa da se ne upisuje ponovno povijest bolesti
@@ -251,7 +254,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe();
-        }
+        } */
     }
 
     //Metoda koja prima poslani event od komponente "PovijestBolestiComponent"

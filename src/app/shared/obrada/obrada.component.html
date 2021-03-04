@@ -43,7 +43,10 @@
                                     style="width:200px;"
                                     formControlName="ime">
                                 <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
-                                    <span *ngIf="forma.hasError('error')">Morate unijeti barem jedno od polja!</span>
+                                    <span 
+                                        *ngIf="forma.hasError('error')" 
+                                        style="font-weight: bold;" 
+                                        class="help-block">Morate unijeti barem jedno od polja!</span>
                                 </span>
                                 </td>
                                 <td>

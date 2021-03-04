@@ -41,8 +41,8 @@
                                     class="form-control"
                                     style="width:200px;"
                                     formControlName="ime">
-                                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
-                                    <span *ngIf="forma.hasError('error')">Morate unijeti barem jedno od polja!</span>
+                                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid" class="help-block">
+                                    <span *ngIf="forma.hasError('error')" style="font-weight: bold;">Morate unijeti barem jedno od polja!</span>
                                 </span>
                                 </td>
                                 <td>
@@ -123,7 +123,7 @@
                                         (click)="onGetTableData(pacijent.idObrada,
                                                 pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,
                                                 pacijent.datumDodavanja,pacijent.vrijemeDodavanja,pacijent.status,pacijent.tipKorisnik)"
-                                        >Izbriši iz čekaonice</button></td>
+                                        >Izbriši iz čekaonice</button>
                         </tr>
                     </tbody>
                 </table>

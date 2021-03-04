@@ -47,7 +47,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong>Datum: </strong>
+                                        <strong style="font-family:Verdana, sans-serif">Datum: </strong>
                                         <input 
                                             type="text"
                                             formControlName="datum"
@@ -58,7 +58,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <p><strong>Razlog dolaska: </strong></p>
+                                        <p><strong style="font-family:Verdana, sans-serif">Razlog dolaska: </strong></p>
                                         <textarea 
                                             type="text"
                                             formControlName="razlogDolaska"
@@ -69,7 +69,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong>MKB šifra primarne dijagnoze: </strong>
+                                        <strong style="font-family:Verdana, sans-serif">MKB šifra primarne dijagnoze: </strong>
                                         <input 
                                             type="text"
                                             formControlName="mkbSifraPrimarna"
@@ -80,19 +80,23 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong>Naziv primarne dijagnoze: </strong>
+                                        <strong style="font-family:Verdana, sans-serif">Naziv primarne dijagnoze: </strong>
                                         <input 
                                             type="text"
                                             formControlName="nazivPrimarna"
-                                            style="border:0;width:500px;height:20px; 
+                                            style="border:0;width:450px;height:20px; 
                                             font-family: Verdana, sans-serif;" 
                                             readonly>
                                     </td>
                                 </tr>
                                 <tr class="border_bottom" formArrayName="sekundarneDijagnoze" *ngFor="let sekundarna of getControlsSekundarna(i);let j = index">
                                     <td>
-                                        <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value != null"><strong>Sekundarne dijagnoze:</strong></p>
-                                        <p style="font-family: Verdana, sans-serif;" *ngIf="sekundarna.value == null"><strong style="color:#a94442">Nema sekundarnih dijagnoza!</strong></p>
+                                        <p 
+                                            style="font-family: Verdana, sans-serif;" 
+                                            *ngIf="sekundarna.value != null"><strong>Sekundarne dijagnoze:</strong></p>
+                                        <p 
+                                            style="font-family: Verdana, sans-serif;" 
+                                            *ngIf="sekundarna.value == null"><strong style="color:#a94442">Nema sekundarnih dijagnoza!</strong></p>
                                         <textarea
                                             type="text"
                                             [formControlName]="j"

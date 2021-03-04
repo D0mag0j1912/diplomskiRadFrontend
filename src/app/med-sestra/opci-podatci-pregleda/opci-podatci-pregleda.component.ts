@@ -367,6 +367,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     console.log(this.idMedSestra);
                     //Ako je pregled završen
                     if(response[1] === "zavrsenPregled"){
+                        //Poništavam povezani slučaj
+                        this.ponistiPovezaniSlucajHandler();
                         //Postavljam da pacijent više nije aktivan
                         this.isAktivan = false;
                         //Resetiram formu osnovnih podataka pacijenta
@@ -748,25 +750,30 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
       }
     }
 
+    //Metoda koja poništava povezani slučaj
+    ponistiPovezaniSlucajHandler(){
+        //Resetiram i čistim polja dijagnoza
+        //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+        while(this.getControlsSekundarna().length !== 1){
+          //Briši mu prvi element 
+          (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+        }
+        //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+        this.sekundarnaDijagnoza.reset();
+        this.sekundarnaDijagnoza.disable({emitEvent: false});
+        this.sekundarnaDijagnozaOtvoreniSlucaj = [];
+        this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
+        //Skrivam button "Poništi povezani slučaj"
+        this.ponistiPovezaniSlucaj = false;
+        //Resetiram checkbox povezanog slučaja
+        this.povezanSlucaj.reset();
+    }
+
     //Metoda koja se aktivira kada korisnik klikne "Poništi povezani slučaj"
     onPonistiPovezaniSlucaj(){
         //Ako je pacijent aktivan
         if(this.isAktivan){
-            //Resetiram i čistim polja dijagnoza
-            //Dok ne ostane jedna sekundarna dijagnoza u arrayu
-            while(this.getControlsSekundarna().length !== 1){
-              //Briši mu prvi element 
-              (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
-            }
-            //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
-            this.sekundarnaDijagnoza.reset();
-            this.sekundarnaDijagnoza.disable({emitEvent: false});
-            this.sekundarnaDijagnozaOtvoreniSlucaj = [];
-            this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
-            //Skrivam button "Poništi povezani slučaj"
-            this.ponistiPovezaniSlucaj = false;
-            //Resetiram checkbox povezanog slučaja
-            this.povezanSlucaj.reset();
+            this.ponistiPovezaniSlucajHandler();
         }
     }
 

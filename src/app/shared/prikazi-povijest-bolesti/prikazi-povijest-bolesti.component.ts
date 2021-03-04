@@ -321,13 +321,22 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 mkbPolje.push(el.value.mkbSifraSekundarna);
             }
         }
+        //Definiram MKB šifru tražene dijagnoze
+        let mkbSifraPrethodna = "";
+        //Tražim MKB šifru prethodne dijagnoze prije nego što je liječnik ažurirao dijagnoze
+        for(const dijagnoza of this.dijagnoze){
+            if(this.primarnaDijagnozaPovijestBolesti === dijagnoza.imeDijagnoza){
+                  mkbSifraPrethodna = dijagnoza.mkbSifra;
+            }
+        }
+        console.log(mkbSifraPrethodna);
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
         this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
             this.anamneza.value,this.status.value,this.nalaz.value,
             this.mkbPrimarnaDijagnoza.value,mkbPolje,
             this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
             this.terapija.value,this.preporukaLijecnik.value,
-            this.napomena.value,this.idObrada).pipe(
+            this.napomena.value,this.idObrada,mkbSifraPrethodna).pipe(
             tap(() => {
                 //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
                 this.close.emit();
@@ -351,6 +360,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         this.sekundarnaDijagnoza.reset();
         this.sekundarnaDijagnoza.disable({emitEvent: false});
         this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
+        this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
         //Skrivam button "Poništi povezani slučaj"
         this.ponistiPovezaniSlucaj = false;
         //Resetiram checkbox povezanog slučaja

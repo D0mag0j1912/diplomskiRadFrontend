@@ -45,8 +45,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     isPrazna: boolean = true;
     //Oznaka je li checkbox označen
     isChecked: boolean = false;
-    //Oznaka je li pacijent dodan u obradu
-    isDodanObrada: boolean = false;
     //Oznaka je li korisnik prijavljen
     prijavljen: boolean = false;
     //Oznaka je li korisnik liječnik
@@ -114,41 +112,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             statusCekaonicaH.append(boldStatusCekaonica);
             div.insertBefore(statusCekaonicaH,div.children[5]);
         }   
-    }
-    //Dohvaćam child komponentu "AlertComponent" kada se ova komponenta prikaže tj. ngIf = true
-    @ViewChild('childAlert',{static: false}) set content(content: AlertComponent){
-        //Ovo se samo prikazuje ako se otvori prozor da je pacijent dodan u obradu
-        if(content && this.isDodanObrada){
-            this.alertComponent = content;
-            //Dohvaćam div u toj komponenti (class = "alert-box")
-            const div = this.alertComponent.alertBoxActions.nativeElement;
-            if(div.querySelector(".podiUObradu")){
-                div.querySelector(".podiUObradu").remove();
-            }
-            //Kreiram novi button
-            const button = document.createElement("button");
-            //Uređivam button
-            button.className = "btn btn-info podiUObradu";
-            button.type = "button";
-            button.innerHTML = "Pođi u obradu";
-            button.style.margin = "5px";
-            //Ubacivam button u div
-            div.prepend(button);
-            //Slušam event na ovom buttonu
-            button.addEventListener("click",() => {
-                //Izađi iz ovog prozora
-                this.response = false;
-                //Ako je tip korisnika "Medicinska sestra":
-                if(this.isMedSestra){
-                    //Pođi na stranicu općih podataka pregleda
-                    this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
-                }
-                else if(this.isLijecnik){
-                    //Pođi na stranicu povijesti bolesti
-                    this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
-                }
-            }); 
-        }
     }
     constructor(
       //Dohvaćam trenutni url
@@ -231,9 +194,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja otvara prozor detalja pregleda
     onOtvoriDetalje(idObrada: number,tip: string){
-        this.isDodanObrada = false;
-        console.log(idObrada);
-        console.log(tip);
         //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
         this.cekaonicaService.podatciPregleda.next({tip,idObrada});
         //Otvori prozor detalja
@@ -263,10 +223,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         this.cekaonicaService.onDeleteCekaonica(tip,idObrada,idCekaonica).pipe(
             //Dohvaćam odgovor servera
             tap((odgovor) => {
-                  //Označavam da ima odgovora servera
+                  /* //Označavam da ima odgovora servera
                   this.response = true;
                   //Spremam poruku servera
-                  this.responsePoruka = odgovor["message"];
+                  this.responsePoruka = odgovor["message"]; */
                   //Brišem pacijenta na indexu retka na kojem je kliknut button "Izbriši iz čekaonice"
                   this.pacijenti.splice(index,1);
                   //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
@@ -388,8 +348,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada korisnik klikne button "Dodaj u obradu"
     onDodajObrada(id: number){
-        //Označavam da ne dodavam još pacijenta u obradu
-        this.isDodanObrada = false;
         let tipKorisnik;
         //Ako je prijavljen liječnik:
         if(this.isLijecnik){
@@ -401,15 +359,15 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         }
         //Pretplaćujem se na rezultate da ih dohvatim
         this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
-            tap(odgovor => {
-                //Označavam da ima odgovora servera 
-                this.response = true;
-                //Spremam poruku servera 
-                this.responsePoruka = odgovor["message"];
-                //Ako je server vratio da je pacijent uspješno dodan u obradu
-                if(this.responsePoruka !== "Već postoji aktivan pacijent!"){
-                    //Označavam da je pacijent dodan u obradu
-                    this.isDodanObrada = true;
+            tap(() => {
+                //Ako je tip korisnika "Medicinska sestra":
+                if(this.isMedSestra){
+                    //Pođi na stranicu općih podataka pregleda
+                    this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
+                }
+                else if(this.isLijecnik){
+                    //Pođi na stranicu povijesti bolesti
+                    this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
                 }
             }),
             switchMap(() => {
@@ -452,8 +410,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda se pokreće kada korisnik klikne "Pretraži"
     onSubmit(){
-        //Označavam da ne dodavam pacijenta u obradu
-        this.isDodanObrada = false;
         //Ako forma nije ispravna
         if(!this.forma.valid){
           return;
