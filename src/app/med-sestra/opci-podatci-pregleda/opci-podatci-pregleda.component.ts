@@ -73,7 +73,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     zdravstveniPodatci: any;
     //Spremam sve MKB šifre
     mkbSifre: string[] = [];
-
+    //Spremam ID obrade medicinske sestre
+    poslaniIDObradaMedSestra: string = "";
     constructor(
       //Dohvaćam route da mogu dohvatiti podatke koje je Resolver poslao
       private route: ActivatedRoute,
@@ -667,13 +668,22 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 mkbPolje.push(el.value.mkbSifraSekundarna);
             }
         }
+        //Definiram MKB šifru tražene dijagnoze
+        let poslanaMKBSifra = "";
+        //Tražim MKB šifru prethodne dijagnoze prije nego što je liječnik ažurirao dijagnoze
+        for(const dijagnoza of this.dijagnoze){
+            if(this.primarnaDijagnozaOtvoreniSlucaj === dijagnoza.imeDijagnoza){
+                poslanaMKBSifra = dijagnoza.mkbSifra;
+            }
+        }
         //Ako je pacijent aktivan
         if(this.isAktivan){
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na zahtjev dodavanja općih podataka pregleda
             this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
                 this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
                 this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
-                this.mkbPrimarnaDijagnoza.value, mkbPolje,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',this.idObrada).pipe(
+                this.mkbPrimarnaDijagnoza.value, mkbPolje,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj', 
+                poslanaMKBSifra,this.poslaniIDObradaMedSestra,this.idObrada).pipe(
                     //Dohvaćam odgovor servera
                     tap((response) => {
                         //Označavam da ima odgovora servera
@@ -705,6 +715,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
           this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).pipe(
               tap(//Dohvaćam podatke
                 (podatci) => {
+                    console.log(podatci);
                     //Resetiram formu sekundarnih dijagnoza
                     this.sekundarnaDijagnoza.clear();
                     //Resetiram svoje polje sekundarnih dijagnoza
@@ -713,7 +724,10 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     this.onAddDiagnosis();
                     //Prolazim poljem odgovora servera
                     for(let dijagnoza of podatci){
-                      console.log(dijagnoza);
+                      //Ako postoji ID medicinske sestre u odgovoru servera
+                      if('idObradaMedSestra' in dijagnoza){
+                          this.poslaniIDObradaMedSestra = dijagnoza.idObradaMedSestra;
+                      }
                       //Spremam naziv primarne dijagnoze otvorenog slučaja
                       this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
                       //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja

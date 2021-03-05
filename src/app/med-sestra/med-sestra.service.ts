@@ -53,7 +53,8 @@ export class MedSestraService{
     //Metoda koja šalje serveru sve podatke koji se tiču općih podataka pregleda 
     sendVisitData(idMedSestra: number, idPacijent: number, nacinPlacanja: string, podrucniUredHZZO: string, podrucniUredOzljeda: string, nazivPoduzeca: string,
                 oznakaOsiguranika: string, nazivDrzave: string, mbo: string, brIskDopunsko: string,
-                mkbPrimarnaDijagnoza: string, mkbSifre: string[], tipSlucaj: string, idObrada: number){
+                mkbPrimarnaDijagnoza: string, mkbSifre: string[], tipSlucaj: string, poslanaMKBSifra: string,
+                poslaniIDObradaMedSestra: string,idObrada: number){
 
         //Vraćam Observable u kojemu se nalazi odgovor servera na slanje općih podataka pregleda
         return this.http.post<any>(this.baseUrl + 'med-sestra/opciPodatciPregleda.php', 
@@ -71,7 +72,9 @@ export class MedSestraService{
             podrucniUredHZZO: podrucniUredHZZO,
             podrucniUredOzljeda: podrucniUredOzljeda,
             nazivPoduzeca: nazivPoduzeca,
-            idObrada:idObrada
+            poslanaMKBSifra: poslanaMKBSifra,
+            poslaniIDObradaMedSestra: poslaniIDObradaMedSestra,
+            idObrada: idObrada
         }).pipe(catchError(handleError));
     }
 

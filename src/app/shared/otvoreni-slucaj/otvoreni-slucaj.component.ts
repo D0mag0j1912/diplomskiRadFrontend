@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject} from 'rxjs';
-import { switchMap,distinctUntilChanged, concatMap, takeUntil, debounceTime } from 'rxjs/operators';
+import { switchMap,distinctUntilChanged, takeUntil, debounceTime } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { Obrada } from '../modeli/obrada.model';
 import { ObradaService } from '../obrada/obrada.service';
@@ -80,8 +80,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                       'parametar': new FormControl(null)
                     });
                     return forkJoin([
-                        this.otvoreniSlucajService.getOtvoreniSlucaj(this.tipKorisnik,this.idPacijent),
-                        this.otvoreniSlucajService.getSekundarneDijagnoze(this.tipKorisnik,this.idPacijent)
+                        this.otvoreniSlucajService.getOtvoreniSlucaj(this.idPacijent),
+                        this.otvoreniSlucajService.getSekundarneDijagnoze(this.idPacijent)
                     ]).pipe(
                         takeUntil(this.pretplateSubject)
                     );
@@ -107,7 +107,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                       debounceTime(100),
                       distinctUntilChanged(),
                       switchMap(value => {
-                          return this.otvoreniSlucajService.getOtvoreniSlucajPretraga(this.tipKorisnik,value,this.idPacijent);
+                          return this.otvoreniSlucajService.getOtvoreniSlucajPretraga(value,this.idPacijent);
                       }),
                       takeUntil(this.pretplateSubject)
                   ).subscribe(

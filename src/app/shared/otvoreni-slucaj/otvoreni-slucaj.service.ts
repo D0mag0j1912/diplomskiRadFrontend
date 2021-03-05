@@ -18,20 +18,18 @@ export class OtvoreniSlucajService{
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalaze svi podatci za otvoreni slučaj trenutno aktivnog pacijenta
-    getOtvoreniSlucaj(tip:string,id: number) : Observable<any>{
+    getOtvoreniSlucaj(id: number) : Observable<any>{
 
         let params = new HttpParams().append("id",id.toString());
-        params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucaj.php', {params: params}).pipe(
             catchError(handleError)
         ); 
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi podatci SEKUNDARNIH DIJAGNOZA trenutno aktivnog pacijenta
-    getSekundarneDijagnoze(tip: string,id: number) : Observable<any>{
+    getSekundarneDijagnoze(id: number) : Observable<any>{
 
         let params = new HttpParams().append("id",id.toString());
-        params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnoze.php', {params: params}).pipe(
             catchError(handleError)
         ); 
@@ -51,13 +49,12 @@ export class OtvoreniSlucajService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze DATUM PREGLEDA, ODGOVORNA OSOBA, MKB ŠIFRA I NAZIV PRIMARNE DIJAGNOZE ZA NAVEDENU PRETRAGU
-    getOtvoreniSlucajPretraga(tip: string,pretraga: string,id: number){
+    getOtvoreniSlucajPretraga(pretraga: string,id: number){
         //Kodiram parametar pretrage
         pretraga = encodeURIComponent(pretraga);
         //Pipremam parametre slanja na backend pomoću params (vrijednost pretrage i ID pacijenta)
         let params = new HttpParams().append("pretraga", pretraga);
         params = params.append("id", id.toString());
-        params = params.append("tip",tip);
         return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucajPretraga.php', {params: params}).pipe(
             catchError(handleError)
         );

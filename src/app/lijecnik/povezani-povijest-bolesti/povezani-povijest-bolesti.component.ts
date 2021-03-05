@@ -113,6 +113,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         switchMap(
                             //Dohvaćam odgovor servera
                             (odgovor) => {
+                                console.log(odgovor);
                                 //Ako je pacijent AKTIVAN te IMA evidentiranih povijesti bolesti
                                 if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] !== "false"){
                                     //Označavam da pacijent ima evidentiranih povijesti bolesti

@@ -102,7 +102,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     isHitnost: boolean = false;
     //Spremam ID liječnika
     idLijecnik: number;
-
+    //Spremam poslani ID obrade
+    poslaniIDObrada: string = "";
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
@@ -378,6 +379,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.onAddDiagnosis();
                     //Prolazim poljem odgovora servera
                     for(let dijagnoza of podatci.inicijalneDijagnoze){
+                        //Spremam ID obrade liječnika koji šaljem backendu
+                        this.poslaniIDObrada = dijagnoza.idObradaLijecnik;
                         //Spremam naziv primarne dijagnoze povezane povijesti bolesti
                         this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
                         //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
@@ -385,6 +388,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
                         this.onAddDiagnosis();
                     }
+                    console.log(this.poslaniIDObrada);
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                     this.onDeleteDiagnosis(-1);  
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
@@ -1884,8 +1888,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         }
         //Ako je komponenta u modu dodavanja recepta
         else{
-            //Spremam trenutni ID obrade (ili broj ili null)
-            const idObrada = +JSON.parse(localStorage.getItem("idObrada"));
+            //Definiram MKB šifru tražene dijagnoze
+            let poslanaMKBSifra="";
+            //Tražim MKB šifru prethodne dijagnoze prije nego što je liječnik ažurirao dijagnoze
+            for(const dijagnoza of this.dijagnoze){
+                if(this.primarnaDijagnozaPovijestBolesti === dijagnoza.imeDijagnoza){
+                    poslanaMKBSifra = dijagnoza.mkbSifra;
+                }
+            }
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
             this.receptService.dodajRecept(this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
                 this.osnovnaListaLijekText.value,this.dopunskaListaLijekDropdown.value,this.dopunskaListaLijekText.value,
@@ -1894,7 +1904,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
                 this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
                 this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value, 
-                this.sifraSpecijalist.value,this.idPacijent,idObrada,this.idLijecnik).pipe(
+                this.sifraSpecijalist.value,this.idPacijent,this.idLijecnik, 
+                poslanaMKBSifra,this.poslaniIDObrada).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
                     this.response = true;

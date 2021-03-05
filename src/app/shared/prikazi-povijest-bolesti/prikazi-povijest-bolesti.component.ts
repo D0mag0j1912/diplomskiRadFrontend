@@ -46,6 +46,8 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     //Spremam dijagnoze povezane povijesti bolesti
     primarnaDijagnozaPovijestBolesti: string;
     sekundarnaDijagnozaPovijestBolesti: string[] = [];
+    //Spremam podatke povijesti bolesti koju povezujem u svoje varijablu
+    poslaniIDObrada:string = "";
     constructor(
         //Dohvaćam router
         private router: Router,
@@ -329,14 +331,13 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                   mkbSifraPrethodna = dijagnoza.mkbSifra;
             }
         }
-        console.log(mkbSifraPrethodna);
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
         this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
             this.anamneza.value,this.status.value,this.nalaz.value,
             this.mkbPrimarnaDijagnoza.value,mkbPolje,
             this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
             this.terapija.value,this.preporukaLijecnik.value,
-            this.napomena.value,this.idObrada,mkbSifraPrethodna).pipe(
+            this.napomena.value,this.idObrada,mkbSifraPrethodna,this.poslaniIDObrada).pipe(
             tap(() => {
                 //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
                 this.close.emit();
@@ -373,6 +374,8 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
             tap(
               //Dohvaćam odgovor
               (odgovor) => {
+                  //Spremam podatke povijesti bolesti u svoje varijable
+                  this.poslaniIDObrada = odgovor[0].idObradaLijecnik;
                   //Popuni polja povijesti bolesti sa rezultatima sa servera
                   this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{emitEvent: false});
                   this.anamneza.patchValue(odgovor[0].anamneza,{emitEvent: false});

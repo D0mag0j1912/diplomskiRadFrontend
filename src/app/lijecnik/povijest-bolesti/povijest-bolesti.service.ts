@@ -20,7 +20,7 @@ export class PovijestBolestiService{
     potvrdiPovijestBolesti(idLijecnik:number,idPacijent: number,razlogDolaska: string, anamneza: string,
                         status: string, nalaz: string, mkbPrimarnaDijagnoza: string, mkbSifre: string[],
                         tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string, 
-                        idObrada: number,prvaPrimarna: string){
+                        idObrada: number,poslanaPrimarna: string,poslaniIDObrada: string){
         return this.http.post<any>(this.baseUrl + 'lijecnik/povijestBolesti.php',{
             idLijecnik,
             idPacijent,
@@ -35,7 +35,8 @@ export class PovijestBolestiService{
             preporukaLijecnik,
             napomena,
             idObrada,
-            prvaPrimarna
+            poslanaPrimarna,
+            poslaniIDObrada
         }).pipe(catchError(this.handleError));
     }
 

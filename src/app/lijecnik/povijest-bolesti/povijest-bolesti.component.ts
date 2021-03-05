@@ -54,7 +54,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Spremam dijagnoze povezane povijesti bolesti
       primarnaDijagnozaPovijestBolesti: string;
       sekundarnaDijagnozaPovijestBolesti: string[] = [];
-
+      //Spremam podatke povijesti bolesti koju povezujem u svoje varijablu
+      poslaniIDObrada:string = "";
       constructor(
           //Dohvaćam trenutni route da dohvatim podatke iz Resolvera
           private route: ActivatedRoute,
@@ -339,7 +340,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               }
           }
           //Definiram MKB šifru tražene dijagnoze
-          let mkbSifraPrethodna;
+          let mkbSifraPrethodna="";
           //Tražim MKB šifru prethodne dijagnoze prije nego što je liječnik ažurirao dijagnoze
           for(const dijagnoza of this.dijagnoze){
               if(this.primarnaDijagnozaPovijestBolesti === dijagnoza.imeDijagnoza){
@@ -355,7 +356,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   this.mkbPrimarnaDijagnoza.value,mkbPolje,
                   this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                   this.terapija.value,this.preporukaLijecnik.value,
-                  this.napomena.value,this.idObrada,mkbSifraPrethodna).pipe(
+                  this.napomena.value,this.idObrada,mkbSifraPrethodna,this.poslaniIDObrada).pipe(
                   tap(
                     //Dohvaćam odgovor servera
                     (odgovor) => {
@@ -411,7 +412,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   tap(
                     //Dohvaćam odgovor
                     (odgovor) => {
-                        console.log(odgovor);
+                        //Spremam podatke povijesti bolesti u svoje varijable
+                        this.poslaniIDObrada = odgovor[0].idObradaLijecnik;
                         //Popuni polja povijesti bolesti sa rezultatima sa servera
                         this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{emitEvent: false});
                         this.anamneza.patchValue(odgovor[0].anamneza,{emitEvent: false});
