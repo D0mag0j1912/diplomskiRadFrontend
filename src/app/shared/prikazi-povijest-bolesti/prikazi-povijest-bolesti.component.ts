@@ -4,7 +4,7 @@ import { Dijagnoza } from '../modeli/dijagnoza.model';
 import * as Validacija from '../../lijecnik/recept/recept-validations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
-import { tap, takeUntil } from 'rxjs/operators';
+import { tap, takeUntil, switchMap } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
 import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.service';
@@ -46,8 +46,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     //Spremam dijagnoze povezane povijesti bolesti
     primarnaDijagnozaPovijestBolesti: string;
     sekundarnaDijagnozaPovijestBolesti: string[] = [];
-    //Spremam podatke povijesti bolesti koju povezujem u svoje varijablu
-    poslaniIDObrada:string = "";
+    //Spremam ID povijesti bolesti prošlog pregleda
+    prosliPregled: string = "";
+
     constructor(
         //Dohvaćam router
         private router: Router,
@@ -323,30 +324,78 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 mkbPolje.push(el.value.mkbSifraSekundarna);
             }
         }
-        //Definiram MKB šifru tražene dijagnoze
-        let mkbSifraPrethodna = "";
-        //Tražim MKB šifru prethodne dijagnoze prije nego što je liječnik ažurirao dijagnoze
-        for(const dijagnoza of this.dijagnoze){
-            if(this.primarnaDijagnozaPovijestBolesti === dijagnoza.imeDijagnoza){
-                  mkbSifraPrethodna = dijagnoza.mkbSifra;
-            }
-        }
-        //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
-        this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
-            this.anamneza.value,this.status.value,this.nalaz.value,
-            this.mkbPrimarnaDijagnoza.value,mkbPolje,
-            this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-            this.terapija.value,this.preporukaLijecnik.value,
-            this.napomena.value,this.idObrada,mkbSifraPrethodna,this.poslaniIDObrada).pipe(
-            tap(() => {
-                //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
-                this.close.emit();
-                //Preusmjeri liječnika na prozor izdavanja recepta
-                this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
-              }
-            ),
-            takeUntil(this.pretplateSubject)
-        ).subscribe();
+        //Ako je brojač klikova < 2
+        if(this.noviSlucaj.value === true){
+            //Postavljam ID povijesti bolesti pregleda kojega povezujem na null
+            this.prosliPregled = "";
+            //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
+            this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
+                this.anamneza.value,this.status.value,this.nalaz.value,
+                this.mkbPrimarnaDijagnoza.value,mkbPolje,
+                this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+                this.terapija.value,this.preporukaLijecnik.value,
+                this.napomena.value,this.idObrada,this.prosliPregled).pipe(
+                //Dohvaćam odgovor servera
+                tap(() => {
+                    //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
+                    this.close.emit();
+                    //Preusmjeri liječnika na prozor izdavanja recepta
+                    this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+                    //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                    const podatciProslogPregleda = {
+                        idObrada: this.idObrada,
+                        mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                    };
+                    //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                    localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                }),
+                takeUntil(this.pretplateSubject)
+            ).subscribe(); 
+          }
+          //Ako je slučaj povezan
+          else if(this.povezanSlucaj.value === true){
+              //Dohvaćam podatke prošlog pregleda
+              const podatci: {
+                  idObrada: number,
+                  mkbPrimarnaDijagnoza: string
+              } = JSON.parse(localStorage.getItem("podatciProslogPregleda"));
+              let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
+              let proslaIDObrada = +podatci.idObrada;
+              console.log(proslaMKBSifra);
+              this.povijestBolestiService.getIDPovijestBolesti(this.idPacijent,proslaIDObrada,proslaMKBSifra).pipe(
+                  tap(idPovijestBolesti => {
+                        this.prosliPregled = idPovijestBolesti.toString();
+                        console.log(this.prosliPregled);
+                  }),
+                  switchMap(() => {
+                      //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
+                      return this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
+                          this.anamneza.value,this.status.value,this.nalaz.value,
+                          this.mkbPrimarnaDijagnoza.value,mkbPolje,
+                          this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+                          this.terapija.value,this.preporukaLijecnik.value,
+                          this.napomena.value,this.idObrada,this.prosliPregled).pipe(
+                          //Dohvaćam odgovor servera
+                          tap(() => {
+                              //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
+                              this.close.emit();
+                              //Preusmjeri liječnika na prozor izdavanja recepta
+                              this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+                              //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                              const podatciProslogPregleda = {
+                                 idObrada: this.idObrada,
+                                 mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                              };
+                              //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                              localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                            }
+                          ),
+                          takeUntil(this.pretplateSubject)
+                      ); 
+                  }),
+                  takeUntil(this.pretplateSubject)
+              ).subscribe();
+          }
     }
 
     //Metoda koja se aktivira kada korisnik klikne "Poništi povezani slučaj"
@@ -374,8 +423,15 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
             tap(
               //Dohvaćam odgovor
               (odgovor) => {
-                  //Spremam podatke povijesti bolesti u svoje varijable
-                  this.poslaniIDObrada = odgovor[0].idObradaLijecnik;
+                  //Spremam ID povijesti bolesti prošlog pregleda
+                  this.prosliPregled = odgovor[0].idPovijestBolesti;
+                  //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                  const podatciProslogPregleda = {
+                    idObrada: odgovor[0].idObradaLijecnik,
+                    mkbPrimarnaDijagnoza: odgovor[0].mkbSifraPrimarna
+                  };
+                  //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                  localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
                   //Popuni polja povijesti bolesti sa rezultatima sa servera
                   this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{emitEvent: false});
                   this.anamneza.patchValue(odgovor[0].anamneza,{emitEvent: false});

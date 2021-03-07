@@ -1,7 +1,7 @@
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
+import {handleError} from '../../shared/rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -16,11 +16,19 @@ export class PovijestBolestiService{
         private http: HttpClient
     ){}
 
+    //Metoda koja dohvaća zadnje uneseni ID povijesti bolesti za povezan slučaj
+    getIDPovijestBolesti(idPacijent: number, idObrada: number, mkbSifraPrimarna: string){
+        let params = new HttpParams().append("idPacijent",idPacijent.toString());
+        params = params.append("idObrada",idObrada.toString());
+        params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
+        return this.http.get<number>(this.baseUrl + 'lijecnik/getIDPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
+    }
+
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
     potvrdiPovijestBolesti(idLijecnik:number,idPacijent: number,razlogDolaska: string, anamneza: string,
                         status: string, nalaz: string, mkbPrimarnaDijagnoza: string, mkbSifre: string[],
                         tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string, 
-                        idObrada: number,poslanaPrimarna: string,poslaniIDObrada: string){
+                        idObrada: number,prosliPregled: string){
         return this.http.post<any>(this.baseUrl + 'lijecnik/povijestBolesti.php',{
             idLijecnik,
             idPacijent,
@@ -35,25 +43,8 @@ export class PovijestBolestiService{
             preporukaLijecnik,
             napomena,
             idObrada,
-            poslanaPrimarna,
-            poslaniIDObrada
-        }).pipe(catchError(this.handleError));
+            prosliPregled
+        }).pipe(catchError(handleError));
     }
 
-    //Metoda za errore
-    private handleError(error: HttpErrorResponse){
-        if(error.error instanceof ErrorEvent){
-            console.error("An error occured: "+error.error.message);
-        }
-        else{
-            // The backend returned an unsuccessful response code.
-            // The response body may contain clues as to what went wrong.
-            console.error(
-            `Backend returned code ${error.status}, ` +
-            `body was: ${error.error}`);
-        }
-        // Return an observable with a user-facing error message.
-        return throwError(
-            'Something bad happened; please try again later.');
-    }
 }

@@ -35,6 +35,11 @@ export class LoginService implements OnDestroy{
         private router: Router
     ){}
 
+    //Metoda koja vraća Observable u kojemu se nalaze svi registrirani emailovi
+    getAllEmails(){
+        return this.http.get<any>(this.baseUrl + 'auth/provjeriEmail.php').pipe(catchError(handleError));
+    }
+
     //Metoda koja služi za prijavu korisnika
     login(email: string, lozinka: string){
 

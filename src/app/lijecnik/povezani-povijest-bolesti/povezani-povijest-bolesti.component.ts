@@ -426,16 +426,14 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
               'mkbSifraPrimarna': new FormControl(povijestBolesti.mkbSifraPrimarna),
               'nazivPrimarna': new FormControl(povijestBolesti.NazivPrimarna),
               'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
-              'sekundarneDijagnoze': new FormArray([])
+              'sekundarneDijagnoze': new FormArray([]),
+              'slucaj': new FormControl(povijestBolesti.tipSlucaj === "noviSlucaj" ? "Novi slučaj" : "Povezani slučaj")
             }) 
         );
     }
 
     //Metoda koja emitira event prema komponenti "PovijestBolestiComponent" te joj prosljeđuje podatke iz retka stisnutog buttona
     poveziPovijestBolesti(datum: Date,razlogDolaska: string,mkbSifraPrimarna: string){
-        console.log(datum);
-        console.log(razlogDolaska);
-        console.log(mkbSifraPrimarna);
         //Emitiram event 
         this.podatciRetka.emit({
             datum,

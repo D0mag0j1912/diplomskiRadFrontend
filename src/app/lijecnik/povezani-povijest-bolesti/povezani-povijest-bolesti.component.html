@@ -40,9 +40,17 @@
                                     <td>
                                         <button 
                                             type="button"
-                                            class="btn btn-info" 
+                                            class="btn btn-warning" 
                                             (click)="poveziPovijestBolesti(control.value.datum,control.value.razlogDolaska,
                                                     control.value.mkbSifraPrimarna)">Poveži</button>
+                                        <input 
+                                            style="font-family: Verdana, sans-serif; 
+                                                float:right;border:0;width:150px; 
+                                                color:#337ab7;font-weight: bold; 
+                                                background-color: white;" 
+                                            formControlName="slucaj" 
+                                            class="form-control" 
+                                            readonly>
                                     </td>
                                 </tr>
                                 <tr>

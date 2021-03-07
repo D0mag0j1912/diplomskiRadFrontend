@@ -11,7 +11,10 @@
                         placeholder="Unesite parametar pretrage..." 
                         formControlName="parametar"
                         style="width:350px;">
-                    <span class="help-block" *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</span>
+                    <span 
+                        class="help-block" 
+                        style="font-weight:bold"
+                        *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</span>
                 </div>
             </form>
         </div>
@@ -55,7 +58,7 @@
                             </p>
                             <!--Ako je primarna dijagnoza iz prvog polja jednaka primarnoj dijagnozi drugog polja te ako ta primarna dijagnoza nema sekundarnih dijagnoza, ispiši poruku-->
                             <p *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna && dijagnoza.mkbSifraSekundarna === null" style="display:inline;">
-                                <strong>Nema sekundarnih dijagnoza!</strong>
+                                <strong style="color:#a94442;">Nema sekundarnih dijagnoza!</strong>
                             </p>
                         </div> 
                     </td>

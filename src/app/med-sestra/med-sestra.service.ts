@@ -51,10 +51,11 @@ export class MedSestraService{
     }
 
     //Metoda koja šalje serveru sve podatke koji se tiču općih podataka pregleda 
-    sendVisitData(idMedSestra: number, idPacijent: number, nacinPlacanja: string, podrucniUredHZZO: string, podrucniUredOzljeda: string, nazivPoduzeca: string,
+    sendVisitData(idMedSestra: number, idPacijent: number, nacinPlacanja: string, podrucniUredHZZO: string, 
+                podrucniUredOzljeda: string, nazivPoduzeca: string,
                 oznakaOsiguranika: string, nazivDrzave: string, mbo: string, brIskDopunsko: string,
-                mkbPrimarnaDijagnoza: string, mkbSifre: string[], tipSlucaj: string, poslanaMKBSifra: string,
-                poslaniIDObradaMedSestra: string,idObrada: number){
+                mkbPrimarnaDijagnoza: string, mkbSifre: string[], tipSlucaj: string,idObrada: number, 
+                prosliPregled: string){
 
         //Vraćam Observable u kojemu se nalazi odgovor servera na slanje općih podataka pregleda
         return this.http.post<any>(this.baseUrl + 'med-sestra/opciPodatciPregleda.php', 
@@ -72,10 +73,17 @@ export class MedSestraService{
             podrucniUredHZZO: podrucniUredHZZO,
             podrucniUredOzljeda: podrucniUredOzljeda,
             nazivPoduzeca: nazivPoduzeca,
-            poslanaMKBSifra: poslanaMKBSifra,
-            poslaniIDObradaMedSestra: poslaniIDObradaMedSestra,
-            idObrada: idObrada
+            idObrada: idObrada,
+            prosliPregled: prosliPregled
         }).pipe(catchError(handleError));
+    }
+
+    //Metoda koja vraća Observable sa ID-em pregleda kojega povezujem
+    getIDPregled(mboPacijent: string, idObrada: number, mkbSifraPrimarna){
+        let params = new HttpParams().append("mboPacijent",mboPacijent);
+        params = params.append("idObrada",idObrada.toString());
+        params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
+        return this.http.get<number>(this.baseUrl + 'med-sestra/getIDPregled.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze zdravstveni podatci trenutno aktivnog pacijenta

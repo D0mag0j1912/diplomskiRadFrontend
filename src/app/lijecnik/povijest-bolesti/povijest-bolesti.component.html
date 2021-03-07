@@ -141,11 +141,14 @@
                                         </span>
                                         <span 
                                             class="help-block" 
-                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !forma.valid" 
+                                            *ngIf="((dijagnozaCtrl.touched || dijagnozaCtrl.dirty) || 
+                                                (primarnaDijagnoza.touched || primarnaDijagnoza.dirty) || 
+                                                (mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty)) && !forma.valid" 
                                             style="font-weight: bold;font-family: Verdana, sans-serif;"> 
-                                            <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza" 
+                                            <span 
+                                                *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza" 
                                                 style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
-                                        </span> 
+                                        </span>
                                     </td>
                                     <td>
                                         <input 
