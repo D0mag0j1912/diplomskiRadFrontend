@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from './login.service';
+import * as Validacija from './login-validations';
 
 @Component({
   selector: 'app-login',
@@ -31,17 +32,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     ngOnInit(){
         //Kreiram formu
         this.forma = new FormGroup({
-            'email': new FormControl(null,[Validators.required,Validators.email],[this.provjeriEmail.bind(this)]),
-            'password': new FormControl(null,[Validators.required,Validators.minLength(6)])
+            'email': new FormControl(null,[Validators.required,Validators.email],[Validacija.provjeriEmail(this.loginService,this.pretplateSubject)]),
+            'password': new FormControl(null,[Validators.required])
         });
-
-        this.loginService.getAllEmails().subscribe(
-            (emails) => {
-                for(const email of emails){
-                    console.log(email.email);
-                }
-            }
-        );
+        this.password.setAsyncValidators([Validacija.provjeriLozinku(this.loginService,this.forma,this.pretplateSubject)]);
     }
 
     //Kada se klikne button "Login"
@@ -80,27 +74,6 @@ export class LoginComponent implements OnInit, OnDestroy {
           }),
           takeUntil(this.pretplateSubject)
       ).subscribe();
-    }
-
-    //Kreiram validator koji će provjeriti unos ispravnog email-a 
-    provjeriEmail(control: FormControl): Promise<any> | Observable<any> {
-        return this.loginService.getAllEmails().pipe(
-            map(emails => {
-                //Prolazim svim registriranim emailovima
-                for(const email of emails){
-                    //Ako je unesena vrijednost email-a jednaka nekoj od registriranim
-                    if(control.value === email.email){
-                        //Vrati da je u redu
-                        return null;
-                    }
-                    else{
-                        //Inače vrati grešku
-                        return {'neispravanEmail': true};
-                    }
-                }
-            }),
-            takeUntil(this.pretplateSubject)
-        );
     }
 
     //Metoda koja zatvara prozor poruke

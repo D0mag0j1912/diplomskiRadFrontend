@@ -104,6 +104,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     idLijecnik: number;
     //Spremam poslani ID obrade
     poslaniIDObrada: string = "";
+    //Spremam tip slučaja povijesti bolesti kojemu nadodavam uneseni ID recepta
+    poslaniTipSlucaj: string = "";
+    //Spremam vrijeme povijesti bolesti kojemu nadodavam uneseni ID recepta
+    poslanoVrijeme: string = "";
+
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
@@ -381,6 +386,10 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     for(let dijagnoza of podatci.inicijalneDijagnoze){
                         //Spremam ID obrade liječnika koji šaljem backendu
                         this.poslaniIDObrada = dijagnoza.idObradaLijecnik;
+                        //Spremam tip slučaja 
+                        this.poslaniTipSlucaj = dijagnoza.tipSlucaj;
+                        //Spremam vrijeme
+                        this.poslanoVrijeme = dijagnoza.vrijeme;
                         //Spremam naziv primarne dijagnoze povezane povijesti bolesti
                         this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
                         //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
@@ -388,7 +397,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
                         this.onAddDiagnosis();
                     }
-                    console.log(this.poslaniIDObrada);
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
                     this.onDeleteDiagnosis(-1);  
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
@@ -1896,6 +1904,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     poslanaMKBSifra = dijagnoza.mkbSifra;
                 }
             }
+            console.log(poslanaMKBSifra);
+            console.log(this.poslaniIDObrada);
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
             this.receptService.dodajRecept(this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
                 this.osnovnaListaLijekText.value,this.dopunskaListaLijekDropdown.value,this.dopunskaListaLijekText.value,
@@ -1905,7 +1915,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
                 this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value, 
                 this.sifraSpecijalist.value,this.idPacijent,this.idLijecnik, 
-                poslanaMKBSifra,this.poslaniIDObrada).pipe(
+                poslanaMKBSifra,this.poslaniIDObrada,this.poslaniTipSlucaj,this.poslanoVrijeme).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
                     this.response = true;
@@ -1915,7 +1925,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.receptService.messenger.next(true);
                 }),
                 takeUntil(this.pretplateSubject)
-            ).subscribe();
+            ).subscribe(); 
         }  
     }
 

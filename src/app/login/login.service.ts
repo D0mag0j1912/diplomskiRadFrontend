@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -34,6 +34,13 @@ export class LoginService implements OnDestroy{
         //Dohvaćam router da se mogu preusmjeravati
         private router: Router
     ){}
+
+    //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na unos lozinke
+    getLozinka(email: string, lozinka: string){
+        let params = new HttpParams().append("email",email);
+        params = params.append("lozinka",lozinka);
+        return this.http.get<any>(this.baseUrl + 'auth/provjeriPassword.php',{params: params}).pipe(catchError(handleError));
+    }   
 
     //Metoda koja vraća Observable u kojemu se nalaze svi registrirani emailovi
     getAllEmails(){

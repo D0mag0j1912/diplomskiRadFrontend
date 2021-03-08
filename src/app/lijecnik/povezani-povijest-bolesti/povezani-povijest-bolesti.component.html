@@ -42,7 +42,7 @@
                                             type="button"
                                             class="btn btn-warning" 
                                             (click)="poveziPovijestBolesti(control.value.datum,control.value.razlogDolaska,
-                                                    control.value.mkbSifraPrimarna)">Poveži</button>
+                                                    control.value.mkbSifraPrimarna,control.value.vrijeme,control.value.slucaj)">Poveži</button>
                                         <input 
                                             style="font-family: Verdana, sans-serif; 
                                                 float:right;border:0;width:150px; 
@@ -101,17 +101,17 @@
                                     <td>
                                         <p 
                                             style="font-family: Verdana, sans-serif;" 
-                                            *ngIf="sekundarna.value != null"><strong>Sekundarne dijagnoze:</strong></p>
+                                            *ngIf="sekundarna.value != ''"><strong>Sekundarne dijagnoze:</strong></p>
                                         <p 
                                             style="font-family: Verdana, sans-serif;" 
-                                            *ngIf="sekundarna.value == null"><strong style="color:#a94442">Nema sekundarnih dijagnoza!</strong></p>
+                                            *ngIf="sekundarna.value == ''"><strong style="color:#a94442">Nema sekundarnih dijagnoza!</strong></p>
                                         <textarea
                                             type="text"
                                             [formControlName]="j"
                                             style="border:0;width:400px;resize:none;margin-left:200px;
                                             margin-top:-30px;font-family: Verdana, sans-serif" 
                                             readonly 
-                                            *ngIf="sekundarna.value != null" 
+                                            *ngIf="sekundarna.value != ''" 
                                             rows="4"></textarea>
                                     </td>
                                 </tr>
