@@ -1882,7 +1882,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
                 this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
                 this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value, 
-                this.sifraSpecijalist.value,this.idPacijent,this.recept.datumRecept,this.recept.vrijemeRecept).pipe(
+                this.sifraSpecijalist.value,this.idPacijent, 
+                this.recept.datumRecept,this.recept.vrijemeRecept,this.recept.mkbSifraPrimarna).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
                     this.response = true;

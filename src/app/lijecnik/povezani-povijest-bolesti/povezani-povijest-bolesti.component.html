@@ -43,14 +43,9 @@
                                             class="btn btn-warning" 
                                             (click)="poveziPovijestBolesti(control.value.datum,control.value.razlogDolaska,
                                                     control.value.mkbSifraPrimarna,control.value.vrijeme,control.value.slucaj)">Poveži</button>
-                                        <input 
-                                            style="font-family: Verdana, sans-serif; 
-                                                float:right;border:0;width:150px; 
-                                                color:#337ab7;font-weight: bold; 
-                                                background-color: white;" 
-                                            formControlName="slucaj" 
-                                            class="form-control" 
-                                            readonly>
+                                        <h4 
+                                            style="float:right;color:#337ab7; 
+                                            font-weight: bold;right:10px;position:relative">{{control.value.slucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h4>
                                     </td>
                                 </tr>
                                 <tr>

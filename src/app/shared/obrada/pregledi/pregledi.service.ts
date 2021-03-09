@@ -1,0 +1,30 @@
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { catchError } from "rxjs/operators";
+import {baseUrl} from '../../../backend-path';
+import {handleError} from '../../rxjs-error';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class PreglediService {
+    constructor(
+        private http: HttpClient
+    ){}
+
+    //Metoda koja vraća Observable sa svim podatcima pregleda (ili opći podatci ili povijest bolesti, zavisi od tipa korisnika)
+    dohvatiCijeliPregled(id: number,tipKorisnik: string){
+        let params = new HttpParams().append("id",id.toString());
+        params = params.append("tipKorisnik",tipKorisnik);
+        return this.http.get<any>(baseUrl + 'pregledi/dohvatiCijeliPregled.php',{params: params}).pipe(catchError(handleError));
+    }
+
+    //Metoda koja vraća sve preglede za listu 
+    dohvatiSvePreglede(tipKorisnik: string, idPacijent: number, datum: Date){
+        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
+        params = params.append("idPacijent",idPacijent.toString());
+        params = params.append("datum",datum.toString());
+
+        return this.http.get<any>(baseUrl + 'pregledi/dohvatiSvePregledePoDatumu.php',{params: params}).pipe(catchError(handleError));
+    }
+}

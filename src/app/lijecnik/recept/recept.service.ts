@@ -25,7 +25,8 @@ export class ReceptService{
         osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
         osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
         dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
-        ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string,idPacijent: string,datumRecept: Date, vrijemeRecept: Time){
+        ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string, 
+        idPacijent: string,poslaniDatum: Date, poslanoVrijeme: Time, poslanaMKBSifra: string){
         //Kodiram lijek koji je unesen
         if(osnovnaListaLijekDropdown){
             osnovnaListaLijekDropdown = encodeURIComponent(osnovnaListaLijekDropdown);
@@ -59,8 +60,9 @@ export class ReceptService{
             brojPonavljanja,
             sifraSpecijalist,
             idPacijent,
-            datumRecept,
-            vrijemeRecept
+            poslaniDatum,
+            poslanoVrijeme,
+            poslanaMKBSifra
         }).pipe(catchError(handleError));
     }
 
