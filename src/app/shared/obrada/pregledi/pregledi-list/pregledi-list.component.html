@@ -1,7 +1,7 @@
-<div class="row" style="margin-top:5px;">
+<div class="row">
     <div class="col-xs-12">
         <a 
-            style="cursor:pointer;border-radius: 5px;" 
+            style="cursor:pointer;border-radius: 5px;margin-top:5px;" 
             *ngFor="let pregled of pregledi" 
             [routerLink]="[pregled.idPregled]"
             class="list-group-item clearfix"
@@ -9,13 +9,13 @@
             <div class="pull left">
                 <h5 
                     style="font-family: Verdana, sans-serif;">Datum: 
-                    <strong>{{pregled.datum}}</strong></h5>
+                    {{pregled.datum}}</h5>
                 <h5 
                     style="font-family: Verdana, sans-serif;">Tip slučaja: 
-                    <strong>{{pregled.tipSlucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</strong></h5>
+                    {{pregled.tipSlucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h5>
                 <h5 
                     style="font-family: Verdana, sans-serif;">Vrijeme: 
-                    <strong>{{pregled.vrijeme}}</strong>
+                    {{pregled.vrijeme}}
                 </h5>
             </div>
         </a>

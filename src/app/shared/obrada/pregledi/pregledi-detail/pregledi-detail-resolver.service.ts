@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
-import { switchMap, take } from "rxjs/operators";
+import { catchError, switchMap, take } from "rxjs/operators";
 import { HeaderService } from "src/app/shared/header/header.service";
 import { PreglediService } from "../pregledi.service";
+import {handleError} from '../../../rxjs-error';
 
 @Injectable({
     providedIn: 'root'
@@ -21,7 +22,9 @@ export class PreglediDetailResolverService implements Resolve<any>{
         return this.headerService.tipKorisnikaObs.pipe(
             take(1),
             switchMap(tipKorisnik => {
-                return this.preglediService.dohvatiCijeliPregled(+route.params['id'],tipKorisnik);
+                return this.preglediService.dohvatiCijeliPregled(+route.params['id'],tipKorisnik).pipe(
+                    catchError(handleError)
+                );
             })
         );
     }

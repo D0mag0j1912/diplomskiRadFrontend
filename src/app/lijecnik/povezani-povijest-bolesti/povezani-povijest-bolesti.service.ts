@@ -4,14 +4,13 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import {handleError} from '../../shared/rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class PovezaniPovijestBolestiService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
+    
     //Kreiram Subject koji će obavjestiti komponentu "PovezaniPovijestBolestiComponent" je li se u nju ušlo preko obrade ili preko recepta
     isObrada = new BehaviorSubject<boolean>(false);
     isObradaObs = this.isObrada.asObservable();
@@ -32,14 +31,14 @@ export class PovezaniPovijestBolestiService{
         params = params.append("tipSlucaj",event.tipSlucaj);
         params = params.append("id",id.toString());
 
-        return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPovezanSlucaj.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPovezanSlucaj.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable sa svim podatcima povijesti bolesti za trenutno aktivnog pacijenta (BEZ SEKUNDARNIH DIJAGNOZA)
     getPovijestBolesti(id: number){
 
         let params = new HttpParams().append("id",id.toString());
-        return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getPovijestBolesti.php',{params:params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'otvorenaPovijestBolesti/getPovijestBolesti.php',{params:params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable sa svim ŠIFRAMA I NAZIVIMA SEKUNDARNIH DIJAGNOZA za određenu povijest bolesti
@@ -52,7 +51,7 @@ export class PovezaniPovijestBolestiService{
         params = params.append("tipSlucaj",tipSlucaj);
         params = params.append("vrijeme",vrijeme);
         params = params.append("idPacijent",idPacijent.toString());
-        return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getSekundarneDijagnoze.php',{params: params}).pipe(catchError(handleError))
+        return this.http.get<any>(baseUrl + 'otvorenaPovijestBolesti/getSekundarneDijagnoze.php',{params: params}).pipe(catchError(handleError))
     }
 
     //Metoda koja vraća Observable sa svim povijestima bolesti u kojima se nalazi vrijednost PRETRAGE korisnika
@@ -61,6 +60,6 @@ export class PovezaniPovijestBolestiService{
         pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("id",id.toString());
         params = params.append("pretraga",pretraga);
-        return this.http.get<any>(this.baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPretraga.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPretraga.php',{params: params}).pipe(catchError(handleError));
     } 
 }

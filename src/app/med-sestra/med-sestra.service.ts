@@ -2,14 +2,12 @@ import { HttpClient, HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs/operators';
 import {handleError} from '../shared/rxjs-error';
+import {baseUrl} from '../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class MedSestraService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -18,7 +16,7 @@ export class MedSestraService{
 
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalaze osobni podatci medicinske sestre
     getPersonalData(){
-        return this.http.get<any>(this.baseUrl + 'med-sestra/medSestra.php').pipe(
+        return this.http.get<any>(baseUrl + 'med-sestra/medSestra.php').pipe(
             catchError(handleError)
         );    
     }
@@ -26,7 +24,7 @@ export class MedSestraService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda na ažuriranje osobnih podataka medicinske sestre
     editPersonalData(id: number, email: string, ime: string, prezime: string, adresa: string, specijalizacija: string){
 
-        return this.http.put<any>(this.baseUrl + 'med-sestra/azurirajOsobnePodatke.php',
+        return this.http.put<any>(baseUrl + 'med-sestra/azurirajOsobnePodatke.php',
         {
             id: id,
             email: email,
@@ -41,7 +39,7 @@ export class MedSestraService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda za ažuriranje lozinke medicinske sestre
     editPassword(id: number,trenutna: string, nova: string, potvrdaNova: string){
 
-        return this.http.put(this.baseUrl + 'med-sestra/azurirajLozinka.php',
+        return this.http.put(baseUrl + 'med-sestra/azurirajLozinka.php',
         {
             id: id,
             trenutna: trenutna,
@@ -58,7 +56,7 @@ export class MedSestraService{
                 prosliPregled: string){
 
         //Vraćam Observable u kojemu se nalazi odgovor servera na slanje općih podataka pregleda
-        return this.http.post<any>(this.baseUrl + 'med-sestra/opciPodatciPregleda.php', 
+        return this.http.post<any>(baseUrl + 'med-sestra/opciPodatciPregleda.php', 
         {
             idMedSestra: idMedSestra,
             idPacijent: idPacijent,
@@ -83,13 +81,13 @@ export class MedSestraService{
         let params = new HttpParams().append("mboPacijent",mboPacijent);
         params = params.append("idObrada",idObrada.toString());
         params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
-        return this.http.get<number>(this.baseUrl + 'med-sestra/getIDPregled.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<number>(baseUrl + 'med-sestra/getIDPregled.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze zdravstveni podatci trenutno aktivnog pacijenta
     getHealthData(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'med-sestra/getZdravstveniPodatci.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'med-sestra/getZdravstveniPodatci.php',{params: params}).pipe(catchError(handleError));
     }
 
 }

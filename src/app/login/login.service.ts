@@ -5,6 +5,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { catchError,takeUntil,tap } from 'rxjs/operators';
 import { Korisnik } from '../shared/modeli/korisnik.model';
 import {handleError} from '../shared/rxjs-error';
+import {baseUrl} from '../backend-path';
 
 @Injectable({
     providedIn: 'root'
@@ -23,9 +24,6 @@ export class LoginService implements OnDestroy{
     //Kreiram BehaviorSubject u kojega spremam prijavljenog korisnika i pomoću njega možemo dohvaćati podatke prijavljenog korisnika
     user = new BehaviorSubject<Korisnik>(null);
 
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
-
     private tokenExpirationTimer: any;
 
     constructor(
@@ -39,19 +37,19 @@ export class LoginService implements OnDestroy{
     getLozinka(email: string, lozinka: string){
         let params = new HttpParams().append("email",email);
         params = params.append("lozinka",lozinka);
-        return this.http.get<any>(this.baseUrl + 'auth/provjeriPassword.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'auth/provjeriPassword.php',{params: params}).pipe(catchError(handleError));
     }   
 
     //Metoda koja vraća Observable u kojemu se nalaze svi registrirani emailovi
     getAllEmails(){
-        return this.http.get<any>(this.baseUrl + 'auth/provjeriEmail.php').pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'auth/provjeriEmail.php').pipe(catchError(handleError));
     }
 
     //Metoda koja služi za prijavu korisnika
     login(email: string, lozinka: string){
 
         //Šaljem HTTP request backendu i vraćam Observable
-        return this.http.post<any>(this.baseUrl + 'auth/login.php',
+        return this.http.post<any>(baseUrl + 'auth/login.php',
             {
                 email: email,
                 lozinka: lozinka
@@ -101,7 +99,7 @@ export class LoginService implements OnDestroy{
         }
 
         //Šaljem podatke (token i tip) backendu i vraćam Observable
-        return this.http.post<any>(this.baseUrl + 'auth/logout.php',
+        return this.http.post<any>(baseUrl + 'auth/logout.php',
             {
                 tip: userData.tip,
                 token: userData._token  

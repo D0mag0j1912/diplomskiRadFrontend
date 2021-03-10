@@ -21,8 +21,8 @@ const routes = [
         {path: 'povijestBolesti', component: PovijestBolestiComponent,resolve: {podatci: ImportiResolverService, pacijent: ObradaResolverService}},
         {path: 'osnovniPodatci', component: OsnovniPodatciComponent, resolve: {podatci: OsnovniPodatciImportResolverService, pacijenti: OsnovniPodatciResolverService}},
         {path: 'zdravstveniPodatci', component: ZdravstveniPodatciComponent, resolve: {podatci: ImportiResolverService, zdravstveniPodatci: ZdravstveniPodatciResolverService}},
-        {path: 'pregledi', component: PreglediComponent, resolve: {pregledi: PreglediResolverService, obrada: ObradaResolverService}, children: [
-            {path: ':id', component: PreglediDetailComponent,resolve: {cijeliPregled: PreglediDetailResolverService}}
+        {path: 'pregledi', component: PreglediComponent, resolve: {pregledi: PreglediResolverService}, children: [
+            {path: ':id', component: PreglediDetailComponent,resolve: {cijeliPregled: PreglediDetailResolverService, obrada: ObradaResolverService}}
         ]}
     ]},
 ];

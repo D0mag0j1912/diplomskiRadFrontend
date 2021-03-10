@@ -2,14 +2,12 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { catchError } from "rxjs/operators";
 import {handleError} from '../../shared/rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReceptPretragaService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -20,7 +18,7 @@ export class ReceptPretragaService{
     getMagPripravciDopunskaListaPretraga(pretraga: string){
         pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("pretraga",pretraga);
-        return this.http.get<any>(this.baseUrl + 'recept/pretraga/getMagPripravakDopunskaListaPretraga.php',{
+        return this.http.get<any>(baseUrl + 'recept/pretraga/getMagPripravakDopunskaListaPretraga.php',{
             params: params
         }).pipe(catchError(handleError));
     }
@@ -29,7 +27,7 @@ export class ReceptPretragaService{
     getMagPripravciOsnovnaListaPretraga(pretraga: string){
         pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("pretraga",pretraga);
-        return this.http.get<any>(this.baseUrl + 'recept/pretraga/getMagPripravakOsnovnaListaPretraga.php',{
+        return this.http.get<any>(baseUrl + 'recept/pretraga/getMagPripravakOsnovnaListaPretraga.php',{
             params: params
         }).pipe(catchError(handleError));
     }
@@ -38,7 +36,7 @@ export class ReceptPretragaService{
     getLijekDopunskaListaPretraga(pretraga: string){
         pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("pretraga",pretraga);
-        return this.http.get<any>(this.baseUrl + 'recept/pretraga/getLijekDopunskaListaPretraga.php',
+        return this.http.get<any>(baseUrl + 'recept/pretraga/getLijekDopunskaListaPretraga.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -48,7 +46,7 @@ export class ReceptPretragaService{
     getLijekOsnovnaListaPretraga(pretraga: string){
         pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("pretraga",pretraga);
-        return this.http.get<any>(this.baseUrl + 'recept/pretraga/getLijekOsnovnaListaPretraga.php',
+        return this.http.get<any>(baseUrl + 'recept/pretraga/getLijekOsnovnaListaPretraga.php',
         {
             params: params
         }).pipe(catchError(handleError));

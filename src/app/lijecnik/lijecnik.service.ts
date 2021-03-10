@@ -2,14 +2,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import { catchError } from 'rxjs/operators';
 import {handleError} from '../shared/rxjs-error';
+import {baseUrl} from '../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class LijecnikService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -19,7 +17,7 @@ export class LijecnikService{
     //Metoda koja šalje zahtjev serveru za dohvaćanjem osobnih podataka liječnika
     getPersonalData(){
         //Kreiram i vraćam Observable u kojem ću dohvatiti osobne podatke liječnika iz baze
-        return this.http.get<any>(this.baseUrl + 'lijecnik/lijecnik.php').pipe(
+        return this.http.get<any>(baseUrl + 'lijecnik/lijecnik.php').pipe(
             catchError(handleError)
             );
     }
@@ -27,7 +25,7 @@ export class LijecnikService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda na ažuriranje osobnih podataka liječnika
     editPersonalData(id: number, email: string, ime: string, prezime: string, adresa: string, specijalizacija: string){
 
-        return this.http.put<any>(this.baseUrl + 'lijecnik/azurirajOsobnePodatke.php',
+        return this.http.put<any>(baseUrl + 'lijecnik/azurirajOsobnePodatke.php',
         {
             id: id,
             email: email,
@@ -42,7 +40,7 @@ export class LijecnikService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda za ažuriranje lozinke liječnika
     editPassword(id: number,trenutna: string, nova: string, potvrdaNova: string){
 
-        return this.http.put(this.baseUrl + 'lijecnik/azurirajLozinka.php',
+        return this.http.put(baseUrl + 'lijecnik/azurirajLozinka.php',
         {
             id: id,
             trenutna: trenutna,
@@ -64,7 +62,7 @@ export class LijecnikService{
             }
         };
         //Kreiram i vraćam Observable za brisanje pacijenta 
-        return this.http.delete(this.baseUrl + 'pacijent.php', options).pipe(
+        return this.http.delete(baseUrl + 'pacijent.php', options).pipe(
             catchError(handleError)
         );
     }
@@ -73,7 +71,7 @@ export class LijecnikService{
     checkCountPatient(){
 
         //Kreiram i vraćam Observable u kojem će se nalaziti trenutni broj pacijenata
-        return this.http.get<number>(this.baseUrl + 'lijecnik/getCountPatient.php').pipe(catchError(handleError));
+        return this.http.get<number>(baseUrl + 'lijecnik/getCountPatient.php').pipe(catchError(handleError));
     }
 
 }

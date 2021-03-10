@@ -26,7 +26,6 @@ export class PreglediResolverService implements Resolve<any>{
         return this.headerService.tipKorisnikaObs.pipe(
             take(1),
             switchMap(tipKorisnik => {
-                console.log(tipKorisnik);
                 return forkJoin([
                     this.obradaService.getPatientProcessing(tipKorisnik),
                     this.narucivanjeService.dohvatiDanasnjiDatum()

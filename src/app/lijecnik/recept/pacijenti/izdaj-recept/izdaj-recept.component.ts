@@ -1875,7 +1875,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Ako je komponenta u modu ažuriranja recepta
         if(this.editMode){
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
-            this.receptService.azurirajRecept(this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
+            this.receptService.azurirajRecept(this.idLijecnik, this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
                 this.osnovnaListaLijekText.value,this.dopunskaListaLijekDropdown.value,this.dopunskaListaLijekText.value,
                 this.osnovnaListaMagPripravakDropdown.value,this.osnovnaListaMagPripravakText.value,
                 this.dopunskaListaMagPripravakDropdown.value,this.dopunskaListaMagPripravakText.value,

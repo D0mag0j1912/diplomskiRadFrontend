@@ -2,14 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs/operators';
 import {handleError} from '../../rxjs-error';
+import {baseUrl} from '../../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class OsnovniPodatciService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -20,7 +18,7 @@ export class OsnovniPodatciService{
     //Metoda koja vraća Observable u kojemu se nalaze svi OSNOVNI podatci pacijenta koji je aktivan u obradi
     getMainDataPatient(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'osnovniPodatciPacijent/getMainDataPatient.php',{params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'osnovniPodatciPacijent/getMainDataPatient.php',{params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -30,7 +28,7 @@ export class OsnovniPodatciService{
                         email: string, spol: string, pbr: string, mobitel: string,
                         bracnoStanje: string, radniStatus: string, status: string){
         //Vraćam Observable u kojemu se nalazi odgovor servera na ažuriranje osnovnih podataka pacijenta
-        return this.http.put(this.baseUrl + 'osnovniPodatciPacijent/potvrdiOsnovnePodatke.php',{
+        return this.http.put(baseUrl + 'osnovniPodatciPacijent/potvrdiOsnovnePodatke.php',{
             idPacijent: idPacijent,
             ime: ime,
             prezime: prezime,

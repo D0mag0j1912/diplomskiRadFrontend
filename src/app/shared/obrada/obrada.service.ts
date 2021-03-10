@@ -1,9 +1,10 @@
 import { HttpClient,HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { catchError } from 'rxjs/operators';
 import {Time} from '@angular/common';
 import {handleError} from '../rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
@@ -19,9 +20,6 @@ export class ObradaService{
     podatciObrada = new BehaviorSubject<number>(null);
     podatciObradaObs = this.podatciObrada.asObservable();
     
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
-
     constructor(
         //Dohvaćam http
         private http: HttpClient
@@ -38,7 +36,7 @@ export class ObradaService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalaze traženi pacijenti 
     getPatients(ime: string, prezime: string, trenutnaStranica: number){
 
-        return this.http.post<any>(this.baseUrl + 'obrada/getObradaPatients.php',
+        return this.http.post<any>(baseUrl + 'obrada/getObradaPatients.php',
         {
             ime: ime,
             prezime: prezime,
@@ -49,7 +47,7 @@ export class ObradaService{
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalaze dodatni podatci pacijenata
     getData(ime: string, prezime: string){
 
-        return this.http.post(this.baseUrl + 'obrada/getObradaPatientsDodatno.php',
+        return this.http.post(baseUrl + 'obrada/getObradaPatientsDodatno.php',
         {
             ime: ime,
             prezime: prezime  
@@ -59,7 +57,7 @@ export class ObradaService{
     //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u obradu te vraća Observable u kojemu se nalazi odgovor servera
     addPatientToProcessing(tip: string,id: number){
 
-        return this.http.post<any>(this.baseUrl + 'obrada/obrada.php',
+        return this.http.post<any>(baseUrl + 'obrada/obrada.php',
         {
             id:id,
             tip:tip
@@ -69,7 +67,7 @@ export class ObradaService{
     //Metoda koja šalje zahtjev serveru za dohvaćanje pacijenta koji je trenutno u obradi aktivan
     getPatientProcessing(tip:string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'obrada/obrada.php',{params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'obrada/obrada.php',{params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -78,7 +76,7 @@ export class ObradaService{
     //Metoda koja šalje zahtjev serveru za ažuriranje statusa pacijenta 
     editPatientStatus(idObrada: number,tip: string,id: number){
 
-        return this.http.put<any>(this.baseUrl + 'obrada/obrada.php',
+        return this.http.put<any>(baseUrl + 'obrada/obrada.php',
         {
             id:id,
             tip:tip,
@@ -89,31 +87,31 @@ export class ObradaService{
     //Metoda koja vraća Observable u kojemu se nalazi sljedeći pacijent koji čeka na pregled
     getSljedeciPacijent(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'obrada/sljedeciPacijent.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'obrada/sljedeciPacijent.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi vrijeme narudžbe za aktivnog pacijenta da prikažem u formi obrade
     getVrijemeNarudzbe(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<Time>(this.baseUrl + 'obrada/getVrijemeNarudzba.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<Time>(baseUrl + 'obrada/getVrijemeNarudzba.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li trenutno aktivni pacijent obrađen (opći podatci)
     getObradenOpciPodatci(id:number){
         if(id === null){
-            return;
+            return of(null);
         }
         let params = new HttpParams().append("idPacijent",id.toString());
-        return this.http.get<any>(this.baseUrl + 'obrada/getObradenOpciPodatci.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'obrada/getObradenOpciPodatci.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li trenutno aktivni pacijent obrađen (povijest bolesti)
     getObradenPovijestBolesti(id:number){
         if(id === null){
-            return;
+            return of(null);
         }
         let params = new HttpParams().append("idPacijent",id.toString());
-        return this.http.get<any>(this.baseUrl + 'obrada/getObradenPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'obrada/getObradenPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
     }
 
 }

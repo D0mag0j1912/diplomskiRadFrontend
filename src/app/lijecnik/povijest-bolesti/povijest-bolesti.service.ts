@@ -2,14 +2,12 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { catchError } from "rxjs/operators";
 import {handleError} from '../../shared/rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class PovijestBolestiService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -21,7 +19,7 @@ export class PovijestBolestiService{
         let params = new HttpParams().append("idPacijent",idPacijent.toString());
         params = params.append("idObrada",idObrada.toString());
         params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
-        return this.http.get<number>(this.baseUrl + 'lijecnik/getIDPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<number>(baseUrl + 'lijecnik/getIDPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
@@ -29,7 +27,7 @@ export class PovijestBolestiService{
                         status: string, nalaz: string, mkbPrimarnaDijagnoza: string, mkbSifre: string[],
                         tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string, 
                         idObrada: number,prosliPregled: string){
-        return this.http.post<any>(this.baseUrl + 'lijecnik/povijestBolesti.php',{
+        return this.http.post<any>(baseUrl + 'lijecnik/povijestBolesti.php',{
             idLijecnik,
             idPacijent,
             razlogDolaska,

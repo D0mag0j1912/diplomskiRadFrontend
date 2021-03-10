@@ -3,14 +3,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class OtvoreniSlucajService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -21,7 +19,7 @@ export class OtvoreniSlucajService{
     getOtvoreniSlucaj(id: number) : Observable<any>{
 
         let params = new HttpParams().append("id",id.toString());
-        return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucaj.php', {params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucaj.php', {params: params}).pipe(
             catchError(handleError)
         ); 
     }
@@ -30,7 +28,7 @@ export class OtvoreniSlucajService{
     getSekundarneDijagnoze(id: number) : Observable<any>{
 
         let params = new HttpParams().append("id",id.toString());
-        return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnoze.php', {params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnoze.php', {params: params}).pipe(
             catchError(handleError)
         ); 
     }
@@ -43,7 +41,7 @@ export class OtvoreniSlucajService{
         params = params.append("odgovornaOsoba",event.odgovornaOsoba)
         params = params.append("id", id.toString());
 
-        return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getDijagnozePovezanSlucaj.php', {params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getDijagnozePovezanSlucaj.php', {params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -55,7 +53,7 @@ export class OtvoreniSlucajService{
         //Pipremam parametre slanja na backend pomoću params (vrijednost pretrage i ID pacijenta)
         let params = new HttpParams().append("pretraga", pretraga);
         params = params.append("id", id.toString());
-        return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucajPretraga.php', {params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucajPretraga.php', {params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -68,7 +66,7 @@ export class OtvoreniSlucajService{
         let params = new HttpParams().append("pretraga", pretraga);
         params = params.append("id", id.toString());
 
-        return this.http.get<any>(this.baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnozePretraga.php', {params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnozePretraga.php', {params: params}).pipe(
             catchError(handleError)
         );
     }

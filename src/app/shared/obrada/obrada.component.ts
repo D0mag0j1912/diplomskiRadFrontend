@@ -141,7 +141,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               this.isAktivan = true;
                               //Spremam podatke trenutno aktivnog pacijenta
                               this.trenutnoAktivniPacijent = new Obrada(podatci[3].pacijent[0]);
-                              console.log(this.trenutnoAktivniPacijent);
                               //Šaljem ID obrade komponenti "PrikaziPovijestBolestiComponent"
                               this.obradaService.podatciObrada.next(this.trenutnoAktivniPacijent.idObrada);
                               //ID obrade spremam u Local Storage
@@ -203,7 +202,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
       //Pretplaćujem se na informaciju je li pacijenta obrađen od strane liječnika/med.sestre
       ).subscribe(
           (odgovor) => {
-              console.log(odgovor);
               //Ako je pacijent aktivan
               if(odgovor.length > 0){
                   //Ako je medicinska sestra potvrdila opće podatke ovog pacijenta

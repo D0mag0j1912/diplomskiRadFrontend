@@ -3,14 +3,12 @@ import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs/operators';
 import { ZdravstveniPodatci } from 'src/app/shared/modeli/zdravstveniPodatci.model';
 import {handleError} from '../../rxjs-error';
+import {baseUrl} from '../../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ZdravstveniPodatciService{
-
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         //Dohvaćam http
@@ -20,7 +18,7 @@ export class ZdravstveniPodatciService{
     //Metoda koja vraća Observable u kojemu se nalaze svi ZDRAVSTVENI podatci pacijenta koji je aktivan u obradi
     getHealthDataPatient(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<ZdravstveniPodatci | any>(this.baseUrl + 'zdravstveniPodatciPacijent/getHealthDataPatient.php',{params: params}).pipe(
+        return this.http.get<ZdravstveniPodatci | any>(baseUrl + 'zdravstveniPodatciPacijent/getHealthDataPatient.php',{params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -30,7 +28,7 @@ export class ZdravstveniPodatciService{
                             trajnoOsnovno: string, osnovnoOsiguranjeOd: Date, osnovnoOsiguranjeDo: Date, brIskDopunsko: string,
                             dopunskoOsiguranjeOd: Date, dopunskoOsiguranjeDo: Date, oslobodenParticipacije: string, 
                             clanakParticipacija: string, trajnoParticipacija: string, participacijaDo: Date, sifUred: number){
-        return this.http.put(this.baseUrl + 'zdravstveniPodatciPacijent/potvrdiZdravstvenePodatke.php',{
+        return this.http.put(baseUrl + 'zdravstveniPodatciPacijent/potvrdiZdravstvenePodatke.php',{
             idPacijent: idPacijent,
             mbo:mbo,
             nositeljOsiguranja: nositeljOsiguranja,

@@ -6,6 +6,7 @@ export class PovijestBolesti {
     public anamneza: string;
     public statusPacijent: string;
     public nalaz: string;
+    public primarnaDijagnoza: string;
     public mkbSifraPrimarna: string;
     public tipSlucaj: string;
     public terapija: string;
@@ -13,7 +14,8 @@ export class PovijestBolesti {
     public napomena: string;
     public datum: Date;
     public vrijeme: Time;
-
+    public sekundarneDijagnoze: string;
+    public tip: string;
     constructor(response: any){
         if(response.idPovijestBolesti){
             this.idPovijestBolesti = +response.idPovijestBolesti;
@@ -30,6 +32,9 @@ export class PovijestBolesti {
         if(response.nalaz){
             this.nalaz = response.nalaz;
         }
+        if(response.primarnaDijagnoza){
+            this.primarnaDijagnoza = response.primarnaDijagnoza;
+        }
         if(response.mkbSifraPrimarna){
             this.mkbSifraPrimarna = response.mkbSifraPrimarna;
         }
@@ -45,11 +50,17 @@ export class PovijestBolesti {
         if(response.napomena){
             this.napomena = response.napomena;
         }
-        if(response.Datum){
-            this.datum = response.Datum;
+        if(response.datum){
+            this.datum = response.datum;
         }
         if(response.vrijeme){
             this.vrijeme = response.vrijeme;
         }
+        if(response.tip){
+            this.tip = response.tip;
+        }
+    }
+    set sekundarne(sekundarneDijagnoze: string){
+        this.sekundarneDijagnoze = sekundarneDijagnoze;
     }
 }

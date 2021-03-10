@@ -3,13 +3,13 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, combineLatest } from "rxjs";
 import { catchError, switchMap } from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CekaonicaService{
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
+    
     //Kreiram BehaviourSubject da mogu poslati podatke iz čekaonice u detalje pregleda
     podatciPregleda = new BehaviorSubject<{tip:string,idObrada: number}>(null);
     //Pretvaram Subject u Observable
@@ -22,7 +22,7 @@ export class CekaonicaService{
     //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u čekaonicu te vraća Observable u kojemu se nalazi odgovor servera
     addToWaitingRoom(tip: string,id: number){
 
-        return this.http.post<any>(this.baseUrl + 'cekaonica/cekaonica.php',
+        return this.http.post<any>(baseUrl + 'cekaonica/cekaonica.php',
         {   
             id: id,
             tip:tip
@@ -32,7 +32,7 @@ export class CekaonicaService{
     //Metoda koja šalje zahtjev serveru za dohvaćanje pacijenata iz čekaonice te vraća Observable u kojemu se nalaze pronađeni pacijenti
     getPatientsWaitingRoom(tip: string){
         let params = new HttpParams().append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'cekaonica/cekaonica.php',{params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'cekaonica/cekaonica.php',{params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -41,7 +41,7 @@ export class CekaonicaService{
     getTenLast(tip: string){
         let params = new HttpParams().append("tip",tip);
         //Vraćam Observable u kojemu se nalazi odgovor servera na dohvat 10 zadnjih pacijenata
-        return this.http.get<any>(this.baseUrl + 'cekaonica/getTenLastWaitingRoom.php',{params: params}).pipe(
+        return this.http.get<any>(baseUrl + 'cekaonica/getTenLastWaitingRoom.php',{params: params}).pipe(
             catchError(handleError)
         );
     }
@@ -50,7 +50,7 @@ export class CekaonicaService{
     getPatientByStatus(tip: string,statusi: string[]){
         let params = new HttpParams().append("tip",tip);
         params = params.append("statusi",JSON.stringify(statusi));
-        return this.http.get<any>(this.baseUrl + 'cekaonica/getPatientByStatus.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'cekaonica/getPatientByStatus.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
@@ -67,7 +67,7 @@ export class CekaonicaService{
             }
         };
         //Kreiram i vraćam Observable za brisanje pacijenta 
-        return this.http.delete(this.baseUrl + 'cekaonica/izbrisiPacijentCekaonica.php', options).pipe(
+        return this.http.delete(baseUrl + 'cekaonica/izbrisiPacijentCekaonica.php', options).pipe(
             catchError(handleError)
         );
     }
@@ -75,7 +75,7 @@ export class CekaonicaService{
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera koliko ima još pacijenata u čekaonici
     checkCountCekaonica(){
 
-        return this.http.get<number>(this.baseUrl + 'cekaonica/checkCountCekaonica.php').pipe(catchError(handleError));
+        return this.http.get<number>(baseUrl + 'cekaonica/checkCountCekaonica.php').pipe(catchError(handleError));
     }
 
     //Metoda koja dohvaća ime, prezime te datum pregleda pacijenta u svrhu prikazivanja na detaljima pregleda
@@ -83,7 +83,7 @@ export class CekaonicaService{
 
         let params = new HttpParams().append("idObrada",idObrada.toString());
         params = params.append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getImePrezimeDatum.php',
+        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getImePrezimeDatum.php',
                                 {params: params}).
                                 pipe(catchError(handleError));
     }
@@ -94,7 +94,7 @@ export class CekaonicaService{
         let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
         params = params.append("idObrada",idObrada.toString());
         params = params.append("tip",tip);
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
+        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
                                 {params: params})
                                 .pipe(catchError(handleError));
     }
@@ -103,7 +103,7 @@ export class CekaonicaService{
     getPodatciPregleda(tip: string, idObrada: number){
         let params = new HttpParams().append("tip",tip);
         params = params.append("idObrada",idObrada.toString());
-        return this.http.get<any>(this.baseUrl + 'cekaonica/detalji-pregleda/getPodatciPregleda.php',
+        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getPodatciPregleda.php',
                                 {params: params})
                                 .pipe(catchError(handleError));
     }

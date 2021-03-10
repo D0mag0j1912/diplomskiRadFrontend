@@ -1,0 +1,6 @@
+textarea{
+    font-family: Verdana, sans-serif;
+    resize:none;
+    border-style: inset;
+    border-width: 1px;
+}

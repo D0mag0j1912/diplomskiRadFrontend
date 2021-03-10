@@ -1,17 +1,17 @@
 import { Time } from "@angular/common";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { Recept } from "src/app/shared/modeli/recept.model";
 import {handleError} from '../../shared/rxjs-error';
+import {baseUrl} from '../../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ReceptService{
-    //Kreiram varijablu koja pohranjuje baseUrl
-    baseUrl: string = "http://localhost:8080/angularPHP/";
+    
     //Subject koji šalje poruku tablici pacijenata 
     messenger = new Subject<boolean>();
     messengerObs = this.messenger.asObservable();
@@ -21,7 +21,7 @@ export class ReceptService{
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
-    azurirajRecept(mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
+    azurirajRecept(idLijecnik: number, mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
         osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
         osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
         dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
@@ -41,7 +41,8 @@ export class ReceptService{
             dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
         }
         
-        return this.http.put<any>(this.baseUrl + 'recept/handleRecept/azurirajRecept.php',{
+        return this.http.put<any>(baseUrl + 'recept/handleRecept/azurirajRecept.php',{
+            idLijecnik,
             mkbSifraPrimarna,
             mkbSifraSekundarna,
             osnovnaListaLijekDropdown,
@@ -78,7 +79,7 @@ export class ReceptService{
         params = params.append("mkbSifraPrimarna",pom.mkbSifraPrimarna);
         params = params.append("proizvod", pom.proizvod);
         params = params.append("vrijemeRecept", pom.vrijemeRecept.toString());
-        return this.http.get<any>(this.baseUrl + 'recept/handleRecept/getRecept.php',{params: params}) 
+        return this.http.get<any>(baseUrl + 'recept/handleRecept/getRecept.php',{params: params}) 
             .pipe(catchError(handleError));
     }
 
@@ -90,7 +91,7 @@ export class ReceptService{
         //Kreiram paramse da ih mogu poslati u backend
         let params = new HttpParams().append("lijek",lijek);
         params = params.append("doza",doza);
-        return this.http.get<any>(this.baseUrl + 'recept/getMaksimalnaDoza.php',
+        return this.http.get<any>(baseUrl + 'recept/getMaksimalnaDoza.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -118,7 +119,7 @@ export class ReceptService{
             dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
         }
          
-        return this.http.post<any>(this.baseUrl + 'recept/handleRecept/dodajRecept.php',{
+        return this.http.post<any>(baseUrl + 'recept/handleRecept/dodajRecept.php',{
             mkbSifraPrimarna,
             mkbSifraSekundarna,
             osnovnaListaLijekDropdown,
@@ -148,7 +149,7 @@ export class ReceptService{
     //Metoda koja šalje ID pacijenta te vraća Observable u kojemu se nalazi odgovor servera na dohvat dijagnoza za unos recepta
     getInicijalnoDijagnoze(id: number){
         const params = new HttpParams().append("idPacijent",id.toString());
-        return this.http.get<any>(this.baseUrl + 'recept/getInicijalnoDijagnoze.php',
+        return this.http.get<any>(baseUrl + 'recept/getInicijalnoDijagnoze.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -166,7 +167,7 @@ export class ReceptService{
         params = params.append("kolicina",kolicina);
         params = params.append("doza",doza);
         params = params.append("brojPonavljanja",brojPonavljanja);
-        return this.http.get<any>(this.baseUrl + 'recept/dostatnost/getDostatnost.php',
+        return this.http.get<any>(baseUrl + 'recept/dostatnost/getDostatnost.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -175,7 +176,7 @@ export class ReceptService{
     //Metoda koja vraća Observable u kojemu se nalazi DATUM do kada vrijedi terapija
     getDatumDostatnost(dostatnost: string){
         let params = new HttpParams().append("dostatnost",dostatnost);
-        return this.http.get<Date>(this.baseUrl + 'recept/dostatnost/getDatumDostatnost.php',
+        return this.http.get<Date>(baseUrl + 'recept/dostatnost/getDatumDostatnost.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -185,7 +186,7 @@ export class ReceptService{
     getOznakaMagistralniPripravak(magPripravak: string){
         magPripravak = encodeURIComponent(magPripravak);
         let params = new HttpParams().append("magPripravak",magPripravak);
-        return this.http.get<any>(this.baseUrl + 'recept/oznake/getOznakaMagPripravak.php',
+        return this.http.get<any>(baseUrl + 'recept/oznake/getOznakaMagPripravak.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -195,7 +196,7 @@ export class ReceptService{
     getOznakaLijek(lijek: string){
         lijek = encodeURIComponent(lijek);
         let params = new HttpParams().append("lijek",lijek);
-        return this.http.get<any>(this.baseUrl + 'recept/oznake/getOznakaLijek.php', 
+        return this.http.get<any>(baseUrl + 'recept/oznake/getOznakaLijek.php', 
         {
             params: params
         }).pipe(catchError(handleError));
@@ -205,7 +206,7 @@ export class ReceptService{
     getCijenaMagPripravakDL(magPripravak: string){
         magPripravak = encodeURIComponent(magPripravak);
         let params = new HttpParams().append("magPripravak",magPripravak);
-        return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaMagPripravakDL.php',
+        return this.http.get<any>(baseUrl + 'recept/cijene/getCijenaMagPripravakDL.php',
         {   
             params: params
         }).pipe(catchError(handleError));
@@ -215,7 +216,7 @@ export class ReceptService{
     getCijenaLijekDL(lijek: string){
         lijek = encodeURIComponent(lijek);
         let params = new HttpParams().append("lijek",lijek);
-        return this.http.get<any>(this.baseUrl + 'recept/cijene/getCijenaLijekDL.php',
+        return this.http.get<any>(baseUrl + 'recept/cijene/getCijenaLijekDL.php',
             {params: params}
         ).pipe(catchError(handleError));
     }

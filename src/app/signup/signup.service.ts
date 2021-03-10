@@ -2,14 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {catchError} from 'rxjs/operators';
 import {handleError} from '../shared/rxjs-error';
+import {baseUrl} from '../backend-path';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SignupService{
-
-    //Kreiram varijablu u kojoj ću pohraniti bazni URL za slanje na backend
-    baseUrl: string = "http://localhost:8080/angularPHP/";
 
     constructor(
         private http: HttpClient
@@ -26,7 +24,7 @@ export class SignupService{
         ponovnoLozinka: string){
         
         //Vraćam Observable u kojemu se nalaze podatci koje je PHP vratio
-        return this.http.post<any>(this.baseUrl + 'auth/signup.php', 
+        return this.http.post<any>(baseUrl + 'auth/signup.php', 
                 {
                     tip: tip,
                     ime: ime,
