@@ -33,17 +33,10 @@
                             routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a></li>
                 </ul>
             </li>
-            <li routerLinkActive="active" class="nav-item" *ngIf="isLijecnik">
+            <li routerLinkActive="active" class="nav-item">
                 <a  
                     style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    routerLink="/lijecnik/obrada/pregledi" 
-                    class="nav-link">
-                    Pregledi</a>
-            </li>
-            <li routerLinkActive="active" class="nav-item" *ngIf="isMedSestra">
-                <a  
-                    style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    routerLink="/med-sestra/obrada/pregledi" 
+                    (click)="preumjeriNaPregled()" 
                     class="nav-link">
                     Pregledi</a>
             </li>

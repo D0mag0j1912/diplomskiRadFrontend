@@ -1,6 +1,12 @@
 <div class="row">
     <div class="col-xs-12">
-        <form [formGroup]="forma">
+        <h4 
+            *ngIf="!isAktivan" 
+            style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nije aktivan u obradi!</h4>
+        <h4 
+            *ngIf="isAktivan && !imaLiPregleda" 
+            style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nema evidentiranih pregleda!</h4>
+        <form [formGroup]="forma" *ngIf="isAktivan && imaLiPregleda">
             <div class="row">
                 <div class="col-xs-4">
                     <label 
@@ -42,13 +48,15 @@
         </form>
     </div>
 </div>
-<hr>
-<div class="row">
-    <div class="col-xs-4">
-        <app-pregledi-list 
-            [pregledi]="pregledi"></app-pregledi-list>
+<ng-container *ngIf="isAktivan && imaLiPregleda">
+    <hr>
+    <div class="row">
+        <div class="col-xs-4">
+            <app-pregledi-list 
+                [pregledi]="pregledi"></app-pregledi-list>
+        </div>
+        <div class="col-xs-8">
+            <router-outlet></router-outlet>
+        </div>
     </div>
-    <div class="col-xs-8">
-        <router-outlet></router-outlet>
-    </div>
-</div>
+</ng-container>

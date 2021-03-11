@@ -325,7 +325,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 this.mkbPrimarnaDijagnoza.valueChanges.pipe(
                     tap(value => {
                         //Ako je MKB ispravno unesen (ako je prošao validaciju)
-                        if(this.mkbPrimarnaDijagnoza.valid){
+                        if(this.mkbPrimarnaDijagnoza.valid && this.mkbPrimarnaDijagnoza.value){
                             //Prolazim kroz sve MKB šifre
                             for(const mkb of this.mkbSifre){
                                 //Ako se upisana vrijednost nalazi u polju MKB šifri

@@ -54,7 +54,7 @@ export class CekaonicaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
-    onDeleteCekaonica(tip: string,idObrada: number,idCekaonica: number){
+    onDeleteCekaonica(tip: string,idCekaonica: number){
         //Uz DELETE metodu šaljem dodatni parametar ID čekaonice
         const options = {
             headers: new HttpHeaders({
@@ -62,7 +62,6 @@ export class CekaonicaService{
             }),
             body: {
                 tip: tip,
-                idObrada: idObrada,
                 idCekaonica: idCekaonica
             }
         };

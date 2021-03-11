@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from './login.service';
 import * as Validacija from './login-validations';
 
@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             'email': new FormControl(null,[Validators.required,Validators.email],[Validacija.provjeriEmail(this.loginService,this.pretplateSubject)]),
             'password': new FormControl(null,[Validators.required])
         });
-        this.password.setAsyncValidators([Validacija.provjeriLozinku(this.loginService,this.forma,this.pretplateSubject)]);
+        this.password.setAsyncValidators([Validacija.provjeriLozinku(this.loginService,this.forma,this.pretplateSubject)]); 
     }
 
     //Kada se klikne button "Login"

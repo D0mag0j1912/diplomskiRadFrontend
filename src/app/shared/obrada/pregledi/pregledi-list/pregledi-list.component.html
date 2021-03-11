@@ -1,23 +1,25 @@
 <div class="row">
     <div class="col-xs-12">
-        <a 
-            style="cursor:pointer;border-radius: 5px;margin-top:5px;" 
-            *ngFor="let pregled of pregledi" 
-            [routerLink]="[pregled.idPregled]"
-            class="list-group-item clearfix"
-            routerLinkActive="active">
-            <div class="pull left">
-                <h5 
-                    style="font-family: Verdana, sans-serif;">Datum: 
-                    {{pregled.datum}}</h5>
-                <h5 
-                    style="font-family: Verdana, sans-serif;">Tip slučaja: 
-                    {{pregled.tipSlucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h5>
-                <h5 
-                    style="font-family: Verdana, sans-serif;">Vrijeme: 
-                    {{pregled.vrijeme}}
-                </h5>
-            </div>
-        </a>
+        <ul class="list-group">
+            <li 
+                style="cursor:pointer;border-radius: 5px;margin-top:5px;" 
+                *ngFor="let pregled of pregledi" 
+                [routerLink]="[pregled.idPregled]"
+                class="list-group-item clearfix"
+                routerLinkActive="active">
+                <div class="pull left">
+                    <h5 
+                        style="font-family: Verdana, sans-serif;">Datum: 
+                        {{pregled.datum}}</h5>
+                    <h5 
+                        style="font-family: Verdana, sans-serif;">Tip slučaja: 
+                        {{pregled.tipSlucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h5>
+                    <h5 
+                        style="font-family: Verdana, sans-serif;">Vrijeme: 
+                        {{pregled.vrijeme}}
+                    </h5>
+                </div>
+            </li>
+        </ul>
     </div>
 </div>

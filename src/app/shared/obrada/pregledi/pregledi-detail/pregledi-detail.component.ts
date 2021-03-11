@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of, Subject } from 'rxjs';
 import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { PovijestBolesti } from 'src/app/shared/modeli/povijestBolesti.model';
 import { Pregled } from 'src/app/shared/modeli/pregled.model';
+import { ObradaService } from '../../obrada.service';
 import { PreglediService } from '../pregledi.service';
 
 @Component({
@@ -30,7 +31,11 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Dohvaćam route
         private route: ActivatedRoute,
         //Dohvaćam servis pregleda
-        private preglediService: PreglediService
+        private preglediService: PreglediService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam router
+        private router: Router
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -88,24 +93,33 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
             mergeMap(() => {
                 //Ako je logirana medicinska sestra:
                 if(this.pregled){
-                    return this.preglediService.dohvatiSekundarneDijagnoze(this.pregled.datum,this.pregled.vrijeme,
-                        this.pregled.mkbSifraPrimarna,this.pregled.tipSlucaj,this.idPacijent,this.pregled.tip).pipe(
-                        tap(odgovor => {
-                            if(odgovor[0].sekundarneDijagnoze !== null){
-                                //Za svaku iteraciju povijesti bolesti, string se resetira
-                                let str = new String("");
-                                //Prolazim kroz svaku sek. dijagnozu
-                                for(const dijagnoza of odgovor){
-                                    //Stavljam je u svoj objekt
-                                    this.pregled.sekundarneDijagnoze = dijagnoza.sekundarneDijagnoze;
-                                    //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                    str = str.concat(this.pregled.sekundarneDijagnoze + "\n"); 
-                                }
-                                this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});
-                            } 
-                        }),
-                        takeUntil(this.pretplate)
-                    );
+                    //Ako je upisana primarna dijagnoza
+                    if(this.pregled.mkbSifraPrimarna){
+                        return this.preglediService.dohvatiSekundarneDijagnoze(this.pregled.datum,this.pregled.vrijeme,
+                            this.pregled.mkbSifraPrimarna,this.pregled.tipSlucaj,this.idPacijent,this.pregled.tip).pipe(
+                            tap(odgovor => {
+                                if(odgovor[0].sekundarneDijagnoze !== null){
+                                    //Za svaku iteraciju povijesti bolesti, string se resetira
+                                    let str = new String("");
+                                    //Prolazim kroz svaku sek. dijagnozu
+                                    for(const dijagnoza of odgovor){
+                                        //Stavljam je u svoj objekt
+                                        this.pregled.sekundarneDijagnoze = dijagnoza.sekundarneDijagnoze;
+                                        //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
+                                        str = str.concat(this.pregled.sekundarneDijagnoze + "\n"); 
+                                    }
+                                    this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});
+                                } 
+                            }),
+                            takeUntil(this.pretplate)
+                        );
+                    }
+                    //Ako nije upisana primarna dijagnoza
+                    else{
+                        return of(null).pipe(
+                            takeUntil(this.pretplate)
+                        );
+                    }
                 }
                 //Ako je logiran liječnik:
                 else if(this.povijestBolesti){
@@ -127,6 +141,18 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         }),
                         takeUntil(this.pretplate)
                     );
+                }
+            }),
+            takeUntil(this.pretplate)
+        ).subscribe();
+
+        this.obradaService.obsZavrsenPregled.pipe(
+            tap((pregled) => {
+                console.log(pregled);
+                //Ako je pregled završen
+                if(pregled === "zavrsenPregled"){
+                    //Preusmjeravam se na '/pregledi'
+                    this.router.navigate(['../'],{relativeTo: this.route});
                 }
             }),
             takeUntil(this.pretplate)

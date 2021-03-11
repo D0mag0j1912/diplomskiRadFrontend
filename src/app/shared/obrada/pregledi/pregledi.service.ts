@@ -32,11 +32,10 @@ export class PreglediService {
     }
 
     //Metoda koja vraća sve preglede za listu 
-    dohvatiSvePreglede(tipKorisnik: string, idPacijent: number, datum: Date){
+    dohvatiSvePreglede(tipKorisnik: string, idPacijent: number){
         let params = new HttpParams().append("tipKorisnik",tipKorisnik);
         params = params.append("idPacijent",idPacijent.toString());
-        params = params.append("datum",datum.toString());
 
-        return this.http.get<any>(baseUrl + 'pregledi/dohvatiSvePregledePoDatumu.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'pregledi/dohvatiSvePreglede.php',{params: params}).pipe(catchError(handleError));
     }
 }

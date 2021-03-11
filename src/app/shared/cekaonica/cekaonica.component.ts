@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
-import { AlertComponent } from '../alert/alert.component';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
 import { HeaderService } from '../header/header.service';
 import { ObradaService } from '../obrada/obrada.service';
@@ -55,7 +54,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     tipKorisnik: string = null;
     brojRetka: number;
     //Spremam podatke izbrisanog retka čekaonice
-    idObrada: number;
     idCekaonica: number;
     index: number;
     imePacijent: string;
@@ -64,9 +62,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     vrijemeDodavanja: Time;
     statusCekaonica: string;
     tip: string;
-    //Kreiram instancu komponente "AlertComponent"
-    private alertComponent: AlertComponent;
-    //Kreiram instancu komponente "AlertComponent"
+    //Kreiram instancu komponente "BrisanjePacijentaAlertComponent"
     private brisanjeComponent: BrisanjePacijentaAlertComponent;
     //Dohvaćam child komponentu "BrisanjePacijentaAlertComponent" kada se ova komponenta prikaže tj. ngif=true
     @ViewChild('brisanjeComponent',{static: false}) set brisanjeKomponenta(komponenta: BrisanjePacijentaAlertComponent){
@@ -169,6 +165,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                     //Nadodavam ih u polje
                     this.pacijenti.push(cekaonica);
                 }
+                console.log(this.pacijenti);
                 //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
                 let pom: string;
                 //Inicijaliziram brojač na 0 na početku
@@ -217,16 +214,12 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja briše pacijenta iz čekaonice
-    onDeleteCekaonica(tip: string,idObrada: number, idCekaonica: number,index:number){
+    onDeleteCekaonica(tip: string,idCekaonica: number,index:number){
         
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
-        this.cekaonicaService.onDeleteCekaonica(tip,idObrada,idCekaonica).pipe(
+        this.cekaonicaService.onDeleteCekaonica(tip,idCekaonica).pipe(
             //Dohvaćam odgovor servera
-            tap((odgovor) => {
-                  /* //Označavam da ima odgovora servera
-                  this.response = true;
-                  //Spremam poruku servera
-                  this.responsePoruka = odgovor["message"]; */
+            tap(() => {
                   //Brišem pacijenta na indexu retka na kojem je kliknut button "Izbriši iz čekaonice"
                   this.pacijenti.splice(index,1);
                   //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
@@ -254,9 +247,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja prikuplja sve podatke iz izbrisanog retka čekaonice da bi ih proslijedila uvodnom prozoru brisanja
-    onGetTableData(idObrada: number, idCekaonica: number,index: number,imePacijent: string, prezPacijent: string,datum: Date,vrijeme: Time,status: string,tip: string){
-        //Spremam podatke iz retka čekaonice u svoje varijable
-        this.idObrada = idObrada;
+    onGetTableData(idCekaonica: number,index: number,imePacijent: string, prezPacijent: string,datum: Date,vrijeme: Time,status: string,tip: string){
         this.idCekaonica = idCekaonica;
         this.index = index;
         this.imePacijent = imePacijent;
@@ -272,7 +263,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     //Metoda koja se pokreće kada korisnik klikne "Obriši" u prozoru brisanja
     onBrisanje(){
         //Pokreni postupak brisanja
-        this.onDeleteCekaonica(this.tip,this.idObrada,this.idCekaonica,this.index);
+        this.onDeleteCekaonica(this.tip,this.idCekaonica,this.index);
     }
 
     //Metoda koja kreira polje koje se sastoji do form controlova statusa čekaonice

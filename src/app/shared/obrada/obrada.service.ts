@@ -98,18 +98,12 @@ export class ObradaService{
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li trenutno aktivni pacijent obrađen (opći podatci)
     getObradenOpciPodatci(id:number){
-        if(id === null){
-            return of(null);
-        }
         let params = new HttpParams().append("idPacijent",id.toString());
         return this.http.get<any>(baseUrl + 'obrada/getObradenOpciPodatci.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi informacija je li trenutno aktivni pacijent obrađen (povijest bolesti)
     getObradenPovijestBolesti(id:number){
-        if(id === null){
-            return of(null);
-        }
         let params = new HttpParams().append("idPacijent",id.toString());
         return this.http.get<any>(baseUrl + 'obrada/getObradenPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
     }

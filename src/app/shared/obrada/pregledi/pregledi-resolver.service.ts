@@ -26,16 +26,14 @@ export class PreglediResolverService implements Resolve<any>{
         return this.headerService.tipKorisnikaObs.pipe(
             take(1),
             switchMap(tipKorisnik => {
-                return forkJoin([
-                    this.obradaService.getPatientProcessing(tipKorisnik),
-                    this.narucivanjeService.dohvatiDanasnjiDatum()
-                ]).pipe(
+                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
                     take(1),
                     switchMap(podatci => {
+                        console.log(podatci);
                         //Ako JE pacijent aktivan u obradi
-                        if(podatci[0]["success"] !== "false"){
+                        if(podatci["success"] !== "false"){
                             return forkJoin([
-                                this.preglediService.dohvatiSvePreglede(tipKorisnik,+podatci[0][0].idPacijent,podatci[1]),
+                                this.preglediService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
                                 this.narucivanjeService.dohvatiDanasnjiDatum()
                             ]);
                         }
