@@ -4,6 +4,7 @@ import { of, Subject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
+import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import { SekundarniHeaderService } from './sekundarni-header.service';
 
 @Component({
@@ -40,14 +41,15 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         //Dohvaćam servis sekundarnog headera
         private sekundarniHeaderService: SekundarniHeaderService,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis pregleda
+        private preglediService: PreglediService
     ) { }
 
     ngOnInit() {
         //Pretplaćujem se na Subject iz login servisa
         this.loginService.user.pipe(
-            tap(
-              (user) => {
+            tap((user) => {
                 //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
                 this.prijavljen = !user ? false : true;
                 //Ako je korisnik prijavljen
@@ -89,8 +91,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                   },expirationDuration);
 
                 }
-              }
-            ),
+            }),
             //Tip prijavljenog korisnika prosljeđujem metodi koja dohvaća podatke aktivnog pacijenta u obradi
             switchMap(user => {
                 //Ako je korisnik prijavljen:
@@ -127,7 +128,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                 //Označavam da pacijent nije aktivan u obradi
                                 this.isAktivan = false;
                                 return of(null).pipe(
-                                  takeUntil(this.pretplateSubject)
+                                takeUntil(this.pretplateSubject)
                                 );
                             }
                         }),
@@ -143,15 +144,71 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             }), 
             takeUntil(this.pretplateSubject)
         ).subscribe();
+        //Pretplaćujem se na Observable da vidim je li novi pregled dodan
+        this.preglediService.pregledDodanObs.pipe(
+            switchMap(pregledDodan => {
+                //Ako je dodan novi pregled u povijesti bolesti ili općim podatcima pregleda
+                if(pregledDodan.isDodan && pregledDodan.tipKorisnik){
+                    //Dohvaćam podatke aktivnog pacijenta u obradi
+                    return this.obradaService.getPatientProcessing(pregledDodan.tipKorisnik).pipe(
+                        switchMap(odgovor => {
+                            //Ako je pacijent aktivan u obradi
+                            if(odgovor.success !== "false"){
+                                //Označavam da je pacijent aktivan u obradi
+                                this.isAktivan = true;
+                                //Dohvaćam ID aktivnog pacijenta 
+                                const idPacijent = +odgovor[0].idPacijent;
+                                return this.sekundarniHeaderService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
+                                    tap(idPregled => {
+                                        console.log(idPregled);
+                                        //Ako pacijent nema evidentiranih pregleda
+                                        if(idPregled === null){
+                                            //Označavam da pacijent NEMA evidentiranih pregleda
+                                            this.imaLiPregleda = false;
+                                        }
+                                        else{
+                                            //Označavam da pacijent IMA evidentiranih pregleda
+                                            this.imaLiPregleda = true;
+                                            //Spremam ID najnovijeg pregleda za aktivnog pacijenta
+                                            this.idPregled = +idPregled;
+                                        }
+                                    }),
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                            //Ako pacijent NIJE aktivan u obradi
+                            else{
+                                //Označavam da pacijent nije aktivan u obradi
+                                this.isAktivan = false;
+                                return of(null).pipe(
+                                takeUntil(this.pretplateSubject)
+                                );
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
+                else{
+                    return of(null).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
+
     //Metoda koja preusmjerava korisnika na stranicu pregleda
     preumjeriNaPregled(){
         //Ako je prijavljen liječnik
         if(this.isLijecnik){
+            console.log("lijecnik sam");
             //Ako je pacijent aktivan
             if(this.isAktivan){
+                console.log("Aktivan sam");
                 //Ako pacijent IMA evidentiranih pregleda
                 if(this.imaLiPregleda){
+                    console.log("imam pregleda");
                     this.router.navigate(['/lijecnik/obrada/pregledi',this.idPregled]);
                 }
                 //Ako pacijent NEMA evidentiranih pregleda

@@ -15,6 +15,7 @@ import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import * as Validacija from '../../lijecnik/recept/recept-validations';
 import { Time } from '@angular/common';
+import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -87,7 +88,9 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
       //Dohvaćam servis otvorenog slučaja
       private otvoreniSlucajService: OtvoreniSlucajService,
       //Dohvaćam servis obrade
-      private obradaService: ObradaService
+      private obradaService: ObradaService,
+      //Dohvaćam servis prethodnih pregleda
+      private preglediService: PreglediService
     ) {}
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -217,6 +220,36 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
             //Kreiram jedan Observable koji će emitirati jednu vrijednost kada bilo koji form control promjeni svoju vrijednost
             const combined = merge(
+                this.headerService.getIDMedSestra().pipe(
+                  tap((idMedSestra) => {
+                      //Spremam ID med.sestre
+                      this.idMedSestra = +idMedSestra[0].idMedSestra;
+                  }),
+                  takeUntil(this.pretplateSubject)
+                ),
+                this.obradaService.obsZavrsenPregled.pipe(
+                    tap((response) => {
+                      //Ako je pregled završen
+                      if(response){
+                          //Poništavam povezani slučaj
+                          this.ponistiPovezaniSlucajHandler();
+                          //Postavljam da pacijent više nije aktivan
+                          this.isAktivan = false;
+                          //Resetiram formu osnovnih podataka pacijenta
+                          this.forma.reset();
+                          //Uklanjam validatore sa forme
+                          this.forma.clearValidators();
+                          this.forma.updateValueAndValidity({emitEvent: false});
+                          //Za svaki form control u formi
+                          for(let field in this.forma.controls){
+                            //Ukloni mu validator i ažuriraj stanje forme
+                            this.forma.get(field).clearValidators();
+                            this.forma.get(field).updateValueAndValidity({emitEvent: false});
+                          }
+                      }
+                    }),
+                    takeUntil(this.pretplateSubject)
+                ),
                 this.nacinPlacanja.valueChanges.pipe(
                     tap(
                         (value) => {
@@ -355,39 +388,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     }),
                     takeUntil(this.pretplateSubject)
                 )
-            ).subscribe();
-
-            const combined2 = combineLatest([
-                this.headerService.getIDMedSestra(),
-                this.obradaService.obsZavrsenPregled
-            ]).pipe(
-                takeUntil(this.pretplateSubject)
-            ).subscribe(
-                //Dohvaćam odgovor
-                (response) => {
-                    //Podatak iz Subjecta spremam u svoju varijablu
-                    this.idMedSestra = response[0][0].idMedSestra;
-                    console.log(this.idMedSestra);
-                    //Ako je pregled završen
-                    if(response[1] === "zavrsenPregled"){
-                        //Poništavam povezani slučaj
-                        this.ponistiPovezaniSlucajHandler();
-                        //Postavljam da pacijent više nije aktivan
-                        this.isAktivan = false;
-                        //Resetiram formu osnovnih podataka pacijenta
-                        this.forma.reset();
-                        //Uklanjam validatore sa forme
-                        this.forma.clearValidators();
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Za svaki form control u formi
-                        for(let field in this.forma.controls){
-                          //Ukloni mu validator i ažuriraj stanje forme
-                          this.forma.get(field).clearValidators();
-                          this.forma.get(field).updateValueAndValidity({emitEvent: false});
-                        }
-                    }
-                }
-            ); 
+            ).subscribe(); 
         }
         
     }
@@ -696,6 +697,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                           };
                           //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
                           localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                          //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
+                          this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
                       }),
                       takeUntil(this.pretplateSubject)  
                 ).subscribe();
@@ -709,8 +712,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 } = JSON.parse(localStorage.getItem("podatciProslogPregleda"));
                 let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
                 let proslaIDObrada = +podatci.idObrada;
-                console.log(proslaIDObrada);
-                console.log(proslaMKBSifra);
                 this.medSestraService.getIDPregled(this.mbrPacijent.value,proslaIDObrada,proslaMKBSifra).pipe(
                     switchMap((idPregled) => {
                           //Spremam ID pregleda
@@ -733,6 +734,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                                     };
                                     //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
                                     localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                                    //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
+                                    this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
                                 }),
                                 takeUntil(this.pretplateSubject)  
                           )
@@ -847,7 +850,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
       this.pretplateSubject.next(true);
       this.pretplateSubject.complete();
       //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
-      this.obradaService.zavrsenPregled.next(null);
+      this.obradaService.zavrsenPregled.next(false); 
     }
     //Dohvaća pojedine form controlove unutar polja 
     getControlsSekundarna(){

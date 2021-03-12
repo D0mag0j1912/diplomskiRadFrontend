@@ -65,9 +65,6 @@ export class PreglediComponent implements OnInit, OnDestroy{
                             //Pusham ga u svoje polje pregleda
                             this.pregledi.push(objektPregled);
                         }
-                        for(const pregled of this.pregledi){
-                            console.log(pregled);
-                        }
                         //Kreiram novu formu
                         this.forma = new FormGroup({
                             'filter': new FormControl('datum',[Validators.required]),
@@ -79,22 +76,20 @@ export class PreglediComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplate)
         ).subscribe();
-        console.log(this.isAktivan);
+
         //Ako je pacijent aktivan
         if(this.isAktivan){
             //Pretplaćujem se na završetak pregleda
             this.obradaService.obsZavrsenPregled.pipe(
                 tap((pregled) => {
-                        console.log(pregled);
                         //Ako je pregled završen
-                        if(pregled === "zavrsenPregled"){
-                            console.log("tu sam");
+                        if(pregled){
                             //Označavam da pacijent više nije aktivan
                             this.isAktivan = false;
                         }
                 }),
                 takeUntil(this.pretplate)
-            );
+            ).subscribe();
         }
     }
 
@@ -116,6 +111,8 @@ export class PreglediComponent implements OnInit, OnDestroy{
     ngOnDestroy(){
         this.pretplate.next(true);
         this.pretplate.complete();
+        //Restartam Subject završenog pregleda
+        this.obradaService.zavrsenPregled.next(false);
     }
 
 }

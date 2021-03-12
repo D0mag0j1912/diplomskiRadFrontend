@@ -5,6 +5,7 @@ import { of, Subject } from 'rxjs';
 import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { PovijestBolesti } from 'src/app/shared/modeli/povijestBolesti.model';
 import { Pregled } from 'src/app/shared/modeli/pregled.model';
+import { Recept } from 'src/app/shared/modeli/recept.model';
 import { ObradaService } from '../../obrada.service';
 import { PreglediService } from '../pregledi.service';
 
@@ -14,12 +15,16 @@ import { PreglediService } from '../pregledi.service';
   styleUrls: ['./pregledi-detail.component.css']
 })
 export class PreglediDetailComponent implements OnInit, OnDestroy{
+    //Oznaka je li prozor izdanih recepata vidljiv ili nije
+    isIzdaniRecepti: boolean = false;
     //Spremam pretplate
     pretplate = new Subject<boolean>();
     //Deklariram formu
     forma: FormGroup;
     //Spremam odgovor servera (pregled) u svoj objekt
     pregled: Pregled;
+    //Spremam odgovor servera (recept) u svoj objekt
+    poslaniRecept: Recept;
     //Spremam odgovor servera (povijest bolesti) u svoj objekt
     povijestBolesti: PovijestBolesti;
     //Oznaka je li odgovor servera pregled (opći podatci) ili povijest bolesti
@@ -44,7 +49,6 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Pretplaćivam se na podatke Resolvera
         this.route.data.pipe(
             tap(pregledi => {
-                console.log(pregledi);
                 //Prolazim kroz odgovor servera
                 for(const pregled of pregledi.cijeliPregled){
                     //Ako se u odgovoru pregleda nalazi tip korisnika "sestra":
@@ -64,10 +68,13 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         this.isPovijestBolesti = true;
                         //Kreiram objekt tipa "PovijestBolesti"
                         this.povijestBolesti = new PovijestBolesti(pregled);
+                        //Kreiram objekt tipa "Recept"
+                        this.poslaniRecept = new Recept(pregled);
                     }
                 }
                 if(this.isPovijestBolesti){
                     console.log(this.povijestBolesti);
+                    console.log(this.poslaniRecept);
                 }
                 else if(!this.isPovijestBolesti){
                     console.log(this.pregled);
@@ -145,12 +152,11 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplate)
         ).subscribe();
-
+        //Pretplaćujem se na Observable koji sadrži informaciju je li pregled završio
         this.obradaService.obsZavrsenPregled.pipe(
             tap((pregled) => {
-                console.log(pregled);
                 //Ako je pregled završen
-                if(pregled === "zavrsenPregled"){
+                if(pregled){
                     //Preusmjeravam se na '/pregledi'
                     this.router.navigate(['../'],{relativeTo: this.route});
                 }
@@ -159,10 +165,23 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         ).subscribe();
     }
 
+    //Metoda koja otvara prozor izdanih recepata
+    onIzdaniRecepti(){
+        this.isIzdaniRecepti = true;
+    }
+
+    //Metoda koja se poziva kada se klikne "Izađi" ili negdje izvan prozora
+    onCloseIzdaniRecepti(){
+        //Zatvori prozor
+        this.isIzdaniRecepti = false;
+    }
+
     //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
         this.pretplate.next(true);
         this.pretplate.complete();
+        //Restartam Subject završenog pregleda
+        this.obradaService.zavrsenPregled.next(false);
     }
 
 }

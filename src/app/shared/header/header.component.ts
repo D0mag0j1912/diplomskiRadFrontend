@@ -108,12 +108,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 //Ako ima evidentiranih liječnika:
                 if(response[0]["success"] !== "false"){
                     //Dohvaćam ID liječnika
-                    this.idLijecnik = response[0][0].idLijecnik;
+                    this.idLijecnik = +response[0][0].idLijecnik;
                 }
                 //Ako ima evidentiranih medicinskih sestara
                 if(response[1]["success"] !== "false"){
                     //Dohvaćam ID medicinske sestre
-                    this.idMedSestra = response[1][0].idMedSestra;
+                    this.idMedSestra = +response[1][0].idMedSestra;
                 }
           }),
           takeUntil(this.pretplateSubject)
@@ -125,7 +125,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     onLogout(){
 
         this.loginService.logout().pipe(
-            tap(podatci => {
+            tap(() => {
                   //Ako postoji aktivan timer, kada se ručno odlogiramo, resetiraj timer
                   if(this.tokenExpirationTimer){
                     clearTimeout(this.tokenExpirationTimer);
@@ -146,7 +146,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     //Kada se klikne na "Logo" u headeru
-    onClearStorage(){
+    goToObrada(){
         //Ako je prijavljen liječnik
         if(this.isLijecnik){
             //Preusmjeri me na obradu liječnika

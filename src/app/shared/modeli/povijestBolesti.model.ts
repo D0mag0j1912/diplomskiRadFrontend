@@ -16,6 +16,7 @@ export class PovijestBolesti {
     public vrijeme: Time;
     public sekundarneDijagnoze: string;
     public tip: string;
+
     constructor(response: any){
         if(response.idPovijestBolesti){
             this.idPovijestBolesti = +response.idPovijestBolesti;

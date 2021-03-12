@@ -54,7 +54,7 @@ export class Recept{
         }
         //Spremam ID pacijenta čiji je recept 
         if(response.idPacijent){
-            this.idPacijent = response.idPacijent;
+            this.idPacijent = +response.idPacijent;
         }
         //Spremam vrijeme kada je nastao recept
         if(response.vrijemeRecept){
@@ -86,7 +86,7 @@ export class Recept{
         }
         //Spremam šifru specijalista
         if(response.sifraSpecijalist){
-            this.sifraSpecijalist = response.sifraSpecijalist;
+            this.sifraSpecijalist = +response.sifraSpecijalist;
         }
         //Spremam podatak je li recept hitan
         if(response.hitnost){
@@ -94,7 +94,7 @@ export class Recept{
         }
         //Spremam ID recepta
         if(response.idRecept){
-            this.idRecept = response.idRecept;
+            this.idRecept = +response.idRecept;
         }
     }
 }

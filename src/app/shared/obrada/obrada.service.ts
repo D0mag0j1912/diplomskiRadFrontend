@@ -1,6 +1,6 @@
 import { HttpClient,HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { catchError } from 'rxjs/operators';
 import {Time} from '@angular/common';
 import {handleError} from '../rxjs-error';
@@ -14,7 +14,7 @@ export class ObradaService{
     //Kreiram BehaviourSubject u kojega spremam ime i prezime pacijenta
     imePrezimePacijent = new BehaviorSubject<{ime: string, prezime: string,stranica: number}>({ime:'unknown',prezime:'unknown',stranica:1});
     //Kreiram Subject kojim ću obavjestiti komponentu obrade da je pregled završio
-    zavrsenPregled = new BehaviorSubject<string>(null);
+    zavrsenPregled = new Subject<boolean>();
     obsZavrsenPregled = this.zavrsenPregled.asObservable();
     //Kreiram Subject kojim ću prenijeti trenutni ID obrade u komponentu "PrikaziPovijestBolestiComponent"
     podatciObrada = new BehaviorSubject<number>(null);

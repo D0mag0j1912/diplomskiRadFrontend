@@ -11,6 +11,7 @@ import { CekaonicaComponent } from './cekaonica/cekaonica.component';
 import { DetaljiPregledaComponent } from './cekaonica/detalji-pregleda/detalji-pregleda.component';
 import { PrikaziPovijestBolestiComponent } from './prikazi-povijest-bolesti/prikazi-povijest-bolesti.component';
 import { PovezaniPovijestBolestiComponent } from '../lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.component';
+import { IzdaniReceptiComponent } from './izdani-recepti/izdani-recepti.component';
 
 @NgModule({
     declarations: [
@@ -23,7 +24,8 @@ import { PovezaniPovijestBolestiComponent } from '../lijecnik/povezani-povijest-
         CekaonicaComponent,
         DetaljiPregledaComponent,
         PrikaziPovijestBolestiComponent,
-        PovezaniPovijestBolestiComponent
+        PovezaniPovijestBolestiComponent,
+        IzdaniReceptiComponent
     ],
     imports:[
         CommonModule,
@@ -40,7 +42,8 @@ import { PovezaniPovijestBolestiComponent } from '../lijecnik/povezani-povijest-
         CekaonicaComponent,
         DetaljiPregledaComponent,
         PrikaziPovijestBolestiComponent,
-        PovezaniPovijestBolestiComponent
+        PovezaniPovijestBolestiComponent,
+        IzdaniReceptiComponent
     ]
 })
 export class SharedModule{

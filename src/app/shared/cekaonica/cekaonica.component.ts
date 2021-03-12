@@ -75,36 +75,47 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             div.style.width = "30vw";
             //Postavljam lijevu marginu
             div.style.left = "30vw";
+            //Postavljam border-radius
+            div.style.borderRadius = '7px';
             //Kreiram poruku koja će se prikazati korisniku
             const newP = document.createElement("h5");
             newP.innerHTML = `Jeste li sigurni da želite izbrisati pacijenta:`;
+            newP.style.fontFamily = 'Verdana, sans-serif';
             div.insertBefore(newP,div.children[1]);  
             const imePrezime = document.createElement("h5");
             imePrezime.innerHTML = "Ime i prezime: ";
+            imePrezime.style.fontFamily = 'Verdana, sans-serif';
             const boldImePrezime = document.createElement("b");
             boldImePrezime.innerHTML = this.imePacijent + " " + this.prezPacijent;
             boldImePrezime.style.fontWeight = "bold";
+            boldImePrezime.style.fontFamily = 'Verdana, sans-serif';
             imePrezime.append(boldImePrezime);
             div.insertBefore(imePrezime,div.children[2]);
             const datumDodavanjaH = document.createElement("h5");
             datumDodavanjaH.innerHTML = "Datum dodavanja: ";
+            datumDodavanjaH.style.fontFamily = 'Verdana, sans-serif';
             const boldDatumDodavanja = document.createElement("b");
             boldDatumDodavanja.innerHTML = this.datumDodavanja.toString();
             boldDatumDodavanja.style.fontWeight = "bold";
+            boldDatumDodavanja.style.fontFamily = 'Verdana, sans-serif';
             datumDodavanjaH.append(boldDatumDodavanja);
             div.insertBefore(datumDodavanjaH,div.children[3]);
             const vrijemeDodavanjaH = document.createElement("h5");
             vrijemeDodavanjaH.innerHTML = "Vrijeme dodavanja: ";
+            vrijemeDodavanjaH.style.fontFamily = 'Verdana, sans-serif';
             const boldVrijemeDodavanja = document.createElement("b");
             boldVrijemeDodavanja.innerHTML = this.vrijemeDodavanja.toString();
             boldVrijemeDodavanja.style.fontWeight = "bold";
+            boldVrijemeDodavanja.style.fontFamily = 'Verdana, sans-serif';
             vrijemeDodavanjaH.append(boldVrijemeDodavanja);
             div.insertBefore(vrijemeDodavanjaH,div.children[4]);
             const statusCekaonicaH = document.createElement("h5");
             statusCekaonicaH.innerHTML = "Status čekaonice: ";
+            statusCekaonicaH.style.fontFamily = 'Verdana, sans-serif';
             const boldStatusCekaonica = document.createElement("b");
             boldStatusCekaonica.innerHTML = this.statusCekaonica;
             boldStatusCekaonica.style.fontWeight = "bold";
+            boldStatusCekaonica.style.fontFamily = 'Verdana, sans-serif';
             statusCekaonicaH.append(boldStatusCekaonica);
             div.insertBefore(statusCekaonicaH,div.children[5]);
         }   

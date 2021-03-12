@@ -1,6 +1,7 @@
 import { Time } from "@angular/common";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import {baseUrl} from '../../../backend-path';
 import {handleError} from '../../rxjs-error';
@@ -9,9 +10,26 @@ import {handleError} from '../../rxjs-error';
     providedIn: 'root'
 })
 export class PreglediService {
+    //Kreiram Subject koji će obavjestiti sekundarni header da je novi pregled dodan
+    pregledDodan = new Subject<{isDodan: boolean, tipKorisnik: string}>();
+    //Kreiram Observable od njega 
+    pregledDodanObs = this.pregledDodan.asObservable();
+
     constructor(
         private http: HttpClient
     ){}
+
+    //Metoda koja se poziva kada se dogodi refresh (da sačuvam podatke Subjecta)
+    refreshOnDodanPregled(){
+        const podatci: {
+            isDodan: boolean;
+            tipKorisnik: string;
+        } = JSON.parse(localStorage.getItem("isDodanPregled"));
+        if(!podatci){
+            return;
+        }
+        this.pregledDodan.next(podatci);
+    }
 
     //Metoda koja vraća sve sekundarne dijagnoze za zadani ID pregleda ili ID povijesti bolesti
     dohvatiSekundarneDijagnoze(datum: Date,vrijeme: Time,mkbSifraPrimarna: string, tipSlucaj: string, idPacijent: number,tipKorisnik: string){

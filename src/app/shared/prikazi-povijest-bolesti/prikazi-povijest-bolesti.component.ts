@@ -9,6 +9,7 @@ import { HeaderService } from '../header/header.service';
 import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
 import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.service';
 import { ObradaService } from '../obrada/obrada.service';
+import { PreglediService } from '../obrada/pregledi/pregledi.service';
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
   templateUrl: './prikazi-povijest-bolesti.component.html',
@@ -61,7 +62,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Dohvaćam servis povezanih povijesti bolesti
         private povezaniPovijestBolestiService: PovezaniPovijestBolestiService,
         //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private obradaService: ObradaService,
+        //Dohvaćam servis prethodnih pregleda
+        private preglediService: PreglediService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -348,6 +351,15 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                     };
                     //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
                     localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                    //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
+                    this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
+                    //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
+                    const isDodanPregled = {
+                        isDodan: true,
+                        tipKorisnik: "lijecnik"
+                    };
+                    //U Local Storage postavljam tu informaciju
+                    localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe(); 
@@ -361,11 +373,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
               } = JSON.parse(localStorage.getItem("podatciProslogPregleda"));
               let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
               let proslaIDObrada = +podatci.idObrada;
-              console.log(proslaMKBSifra);
               this.povijestBolestiService.getIDPovijestBolesti(this.idPacijent,proslaIDObrada,proslaMKBSifra).pipe(
                   tap(idPovijestBolesti => {
                         this.prosliPregled = idPovijestBolesti.toString();
-                        console.log(this.prosliPregled);
                   }),
                   switchMap(() => {
                       //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
@@ -388,6 +398,15 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                               };
                               //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
                               localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                              //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
+                              this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
+                              //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
+                              const isDodanPregled = {
+                                  isDodan: true,
+                                  tipKorisnik: "lijecnik"
+                              };
+                              //U Local Storage postavljam tu informaciju
+                              localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
                             }
                           ),
                           takeUntil(this.pretplateSubject)

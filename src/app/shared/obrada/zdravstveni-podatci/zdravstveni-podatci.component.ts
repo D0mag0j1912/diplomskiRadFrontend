@@ -253,7 +253,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                         //Ako su podatci aktivni
                         if(this.isPodatciAktivni){
                           //Ako je pregled završen
-                          if(podatci === "zavrsenPregled"){
+                          if(podatci){
                               //Označavam da pacijent više nije aktivan
                               this.isPodatciAktivni = false;
                               //Resetiram formu zdravstvenih podataka pacijenta
@@ -568,7 +568,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
     this.pretplateSubject.next(true);
     this.pretplateSubject.complete();
     //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
-    this.obradaService.zavrsenPregled.next(null);
+    this.obradaService.zavrsenPregled.next(false);
   }
 
   //Definiram gettere za pojedine form controlove
