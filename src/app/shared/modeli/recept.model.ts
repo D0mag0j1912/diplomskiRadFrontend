@@ -16,6 +16,7 @@ export class Recept{
     public ponovljivost?: string;
     public brojPonavljanja?: string;
     public sifraSpecijalist?: number;
+    public cijeliSpecijalist?: string;
     public idPacijent?: number;
     public imePrezimePacijent?: string;
     public vrijemeRecept?: Time;
@@ -87,6 +88,9 @@ export class Recept{
         //Spremam šifru specijalista
         if(response.sifraSpecijalist){
             this.sifraSpecijalist = +response.sifraSpecijalist;
+        }
+        if(response.specijalist){
+            this.cijeliSpecijalist = response.specijalist;
         }
         //Spremam podatak je li recept hitan
         if(response.hitnost){

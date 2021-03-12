@@ -38,6 +38,12 @@
                 <strong style="font-weight: bold;color:#337ab7">
                     {{recept.brojPonavljanja +  ' ponavljanja'}}</strong>
             </h5>
+            <h5 
+                style="font-family: Verdana, sans-serif;" 
+                *ngIf="recept.cijeliSpecijalist">Specijalist: 
+                <strong style="font-weight: bold;color:#337ab7">
+                    {{recept.cijeliSpecijalist}}</strong>
+            </h5>
         </div>
     </div>
     <div class="alert-box-actions" #alertBoxActions>
