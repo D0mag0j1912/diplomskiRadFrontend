@@ -182,6 +182,10 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         this.pretplate.complete();
         //Restartam Subject završenog pregleda
         this.obradaService.zavrsenPregled.next(false);
+        //Restartam Subject dodanog pregleda
+        this.preglediService.pregledDodan.next({isDodan: false, tipKorisnik:null});
+        //Ažuriram stanje Local Storagea
+        localStorage.setItem("isDodanPregled",JSON.stringify({isDodan: false, tipKorisnik:null}));
     }
 
 }

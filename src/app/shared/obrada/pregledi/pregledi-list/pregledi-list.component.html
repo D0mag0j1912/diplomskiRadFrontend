@@ -6,7 +6,8 @@
                 *ngFor="let pregled of pregledi" 
                 [routerLink]="[pregled.idPregled]"
                 class="list-group-item clearfix"
-                routerLinkActive="active">
+                routerLinkActive="active" 
+                (click)="onClickPregled(pregled)">
                 <div class="pull left">
                     <h5 
                         style="font-family: Verdana, sans-serif;">Datum: 

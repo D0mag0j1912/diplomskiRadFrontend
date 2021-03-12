@@ -53,7 +53,8 @@
     <div class="row">
         <div class="col-xs-4">
             <app-pregledi-list 
-                [pregledi]="pregledi"></app-pregledi-list>
+                [pregledi]="pregledi" 
+                (datum)="onClickListItem($event)"></app-pregledi-list>
         </div>
         <div class="col-xs-8">
             <router-outlet></router-outlet>

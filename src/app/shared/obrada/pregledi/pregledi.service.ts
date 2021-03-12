@@ -19,6 +19,12 @@ export class PreglediService {
         private http: HttpClient
     ){}
 
+    //Metoda koja vraća formatirani datum za postavljanje na filter prethodnih pregleda
+    getFormattedDate(datum: Date){
+        let params = new HttpParams().append("datum",datum.toString());
+        return this.http.get<any>(baseUrl + 'pregledi/formatirajDatum.php',{params: params}).pipe(catchError(handleError));
+    }
+
     //Metoda koja se poziva kada se dogodi refresh (da sačuvam podatke Subjecta)
     refreshOnDodanPregled(){
         const podatci: {

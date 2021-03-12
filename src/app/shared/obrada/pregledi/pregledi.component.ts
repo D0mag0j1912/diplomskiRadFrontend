@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { PregledList } from '../../modeli/pregledList.model';
 import { ObradaService } from '../obrada.service';
+import { PreglediService } from './pregledi.service';
 
 @Component({
   selector: 'app-pregledi',
@@ -29,7 +30,9 @@ export class PreglediComponent implements OnInit, OnDestroy{
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
         //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private obradaService: ObradaService,
+        //Dohvaćam servis prethodnih pregleda
+        private preglediService: PreglediService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -38,7 +41,6 @@ export class PreglediComponent implements OnInit, OnDestroy{
         //Pretplaćujem se na podatke Resolvera
         this.route.data.pipe(
             tap(podatci => {
-                console.log(podatci);
                 //Ako pacijent nije aktivan
                 if(podatci.pregledi === null){
                     //Označavam da pacijent nije aktivan
@@ -93,6 +95,18 @@ export class PreglediComponent implements OnInit, OnDestroy{
         }
     }
 
+    //Metoda koja se poziva kada korisnik klikne na element liste (određeni pregled)
+    onClickListItem($event){
+        //Pretplaćivam se na formatirani datum
+        this.preglediService.getFormattedDate($event).pipe(
+            tap(datum => {
+                //Postavi datum u formu
+                this.forma.get('datum').patchValue(datum,{emitEvent: false});
+            }),
+            takeUntil(this.pretplate)
+        ).subscribe();
+    }
+
     //Ova metoda se poziva kada se promijeni vrijednost filtera
     onChangeFilter($event: any){
         //Ako je korisnik izabrao datum:
@@ -113,6 +127,10 @@ export class PreglediComponent implements OnInit, OnDestroy{
         this.pretplate.complete();
         //Restartam Subject završenog pregleda
         this.obradaService.zavrsenPregled.next(false);
+        //Restartam Subject dodanog pregleda
+        this.preglediService.pregledDodan.next({isDodan: false, tipKorisnik:null});
+        //Ažuriram stanje Local Storagea
+        localStorage.setItem("isDodanPregled",JSON.stringify({isDodan: false, tipKorisnik:null}));
     }
 
 }
