@@ -1871,7 +1871,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 mkbPolje.push(el.value.mkbSifraSekundarna);
             }
         }
-        
         //Ako je komponenta u modu ažuriranja recepta
         if(this.editMode){
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
@@ -1927,7 +1926,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe(); 
-        }  
+        }   
     }
 
     //Metoda se poziva kada liječnik promijeni količinu (broj pakiranja proizvoda)

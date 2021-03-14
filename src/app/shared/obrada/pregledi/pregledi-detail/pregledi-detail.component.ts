@@ -133,6 +133,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                     return this.preglediService.dohvatiSekundarneDijagnoze(this.povijestBolesti.datum,this.povijestBolesti.vrijeme,
                         this.povijestBolesti.mkbSifraPrimarna,this.povijestBolesti.tipSlucaj,this.idPacijent,this.povijestBolesti.tip).pipe(
                         tap(odgovor => {
+                            console.log(odgovor);
                             if(odgovor[0].sekundarneDijagnoze !== null){
                                 //Za svaku iteraciju povijesti bolesti, string se resetira
                                 let str = new String("");

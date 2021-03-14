@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { merge, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { PregledList } from '../../modeli/pregledList.model';
+import { SekundarniHeaderService } from '../../sekundarni-header/sekundarni-header.service';
 import { ObradaService } from '../obrada.service';
 import { PreglediService } from './pregledi.service';
 
@@ -24,15 +25,16 @@ export class PreglediComponent implements OnInit, OnDestroy{
     //Oznaka je li pacijent aktivan
     isAktivan: boolean = false;
     //Oznaka ima li aktivni pacijent pregleda
-    imaLiPregleda: boolean = false;
-
+    imaLiPregleda: boolean = true;
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam servis prethodnih pregleda
-        private preglediService: PreglediService
+        private preglediService: PreglediService,
+        //Dohvaćam servis sekundarnog headera
+        private sekundarniHeaderService: SekundarniHeaderService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -81,16 +83,51 @@ export class PreglediComponent implements OnInit, OnDestroy{
 
         //Ako je pacijent aktivan
         if(this.isAktivan){
-            //Pretplaćujem se na završetak pregleda
-            this.obradaService.obsZavrsenPregled.pipe(
-                tap((pregled) => {
-                        //Ako je pregled završen
-                        if(pregled){
-                            //Označavam da pacijent više nije aktivan
-                            this.isAktivan = false;
+            const combined = merge(
+                //Pretplaćujem se na završetak pregleda
+                this.obradaService.obsZavrsenPregled.pipe(
+                    tap((pregled) => {
+                            //Ako je pregled završen
+                            if(pregled){
+                                //Označavam da pacijent više nije aktivan
+                                this.isAktivan = false;
+                            }
+                    }),
+                    takeUntil(this.pretplate)
+                ),
+                this.sekundarniHeaderService.ugasiPorukuDaNemaPregledaObs.pipe(
+                    tap(vrijednost => {
+                        //Ako je vrijednost == true, liječnik je kliknuo "Pregledi" u sek. headeru
+                        if(vrijednost){
+                            //Ako je trenutno prikazana poruka da nema evidentiranih pregleda
+                            if(!this.imaLiPregleda){
+                                //Ugasi tu poruku da se ponovno prikaže lista i detail
+                                this.imaLiPregleda = true;
+                            }
                         }
-                }),
-                takeUntil(this.pretplate)
+                    }),
+                    takeUntil(this.pretplate)
+                ),
+                //Pretplaćujem se na informaciju je li ima pregleda za promijenjeni datum u filteru
+                this.preglediService.nemaPregledaPoDatumuObs.pipe(
+                    tap(vrijednost => {
+                        //Ako je vrijednost == true, treba se prikazati poruka da pacijent nema pregleda za promijenjeni datum
+                        if(vrijednost){
+                            //Prikaži poruku na ekranu
+                            this.imaLiPregleda = false;
+                            //Odmah resetiram taj Subject 
+                            this.preglediService.nemaPregledaPoDatumu.next(false);
+                        }
+                    })
+                ),
+                //Slušam promjene u filteru datuma
+                this.forma.get('datum').valueChanges.pipe(
+                    tap(datum => {
+                        //Vrijednost forme prosljeđivam Subjectu
+                        this.preglediService.dateChanged.next(datum);
+                    }),
+                    takeUntil(this.pretplate)
+                )
             ).subscribe();
         }
     }

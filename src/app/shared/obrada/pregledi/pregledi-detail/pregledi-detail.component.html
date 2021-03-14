@@ -96,7 +96,10 @@
                                         style="float:right;" 
                                         (click)="onIzdaniRecepti()" 
                                         *ngIf="poslaniRecept.proizvod"
-                                        >Izdani recepti</button>
+                                        >Izdani recept</button>
+                                    <p 
+                                        *ngIf="!poslaniRecept.proizvod" 
+                                        style="font-family: Verdana, sans-serif;color:#337ab7;float:right">Recept nije izdan</p>
                                     <h5 
                                         style="font-family: Verdana, sans-serif;color:#337ab7">Razlog dolaska: </h5>
                                     <textarea 

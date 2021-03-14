@@ -202,13 +202,11 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     preumjeriNaPregled(){
         //Ako je prijavljen liječnik
         if(this.isLijecnik){
-            console.log("lijecnik sam");
             //Ako je pacijent aktivan
             if(this.isAktivan){
-                console.log("Aktivan sam");
                 //Ako pacijent IMA evidentiranih pregleda
                 if(this.imaLiPregleda){
-                    console.log("imam pregleda");
+                    this.sekundarniHeaderService.ugasiPorukuDaNemaPregleda.next(true);
                     this.router.navigate(['/lijecnik/obrada/pregledi',this.idPregled]);
                 }
                 //Ako pacijent NEMA evidentiranih pregleda

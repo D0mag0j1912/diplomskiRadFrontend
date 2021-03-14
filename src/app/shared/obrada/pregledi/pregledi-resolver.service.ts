@@ -12,8 +12,6 @@ import { PreglediService } from "./pregledi.service";
 export class PreglediResolverService implements Resolve<any>{
 
     constructor(
-        //Dohvaćam servis naručivanja zbog današnjeg datuma
-        private narucivanjeService: NarucivanjeService,
         //Dohvaćam servis headera
         private headerService: HeaderService,
         //Dohvaćam servis obrade
@@ -29,12 +27,11 @@ export class PreglediResolverService implements Resolve<any>{
                 return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
                     take(1),
                     switchMap(podatci => {
-                        console.log(podatci);
                         //Ako JE pacijent aktivan u obradi
                         if(podatci["success"] !== "false"){
                             return forkJoin([
                                 this.preglediService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
-                                this.narucivanjeService.dohvatiDanasnjiDatum()
+                                this.preglediService.getNajnovijiDatum(tipKorisnik,+podatci[0].idPacijent)
                             ]);
                         }
                         //Ako pacijent NIJE aktivan u obradi

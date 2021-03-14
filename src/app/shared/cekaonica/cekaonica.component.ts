@@ -74,7 +74,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             //Postavljam širinu
             div.style.width = "30vw";
             //Postavljam lijevu marginu
-            div.style.left = "30vw";
+            div.style.left = "35vw";
             //Postavljam border-radius
             div.style.borderRadius = '7px';
             //Kreiram poruku koja će se prikazati korisniku

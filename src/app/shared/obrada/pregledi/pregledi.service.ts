@@ -1,7 +1,7 @@
 import { Time } from "@angular/common";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import {baseUrl} from '../../../backend-path';
 import {handleError} from '../../rxjs-error';
@@ -14,10 +14,33 @@ export class PreglediService {
     pregledDodan = new Subject<{isDodan: boolean, tipKorisnik: string}>();
     //Kreiram Observable od njega 
     pregledDodanObs = this.pregledDodan.asObservable();
-
+    //Kreiram Subject koji će obavjestiti listu pregleda i detail komponentu da se datum promijenio
+    dateChanged = new Subject<Date>();
+    //Kreiram Observable od njega
+    dateChangedObs = this.dateChanged.asObservable();
+    //Kreiram Subject koji obavještava komponentu "PregledComponent" da pacijent nema pregleda ZA ZADANI DATUM da može prikazati prikladnu poruku
+    nemaPregledaPoDatumu = new Subject<boolean>();
+    //Kreiram Observable od njega
+    nemaPregledaPoDatumuObs = this.nemaPregledaPoDatumu.asObservable();
+    
     constructor(
         private http: HttpClient
     ){}
+
+    //Metoda koja dohvaća sve preglede za aktivnog pacijenta ZA ZADANI DATUM
+    dohvatiPregledePoDatumu(tipKorisnik: string, idPacijent: number, datum: Date){
+        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
+        params = params.append("idPacijent",idPacijent.toString());
+        params = params.append("datum",datum.toString());
+        return this.http.get<any>(baseUrl + 'pregledi/lista-pregleda/dohvatiPregledePoDatumu.php',{params: params}).pipe(catchError(handleError));
+    }
+
+    //Metoda koja dohvaća DATUM najnovijeg pregleda
+    getNajnovijiDatum(tipKorisnik: string, idPacijent: number){
+        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
+        params = params.append("idPacijent",idPacijent.toString());
+        return this.http.get<Date>(baseUrl + 'pregledi/najnoviji/dohvatiNajnovijiDatum.php',{params: params}).pipe(catchError(handleError));
+    }
 
     //Metoda koja vraća formatirani datum za postavljanje na filter prethodnih pregleda
     getFormattedDate(datum: Date){
@@ -59,7 +82,6 @@ export class PreglediService {
     dohvatiSvePreglede(tipKorisnik: string, idPacijent: number){
         let params = new HttpParams().append("tipKorisnik",tipKorisnik);
         params = params.append("idPacijent",idPacijent.toString());
-
-        return this.http.get<any>(baseUrl + 'pregledi/dohvatiSvePreglede.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'pregledi/lista-pregleda/dohvatiSvePreglede.php',{params: params}).pipe(catchError(handleError));
     }
 }
