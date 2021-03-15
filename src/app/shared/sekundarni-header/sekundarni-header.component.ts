@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { of, Subject, Subscription } from 'rxjs';
+import { merge, of, Subject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
@@ -47,153 +47,167 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        //Pretplaćujem se na Subject iz login servisa
-        this.loginService.user.pipe(
-            tap((user) => {
-                //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
-                this.prijavljen = !user ? false : true;
-                //Ako je korisnik prijavljen
-                if(this.prijavljen){
-                  //Ako je tip prijavljenog korisnika "lijecnik":
-                  if(user["tip"] == "lijecnik"){
-                      //Označavam da se liječnik prijavio
-                      this.isLijecnik = true;
-                  } else if(user["tip"] == "sestra"){
-                      //Označavam da se medicinska sestra prijavila
-                      this.isMedSestra = true;
-                  }
-                  //Dohvaćam korisnikove podatke iz Session Storagea
-                  const userData: {
-                      tip: string;
-                      email: string;
-                      _tokenExpirationDate: Date;
-                      lozinka: string;
-                      _token: string;
-                  } = JSON.parse(sessionStorage.getItem('userData'));
-                  
-                  //Ako ne postoje nikakvi korisnikovi podatci u spremištu
-                  if(!userData){
-                      //Izađi iz ove metode
-                      return;
-                  }
-                  //Računam koliki je rok trajanja tokena 
-                  let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-                  //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
-                  this.tokenExpirationTimer = setTimeout(() => {
-                      //Ako je tip prijavljenog korisnika "lijecnik":
-                      if(user["tip"] == "lijecnik"){
-                          //Gasim liječnički header
-                          this.isLijecnik = false;
-                      } else if(user["tip"] == "sestra"){
-                          //Gasim sestrin header
-                          this.isMedSestra = false;
-                      }
-                  },expirationDuration);
 
-                }
-            }),
-            //Tip prijavljenog korisnika prosljeđujem metodi koja dohvaća podatke aktivnog pacijenta u obradi
-            switchMap(user => {
-                //Ako je korisnik prijavljen:
-                if(user){
-                    //Dohvaćam podatke aktivnog pacijenta u obradi
-                    return this.obradaService.getPatientProcessing(user.tip).pipe(
-                        switchMap(odgovor => {
-                            //Ako je pacijent aktivan u obradi
-                            if(odgovor.success !== "false"){
-                                //Označavam da je pacijent aktivan u obradi
-                                this.isAktivan = true;
-                                //Dohvaćam ID aktivnog pacijenta 
-                                const idPacijent = +odgovor[0].idPacijent;
-                                return this.sekundarniHeaderService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
-                                    tap(idPregled => {
-                                        console.log(idPregled);
-                                        //Ako pacijent nema evidentiranih pregleda
-                                        if(idPregled === null){
-                                            //Označavam da pacijent NEMA evidentiranih pregleda
-                                            this.imaLiPregleda = false;
-                                        }
-                                        else{
-                                            //Označavam da pacijent IMA evidentiranih pregleda
-                                            this.imaLiPregleda = true;
-                                            //Spremam ID najnovijeg pregleda za aktivnog pacijenta
-                                            this.idPregled = +idPregled;
-                                        }
-                                    }),
+        const combined = merge(
+            //Pretplaćujem se na Subject iz login servisa
+            this.loginService.user.pipe(
+                tap((user) => {
+                    //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
+                    this.prijavljen = !user ? false : true;
+                    //Ako je korisnik prijavljen
+                    if(this.prijavljen){
+                    //Ako je tip prijavljenog korisnika "lijecnik":
+                    if(user["tip"] == "lijecnik"){
+                        //Označavam da se liječnik prijavio
+                        this.isLijecnik = true;
+                    } else if(user["tip"] == "sestra"){
+                        //Označavam da se medicinska sestra prijavila
+                        this.isMedSestra = true;
+                    }
+                    //Dohvaćam korisnikove podatke iz Session Storagea
+                    const userData: {
+                        tip: string;
+                        email: string;
+                        _tokenExpirationDate: Date;
+                        lozinka: string;
+                        _token: string;
+                    } = JSON.parse(sessionStorage.getItem('userData'));
+                    
+                    //Ako ne postoje nikakvi korisnikovi podatci u spremištu
+                    if(!userData){
+                        //Izađi iz ove metode
+                        return;
+                    }
+                    //Računam koliki je rok trajanja tokena 
+                    let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
+                    //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
+                    this.tokenExpirationTimer = setTimeout(() => {
+                        //Ako je tip prijavljenog korisnika "lijecnik":
+                        if(user["tip"] == "lijecnik"){
+                            //Gasim liječnički header
+                            this.isLijecnik = false;
+                        } else if(user["tip"] == "sestra"){
+                            //Gasim sestrin header
+                            this.isMedSestra = false;
+                        }
+                    },expirationDuration);
+
+                    }
+                }),
+                //Tip prijavljenog korisnika prosljeđujem metodi koja dohvaća podatke aktivnog pacijenta u obradi
+                switchMap(user => {
+                    //Ako je korisnik prijavljen:
+                    if(user){
+                        //Dohvaćam podatke aktivnog pacijenta u obradi
+                        return this.obradaService.getPatientProcessing(user.tip).pipe(
+                            switchMap(odgovor => {
+                                //Ako je pacijent aktivan u obradi
+                                if(odgovor.success !== "false"){
+                                    //Označavam da je pacijent aktivan u obradi
+                                    this.isAktivan = true;
+                                    //Dohvaćam ID aktivnog pacijenta 
+                                    const idPacijent = +odgovor[0].idPacijent;
+                                    return this.sekundarniHeaderService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
+                                        tap(idPregled => {
+                                            console.log(idPregled);
+                                            //Ako pacijent nema evidentiranih pregleda
+                                            if(idPregled === null){
+                                                //Označavam da pacijent NEMA evidentiranih pregleda
+                                                this.imaLiPregleda = false;
+                                            }
+                                            else{
+                                                //Označavam da pacijent IMA evidentiranih pregleda
+                                                this.imaLiPregleda = true;
+                                                //Spremam ID najnovijeg pregleda za aktivnog pacijenta
+                                                this.idPregled = +idPregled;
+                                            }
+                                        }),
+                                        takeUntil(this.pretplateSubject)
+                                    );
+                                }
+                                //Ako pacijent NIJE aktivan u obradi
+                                else{
+                                    //Označavam da pacijent nije aktivan u obradi
+                                    this.isAktivan = false;
+                                    return of(null).pipe(
                                     takeUntil(this.pretplateSubject)
-                                );
-                            }
-                            //Ako pacijent NIJE aktivan u obradi
-                            else{
-                                //Označavam da pacijent nije aktivan u obradi
-                                this.isAktivan = false;
-                                return of(null).pipe(
-                                takeUntil(this.pretplateSubject)
-                                );
-                            }
-                        }),
-                        takeUntil(this.pretplateSubject)
-                    );
-                }
-                //Ako korisnik nije prijavljen:
-                else{
-                    return of(null).pipe(
-                        takeUntil(this.pretplateSubject)
-                    );
-                }
-            }), 
-            takeUntil(this.pretplateSubject)
-        ).subscribe();
-        //Pretplaćujem se na Observable da vidim je li novi pregled dodan
-        this.preglediService.pregledDodanObs.pipe(
-            switchMap(pregledDodan => {
-                //Ako je dodan novi pregled u povijesti bolesti ili općim podatcima pregleda
-                if(pregledDodan.isDodan && pregledDodan.tipKorisnik){
-                    //Dohvaćam podatke aktivnog pacijenta u obradi
-                    return this.obradaService.getPatientProcessing(pregledDodan.tipKorisnik).pipe(
-                        switchMap(odgovor => {
-                            //Ako je pacijent aktivan u obradi
-                            if(odgovor.success !== "false"){
-                                //Označavam da je pacijent aktivan u obradi
-                                this.isAktivan = true;
-                                //Dohvaćam ID aktivnog pacijenta 
-                                const idPacijent = +odgovor[0].idPacijent;
-                                return this.sekundarniHeaderService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
-                                    tap(idPregled => {
-                                        //Ako pacijent nema evidentiranih pregleda
-                                        if(idPregled === null){
-                                            //Označavam da pacijent NEMA evidentiranih pregleda
-                                            this.imaLiPregleda = false;
-                                        }
-                                        else{
-                                            //Označavam da pacijent IMA evidentiranih pregleda
-                                            this.imaLiPregleda = true;
-                                            //Spremam ID najnovijeg pregleda za aktivnog pacijenta
-                                            this.idPregled = +idPregled;
-                                        }
-                                    }),
+                                    );
+                                }
+                            }),
+                            takeUntil(this.pretplateSubject)
+                        );
+                    }
+                    //Ako korisnik nije prijavljen:
+                    else{
+                        return of(null).pipe(
+                            takeUntil(this.pretplateSubject)
+                        );
+                    }
+                }), 
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na Observable da vidim je li novi pregled dodan
+            this.preglediService.pregledDodanObs.pipe(
+                switchMap(pregledDodan => {
+                    //Ako je dodan novi pregled u povijesti bolesti ili općim podatcima pregleda
+                    if(pregledDodan.isDodan && pregledDodan.tipKorisnik){
+                        //Dohvaćam podatke aktivnog pacijenta u obradi
+                        return this.obradaService.getPatientProcessing(pregledDodan.tipKorisnik).pipe(
+                            switchMap(odgovor => {
+                                //Ako je pacijent aktivan u obradi
+                                if(odgovor.success !== "false"){
+                                    //Označavam da je pacijent aktivan u obradi
+                                    this.isAktivan = true;
+                                    //Dohvaćam ID aktivnog pacijenta 
+                                    const idPacijent = +odgovor[0].idPacijent;
+                                    return this.sekundarniHeaderService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
+                                        tap(idPregled => {
+                                            //Ako pacijent nema evidentiranih pregleda
+                                            if(idPregled === null){
+                                                //Označavam da pacijent NEMA evidentiranih pregleda
+                                                this.imaLiPregleda = false;
+                                            }
+                                            else{
+                                                //Označavam da pacijent IMA evidentiranih pregleda
+                                                this.imaLiPregleda = true;
+                                                //Spremam ID najnovijeg pregleda za aktivnog pacijenta
+                                                this.idPregled = +idPregled;
+                                            }
+                                        }),
+                                        takeUntil(this.pretplateSubject)
+                                    );
+                                }
+                                //Ako pacijent NIJE aktivan u obradi
+                                else{
+                                    //Označavam da pacijent nije aktivan u obradi
+                                    this.isAktivan = false;
+                                    return of(null).pipe(
                                     takeUntil(this.pretplateSubject)
-                                );
-                            }
-                            //Ako pacijent NIJE aktivan u obradi
-                            else{
-                                //Označavam da pacijent nije aktivan u obradi
-                                this.isAktivan = false;
-                                return of(null).pipe(
-                                takeUntil(this.pretplateSubject)
-                                );
-                            }
-                        }),
-                        takeUntil(this.pretplateSubject)
-                    );
-                }
-                else{
-                    return of(null).pipe(
-                        takeUntil(this.pretplateSubject)
-                    );
-                }
-            }),
-            takeUntil(this.pretplateSubject)
+                                    );
+                                }
+                            }),
+                            takeUntil(this.pretplateSubject)
+                        );
+                    }
+                    else{
+                        return of(null).pipe(
+                            takeUntil(this.pretplateSubject)
+                        );
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na informaciju je li završio pregled
+            this.obradaService.obsZavrsenPregled.pipe(
+                tap((pregled) => {
+                    //Ako je pregled završen
+                    if(pregled){
+                        //Označavam da pacijent više nije aktivan
+                        this.isAktivan = false;
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            )
         ).subscribe();
     }
 
@@ -205,7 +219,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             if(this.isAktivan){
                 //Ako pacijent IMA evidentiranih pregleda
                 if(this.imaLiPregleda){
-                    this.sekundarniHeaderService.ugasiPorukuDaNemaPregleda.next(true);
+                    //Emitiram vrijednost Subjectom da je kliknut "Pregledi"
+                    this.sekundarniHeaderService.kliknutHeader.next(true);
+                    //Preusmjeravam se na detail stranicu sa ID-em za najnoviji pregled
                     this.router.navigate(['/lijecnik/obrada/pregledi',this.idPregled]);
                 }
                 //Ako pacijent NEMA evidentiranih pregleda
@@ -224,6 +240,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             if(this.isAktivan){
                 //Ako pacijent IMA evidentiranih pregleda
                 if(this.imaLiPregleda){
+                    //Emitiram vrijednost Subjectom da je kliknut "Pregledi"
+                    this.sekundarniHeaderService.kliknutHeader.next(true);
+                    //Preusmjeravam se na detail stranicu sa ID-em za najnoviji pregled
                     this.router.navigate(['/med-sestra/obrada/pregledi',this.idPregled]);
                 }
                 //Ako pacijent NEMA evidentiranih pregleda

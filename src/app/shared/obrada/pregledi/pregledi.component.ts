@@ -1,11 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { merge, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { forkJoin, merge, of, Subject } from 'rxjs';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { HeaderService } from '../../header/header.service';
 import { PregledList } from '../../modeli/pregledList.model';
 import { SekundarniHeaderService } from '../../sekundarni-header/sekundarni-header.service';
 import { ObradaService } from '../obrada.service';
+import { PreglediListService } from './pregledi-list/pregledi-list.service';
 import { PreglediService } from './pregledi.service';
 
 @Component({
@@ -34,7 +36,11 @@ export class PreglediComponent implements OnInit, OnDestroy{
         //Dohvaćam servis prethodnih pregleda
         private preglediService: PreglediService,
         //Dohvaćam servis sekundarnog headera
-        private sekundarniHeaderService: SekundarniHeaderService
+        private sekundarniHeaderService: SekundarniHeaderService,
+        //Dohvaćam servis headera
+        private headerService: HeaderService,
+        //Dohvaćam servis liste prethodnih pregleda
+        private preglediListService: PreglediListService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -69,13 +75,13 @@ export class PreglediComponent implements OnInit, OnDestroy{
                             //Pusham ga u svoje polje pregleda
                             this.pregledi.push(objektPregled);
                         }
-                        //Kreiram novu formu
-                        this.forma = new FormGroup({
-                            'filter': new FormControl('datum',[Validators.required]),
-                            'datum': new FormControl(podatci.pregledi[1]),
-                            'pretraga': new FormControl(null)
-                        });
                     }
+                    //Kreiram novu formu
+                    this.forma = new FormGroup({
+                        'filter': new FormControl('datum',[Validators.required]),
+                        'datum': new FormControl(podatci.pregledi[1]),
+                        'pretraga': new FormControl(null)
+                    });
                 }
             }),
             takeUntil(this.pretplate)
@@ -95,15 +101,64 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     }),
                     takeUntil(this.pretplate)
                 ),
-                this.sekundarniHeaderService.ugasiPorukuDaNemaPregledaObs.pipe(
-                    tap(vrijednost => {
-                        //Ako je vrijednost == true, liječnik je kliknuo "Pregledi" u sek. headeru
+                //Pretplaćivam se na događaj klika buttona "Pregledi"
+                this.sekundarniHeaderService.kliknutHeaderObs.pipe(
+                    switchMap(vrijednost => {
+                        //Ako je kliknut button "Pregledi" u sek. headeru
                         if(vrijednost){
-                            //Ako je trenutno prikazana poruka da nema evidentiranih pregleda
-                            if(!this.imaLiPregleda){
-                                //Ugasi tu poruku da se ponovno prikaže lista i detail
-                                this.imaLiPregleda = true;
-                            }
+                            //Pretplaćujem se na tip korisnika koji je logiran
+                            return this.headerService.tipKorisnikaObs.pipe(
+                                switchMap(tipKorisnik => {
+                                    //Pretplaćujem se na podatke aktivnog korisnika
+                                    return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                                        switchMap(podatci => {
+                                            //Ako JE pacijent aktivan u obradi
+                                            if(podatci["success"] !== "false"){
+                                                return forkJoin([
+                                                    this.preglediListService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
+                                                    this.preglediService.getNajnovijiDatum(tipKorisnik,+podatci[0].idPacijent)
+                                                ]).pipe(
+                                                    tap(podatci => {
+                                                        //Ako aktivni pacijent NEMA evidentiranih pregleda
+                                                        if(podatci[0] === null){
+                                                            //Označavam da aktivni pacijent NEMA aktivnih pregleda
+                                                            this.imaLiPregleda = false;
+                                                        }
+                                                        else{
+                                                            //Restartam polje pregleda
+                                                            this.pregledi = [];
+                                                            //Označavam da aktivni pacijent IMA pregleda
+                                                            this.imaLiPregleda = true;
+                                                            //Inicijaliziram objekt tipa "PregledList"
+                                                            let objektPregled: PregledList;
+                                                            //Za svaki objekt u polju pregleda
+                                                            for(const pregled of podatci[0]){
+                                                                //Kreiram svoj objekt
+                                                                objektPregled = new PregledList(pregled);
+                                                                //Pusham ga u svoje polje pregleda
+                                                                this.pregledi.push(objektPregled);
+                                                            }
+                                                        }
+                                                        //Postavljam dohvaćeni najnoviji datum u formu
+                                                        this.forma.get('datum').patchValue(podatci[1],{emitEvent: false});
+                                                    }),
+                                                    takeUntil(this.pretplate)
+                                                );
+                                            }
+                                            //Ako pacijent NIJE aktivan u obradi
+                                            else{
+                                                return of(null);
+                                            }
+                                        })
+                                    );
+                                })
+                            );
+                        }
+                        //Ako nije kliknut button "Pregledi"
+                        else{
+                            return of(null).pipe(
+                                takeUntil(this.pretplate)
+                            );
                         }
                     }),
                     takeUntil(this.pretplate)
@@ -123,6 +178,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                 //Slušam promjene u filteru datuma
                 this.forma.get('datum').valueChanges.pipe(
                     tap(datum => {
+                        console.log(datum);
                         //Vrijednost forme prosljeđivam Subjectu
                         this.preglediService.dateChanged.next(datum);
                     }),

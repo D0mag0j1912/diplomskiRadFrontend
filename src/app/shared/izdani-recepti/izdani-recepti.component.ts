@@ -17,7 +17,6 @@ export class IzdaniReceptiComponent implements OnInit{
     constructor() { }
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.recept);
     }
 
     //Metoda koja pokreće event izlaska iz ove komponente

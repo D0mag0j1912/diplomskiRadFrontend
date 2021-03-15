@@ -10,8 +10,10 @@ import { Subject } from "rxjs";
 })
 export class SekundarniHeaderService{
 
-    ugasiPorukuDaNemaPregleda = new Subject<boolean>();
-    ugasiPorukuDaNemaPregledaObs = this.ugasiPorukuDaNemaPregleda.asObservable();
+    //Kreiram Subject koji će obavjestiti "PreglediComponent" da je kliknut button "Pregledi"
+    kliknutHeader = new Subject<boolean>();
+    kliknutHeaderObs = this.kliknutHeader.asObservable();
+    
     constructor(
         private http: HttpClient
     ){}

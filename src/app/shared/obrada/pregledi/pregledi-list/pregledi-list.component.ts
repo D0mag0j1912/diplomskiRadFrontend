@@ -90,16 +90,6 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                                                 else{
                                                     //Emitiram Subjectom vrijednost "true" da ukažem roditeljskoj komponenti da ovaj pacijent NEMA pregleda za promijenjeni datum
                                                     this.preglediService.nemaPregledaPoDatumu.next(true);
-                                                    //Ako je tip korisnika liječnik
-                                                    if(tipKorisnik === "lijecnik"){
-                                                        //Preusmjeravam se na tu komponentu
-                                                        this.router.navigate(['/lijecnik/obrada/pregledi']);
-                                                    }
-                                                    //Ako je tip korisnika "sestra"
-                                                    else{
-                                                        //Preusmjeravam se na tu komponentu
-                                                        this.router.navigate(['/med-sestra/obrada/pregledi']);
-                                                    }
                                                     return of(null).pipe(
                                                         takeUntil(this.pretplate)
                                                     );

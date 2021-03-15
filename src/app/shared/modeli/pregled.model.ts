@@ -10,7 +10,6 @@ export class Pregled {
     public tipSlucaj: string;
     public datum: Date;
     public vrijeme: Time;
-    public sekundarneDijagnoze: string;
     public tip: string;
     constructor(response: any){
         if(response.idPregled){
@@ -45,7 +44,4 @@ export class Pregled {
         }
     }
 
-    set sekundarne(sekundarneDijagnoze: string){
-        this.sekundarneDijagnoze = sekundarneDijagnoze;
-    }
 }

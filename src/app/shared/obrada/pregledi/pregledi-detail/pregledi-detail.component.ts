@@ -15,6 +15,9 @@ import { PreglediService } from '../pregledi.service';
   styleUrls: ['./pregledi-detail.component.css']
 })
 export class PreglediDetailComponent implements OnInit, OnDestroy{
+
+    //Oznaka je li server vratio sekundarne dijagnoze
+    isSekundarna: boolean = false;
     //Oznaka je li prozor izdanih recepata vidljiv ili nije
     isIzdaniRecepti: boolean = false;
     //Spremam pretplate
@@ -72,13 +75,6 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         this.poslaniRecept = new Recept(pregled);
                     }
                 }
-                if(this.isPovijestBolesti){
-                    console.log(this.povijestBolesti);
-                    console.log(this.poslaniRecept);
-                }
-                else if(!this.isPovijestBolesti){
-                    console.log(this.pregled);
-                }
                 //Kreiram formu
                 this.forma = new FormGroup({
                     'nacinPlacanja': new FormControl(this.isPovijestBolesti ? null : this.pregled.nacinPlacanja),
@@ -105,18 +101,24 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         return this.preglediService.dohvatiSekundarneDijagnoze(this.pregled.datum,this.pregled.vrijeme,
                             this.pregled.mkbSifraPrimarna,this.pregled.tipSlucaj,this.idPacijent,this.pregled.tip).pipe(
                             tap(odgovor => {
+                                //Ako postoje sekundarne dijagnoze 
                                 if(odgovor[0].sekundarneDijagnoze !== null){
+                                    //Označavam da ima sekundarnih dijagnoza
+                                    this.isSekundarna = true;
                                     //Za svaku iteraciju povijesti bolesti, string se resetira
                                     let str = new String("");
                                     //Prolazim kroz svaku sek. dijagnozu
                                     for(const dijagnoza of odgovor){
-                                        //Stavljam je u svoj objekt
-                                        this.pregled.sekundarneDijagnoze = dijagnoza.sekundarneDijagnoze;
-                                        //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                        str = str.concat(this.pregled.sekundarneDijagnoze + "\n"); 
+                                        //Spajam ih u jedan string
+                                        str = str.concat(dijagnoza.sekundarneDijagnoze + "\n"); 
                                     }
-                                    this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});
+                                    //Stavljam taj složeni string u formu
+                                    this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});  
                                 } 
+                                //Ako nema sekundarnih dijagnoza
+                                else{
+                                    this.isSekundarna = false;
+                                }
                             }),
                             takeUntil(this.pretplate)
                         );
@@ -133,18 +135,23 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                     return this.preglediService.dohvatiSekundarneDijagnoze(this.povijestBolesti.datum,this.povijestBolesti.vrijeme,
                         this.povijestBolesti.mkbSifraPrimarna,this.povijestBolesti.tipSlucaj,this.idPacijent,this.povijestBolesti.tip).pipe(
                         tap(odgovor => {
-                            console.log(odgovor);
+                            //Ako postoje sekundarne dijagnoze 
                             if(odgovor[0].sekundarneDijagnoze !== null){
+                                //Označavam da ima sekundarnih dijagnoza
+                                this.isSekundarna = true;
                                 //Za svaku iteraciju povijesti bolesti, string se resetira
                                 let str = new String("");
                                 //Prolazim kroz svaku sek. dijagnozu
                                 for(const dijagnoza of odgovor){
-                                    //Stavljam je u svoj objekt
-                                    this.povijestBolesti.sekundarneDijagnoze = dijagnoza.sekundarneDijagnoze;
                                     //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                    str = str.concat(this.povijestBolesti.sekundarneDijagnoze + "\n"); 
+                                    str = str.concat(dijagnoza.sekundarneDijagnoze + "\n"); 
                                 }
+                                //Stavljam taj složeni string u formu
                                 this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});
+                            }
+                            //Ako server NIJE vratio sek. dijagnoze
+                            else{
+                                this.isSekundarna = false;
                             }
                         }),
                         takeUntil(this.pretplate)

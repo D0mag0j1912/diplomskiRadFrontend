@@ -67,7 +67,7 @@
                                         style="font-family: Verdana, sans-serif;color:#337ab7;">Nema evidentiranih primarnih dijagnoza!</h5>
                                 </td>
                             </tr>
-                            <tr *ngIf="pregled.sekundarneDijagnoze">
+                            <tr *ngIf="isSekundarna">
                                 <td>
                                     <h5 
                                         style="font-family: Verdana, sans-serif;color:#337ab7;">Sekundarne dijagnoze: </h5>
@@ -80,12 +80,12 @@
                                         readonly></textarea>
                                 </td>
                             </tr>
-                            <tr *ngIf="!pregled.sekundarneDijagnoze">
+                            <tr *ngIf="!isSekundarna">
                                 <td>
                                     <h5 
                                         style="font-family: Verdana, sans-serif;color:#337ab7;">Nema evidentiranih sekundarnih dijagnoza!</h5>
                                 </td>
-                            </tr>
+                            </tr> 
                         </ng-container>
                         <ng-container *ngIf="isPovijestBolesti">
                             <tr>
@@ -175,7 +175,7 @@
                                         readonly>
                                 </td>
                             </tr>
-                            <tr *ngIf="povijestBolesti.sekundarneDijagnoze">
+                            <tr *ngIf="isSekundarna">
                                 <td>
                                     <h5 
                                         style="font-family: Verdana, sans-serif;color:#337ab7;">Sekundarne dijagnoze: </h5>
@@ -188,7 +188,7 @@
                                         readonly></textarea>
                                 </td>
                             </tr>
-                            <tr *ngIf="!povijestBolesti.sekundarneDijagnoze">
+                            <tr *ngIf="!isSekundarna">
                                 <td>
                                     <h5 
                                         style="font-family: Verdana, sans-serif;color:#337ab7;">Nema evidentiranih sekundarnih dijagnoza!</h5>
