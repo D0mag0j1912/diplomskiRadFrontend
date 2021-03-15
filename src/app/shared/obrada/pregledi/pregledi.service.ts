@@ -27,13 +27,6 @@ export class PreglediService {
         private http: HttpClient
     ){}
 
-    //Metoda koja dohvaća sve preglede za aktivnog pacijenta ZA ZADANI DATUM
-    dohvatiPregledePoDatumu(tipKorisnik: string, idPacijent: number, datum: Date){
-        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
-        params = params.append("idPacijent",idPacijent.toString());
-        params = params.append("datum",datum.toString());
-        return this.http.get<any>(baseUrl + 'pregledi/lista-pregleda/dohvatiPregledePoDatumu.php',{params: params}).pipe(catchError(handleError));
-    }
 
     //Metoda koja dohvaća DATUM najnovijeg pregleda
     getNajnovijiDatum(tipKorisnik: string, idPacijent: number){
@@ -78,10 +71,4 @@ export class PreglediService {
         return this.http.get<any>(baseUrl + 'pregledi/pregledi-detail/dohvatiCijeliPregled.php',{params: params}).pipe(catchError(handleError));
     }
 
-    //Metoda koja vraća sve preglede za listu 
-    dohvatiSvePreglede(tipKorisnik: string, idPacijent: number){
-        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
-        params = params.append("idPacijent",idPacijent.toString());
-        return this.http.get<any>(baseUrl + 'pregledi/lista-pregleda/dohvatiSvePreglede.php',{params: params}).pipe(catchError(handleError));
-    }
 }

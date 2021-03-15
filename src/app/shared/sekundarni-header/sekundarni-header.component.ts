@@ -160,7 +160,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                 const idPacijent = +odgovor[0].idPacijent;
                                 return this.sekundarniHeaderService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
                                     tap(idPregled => {
-                                        console.log(idPregled);
                                         //Ako pacijent nema evidentiranih pregleda
                                         if(idPregled === null){
                                             //Označavam da pacijent NEMA evidentiranih pregleda

@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { forkJoin, Observable, of } from "rxjs";
-import { switchMap, take, tap } from "rxjs/operators";
-import { NarucivanjeService } from "src/app/med-sestra/narucivanje/narucivanje.service";
+import { switchMap, take } from "rxjs/operators";
 import { HeaderService } from "../../header/header.service";
 import { ObradaService } from "../obrada.service";
+import { PreglediListService } from "./pregledi-list/pregledi-list.service";
 import { PreglediService } from "./pregledi.service";
 @Injectable({
     providedIn: 'root'
@@ -17,7 +17,9 @@ export class PreglediResolverService implements Resolve<any>{
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam servis pregleda
-        private preglediService: PreglediService
+        private preglediService: PreglediService,
+        //Dohvaćam servis liste prethodnih pregleda
+        private preglediListService: PreglediListService
     ){}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): 
             Observable<any> | Promise<any> | any{
@@ -30,7 +32,7 @@ export class PreglediResolverService implements Resolve<any>{
                         //Ako JE pacijent aktivan u obradi
                         if(podatci["success"] !== "false"){
                             return forkJoin([
-                                this.preglediService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
+                                this.preglediListService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
                                 this.preglediService.getNajnovijiDatum(tipKorisnik,+podatci[0].idPacijent)
                             ]);
                         }

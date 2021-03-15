@@ -2,11 +2,12 @@ import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, of, Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { PregledList } from 'src/app/shared/modeli/pregledList.model';
 import { ObradaService } from '../../obrada.service';
 import { PreglediService } from '../pregledi.service';
+import { PreglediListService } from './pregledi-list.service';
 
 @Component({
   selector: 'app-pregledi-list',
@@ -32,7 +33,11 @@ export class PreglediListComponent implements OnInit, OnDestroy{
         //Dohvaćam servis headera
         private headerService: HeaderService,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis liste prethodnih pregleda
+        private preglediListService: PreglediListService,
+        //Dohvaćam trenutni route
+        private route: ActivatedRoute
     ) { }
 
     //Ova metoda se poziva kada se komponenta incicijalizira
@@ -56,8 +61,8 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                                     //Ako je liječnik promijenio vrijednost datuma
                                     if(datum){
                                         //Dohvaćam sve pregleda za promijenjeni datum
-                                        return this.preglediService.dohvatiPregledePoDatumu(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
-                                            tap(pregledi => {
+                                        return this.preglediListService.dohvatiPregledePoDatumu(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                            mergeMap(pregledi => {
                                                 //Ako aktivni pacijent IMA evidentiranih pregleda za taj datum
                                                 if(pregledi !== null){
                                                     //Praznim polje pregleda 
@@ -70,6 +75,16 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                                                         //Dodavam ga u polje koje ažurira template
                                                         this.pregledi.push(objektPregled);
                                                     }
+                                                    return this.preglediListService.getNajnovijiIDPregledZaDatum(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                                        tap(idPregled => {
+                                                            //Ako pacijent IMA evidentiranih pregleda za PROMIJENJENI DATUM U FILTERU
+                                                            if(idPregled !== null){
+                                                                //Preusmjeravam se na detail stranicu sa ID-em najnovijeg pregleda za promijenjeni datum
+                                                                this.router.navigate(['./',idPregled],{relativeTo: this.route});
+                                                            }
+                                                        }),
+                                                        takeUntil(this.pretplate) 
+                                                    );
                                                 }
                                                 //Ako aktivni pacijent NEMA evidentiranih pregleda za taj datum
                                                 else{
@@ -85,6 +100,9 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                                                         //Preusmjeravam se na tu komponentu
                                                         this.router.navigate(['/med-sestra/obrada/pregledi']);
                                                     }
+                                                    return of(null).pipe(
+                                                        takeUntil(this.pretplate)
+                                                    );
                                                 }
                                             }),
                                             takeUntil(this.pretplate)
