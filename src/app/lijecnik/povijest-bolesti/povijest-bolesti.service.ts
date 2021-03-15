@@ -19,14 +19,14 @@ export class PovijestBolestiService{
         let params = new HttpParams().append("idPacijent",idPacijent.toString());
         params = params.append("idObrada",idObrada.toString());
         params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
-        return this.http.get<number>(baseUrl + 'lijecnik/getIDPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'lijecnik/getIDPovijestBolesti.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
     potvrdiPovijestBolesti(idLijecnik:number,idPacijent: number,razlogDolaska: string, anamneza: string,
                         status: string, nalaz: string, mkbPrimarnaDijagnoza: string, mkbSifre: string[],
                         tipSlucaj: string, terapija: string, preporukaLijecnik: string, napomena: string, 
-                        idObrada: number,prosliPregled: string){
+                        idObrada: number,prosliPregled: string, proslaBoja: string){
         return this.http.post<any>(baseUrl + 'lijecnik/povijestBolesti.php',{
             idLijecnik,
             idPacijent,
@@ -41,7 +41,8 @@ export class PovijestBolestiService{
             preporukaLijecnik,
             napomena,
             idObrada,
-            prosliPregled
+            prosliPregled,
+            proslaBoja
         }).pipe(catchError(handleError));
     }
 

@@ -77,6 +77,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     mkbSifre: string[] = [];
     //Spremam ID povijesti bolesti pregleda kojega povezujem
     prosliPregled: string = "";
+    //Spremam boju prošlog pregleda
+    proslaBoja: string = "";
 
     constructor(
       //Dohvaćam route da mogu dohvatiti podatke koje je Resolver poslao
@@ -678,12 +680,14 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             if(this.noviSlucaj.value === true){
                 //Postavljam ID povijesti bolesti pregleda kojega povezujem na null
                 this.prosliPregled = "";
+                //Restartam boju prethodnog pregleda kada je novi slučaj
+                this.proslaBoja = "";
                 //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na zahtjev dodavanja općih podataka pregleda
                 this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
                   this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
                   this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
                   this.mkbPrimarnaDijagnoza.value, mkbPolje,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj', 
-                  this.idObrada,this.prosliPregled).pipe(
+                  this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
                       //Dohvaćam odgovor servera
                       tap((response) => {
                           //Označavam da ima odgovora servera
@@ -713,14 +717,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
                 let proslaIDObrada = +podatci.idObrada;
                 this.medSestraService.getIDPregled(this.mbrPacijent.value,proslaIDObrada,proslaMKBSifra).pipe(
-                    switchMap((idPregled) => {
-                          //Spremam ID pregleda
-                          this.prosliPregled = idPregled.toString();
+                    switchMap((podatci) => {
+                          //Spremam podatke prošlog pregleda
+                          this.proslaBoja = podatci[0].bojaPregled;
+                          this.prosliPregled = podatci[0].idPregled;
                           return this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
                             this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
                             this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
                             this.mkbPrimarnaDijagnoza.value, mkbPolje,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj', 
-                            this.idObrada,this.prosliPregled).pipe(
+                            this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
                                 //Dohvaćam odgovor servera
                                 tap((response) => {
                                     //Označavam da ima odgovora servera
@@ -738,7 +743,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                                     this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
                                 }),
                                 takeUntil(this.pretplateSubject)  
-                          )
+                          ); 
                     }),
                     takeUntil(this.pretplateSubject)
                 ).subscribe();
@@ -830,6 +835,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         this.sekundarnaDijagnoza.disable({emitEvent: false});
         this.sekundarnaDijagnozaOtvoreniSlucaj = [];
         this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
+        //Resetiraj MKB šifru
+        this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
         //Skrivam button "Poništi povezani slučaj"
         this.ponistiPovezaniSlucaj = false;
         //Resetiram checkbox povezanog slučaja

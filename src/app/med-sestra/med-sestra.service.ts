@@ -53,7 +53,7 @@ export class MedSestraService{
                 podrucniUredOzljeda: string, nazivPoduzeca: string,
                 oznakaOsiguranika: string, nazivDrzave: string, mbo: string, brIskDopunsko: string,
                 mkbPrimarnaDijagnoza: string, mkbSifre: string[], tipSlucaj: string,idObrada: number, 
-                prosliPregled: string){
+                prosliPregled: string, proslaBoja: string){
 
         //Vraćam Observable u kojemu se nalazi odgovor servera na slanje općih podataka pregleda
         return this.http.post<any>(baseUrl + 'med-sestra/opciPodatciPregleda.php', 
@@ -72,7 +72,8 @@ export class MedSestraService{
             podrucniUredOzljeda: podrucniUredOzljeda,
             nazivPoduzeca: nazivPoduzeca,
             idObrada: idObrada,
-            prosliPregled: prosliPregled
+            prosliPregled: prosliPregled,
+            proslaBoja: proslaBoja
         }).pipe(catchError(handleError));
     }
 
@@ -81,7 +82,7 @@ export class MedSestraService{
         let params = new HttpParams().append("mboPacijent",mboPacijent);
         params = params.append("idObrada",idObrada.toString());
         params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
-        return this.http.get<number>(baseUrl + 'med-sestra/getIDPregled.php',{params: params}).pipe(catchError(handleError));
+        return this.http.get<any>(baseUrl + 'med-sestra/getIDPregled.php',{params: params}).pipe(catchError(handleError));
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze zdravstveni podatci trenutno aktivnog pacijenta

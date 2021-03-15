@@ -57,6 +57,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       sekundarnaDijagnozaPovijestBolesti: string[] = [];
       //Spremam ID povijesti bolesti prošlog pregleda
       prosliPregled: string = "";
+      //Spremam boju pregleda prethodnog pregleda
+      proslaBoja: string = "";
 
       constructor(
           //Dohvaćam trenutni route da dohvatim podatke iz Resolvera
@@ -348,13 +350,15 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
               if(this.noviSlucaj.value === true){
                 //Postavljam ID povijesti bolesti pregleda kojega povezujem na null
                 this.prosliPregled = "";
+                //Postavljam boju pregleda na prazan string na svakom novom slučaju da se u backendu generira nova boja 
+                this.proslaBoja = "";
                 //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
                 this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
                     this.anamneza.value,this.status.value,this.nalaz.value,
                     this.mkbPrimarnaDijagnoza.value,mkbPolje,
                     this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                     this.terapija.value,this.preporukaLijecnik.value,
-                    this.napomena.value,this.idObrada,this.prosliPregled).pipe(
+                    this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
                     //Dohvaćam odgovor servera
                     tap((odgovor) => {
                         //Označavam da ima odgovora servera
@@ -391,9 +395,10 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                   let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
                   let proslaIDObrada = +podatci.idObrada;
                   this.povijestBolestiService.getIDPovijestBolesti(this.idPacijent,proslaIDObrada,proslaMKBSifra).pipe(
-                      tap(idPovijestBolesti => {
-                            this.prosliPregled = idPovijestBolesti.toString();
-                            console.log(this.prosliPregled);
+                      tap(podatci => {
+                            //Spremam podatke prošlog pregleda u svoje varijable
+                            this.proslaBoja = podatci[0].bojaPregled;
+                            this.prosliPregled = podatci[0].idPovijestBolesti;
                       }),
                       switchMap(() => {
                           //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
@@ -402,7 +407,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                               this.mkbPrimarnaDijagnoza.value,mkbPolje,
                               this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                               this.terapija.value,this.preporukaLijecnik.value,
-                              this.napomena.value,this.idObrada,this.prosliPregled).pipe(
+                              this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
                               tap(
                                 //Dohvaćam odgovor servera
                                 (odgovor) => {
@@ -429,7 +434,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                               }),
                               takeUntil(this.pretplateSubject)
                           ); 
-                      }),
+                      }), 
                       takeUntil(this.pretplateSubject)
                   ).subscribe();
               }

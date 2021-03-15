@@ -49,6 +49,8 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     sekundarnaDijagnozaPovijestBolesti: string[] = [];
     //Spremam ID povijesti bolesti prošlog pregleda
     prosliPregled: string = "";
+    //Spremam boju sa prethodnog pregleda
+    proslaBoja: string = "";
 
     constructor(
         //Dohvaćam router
@@ -331,13 +333,15 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         if(this.noviSlucaj.value === true){
             //Postavljam ID povijesti bolesti pregleda kojega povezujem na null
             this.prosliPregled = "";
+            //Uvijek unosim empty prošlu boju kada je novi slučaj da se generira nova u backendu
+            this.proslaBoja = "";
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
             this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
                 this.anamneza.value,this.status.value,this.nalaz.value,
                 this.mkbPrimarnaDijagnoza.value,mkbPolje,
                 this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                 this.terapija.value,this.preporukaLijecnik.value,
-                this.napomena.value,this.idObrada,this.prosliPregled).pipe(
+                this.napomena.value,this.idObrada,this.prosliPregled, this.proslaBoja).pipe(
                 //Dohvaćam odgovor servera
                 tap(() => {
                     //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
@@ -374,8 +378,10 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
               let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
               let proslaIDObrada = +podatci.idObrada;
               this.povijestBolestiService.getIDPovijestBolesti(this.idPacijent,proslaIDObrada,proslaMKBSifra).pipe(
-                  tap(idPovijestBolesti => {
-                        this.prosliPregled = idPovijestBolesti.toString();
+                  tap(podatci => {
+                        //Spremam podatke prošlog pregleda u svoje varijable
+                        this.proslaBoja = podatci[0].bojaPregled;
+                        this.prosliPregled = podatci[0].idPovijestBolesti;
                   }),
                   switchMap(() => {
                       //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
@@ -384,7 +390,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                           this.mkbPrimarnaDijagnoza.value,mkbPolje,
                           this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                           this.terapija.value,this.preporukaLijecnik.value,
-                          this.napomena.value,this.idObrada,this.prosliPregled).pipe(
+                          this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
                           //Dohvaćam odgovor servera
                           tap(() => {
                               //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
