@@ -8,6 +8,7 @@ import { Pregled } from 'src/app/shared/modeli/pregled.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
 import { ObradaService } from '../../obrada.service';
 import { PreglediService } from '../pregledi.service';
+import { PreglediDetailService } from './pregledi-detail.service';
 
 @Component({
   selector: 'app-pregledi-detail',
@@ -43,7 +44,9 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis detalja prethodnih pregleda
+        private preglediDetailService: PreglediDetailService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -98,7 +101,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                 if(this.pregled){
                     //Ako je upisana primarna dijagnoza
                     if(this.pregled.mkbSifraPrimarna){
-                        return this.preglediService.dohvatiSekundarneDijagnoze(this.pregled.datum,this.pregled.vrijeme,
+                        return this.preglediDetailService.dohvatiSekundarneDijagnoze(this.pregled.datum,this.pregled.vrijeme,
                             this.pregled.mkbSifraPrimarna,this.pregled.tipSlucaj,this.idPacijent,this.pregled.tip).pipe(
                             tap(odgovor => {
                                 //Ako postoje sekundarne dijagnoze 
@@ -132,7 +135,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                 }
                 //Ako je logiran liječnik:
                 else if(this.povijestBolesti){
-                    return this.preglediService.dohvatiSekundarneDijagnoze(this.povijestBolesti.datum,this.povijestBolesti.vrijeme,
+                    return this.preglediDetailService.dohvatiSekundarneDijagnoze(this.povijestBolesti.datum,this.povijestBolesti.vrijeme,
                         this.povijestBolesti.mkbSifraPrimarna,this.povijestBolesti.tipSlucaj,this.idPacijent,this.povijestBolesti.tip).pipe(
                         tap(odgovor => {
                             //Ako postoje sekundarne dijagnoze 

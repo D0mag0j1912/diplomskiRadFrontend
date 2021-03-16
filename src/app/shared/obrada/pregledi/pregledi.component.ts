@@ -7,6 +7,7 @@ import { HeaderService } from '../../header/header.service';
 import { PregledList } from '../../modeli/pregledList.model';
 import { SekundarniHeaderService } from '../../sekundarni-header/sekundarni-header.service';
 import { ObradaService } from '../obrada.service';
+import { PreglediDetailService } from './pregledi-detail/pregledi-detail.service';
 import { PreglediListService } from './pregledi-list/pregledi-list.service';
 import { PreglediService } from './pregledi.service';
 
@@ -45,7 +46,9 @@ export class PreglediComponent implements OnInit, OnDestroy{
         //Dohvaćam servis liste prethodnih pregleda
         private preglediListService: PreglediListService,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis detalja prethodnih pregleda
+        private preglediDetailService: PreglediDetailService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -198,7 +201,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                             //Dodavam ga u polje koje ažurira template
                                                             this.pregledi.push(objektPregled);
                                                         }
-                                                        return this.preglediListService.getNajnovijiIDPregledZaDatum(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                                        return this.preglediDetailService.getNajnovijiIDPregledZaDatum(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
                                                             tap(idPregled => {
                                                                 //Ako pacijent IMA evidentiranih pregleda za PROMIJENJENI DATUM U FILTERU
                                                                 if(idPregled !== null){

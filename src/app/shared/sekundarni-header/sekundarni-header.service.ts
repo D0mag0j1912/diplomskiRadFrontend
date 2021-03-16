@@ -17,11 +17,4 @@ export class SekundarniHeaderService{
     constructor(
         private http: HttpClient
     ){}
-
-    //Metoda koja dohvaća ID najnovnijeg pregleda 
-    getNajnovijiIDPregled(tipKorisnik: string, idPacijent: number){
-        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
-        params = params.append("idPacijent",idPacijent.toString());
-        return this.http.get<any>(baseUrl + 'pregledi/najnoviji/dohvatiNajnovijiIDPregled.php',{params: params}).pipe(catchError(handleError));
-    }
 }

@@ -4,6 +4,7 @@ import { merge, of, Subject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
+import { PreglediDetailService } from '../obrada/pregledi/pregledi-detail/pregledi-detail.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import { SekundarniHeaderService } from './sekundarni-header.service';
 
@@ -43,7 +44,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         //Dohvaćam router
         private router: Router,
         //Dohvaćam servis pregleda
-        private preglediService: PreglediService
+        private preglediService: PreglediService,
+        //Dohvaćam servis detalja prethodnih pregleda
+        private preglediDetailService: PreglediDetailService
     ) { }
 
     ngOnInit() {
@@ -107,9 +110,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     this.isAktivan = true;
                                     //Dohvaćam ID aktivnog pacijenta 
                                     const idPacijent = +odgovor[0].idPacijent;
-                                    return this.sekundarniHeaderService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
+                                    return this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
                                         tap(idPregled => {
-                                            console.log(idPregled);
                                             //Ako pacijent nema evidentiranih pregleda
                                             if(idPregled === null){
                                                 //Označavam da pacijent NEMA evidentiranih pregleda
@@ -118,6 +120,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                             else{
                                                 //Označavam da pacijent IMA evidentiranih pregleda
                                                 this.imaLiPregleda = true;
+                                                console.log(this.idPregled);
                                                 //Spremam ID najnovijeg pregleda za aktivnog pacijenta
                                                 this.idPregled = +idPregled;
                                             }
@@ -160,7 +163,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     this.isAktivan = true;
                                     //Dohvaćam ID aktivnog pacijenta 
                                     const idPacijent = +odgovor[0].idPacijent;
-                                    return this.sekundarniHeaderService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
+                                    return this.preglediDetailService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
                                         tap(idPregled => {
                                             //Ako pacijent nema evidentiranih pregleda
                                             if(idPregled === null){

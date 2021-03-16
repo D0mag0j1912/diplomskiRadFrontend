@@ -32,10 +32,9 @@ export class ImportService{
         );
     }
 
-    //Metoda koja šalje zahtjev serveru te od njega traži dohvat svih dijagnoza
+    //Metoda koja šalje zahtjev serveru te u njemu traži dohvat svih evidentiraih dijagnoza
     getDijagnoze(){
-      
-        //Dohvaća i vraća Observable sa svim dijagnozama
+        //Vraća Observable u kojemu se nalaze sve evidentirane dijagnoze
         return this.http.get<any>(baseUrl + 'getAllDiagnosis.php').pipe(
             catchError(handleError)
         );

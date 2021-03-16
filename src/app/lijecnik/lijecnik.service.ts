@@ -19,7 +19,7 @@ export class LijecnikService{
         //Kreiram i vraćam Observable u kojem ću dohvatiti osobne podatke liječnika iz baze
         return this.http.get<any>(baseUrl + 'lijecnik/lijecnik.php').pipe(
             catchError(handleError)
-            );
+        );
     }
 
     //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalazi odgovor backenda na ažuriranje osobnih podataka liječnika
