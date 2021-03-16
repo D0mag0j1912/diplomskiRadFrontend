@@ -3,9 +3,10 @@ import { of, Subject, timer } from "rxjs";
 import { map, switchMap, takeUntil } from "rxjs/operators";
 import { LoginService } from "./login.service";
 
+
 //Funkcija koja provjerava unos lozinke
 export function provjeriLozinku(loginService: LoginService, 
-                                forma: FormGroup, pretplateSubject: Subject<boolean>): AsyncValidatorFn{
+                                forma: FormGroup,pretplateSubject: Subject<boolean>): AsyncValidatorFn{
     return (control: AbstractControl) => {
         return timer(350).pipe(
             switchMap(() => {

@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
+import { FormControl, FormGroup,Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from './login.service';
 import * as Validacija from './login-validations';
+import { threadId } from 'worker_threads';
 
 @Component({
   selector: 'app-login',
@@ -33,9 +34,23 @@ export class LoginComponent implements OnInit, OnDestroy {
         //Kreiram formu
         this.forma = new FormGroup({
             'email': new FormControl(null,[Validators.required,Validators.email],[Validacija.provjeriEmail(this.loginService,this.pretplateSubject)]),
-            'password': new FormControl(null,[Validators.required])
+            'password': new FormControl(null)
         });
-        this.password.setAsyncValidators([Validacija.provjeriLozinku(this.loginService,this.forma,this.pretplateSubject)]); 
+        //Inicijalno postavljam validatore za polje lozinke
+        this.password.setValidators(Validators.required);
+        this.password.setAsyncValidators(Validacija.provjeriLozinku(this.loginService,this.forma, this.pretplateSubject));
+        this.password.updateValueAndValidity({emitEvent: false});
+        //Pretplaćujem se na promjene u email-u te postavljam ponovno validatore lozinke
+        this.email.valueChanges.pipe(
+            debounceTime(100),
+            distinctUntilChanged(),
+            tap(() => {
+                this.password.setValidators(Validators.required);
+                this.password.setAsyncValidators(Validacija.provjeriLozinku(this.loginService,this.forma, this.pretplateSubject));
+                this.password.updateValueAndValidity({emitEvent: false});
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Kada se klikne button "Login"

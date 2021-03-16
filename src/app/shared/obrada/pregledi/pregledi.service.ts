@@ -1,7 +1,7 @@
 import { Time } from "@angular/common";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import {baseUrl} from '../../../backend-path';
 import {handleError} from '../../rxjs-error';
@@ -14,19 +14,10 @@ export class PreglediService {
     pregledDodan = new Subject<{isDodan: boolean, tipKorisnik: string}>();
     //Kreiram Observable od njega 
     pregledDodanObs = this.pregledDodan.asObservable();
-    //Kreiram Subject koji će obavjestiti listu pregleda i detail komponentu da se datum promijenio
-    dateChanged = new Subject<Date>();
-    //Kreiram Observable od njega
-    dateChangedObs = this.dateChanged.asObservable();
-    //Kreiram Subject koji obavještava komponentu "PregledComponent" da pacijent nema pregleda ZA ZADANI DATUM da može prikazati prikladnu poruku
-    nemaPregledaPoDatumu = new Subject<boolean>();
-    //Kreiram Observable od njega
-    nemaPregledaPoDatumuObs = this.nemaPregledaPoDatumu.asObservable();
     
     constructor(
         private http: HttpClient
     ){}
-
 
     //Metoda koja dohvaća DATUM najnovijeg pregleda
     getNajnovijiDatum(tipKorisnik: string, idPacijent: number){

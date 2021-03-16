@@ -5,6 +5,7 @@ export class PregledList{
     public datum: Date;
     public tipSlucaj: string;
     public vrijeme: Time;
+    public bojaPregled: string;
 
     constructor(response: any){
         if(response.idPovijestBolesti){
@@ -24,6 +25,9 @@ export class PregledList{
         }
         else if(response.vrijemePregled){
             this.vrijeme = response.vrijemePregled;
+        }
+        if(response.bojaPregled){
+            this.bojaPregled = response.bojaPregled;
         }
     }
 }

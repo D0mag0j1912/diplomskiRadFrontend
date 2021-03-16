@@ -384,6 +384,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.onAddDiagnosis();
                     //Prolazim poljem odgovora servera
                     for(let dijagnoza of podatci.inicijalneDijagnoze){
+                        console.log(dijagnoza);
                         //Spremam ID obrade liječnika koji šaljem backendu
                         this.poslaniIDObrada = dijagnoza.idObradaLijecnik;
                         //Spremam tip slučaja 

@@ -485,6 +485,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                         console.log(odgovor);
                         //Spremam podatke povijesti bolesti u svoje varijable
                         this.prosliPregled = odgovor[0].idPovijestBolesti;
+                        this.proslaBoja = odgovor[0].bojaPregled;
                         //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
                         const podatciProslogPregleda = {
                             idObrada: odgovor[0].idObradaLijecnik,

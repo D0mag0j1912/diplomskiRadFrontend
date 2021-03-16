@@ -2,7 +2,9 @@
     <div class="col-xs-12">
         <ul class="list-group">
             <li 
-                style="cursor:pointer;border-radius: 5px;margin-top:5px;" 
+                style="cursor:pointer;border-radius: 5px; 
+                    margin-top:5px;" 
+                [ngStyle]="{'border': '3px solid ' + pregled.bojaPregled}"
                 *ngFor="let pregled of pregledi" 
                 [routerLink]="[pregled.idPregled]"
                 class="list-group-item clearfix"

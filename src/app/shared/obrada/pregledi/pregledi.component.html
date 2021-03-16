@@ -3,10 +3,7 @@
         <h4 
             *ngIf="!isAktivan" 
             style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nije aktivan u obradi!</h4>
-        <h4 
-            *ngIf="isAktivan && !imaLiPregleda" 
-            style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nema evidentiranih pregleda!</h4>
-        <form [formGroup]="forma" *ngIf="isAktivan && imaLiPregleda">
+        <form [formGroup]="forma" *ngIf="isAktivan">
             <div class="row">
                 <div class="col-xs-4">
                     <label 
@@ -42,13 +39,20 @@
                             formControlName="pretraga"
                             style="width:300px;display: inline;margin-left:5px;" 
                             placeholder="Unesite parametar pretrage...">
+                        <span 
+                            class="help-block" 
+                            *ngIf="isAktivan && !imaLiPregleda && porukaNemaRezultata" 
+                            style="color:#a94442;font-weight: bold;font-family: Verdana, sans-serif;">{{porukaNemaRezultata}}</span>
                     </ng-container>
                 </div>
             </div>  
         </form>
+        <h4 
+            *ngIf="isAktivan && !imaLiPregleda && !porukaNemaRezultata" 
+            style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nema evidentiranih pregleda!</h4>
     </div>
 </div>
-<ng-container *ngIf="isAktivan && imaLiPregleda">
+<ng-container *ngIf="isAktivan && imaLiPregleda && !porukaNemaRezultata">
     <hr>
     <div class="row">
         <div class="col-xs-4">

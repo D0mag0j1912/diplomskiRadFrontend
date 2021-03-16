@@ -450,6 +450,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
               (odgovor) => {
                   //Spremam ID povijesti bolesti prošlog pregleda
                   this.prosliPregled = odgovor[0].idPovijestBolesti;
+                  this.proslaBoja = odgovor[0].bojaPregled;
                   //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
                   const podatciProslogPregleda = {
                     idObrada: odgovor[0].idObradaLijecnik,

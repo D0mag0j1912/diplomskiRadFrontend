@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { HeaderService } from '../../header/header.service';
 import { PregledList } from '../../modeli/pregledList.model';
 import { SekundarniHeaderService } from '../../sekundarni-header/sekundarni-header.service';
@@ -28,6 +28,9 @@ export class PreglediComponent implements OnInit, OnDestroy{
     isAktivan: boolean = false;
     //Oznaka ima li aktivni pacijent pregleda
     imaLiPregleda: boolean = true;
+    //Kreiram varijablu u kojoj spremam poruku servera u slučaju da nema rezultata za pretragu
+    porukaNemaRezultata: string = null;
+
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
@@ -40,7 +43,9 @@ export class PreglediComponent implements OnInit, OnDestroy{
         //Dohvaćam servis headera
         private headerService: HeaderService,
         //Dohvaćam servis liste prethodnih pregleda
-        private preglediListService: PreglediListService
+        private preglediListService: PreglediListService,
+        //Dohvaćam router
+        private router: Router
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -163,24 +168,130 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     }),
                     takeUntil(this.pretplate)
                 ),
-                //Pretplaćujem se na informaciju je li ima pregleda za promijenjeni datum u filteru
-                this.preglediService.nemaPregledaPoDatumuObs.pipe(
-                    tap(vrijednost => {
-                        //Ako je vrijednost == true, treba se prikazati poruka da pacijent nema pregleda za promijenjeni datum
-                        if(vrijednost){
-                            //Prikaži poruku na ekranu
-                            this.imaLiPregleda = false;
-                            //Odmah resetiram taj Subject 
-                            this.preglediService.nemaPregledaPoDatumu.next(false);
-                        }
-                    })
-                ),
                 //Slušam promjene u filteru datuma
                 this.forma.get('datum').valueChanges.pipe(
-                    tap(datum => {
-                        console.log(datum);
-                        //Vrijednost forme prosljeđivam Subjectu
-                        this.preglediService.dateChanged.next(datum);
+                    debounceTime(100),
+                    distinctUntilChanged(),
+                    switchMap(datum => {
+                        //Pretplaćujem se na trenutni tip logiranog korisnika
+                        return this.headerService.tipKorisnikaObs.pipe(
+                            switchMap(tipKorisnik => {
+                                //Pretplaćujem se na podatke aktivnog pacijenta
+                                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                                    switchMap(podatci => {
+                                        //Ako je pacijent AKTIVAN
+                                        if(podatci["success"] !== "false"){
+                                            //Dohvaćam sve pregleda za promijenjeni datum
+                                            return this.preglediListService.dohvatiPregledePoDatumu(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                                mergeMap(pregledi => {
+                                                    //Ako aktivni pacijent IMA evidentiranih pregleda za taj datum
+                                                    if(pregledi !== null){
+                                                        //Označavam da ima pregleda
+                                                        this.imaLiPregleda = true;
+                                                        //Praznim polje pregleda 
+                                                        this.pregledi = [];
+                                                        let objektPregled;
+                                                        //Prolazim kroz sve preglede u odgovoru servera
+                                                        for(const pregled of pregledi){
+                                                            //Za svaki odgovor servera, kreiram svoj objekt
+                                                            objektPregled = new PregledList(pregled);
+                                                            //Dodavam ga u polje koje ažurira template
+                                                            this.pregledi.push(objektPregled);
+                                                        }
+                                                        return this.preglediListService.getNajnovijiIDPregledZaDatum(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                                            tap(idPregled => {
+                                                                //Ako pacijent IMA evidentiranih pregleda za PROMIJENJENI DATUM U FILTERU
+                                                                if(idPregled !== null){
+                                                                    //Preusmjeravam se na detail stranicu sa ID-em najnovijeg pregleda za promijenjeni datum
+                                                                    this.router.navigate(['./',idPregled],{relativeTo: this.route});
+                                                                }
+                                                            }),
+                                                            takeUntil(this.pretplate) 
+                                                        );
+                                                    }
+                                                    //Ako aktivni pacijent NEMA evidentiranih pregleda za taj datum
+                                                    else{
+                                                        //Označavam da NEMA pregleda
+                                                        this.imaLiPregleda = false;
+                                                        return of(null).pipe(
+                                                            takeUntil(this.pretplate)
+                                                        );
+                                                    }
+                                                }),
+                                                takeUntil(this.pretplate)
+                                            );
+                                        }
+                                        //Ako pacijent NIJE AKTIVAN
+                                        else{
+                                            return of(null).pipe(
+                                                takeUntil(this.pretplate)
+                                            );
+                                        }
+                                    }),
+                                    takeUntil(this.pretplate)
+                                );
+                            })
+                        );
+                    }),
+                    takeUntil(this.pretplate)
+                ),
+                //Pretplaćujem se promjene u pretrazi
+                this.forma.get('pretraga').valueChanges.pipe(
+                    debounceTime(200),
+                    distinctUntilChanged(),
+                    switchMap(value => {
+                        //Pretplaćujem se na tip korisnika koji je logiran
+                        return this.headerService.tipKorisnikaObs.pipe(
+                            switchMap(tipKorisnik => {
+                                //Pretplaćujem se na podatke aktivnog korisnika
+                                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                                    switchMap(podatci => {
+                                        //Ako JE pacijent aktivan u obradi
+                                        if(podatci["success"] !== "false"){
+                                            //Pretplaćivam se na sve preglede dobivene pretragom
+                                            return this.preglediListService.dohvatiSvePregledePretraga(tipKorisnik,+podatci[0].idPacijent,value).pipe(
+                                                tap(pregledi => {
+                                                    //Ako ima pronađenih pregleda za pretragu
+                                                    if(pregledi.success !== "false"){
+                                                        //Restartam poruku da nema rezultata
+                                                        this.porukaNemaRezultata = null;
+                                                        //Označavam da aktivni pacijent IMA pregleda
+                                                        this.imaLiPregleda = true;
+                                                        //Restartam polje pregleda
+                                                        this.pregledi = [];
+                                                        //Inicijaliziram objekt tipa "PregledList"
+                                                        let objektPregled: PregledList;
+                                                        //Za svaki objekt u polju pregleda
+                                                        for(const pregled of pregledi){
+                                                            //Kreiram svoj objekt
+                                                            objektPregled = new PregledList(pregled);
+                                                            //Pusham ga u svoje polje pregleda
+                                                            this.pregledi.push(objektPregled);
+                                                        } 
+                                                    }
+                                                    //Ako NEMA pronađenih pregleda za pretragu
+                                                    else{
+                                                        //Označavam da nema pregleda
+                                                        this.imaLiPregleda = false;
+                                                        //Spremam odgovor servera
+                                                        this.porukaNemaRezultata = pregledi.message;
+                                                    }
+                                                }),
+                                                takeUntil(this.pretplate)
+                                            );
+                                        }
+                                        //Ako pacijent nije aktivan u obradi
+                                        else{
+                                            return of(null).pipe(
+                                                takeUntil(this.pretplate)
+                                            );
+                                        }
+                                    }),
+                                    takeUntil(this.pretplate)
+                                );
+                            }),
+                            takeUntil(this.pretplate)
+                        );
                     }),
                     takeUntil(this.pretplate)
                 )
