@@ -128,6 +128,8 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                     }
                     //Ako nije upisana primarna dijagnoza
                     else{
+                        //Označavam da nema sek. dijagnoza
+                        this.isSekundarna = false;
                         return of(null).pipe(
                             takeUntil(this.pretplate)
                         );

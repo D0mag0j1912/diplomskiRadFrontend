@@ -120,7 +120,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                             else{
                                                 //Označavam da pacijent IMA evidentiranih pregleda
                                                 this.imaLiPregleda = true;
-                                                console.log(this.idPregled);
                                                 //Spremam ID najnovijeg pregleda za aktivnog pacijenta
                                                 this.idPregled = +idPregled;
                                             }

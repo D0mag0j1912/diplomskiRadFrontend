@@ -240,7 +240,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                 ),
                 //Pretplaćujem se promjene u pretrazi
                 this.forma.get('pretraga').valueChanges.pipe(
-                    debounceTime(200),
+                    debounceTime(300),
                     distinctUntilChanged(),
                     switchMap(value => {
                         //Pretplaćujem se na tip korisnika koji je logiran
@@ -252,10 +252,14 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                         //Ako JE pacijent aktivan u obradi
                                         if(podatci["success"] !== "false"){
                                             //Pretplaćivam se na sve preglede dobivene pretragom
-                                            return this.preglediListService.dohvatiSvePregledePretraga(tipKorisnik,+podatci[0].idPacijent,value).pipe(
+                                            return forkJoin([
+                                                this.preglediListService.dohvatiSvePregledePretraga(tipKorisnik,+podatci[0].idPacijent,value),
+                                                this.preglediDetailService.getNajnovijiIDPregledZaPretragu(tipKorisnik,+podatci[0].idPacijent,value)
+                                            ]).pipe(
                                                 tap(pregledi => {
+                                                    console.log(pregledi);
                                                     //Ako ima pronađenih pregleda za pretragu
-                                                    if(pregledi.success !== "false"){
+                                                    if(pregledi[0].success !== "false"){
                                                         //Restartam poruku da nema rezultata
                                                         this.porukaNemaRezultata = null;
                                                         //Označavam da aktivni pacijent IMA pregleda
@@ -265,19 +269,21 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                         //Inicijaliziram objekt tipa "PregledList"
                                                         let objektPregled: PregledList;
                                                         //Za svaki objekt u polju pregleda
-                                                        for(const pregled of pregledi){
+                                                        for(const pregled of pregledi[0]){
                                                             //Kreiram svoj objekt
                                                             objektPregled = new PregledList(pregled);
                                                             //Pusham ga u svoje polje pregleda
                                                             this.pregledi.push(objektPregled);
-                                                        } 
+                                                        }
+                                                        //Preusmjeravam se na ID najnovijeg pregleda za zadanu pretragu (da prvi element liste postane aktivan)
+                                                        this.router.navigate(['./',pregledi[1]],{relativeTo: this.route});
                                                     }
                                                     //Ako NEMA pronađenih pregleda za pretragu
                                                     else{
                                                         //Označavam da nema pregleda
                                                         this.imaLiPregleda = false;
                                                         //Spremam odgovor servera
-                                                        this.porukaNemaRezultata = pregledi.message;
+                                                        this.porukaNemaRezultata = pregledi[0].message;
                                                     }
                                                 }),
                                                 takeUntil(this.pretplate)

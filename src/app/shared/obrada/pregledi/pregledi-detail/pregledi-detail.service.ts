@@ -13,6 +13,15 @@ export class PreglediDetailService{
         private http: HttpClient
     ){}
 
+    //Metoda koja dohvaća najnoviji ID pregleda za ZADANU PRETRAGU 
+    getNajnovijiIDPregledZaPretragu(tipKorisnik: string, idPacijent: number, pretraga: string){
+        pretraga = encodeURIComponent(pretraga);
+        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
+        params = params.append("idPacijent",idPacijent.toString());
+        params = params.append("pretraga",pretraga);
+        return this.http.get<any>(baseUrl + 'pregledi/najnoviji/dohvatiNajnovijiIDPregledPoPretrazi.php',{params: params}).pipe(catchError(handleError));
+    }
+
     //Metoda koja dohvaća najnoviji ID pregleda za ZADANI DATUM (kada se filtrira datum)
     getNajnovijiIDPregledZaDatum(tipKorisnik: string, idPacijent: number,datum: Date){
         let params = new HttpParams().append("tipKorisnik",tipKorisnik);
