@@ -10,7 +10,7 @@
                 class="list-group-item clearfix"
                 routerLinkActive="active" 
                 (click)="onClickPregled(pregled)">
-                <div class="pull left">
+                <div class="pull-left">
                     <h5 
                         style="font-family: Verdana, sans-serif;">Datum: 
                         {{pregled.datum}}</h5>
@@ -21,6 +21,24 @@
                         style="font-family: Verdana, sans-serif;">Vrijeme: 
                         {{pregled.vrijeme}}
                     </h5>
+                </div>
+                <div class="pull-right">
+                    <button 
+                        type="button" 
+                        class="btn btn-warning btn-sm"
+                        (click)="idiNaSljedeciPregled(pregled.sljedeciPregled,$event)" 
+                        *ngIf="pregled.sljedeciPregled">Sljedeći pregled</button>
+                    <br><br>
+                    <button 
+                        type="button" 
+                        class="btn btn-warning btn-sm"
+                        (click)="idiNaPrethodniNoviPregled(pregled.prethodniNoviSlucaj,$event)" 
+                        *ngIf="pregled.prethodniNoviSlucaj">Novi slučaj</button>
+                    <button 
+                        type="button" 
+                        class="btn btn-warning btn-sm"
+                        (click)="idiNaPrethodniPovezanPregled(pregled.prethodniPovezanSlucaj,$event)" 
+                        *ngIf="pregled.prethodniPovezanSlucaj">Prethodni pregled</button>
                 </div>
             </li>
         </ul>

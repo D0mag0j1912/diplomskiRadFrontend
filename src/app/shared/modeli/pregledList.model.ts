@@ -6,6 +6,9 @@ export class PregledList{
     public tipSlucaj: string;
     public vrijeme: Time;
     public bojaPregled: string;
+    public sljedeciPregled: number;
+    public prethodniNoviSlucaj: number;
+    public prethodniPovezanSlucaj: number;
 
     constructor(response: any){
         if(response.idPovijestBolesti){
@@ -28,6 +31,15 @@ export class PregledList{
         }
         if(response.bojaPregled){
             this.bojaPregled = response.bojaPregled;
+        }
+        if(response.sljedeciPregled){
+            this.sljedeciPregled = +response.sljedeciPregled;
+        }
+        if(response.prethodniNoviSlucaj){
+            this.prethodniNoviSlucaj = +response.prethodniNoviSlucaj;
+        }
+        if(response.prethodniPovezanSlucaj){
+            this.prethodniPovezanSlucaj = +response.prethodniPovezanSlucaj;
         }
     }
 }

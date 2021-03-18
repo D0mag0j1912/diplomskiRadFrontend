@@ -55,6 +55,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Pretplaćivam se na podatke Resolvera
         this.route.data.pipe(
             tap(pregledi => {
+                console.log(pregledi);
                 //Prolazim kroz odgovor servera
                 for(const pregled of pregledi.cijeliPregled){
                     //Ako se u odgovoru pregleda nalazi tip korisnika "sestra":
