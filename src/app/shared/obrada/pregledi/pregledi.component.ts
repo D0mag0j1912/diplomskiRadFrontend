@@ -258,32 +258,41 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                             ]).pipe(
                                                 tap(pregledi => {
                                                     console.log(pregledi);
-                                                    //Ako ima pronađenih pregleda za pretragu
-                                                    if(pregledi[0].success !== "false"){
-                                                        //Restartam poruku da nema rezultata
-                                                        this.porukaNemaRezultata = null;
-                                                        //Označavam da aktivni pacijent IMA pregleda
-                                                        this.imaLiPregleda = true;
-                                                        //Restartam polje pregleda
-                                                        this.pregledi = [];
-                                                        //Inicijaliziram objekt tipa "PregledList"
-                                                        let objektPregled: PregledList;
-                                                        //Za svaki objekt u polju pregleda
-                                                        for(const pregled of pregledi[0]){
-                                                            //Kreiram svoj objekt
-                                                            objektPregled = new PregledList(pregled);
-                                                            //Pusham ga u svoje polje pregleda
-                                                            this.pregledi.push(objektPregled);
+                                                    //Ako odgovor servera nije null, tj. ako ovaj pacijent IMA neke evidentirane preglede
+                                                    if(pregledi[0] !== null){
+                                                        //Ako ima pronađenih pregleda za pretragu
+                                                        if(pregledi[0].success !== "false"){
+                                                            //Restartam poruku da nema rezultata
+                                                            this.porukaNemaRezultata = null;
+                                                            //Označavam da aktivni pacijent IMA pregleda
+                                                            this.imaLiPregleda = true;
+                                                            //Restartam polje pregleda
+                                                            this.pregledi = [];
+                                                            //Inicijaliziram objekt tipa "PregledList"
+                                                            let objektPregled: PregledList;
+                                                            //Za svaki objekt u polju pregleda
+                                                            for(const pregled of pregledi[0]){
+                                                                //Kreiram svoj objekt
+                                                                objektPregled = new PregledList(pregled);
+                                                                //Pusham ga u svoje polje pregleda
+                                                                this.pregledi.push(objektPregled);
+                                                            }
+                                                            //Preusmjeravam se na ID najnovijeg pregleda za zadanu pretragu (da prvi element liste postane aktivan)
+                                                            this.router.navigate(['./',pregledi[1]],{relativeTo: this.route});
                                                         }
-                                                        //Preusmjeravam se na ID najnovijeg pregleda za zadanu pretragu (da prvi element liste postane aktivan)
-                                                        this.router.navigate(['./',pregledi[1]],{relativeTo: this.route});
+                                                        //Ako NEMA pronađenih pregleda za pretragu
+                                                        else{
+                                                            //Označavam da nema pregleda
+                                                            this.imaLiPregleda = false;
+                                                            //Spremam odgovor servera
+                                                            this.porukaNemaRezultata = pregledi[0].message;
+                                                        }
                                                     }
-                                                    //Ako NEMA pronađenih pregleda za pretragu
                                                     else{
-                                                        //Označavam da nema pregleda
+                                                        //Označavam da pacijent nema pregleda
                                                         this.imaLiPregleda = false;
-                                                        //Spremam odgovor servera
-                                                        this.porukaNemaRezultata = pregledi[0].message;
+                                                        //Restartam poruku da nema rezultata pretrage
+                                                        this.porukaNemaRezultata = null;
                                                     }
                                                 }),
                                                 takeUntil(this.pretplate)
@@ -332,6 +341,11 @@ export class PreglediComponent implements OnInit, OnDestroy{
             //Označavam da je korisnik izabrao pretragu
             this.isDatum = false;
         }
+    }
+
+    //Metoda koja se aktivira kada se doda novi traženi pregled u listu
+    onAzurirajPoljePregleda($event: PregledList[]){
+        this.pregledi = $event;
     }
 
     //Ova metoda se poziva kada se komponenta uništi

@@ -184,7 +184,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     //Označavam da pacijent nije aktivan u obradi
                                     this.isAktivan = false;
                                     return of(null).pipe(
-                                    takeUntil(this.pretplateSubject)
+                                        takeUntil(this.pretplateSubject)
                                     );
                                 }
                             }),
@@ -223,6 +223,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                 if(this.imaLiPregleda){
                     //Emitiram vrijednost Subjectom da je kliknut "Pregledi"
                     this.sekundarniHeaderService.kliknutHeader.next(true);
+                    console.log(this.idPregled);
                     //Preusmjeravam se na detail stranicu sa ID-em za najnoviji pregled
                     this.router.navigate(['/lijecnik/obrada/pregledi',this.idPregled]);
                 }
@@ -244,6 +245,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                 if(this.imaLiPregleda){
                     //Emitiram vrijednost Subjectom da je kliknut "Pregledi"
                     this.sekundarniHeaderService.kliknutHeader.next(true);
+                    console.log(this.idPregled);
                     //Preusmjeravam se na detail stranicu sa ID-em za najnoviji pregled
                     this.router.navigate(['/med-sestra/obrada/pregledi',this.idPregled]);
                 }

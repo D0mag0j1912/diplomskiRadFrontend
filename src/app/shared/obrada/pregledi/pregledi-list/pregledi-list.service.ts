@@ -11,7 +11,13 @@ export class PreglediListService{
     constructor(
         private http: HttpClient
     ){}
-
+    
+    //Metoda koja vraća Observable u kojemu se nalazi traženi pregled
+    dohvatiTrazeniPregled(tipKorisnik: string, idPregled: number){
+        let params = new HttpParams().append("tipKorisnik",tipKorisnik);
+        params = params.append("idPregled",idPregled.toString());
+        return this.http.get<any>(baseUrl + 'pregledi/lista-pregleda/dohvatiTrazeniPregled.php',{params: params}).pipe(catchError(handleError));
+    }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi pregledi za zadanu pretragu
     dohvatiSvePregledePretraga(tipKorisnik: string, idPacijent: number, pretraga: string){
