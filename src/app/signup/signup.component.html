@@ -2,11 +2,13 @@
     <div class="col-xs-12 col-md-6 col-md-offset-3">
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
         <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
-        <form (ngSubmit)="onSubmit(forma)" #forma="ngForm">
+        <form (ngSubmit)="onSubmit()" [formGroup]="forma" *ngIf="forma">
             <h3 style="text-align: center;">Registriraj se</h3>
             <div class="form-group">
                 <label for="tip">Tip korisnika</label>
-                <select class="form-control" name="tip" ngModel required>
+                <select 
+                    class="form-control" 
+                    formControlName="tip">
                     <option value="lijecnik">Liječnik</option>
                     <option value="sestra">Medicinska sestra</option>
                 </select>
@@ -14,25 +16,19 @@
             <div class="form-group">
                 <label for="ime">Ime</label>
                 <input 
-                    type="text" 
-                    name="ime" 
-                    class="form-control"
-                    ngModel
-                    #ime="ngModel" 
-                    required 
-                    placeholder="Ime korisnika">
+                    type="text"
+                    class="form-control" 
+                    formControlName="ime"
+                    placeholder="Ime korisnika...">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!ime.valid && ime.touched">Unos imena je obavezan!</span>
             </div>
             <div class="form-group">
                 <label for="prezime">Prezime</label>
                 <input 
-                    type="text" 
-                    name="prezime" 
-                    class="form-control" 
-                    ngModel 
-                    #prezime="ngModel"
-                    required 
+                    type="text"
+                    formControlName="prezime"
+                    class="form-control"
                     placeholder="Prezime korisnika">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!prezime.valid && prezime.touched">Unos prezimena je obavezan!</span>
@@ -41,11 +37,8 @@
                 <label for="adresa">Adresa</label>
                 <input 
                     type="text" 
-                    name="adresa" 
-                    class="form-control" 
-                    ngModel 
-                    #adresa="ngModel"
-                    required 
+                    formControlName="adresa" 
+                    class="form-control"
                     placeholder="Adresa korisnika">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!adresa.valid && adresa.touched">Unos adrese je obavezan!</span>
@@ -54,11 +47,8 @@
                 <label for="specijalizacija">Specijalizacija</label>
                 <input 
                     type="text" 
-                    name="specijalizacija" 
-                    class="form-control" 
-                    ngModel 
-                    #specijalizacija="ngModel"
-                    required 
+                    formControlName="specijalizacija" 
+                    class="form-control"
                     placeholder="Specijalizacija korisnika">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!specijalizacija.valid && specijalizacija.touched">Unos specijalizacije je obavezan!</span>
@@ -67,12 +57,8 @@
                 <label for="email">Email</label>
                 <input 
                     type="email" 
-                    name="email" 
-                    class="form-control" 
-                    ngModel 
-                    #email="ngModel"
-                    required 
-                    email 
+                    formControlName="email" 
+                    class="form-control"
                     placeholder="Email (npr. pero.peric@gmail.com)">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!email.valid && email.touched">Unos email-a je obavezan!</span>
@@ -81,12 +67,8 @@
                 <label for="lozinka">Lozinka</label>
                 <input 
                     type="password" 
-                    name="lozinka" 
-                    class="form-control" 
-                    ngModel 
-                    #lozinka="ngModel"
-                    required 
-                    minlength="6"
+                    formControlName="lozinka" 
+                    class="form-control"
                     placeholder="Lozinka korisnika">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!lozinka.valid && lozinka.touched">Unos lozinke je obavezan!</span>
@@ -95,19 +77,18 @@
                 <label for="ponovnoLozinka">Ponovno lozinka</label>
                 <input 
                     type="password" 
-                    name="ponovnoLozinka" 
+                    formControlName="ponovnoLozinka" 
                     class="form-control" 
-                    ngModel 
-                    #ponovnoLozinka="ngModel"
-                    required 
-                    minlength="6" 
                     placeholder="Ponovno lozinka korisnika">
                 <!--Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
                 <span class="help-block" *ngIf="!ponovnoLozinka.valid && ponovnoLozinka.touched">Ponovni unos lozinke je obavezan!</span>
             </div>
             <div>
                 <!--Sve dok podatci u formi nisu ispravno uneseni, button se neće moći stisnuti-->
-                <button type="submit" class="btn btn-primary" [disabled]="!forma.valid">Registriraj se</button>
+                <button 
+                    type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="!forma.valid">Registriraj se</button>
             </div>
         </form>
     </div>

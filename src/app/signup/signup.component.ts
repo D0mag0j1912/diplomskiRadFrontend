@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { SignupService } from './signup.service';
@@ -17,7 +17,9 @@ export class SignupComponent implements OnInit, OnDestroy {
     response: boolean = false;
     //Varijabla koja pohranjuje vrijednost odgovora backenda
     responsePoruka: string = null;
-    
+    //Kreiram formu
+    forma: FormGroup;
+
     //Kreiram instancu servisa
     constructor(
       private signupService: SignupService
@@ -25,6 +27,16 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     //Kada se komponenta loada, poziva se ova metoda
     ngOnInit() {
+        this.forma = new FormGroup({
+            'tip': new FormControl('lijecnik',[Validators.required]),
+            'ime': new FormControl(null,[Validators.required]),
+            'prezime': new FormControl(null,[Validators.required]),
+            'adresa': new FormControl(null,[Validators.required]),
+            'specijalizacija': new FormControl(null,[Validators.required]),
+            'email': new FormControl(null, [Validators.required, Validators.email]),
+            'lozinka': new FormControl(null, [Validators.required]),
+            'ponovnoLozinka': new FormControl(null, [Validators.required])
+        });
     }
 
     //Kada ova komponenta čuje event od Alert komponente, vraća response varijablu na false i gasi se prozor
@@ -33,21 +45,21 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
 
     //Kada se klikne button "Registriraj se":
-    onSubmit(form: NgForm){
+    onSubmit(){
         //Još jedna provjera da vidim je li forma valjana
-        if(!form.valid){
+        if(!this.forma.valid){
             return;
         }
         //Pozivam metodu signup() iz servisa
         this.signupService.signup(
-            form.value.tip,
-            form.value.ime,
-            form.value.prezime,
-            form.value.adresa,
-            form.value.specijalizacija,
-            form.value.email,
-            form.value.lozinka,
-            form.value.ponovnoLozinka
+            this.tip.value,
+            this.ime.value,
+            this.prezime.value,
+            this.adresa.value,
+            this.specijalizacija.value,
+            this.email.value,
+            this.lozinka.value,
+            this.ponovnoLozinka.value
         ).pipe(
             tap(
               (response) => {
@@ -66,5 +78,30 @@ export class SignupComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         this.pretplateSubject.next(true);
         this.pretplateSubject.complete();
+    }
+
+    get tip(): FormControl{
+        return this.forma.get('tip') as FormControl;
+    }
+    get ime(): FormControl{
+      return this.forma.get('ime') as FormControl;
+    }
+    get prezime(): FormControl{
+      return this.forma.get('prezime') as FormControl;
+    }
+    get adresa(): FormControl{
+      return this.forma.get('adresa') as FormControl;
+    }
+    get specijalizacija(): FormControl{
+      return this.forma.get('specijalizacija') as FormControl;
+    }
+    get email(): FormControl{
+      return this.forma.get('email') as FormControl;
+    }
+    get lozinka(): FormControl{
+      return this.forma.get('lozinka') as FormControl;
+    }
+    get ponovnoLozinka(): FormControl{
+      return this.forma.get('ponovnoLozinka') as FormControl;
     }
 }

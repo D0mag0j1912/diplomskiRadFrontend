@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { SignupRoutingModule } from './signup-routing.module';
 import { SignupComponent } from './signup.component';
@@ -11,7 +11,7 @@ import { SignupComponent } from './signup.component';
     ],
     imports: [
         CommonModule,
-        FormsModule,
+        ReactiveFormsModule,
         SignupRoutingModule,
         SharedModule
     ],

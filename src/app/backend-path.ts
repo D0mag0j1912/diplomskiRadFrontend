@@ -1,1 +1,1 @@
-export const baseUrl: string = "http://localhost:8080/angularPHP/";
+export const baseUrl: string = "http://localhost:8080/diplomskiBackend/";

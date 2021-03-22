@@ -290,7 +290,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
         //Omogući pretraživanje po raznim parametrima
         const pretraga = this.forma.get('parametar').valueChanges.pipe(
-            debounceTime(100),
+            debounceTime(300),
             distinctUntilChanged(),
             switchMap(value => {
                 return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.isObrada ? this.idPacijent : this.primljeniIDPacijent,value).pipe(
@@ -370,7 +370,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                             });
                                         }
                                         //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                        (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str]);
+                                        (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str], {emitEvent: false});
                                     }
                                 }
                             }),

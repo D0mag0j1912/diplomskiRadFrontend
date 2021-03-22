@@ -1,10 +1,11 @@
 import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { PregledList } from 'src/app/shared/modeli/pregledList.model';
+import { PreglediService } from '../pregledi.service';
 import { PreglediListService } from './pregledi-list.service';
 
 @Component({
@@ -31,7 +32,9 @@ export class PreglediListComponent implements OnInit, OnDestroy{
         //Dohvaćam servis headera
         private headerService: HeaderService,
         //Dohvaćam servis liste pregleda
-        private preglediListService: PreglediListService
+        private preglediListService: PreglediListService,
+        //Dohvaćam servis pregleda
+        private preglediService: PreglediService
     ) {}
 
     //Ova metoda se poziva kada se komponenta incicijalizira
@@ -139,10 +142,44 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                             this.pregledi.push(objektPregled);
                         }
                     }),
+                    switchMap(() => {
+                        //Kreiram polje koje samo sadrži ID-ove pregleda koji se trenutno nalaze u listu
+                        const ids = this.pregledi.map((pregled) => {
+                            return pregled.idPregled.toString();
+                        });
+                        return this.preglediListService.provjeriIstuGrupaciju(tipKorisnik,ids).pipe(
+                            tap(pregledi => {
+                                //Ako postoji neki pregled koji treba izbrisati
+                                if(pregledi.length !== 0){
+                                    //Prolazim kroz sve preglede koje treba izbrisati iz liste
+                                    for(const id of pregledi){
+                                        //Izbriši onaj pregled u listi pregleda koji ima ID jednak onomu kojega je backend poslao da treba izbrisati
+                                        this.pregledi.splice(this.pregledi.findIndex(pregled => pregled.idPregled === +id),1);
+                                    }
+                                    //Sortiram listu pregleda po njegovom ID-u, najveći idu prvi gore
+                                    this.pregledi.sort(function(pregled1,pregled2){
+                                        if(pregled1.idPregled > pregled2.idPregled){
+                                            return -1;
+                                        }
+                                        else if(pregled1.idPregled < pregled2.idPregled){
+                                            return 1;
+                                        }
+                                        return 0;
+                                    });
+                                }
+                            }),
+                            takeUntil(this.pretplate)
+                        );
+                    }),
                     takeUntil(this.pretplate)
                 );
             })
         );
+    }
+
+    //Metoda koja provjerava je li postoje dva ili više pregleda iz grupacije u listi pregleda
+    provjeraIstaGrupacija(){
+
     }
 
     //Kada se klikne element liste (određeni pregled)

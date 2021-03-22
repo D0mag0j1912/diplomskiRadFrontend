@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
 import {baseUrl} from '../../backend-path';
+import { Time } from '@angular/common';
 
 @Injectable({
     providedIn: 'root'
@@ -33,13 +34,14 @@ export class OtvoreniSlucajService{
         ); 
     }
 
-    //Metoda koja vraća Observable u kojemu se nalazi naziv primarne dijagnoze i njezine sekundarne dijagnoze
-    getDijagnozePovezanSlucaj(event: {mkbSifraPrimarna: string, datumPregled: Date,odgovornaOsoba: string}, id: number){
+    //Metoda koja vraća Observable u kojemu se nalaze podatci vezani za povezan slučaj
+    getDijagnozePovezanSlucaj(event: {mkbSifraPrimarna: string, datumPregled: Date,vrijemePregled: Time, tipSlucaj: string}, idPacijent: number){
         //Pipremam parametre slanja na backend pomoću params (mkbSifra i ID pacijenta)
         let params = new HttpParams().append("mkbSifra", event.mkbSifraPrimarna);
         params = params.append("datumPregled", event.datumPregled.toString());
-        params = params.append("odgovornaOsoba",event.odgovornaOsoba)
-        params = params.append("id", id.toString());
+        params = params.append("vrijemePregled",event.vrijemePregled.toString());
+        params = params.append("tipSlucaj",event.tipSlucaj);
+        params = params.append("idPacijent", idPacijent.toString());
 
         return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getDijagnozePovezanSlucaj.php', {params: params}).pipe(
             catchError(handleError)
@@ -54,19 +56,6 @@ export class OtvoreniSlucajService{
         let params = new HttpParams().append("pretraga", pretraga);
         params = params.append("id", id.toString());
         return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucajPretraga.php', {params: params}).pipe(
-            catchError(handleError)
-        );
-    }
-
-    //Metoda koja vraća Observable u kojemu se nalaze SVE SEKUNDARNE DIJAGNOZE ZA NAVEDENU PRETRAGU
-    getSekundarneDijagnozePretraga(pretraga: string,id: number){
-        //Kodiram parametar pretrage
-        pretraga = encodeURIComponent(pretraga);
-        //Pipremam parametre slanja na backend pomoću params (vrijednost pretrage i ID pacijenta)
-        let params = new HttpParams().append("pretraga", pretraga);
-        params = params.append("id", id.toString());
-
-        return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnozePretraga.php', {params: params}).pipe(
             catchError(handleError)
         );
     }

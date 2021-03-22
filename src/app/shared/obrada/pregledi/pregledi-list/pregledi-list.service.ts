@@ -11,6 +11,13 @@ export class PreglediListService{
     constructor(
         private http: HttpClient
     ){}
+
+    //Metoda koja vraća Observable u kojemu se nalazi 
+    provjeriIstuGrupaciju(tipKorisnik: string,ids: string[]){
+        let params = new HttpParams().append("ids",JSON.stringify(ids));
+        params = params.append("tipKorisnik",tipKorisnik);
+        return this.http.get<any>(baseUrl + 'pregledi/lista-pregleda/provjeriIstuGrupaciju.php',{params: params}).pipe(catchError(handleError));
+    }
     
     //Metoda koja vraća Observable u kojemu se nalazi traženi pregled
     dohvatiTrazeniPregled(tipKorisnik: string, idPregled: number){
