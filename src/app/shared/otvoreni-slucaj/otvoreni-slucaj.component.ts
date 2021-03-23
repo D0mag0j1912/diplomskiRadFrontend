@@ -122,22 +122,18 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                                 //Spremam neuspješnu poruku (da nema aktivnih dijagnoza) u svoju varijablu
                                 this.porukaDijagnoza = podatci[0]["message"];
                             }
-                            //Ako pacijent NIJE AKTIVAN
-                            else if(podatci[0] === "Nema aktivnih pacijenata!"){
-                                //Dohvaćam glavni div
-                                const alertBox = document.getElementById("alert-box");
-                                //Ažuriram visinu prozora
-                                alertBox.style.height = "10vw";
-                                alertBox.style.width = "30vw";
-                                alertBox.style.left = "35vw";
-                                this.porukaAktivan = podatci[0];
-                            }
                         }),
                         takeUntil(this.pretplateSubject)
                     );
                 }
                 //Ako Observable nije vratio aktivnog pacijenta
                 else{
+                    //Dohvaćam glavni div
+                    const alertBox = document.getElementById("alert-box");
+                    //Ažuriram visinu prozora
+                    alertBox.style.height = "10vw";
+                    alertBox.style.width = "30vw";
+                    alertBox.style.left = "35vw";
                     //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                     this.porukaAktivan = response["message"];
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
