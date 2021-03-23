@@ -2,7 +2,7 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
@@ -361,49 +361,59 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         }
         //Pretplaćujem se na rezultate da ih dohvatim
         this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
-            tap(() => {
-                //Ako je tip korisnika "Medicinska sestra":
-                if(this.isMedSestra){
-                    //Pođi na stranicu općih podataka pregleda
-                    this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
+            switchMap((response) => {
+                //Ako već postoji neki aktivan pacijent u obradi
+                if(response.message === 'Već postoji aktivan pacijent!'){
+                    //Prikaži poruku
+                    this.response = true;
+                    this.responsePoruka = response.message;
+                    return of(null).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );
                 }
-                else if(this.isLijecnik){
-                    //Pođi na stranicu povijesti bolesti
-                    this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
-                }
-            }),
-            switchMap(() => {
-                return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
-                    tap(odgovor => {
-                        //Praznim polje pacijenata
-                        this.pacijenti = [];
-                        //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
-                        let cekaonica;
-                        //Prolazim odgovorom servera (JS objektima)
-                        for(const cek of odgovor){
-                            //Kreiram nove objekte tipa "Cekaonica"
-                            cekaonica = new Cekaonica(cek);
-                            //Nadodavam ih u polje
-                            this.pacijenti.push(cekaonica);
-                        }
-                        //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
-                        let pom: string;
-                        //Inicijaliziram brojač na 0 na početku
-                        let brojac = 0;
-                        //Prolazim kroz sve pacijente
-                        for(const pacijent of this.pacijenti){
-                            //Povećavam brojač za 1
-                            brojac++;
-                            //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
-                            if(pom !== pacijent.odgovornaOsoba){
-                                this.brojRetka = brojac;
+                //Ako ne postoji pacijent u obradi trenutno
+                else{
+                    //Ako je tip korisnika "Medicinska sestra":
+                    if(this.isMedSestra){
+                        //Pođi na stranicu općih podataka pregleda
+                        this.router.navigate(['../obrada/opciPodatci'], {relativeTo: this.route});
+                    }
+                    else if(this.isLijecnik){
+                        //Pođi na stranicu povijesti bolesti
+                        this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
+                    }
+                    return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
+                        tap(odgovor => {
+                            //Praznim polje pacijenata
+                            this.pacijenti = [];
+                            //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                            let cekaonica;
+                            //Prolazim odgovorom servera (JS objektima)
+                            for(const cek of odgovor){
+                                //Kreiram nove objekte tipa "Cekaonica"
+                                cekaonica = new Cekaonica(cek);
+                                //Nadodavam ih u polje
+                                this.pacijenti.push(cekaonica);
                             }
-                            //U pomoćnu varijablu stavljam odgovorne osobe
-                            pom = pacijent.odgovornaOsoba;
-                        }
-                    }),
-                    takeUntil(this.pretplateSubject)
-                );
+                            //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                            let pom: string;
+                            //Inicijaliziram brojač na 0 na početku
+                            let brojac = 0;
+                            //Prolazim kroz sve pacijente
+                            for(const pacijent of this.pacijenti){
+                                //Povećavam brojač za 1
+                                brojac++;
+                                //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                                if(pom !== pacijent.odgovornaOsoba){
+                                    this.brojRetka = brojac;
+                                }
+                                //U pomoćnu varijablu stavljam odgovorne osobe
+                                pom = pacijent.odgovornaOsoba;
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();

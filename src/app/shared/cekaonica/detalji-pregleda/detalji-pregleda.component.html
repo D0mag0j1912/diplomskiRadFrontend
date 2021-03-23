@@ -80,7 +80,14 @@
                         <ng-container *ngIf="tip === 'lijecnik'">
                             <tr>
                                 <td colspan="3">
-                                    <h4><strong style="font-family: Verdana, sans-serif;color:#337ab7">Povijest bolesti</strong></h4>
+                                    <h4>
+                                        <strong style="font-family: Verdana, sans-serif;color:#337ab7">Povijest bolesti</strong></h4>
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-warning btn-sm"
+                                        style="float:right;margin-top:-30px;" 
+                                        *ngIf="recept"
+                                        (click)="onIzdaniRecept()">Izdani recept</button>
                                 </td>
                             </tr>
                             <tr *ngIf="!isPovijestBolesti">
@@ -128,17 +135,38 @@
                                                 style="width:100%;"></textarea>
                                         </td>
                                     </tr>
-                                    <tr class="border_bottom">
+                                    <tr [ngClass]="(!control.value.proizvod) ? 'border_bottom' : ''">
                                         <td colspan="3">
                                             <p style="font-family: Verdana, sans-serif;"><strong>Anamneza: </strong></p>
                                             <textarea
-                                                type="text" 
                                                 formControlName="anamneza" 
                                                 readonly 
                                                 rows="3" 
                                                 style="width:100%;"></textarea>
                                         </td>
                                     </tr>
+                                    <!-- <ng-container *ngIf="control.value.proizvod">
+                                        <tr>
+                                            <td colspan="3">
+                                                <h4><strong style="font-family: Verdana, sans-serif;color:#337ab7">Recept</strong></h4>
+                                            </td>
+                                        </tr>
+                                        <tr class="border_bottom">
+                                            <td>
+                                                <p 
+                                                    style="font-family: Verdana, sans-serif;"><strong>Lijek:</strong></p>
+                                                <textarea
+                                                    formControlName="proizvod" 
+                                                    readonly 
+                                                    rows="3" 
+                                                    style="width:100%;"></textarea>
+                                            </td>
+                                            <td>
+                                                <p 
+                                                    style="font-family: Verdana, sans-serif;"><strong>Količina:</strong></p>
+                                            </td>
+                                        </tr>
+                                    </ng-container> -->
                                 </ng-container>
                             </ng-container> 
                         </ng-container>

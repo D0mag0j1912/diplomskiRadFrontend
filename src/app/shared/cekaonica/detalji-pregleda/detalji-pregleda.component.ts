@@ -3,6 +3,10 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil } from 'rxjs/operators';
 import { HeaderService } from '../../header/header.service';
+import { DetaljiPregleda } from '../../modeli/detaljiPregleda.model';
+import { PovijestBolesti } from '../../modeli/povijestBolesti.model';
+import { Pregled } from '../../modeli/pregled.model';
+import { Recept } from '../../modeli/recept.model';
 import { CekaonicaService } from '../cekaonica.service';
 
 @Component({
@@ -18,19 +22,20 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     @Output() close = new EventEmitter<any>();
     //Inicijaliziram formu
     forma: FormGroup;
-    //Spremam ime, prezime,datum i ID obrade
-    imePacijent: string;
-    prezimePacijent: string;
-    datumPregled: Date;
-    idObrada: number;
+    //Spremam detalje pregleda
+    detaljiPregleda: DetaljiPregleda;
     //Oznaka je li pacijent ima primarnu dijagnozu općih podataka
     isOpciPodatci: boolean = false;
     //Oznaka je li pacijent ima evidentiran povijest bolesti
     isPovijestBolesti: boolean = false;
     //Spremam tip prijavljenog korisnika
     tipKorisnik: string;
-    //Podatci pregleda
-    podatciPregleda: any;
+    //Spremam povijesti bolesti
+    povijestiBolesti: PovijestBolesti[] = [];
+    //Spremam opće podatke pregleda
+    pregledi: Pregled[] = [];
+    recept: Recept;
+
     //Tip korisnika čiji je redak kliknut (koji je obradio taj redak)
     tip: string;
     //Dohvaćam alert box da mogu manipulirati dimenzijama prozora
@@ -62,52 +67,60 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 //Dohvaćam odgovor servera
                 (odgovor) => {
                     console.log(odgovor);
-                    //Spremam ime pacijenta
-                    this.imePacijent = odgovor[0][0].imePacijent;
-                    this.prezimePacijent = odgovor[0][0].prezPacijent;
-                    this.datumPregled = odgovor[0][0].Datum;
-                    this.idObrada = odgovor[0][0].idObrada;
-                    //Spremam podatke pregleda (ILI opće podatke ILI povijest bolesti)
-                    this.podatciPregleda = odgovor[1];
-                    console.log(this.podatciPregleda);
+                    //Spremam osobne podatke pacijenta detalja pregleda
+                    this.detaljiPregleda = new DetaljiPregleda(odgovor[0][0]);
                     //Kreiram formu
                     this.forma = new FormGroup({
-                        'imePrezime': new FormControl(this.imePacijent + " " + this.prezimePacijent),
-                        'datumPregled': new FormControl(this.datumPregled),
+                        'imePrezime': new FormControl(this.detaljiPregleda.imePacijent + " " + this.detaljiPregleda.prezimePacijent),
+                        'datumPregled': new FormControl(this.detaljiPregleda.datumPregled),
                         'opciPodatci': new FormArray([]),
                         'povijestBolesti': new FormArray([])
                     });
-                    //Ako ima vraćenih podataka
-                    if(this.podatciPregleda.length > 0){
-                        //Inicijaliziram pomoćno polje
-                        let polje = [];
-                        //Prolazim kroz podatke pregleda
-                        for(const podatak of this.podatciPregleda){
-                            //Ako ključ "anamneza" NE POSTOJI u podatcima pregleda
-                            if(!('anamneza' in podatak)){
+                    //Ako je evidentirana ili povijest bolesti ili opći podatci
+                    if(odgovor[1].length > 0){
+                        //Definiram objekte
+                        let objektPovijestBolesti;
+                        let objektPregled;
+                        //Prolazim kroz odgovor servera 
+                        for(const pregled of odgovor[1]){
+                            //Ako se u odgovoru servera NE SPOMINJE "idPovijestBolesti"
+                            if(!('idPovijestBolesti' in pregled)){
+                                //Podatke sa servera spremam u svoj objekt
+                                objektPregled = new Pregled(pregled);
+                                //Dodavam objekte u svoje polje
+                                this.pregledi.push(objektPregled);
                                 //Označavam da se radi o OPĆIM PODATCIMA PREGLEDA
                                 this.isOpciPodatci = true;
                             }
-                            //Ako ključ "anamneza" POSTOJI u podatcima pregleda
+                            //Ako se u odgovoru servera SPOMINJE "idPovijestBolesti"
                             else{
-                                //Označavam da se radi o POVIJESTI BOLESTI PREGLEDA
+                                //Podatke sa servera spremam u svoj objekt
+                                objektPovijestBolesti = new PovijestBolesti(pregled);
+                                this.recept = new Recept(pregled);
+                                //Dodavam objekte u svoje polje
+                                this.povijestiBolesti.push(objektPovijestBolesti);
+                                //Označavam da se radi o POVIJESTI BOLESTI
                                 this.isPovijestBolesti = true;
                             }
                         }
+                        console.log(this.povijestiBolesti);
+                        //Inicijaliziram pomoćno polje
+                        let polje = [];
                         //Ako se radi o OPĆIM PODATCIMA PREGLEDA:
                         if(this.isOpciPodatci){
                             //Spremam tip korisnika kojega šaljem
                             this.tip = "sestra";
                             //Prolazim kroz polje općih podataka te za svaki objekt u njemu, dodavam jedan FORM GROUP u FORM ARRAY općih podataka
-                            for(const podatci of this.podatciPregleda){
-                                this.addControlsOpciPodatci(podatci);
+                            for(const pregled of this.pregledi){
+                                this.addControlsOpciPodatci(pregled);
                             }
                             //Prolazim poljem općih podataka.
                             for(let i=0;i<this.getControlsOpciPodatci().length;i++){
                                 //Ako šifra sekundarne dijagnoze nije null
                                 if(this.getControlsOpciPodatci()[i].value.mkbSifraSekundarna !== null){
                                     //U pomoćno polje ubacivam Observable u kojemu se nalazi naziv i šifra sekundarne dijagnoze
-                                    polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(this.tip,this.getControlsOpciPodatci()[i].value.mkbSifraSekundarna,this.idObrada));
+                                    polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(this.tip,this.getControlsOpciPodatci()[i].value.mkbSifraSekundarna,
+                                                                                                    this.detaljiPregleda.idObrada));
                                 }
                             }
                             //Vrati polje Observable-a u kojemu se nalaze sekundarne dijagnoze općih podataka pregleda
@@ -118,17 +131,16 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             //Spremam tip korisnika kojega šaljem
                             this.tip = "lijecnik";
                             //Prolazim poljem povijesti bolesti te za svaki objekt u njemu, dodavam jedan FORM GROUP U FORM ARRAY povijesti bolesti
-                            for(const podatci of this.podatciPregleda){
-                                console.log(podatci);
-                                this.addControlsPovijestBolesti(podatci);
+                            for(const pregled of this.povijestiBolesti){
+                                this.addControlsPovijestBolesti(pregled);
                             }
                             //Prolazim poljem povijesti bolesti.
                             for(let i = 0;i<this.getControlsPovijestBolesti().length;i++){
-                                console.log(this.getControlsPovijestBolesti()[i].value);
                                 //Ako šifra sekundarne dijagnoze nije null
                                 if(this.getControlsPovijestBolesti()[i].value.mkbSifraSekundarna !== null){
                                     //U pomoćno polje stavljam Observable u kojemu se nalazi šifra i naziv sekundarnih dijagnoza 
-                                    polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(this.tip,this.getControlsPovijestBolesti()[i].value.mkbSifraSekundarna,this.idObrada));
+                                    polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(this.tip,this.getControlsPovijestBolesti()[i].value.mkbSifraSekundarna,
+                                                                                                    this.detaljiPregleda.idObrada));
                                 }
                             } 
                             //Vraćam polje Observable-a u kojima se nalaze sekundarne dijagnoze podataka povijesti bolesti
@@ -222,14 +234,18 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     }
 
     //Metoda koja nadodava form groupove u form array "Povijest bolesti"
-    addControlsPovijestBolesti(povijestBolesti: any){
+    addControlsPovijestBolesti(povijestBolesti: PovijestBolesti){
         (<FormArray>this.forma.get('povijestBolesti')).push(
             new FormGroup({
-                'primarnaDijagnoza': new FormControl(povijestBolesti.mkbSifraPrimarna + " | " + povijestBolesti.NazivPrimarna),
+                'idPovijestBolesti': new FormControl(povijestBolesti.idPovijestBolesti),
+                'primarnaDijagnoza': new FormControl(povijestBolesti.mkbSifraPrimarna + " | " + povijestBolesti.nazivPrimarna),
                 'anamneza': new FormControl(povijestBolesti.anamneza),
                 'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
                 'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
-                'sekundarneDijagnoze': new FormControl()
+                'sekundarneDijagnoze': new FormControl(null),
+                'proizvod': new FormControl(povijestBolesti.proizvod ? povijestBolesti.proizvod : null),
+                'kolicina': new FormControl(povijestBolesti.kolicina ? povijestBolesti.kolicina : null),
+                'doziranje': new FormControl(povijestBolesti.doziranje ? povijestBolesti.doziranje : null)
             })
         );
     }
@@ -239,10 +255,10 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         return (<FormArray>this.forma.get('opciPodatci')).controls;
     }
     //Metoda koja nadodava form group sa podatcima u form array "Opći podatci"
-    addControlsOpciPodatci(opciPodatci: any){
+    addControlsOpciPodatci(opciPodatci: Pregled){
         (<FormArray>this.forma.get('opciPodatci')).push(
             new FormGroup({
-                'primarnaDijagnoza': new FormControl(opciPodatci.mkbSifraPrimarna + " | " + opciPodatci.NazivPrimarna),
+                'primarnaDijagnoza': new FormControl(opciPodatci.mkbSifraPrimarna + " | " + opciPodatci.nazivPrimarna),
                 'mkbSifraSekundarna': new FormControl(opciPodatci.mkbSifraSekundarna),
                 'sekundarneDijagnoze': new FormControl()
             })

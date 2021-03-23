@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, combineLatest } from "rxjs";
+import { BehaviorSubject, combineLatest, forkJoin } from "rxjs";
 import { catchError, switchMap } from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
 import {baseUrl} from '../../backend-path';
@@ -111,13 +111,19 @@ export class CekaonicaService{
     prikaziDetaljePregleda(){
         return this.obsPodatciPregleda.pipe(
             switchMap(podatci => {
-                console.log(podatci.idObrada);
-                return combineLatest([
+                return forkJoin([
                     this.getImePrezimeDatum(podatci.tip,podatci.idObrada),
                     this.getPodatciPregleda(podatci.tip,podatci.idObrada)
                 ]).pipe(catchError(handleError));
             })
         );   
+    }
+
+    //Metoda koja dohvaća izdani recept za određeni povijest bolesti
+    getIzdaniRecept(idPovijestBolesti: number, idObrada: number){
+        let params = new HttpParams().append("idPovijestBolesti",idPovijestBolesti.toString());
+        params = params.append("idObrada",idObrada.toString());
+        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getIzdaniRecept.php').pipe(catchError(handleError));
     }
 
 }

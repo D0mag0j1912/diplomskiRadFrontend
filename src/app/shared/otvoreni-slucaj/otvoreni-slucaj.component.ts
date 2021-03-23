@@ -119,6 +119,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                                 alertBox.style.height = "10vw";
                                 alertBox.style.width = "30vw";
                                 alertBox.style.left = "35vw";
+                                //Dižem overflow-y
+                                alertBox.style.overflowY = "hidden";
                                 //Spremam neuspješnu poruku (da nema aktivnih dijagnoza) u svoju varijablu
                                 this.porukaDijagnoza = podatci[0]["message"];
                             }

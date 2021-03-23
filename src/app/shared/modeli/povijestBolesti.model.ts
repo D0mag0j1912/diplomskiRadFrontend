@@ -16,6 +16,11 @@ export class PovijestBolesti {
     public vrijeme: Time;
     public sekundarneDijagnoze: string;
     public tip: string;
+    public mkbSifraSekundarna?: string;
+    public nazivPrimarna?: string;
+    public proizvod?: string;
+    public kolicina?: number;
+    public doziranje?: string;
 
     constructor(response: any){
         if(response.idPovijestBolesti){
@@ -59,6 +64,21 @@ export class PovijestBolesti {
         }
         if(response.tip){
             this.tip = response.tip;
+        }
+        if(response.mkbSifraSekundarna){
+            this.mkbSifraSekundarna = response.mkbSifraSekundarna;
+        }
+        if(response.NazivPrimarna){
+            this.nazivPrimarna = response.NazivPrimarna;
+        }
+        if(response.proizvod){
+            this.proizvod = response.proizvod;
+        }
+        if(response.kolicina){
+            this.kolicina = +response.kolicina;
+        }
+        if(response.doziranje){
+            this.doziranje = response.doziranje;
         }
     }
     set sekundarne(sekundarneDijagnoze: string){

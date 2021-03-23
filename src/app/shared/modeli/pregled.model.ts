@@ -11,6 +11,8 @@ export class Pregled {
     public datum: Date;
     public vrijeme: Time;
     public tip: string;
+    public mkbSifraSekundarna?: string;
+    public nazivPrimarna?: string;
     constructor(response: any){
         if(response.idPregled){
             this.idPregled = +response.idPregled;
@@ -41,6 +43,12 @@ export class Pregled {
         }
         if(response.tip){
             this.tip = response.tip;
+        }
+        if(response.mkbSifraSekundarna){
+            this.mkbSifraSekundarna = response.mkbSifraSekundarna;
+        }
+        if(response.NazivPrimarna){
+            this.nazivPrimarna = response.NazivPrimarna;
         }
     }
 
