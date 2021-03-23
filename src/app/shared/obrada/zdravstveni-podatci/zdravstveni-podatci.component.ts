@@ -14,6 +14,8 @@ import { RadniStatus } from '../../modeli/radniStatus.model';
 import { StatusPacijent } from '../../modeli/statusPacijent.model';
 import { ObradaService } from '../obrada.service';
 import { ZdravstveniPodatciService } from './zdravstveni-podatci.service';
+import * as Handler from './zdravstveni-podatci-handler';
+
 @Component({
     selector: 'app-zdravstveni-podatci',
     templateUrl: './zdravstveni-podatci.component.html',
@@ -154,28 +156,28 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                 //Kreiram svoju formu
                 this.forma = new FormGroup({
                   'nositeljOsiguranja': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.nositeljOsiguranja : null, this.isPodatciAktivni ? [Validators.required] : []),
-                  'drzavaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektDrzavaOsiguranja.nazivDrzave : null, this.isPodatciAktivni ? [Validators.required, this.isValidDrzavaOsiguranja.bind(this)] : []),
-                  'kategorijaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektKategorijaOsiguranja.oznakaOsiguranika : null, this.isPodatciAktivni ? [Validators.required, this.isValidKategorijaOsiguranja.bind(this)] : []),
-                  'podrucniUred': new FormControl(this.isPodatciAktivni ? this.objektPodrucniUred.nazivSluzbe : null, this.isPodatciAktivni ? [Validators.required, this.isValidPodrucniUred.bind(this)] : []),
+                  'drzavaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektDrzavaOsiguranja.nazivDrzave : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidDrzavaOsiguranja(this.naziviDrzava)] : []),
+                  'kategorijaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektKategorijaOsiguranja.oznakaOsiguranika : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidKategorijaOsiguranja(this.oznakeOsiguranika)] : []),
+                  'podrucniUred': new FormControl(this.isPodatciAktivni ? this.objektPodrucniUred.nazivSluzbe : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPodrucniUred(this.naziviSluzbi)] : []),
                   'sifUred': new FormControl(this.isPodatciAktivni ? this.objektPodrucniUred.sifUred : null),
                   'mbo': new FormControl(this.isPodatciAktivni ? this.pacijent.mbo : null, this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{9}$")] : []),
                   'trajnoOsnovno': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.trajnoOsnovno : null),
                   'datumiOsnovno': new FormGroup({
                     'osnovnoOd': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.osnovnoOd : null),
                     'osnovnoDo': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.osnovnoDo : null)
-                  }, {validators: this.isPodatciAktivni ? this.isValidDatumiOsnovno : null}),
+                  }, {validators: this.isPodatciAktivni ? Handler.isValidDatumiOsnovno() : null}),
                   'brIskDopunsko': new FormControl(this.isPodatciAktivni ? this.pacijent.brIskDopunsko : null, this.isPodatciAktivni ? [Validators.pattern("^\\d{8}$")] : []),
                   'datumiDopunsko': new FormGroup({
                     'dopunskoOd': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.dopunskoOd : null),
                     'dopunskoDo': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.dopunskoDo : null)
-                  }, {validators: this.isPodatciAktivni ? this.isValidDatumiDopunsko : null}),
+                  }, {validators: this.isPodatciAktivni ? Handler.isValidDatumiDopunsko() : null}),
                   'oslobodenParticipacije': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.oslobodenParticipacije : null),
                   'participacija': new FormGroup({
                     'clanakParticipacija': new FormControl(this.isPodatciAktivni ? this.objektParticipacija.razlogParticipacija : null),
                     'trajnoParticipacija': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.trajnoParticipacija : null),
                     'participacijaDo': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.participacijaDo : null)
-                  }, {validators: this.isPodatciAktivni ? [this.bothForbiddenParticipacija] : null}),
-                }, {validators: this.isPodatciAktivni ? [this.atLeastOneRequiredOsnovno, this.mustOslobodenParticipacija, this.bothForbiddenOsnovno] : null});
+                  }, {validators: this.isPodatciAktivni ? [Handler.bothForbiddenParticipacija()] : null}),
+                }, {validators: this.isPodatciAktivni ? [Handler.atLeastOneRequiredOsnovno(), Handler.mustOslobodenParticipacija(), Handler.bothForbiddenOsnovno()] : null});
                 //Inicijalno onemogućavam unos u polje šifre područnog ureda
                 this.forma.controls["sifUred"].disable({emitEvent: false});
               }
@@ -198,7 +200,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                                 //Ako je form control ispravan
                                 if(this.forma.get('podrucniUred').valid){
                                   //Pozivam metodu
-                                  this.nazivSluzbeToSif(value);
+                                  Handler.nazivSluzbeToSif(value, this.forma, this.podrucniUredi);
                                 }
                                 //Ako nije ispravan
                                 else{
@@ -288,126 +290,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
             ).subscribe();
         } 
 
-    }
-
-  //VALIDACIJE
-  //Metoda koja provjerava je li država osiguranja ispravno unesena tj. je li unesena vrijednost koja nije dio polja država osiguranja
-  isValidDrzavaOsiguranja(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost države osiguranja koje je korisnik unio nije dio polja država osiguranja (znači vraća -1 ako nije dio polja)
-      if(this.naziviDrzava.indexOf(control.value) === -1){
-        return {'drzaveIsForbidden': true};
       }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-  }
-  //Metoda koja provjerava je li kategorija osiguranja ispravno unesena tj. je li unesena vrijednost koja nije dio polja kategorija osiguranja
-  isValidKategorijaOsiguranja(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost kategorije osiguranja koje je korisnik unio nije dio polja kategorija osiguranja (znači vraća -1 ako nije dio polja)
-      if(this.oznakeOsiguranika.indexOf(control.value) === -1){
-        return {'oznakaIsForbidden': true};
-      }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-  }
-  //Metoda koja provjerava je li područni ured ispravno unesen tj. je li unesena vrijednost koja nije dio polja područnih ureda
-  isValidPodrucniUred(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost područnog ureda koje je korisnik unio nije dio polja područnih ureda (znači vraća -1 ako nije dio polja)
-      if(this.naziviSluzbi.indexOf(control.value) === -1){
-        return {'uredIsForbidden': true};
-      }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-  }
-  //Metoda koja provjerava je li participacija ispravno unesena tj. je li unesena vrijednost koja nije dio polja participacije
-  isValidParticipacija(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost članka participacije koje je korisnik unio nije dio polja članka participacija (znači vraća -1 ako nije dio polja)
-      if(this.razloziParticipacije.indexOf(control.value) === -1){
-        return {'participacijaIsForbidden': true};
-      }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-  }
-  //Metoda koja provjerava ispravnost početnog i završnog datuma osnovnog osiguranja
-  isValidDatumiOsnovno(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        if(group.controls['osnovnoOd'].value <= group.controls['osnovnoDo'].value) {
-          return null;
-        }
-      }
-      return {'neValjaDatumOsnovno': true};
-  }
-  //Metoda koja provjerava ispravnost početnog i završnog datuma dopunskog osiguranja
-  isValidDatumiDopunsko(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        if(group.controls['dopunskoOd'].value <= group.controls['dopunskoDo'].value) {
-          return null;
-        }
-      }
-      return {'neValjaDatumDopunsko': true};
-  } 
-  //Metoda koja provjerava jesu li uneseni ILI trajna participacija ILI datum participacije AKO JE OSLOBOĐEN PARTICIPACIJA CHECKED
-  atLeastOneRequiredParticipacija(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        //Ako su trajna participacija ILI datum participacijaDo UPISANI, a oslobođen participacije je CHECKED, NEMOJ PRIKAZATI ERROR
-        if((group.get('participacija.trajnoParticipacija').value || group.get('participacija.participacijaDo').value)  
-        && group.get('oslobodenParticipacije').value) {
-          return null;
-        }
-      }
-      return {'baremJedan': true};
-  }
-  //Metoda koja provjerava jesu li uneseni I trajno osnovno I datumi osnovnog osiguranja, jer je to zabranjeno
-  bothForbiddenOsnovno(group: FormGroup) : {[s:string ]: boolean} {
-      if(group){
-        //Ako je trajno osiguranje CHECKED i upisani su ILI datum početka osnovnog osiguranja ILI datum završetka osnovnog osiguranja, PRIKAŽI ERROR
-        if(group.get('trajnoOsnovno').value && (group.get('datumiOsnovno.osnovnoOd').value || group.get('datumiOsnovno.osnovnoDo').value)){
-            return {'bothForbiddenOsnovno': true};
-        }
-      }
-      return null;
-}
-  //Metoda koja provjerava jesu li uneseni I trajna participacija I datum participacije do, jer je to zabranjeno
-  bothForbiddenParticipacija(group: FormGroup) : {[s:string ]: boolean} {
-      if(group){
-        //Ako je trajna participacija CHECKED I datum participacija do JE UNESEN, PRIKAŽI ERROR
-        if(group.controls['trajnoParticipacija'].value && group.controls['participacijaDo'].value){
-            return {'bothForbidden': true};
-        }
-      }
-      return null;
-  }
-  //Metoda koja provjerava jesu li uneseni dijelovi participacije, AKO "OSLOBOĐEN PARTICIPACIJE" NIJE CHECKED
-  mustOslobodenParticipacija(group: FormGroup) : {[s:string ]: boolean} {
-      if(group){
-          //Ako je unesen jedan od dijelova participacije, a oslobođen participacije nije checked
-          if((group.get("participacija.clanakParticipacija").value || group.get("participacija.trajnoParticipacija").value 
-            || group.get("participacija.participacijaDo").value) && group.get("oslobodenParticipacije").value === null){
-                return {"mustBeCheckedParticipacija":true};
-            }
-      }
-      return null;
-  }
-  //Metoda koja INICIJALNO postavlja required trajno osiguranje ili datume osnovnog osiguranja
-  atLeastOneRequiredOsnovno(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        if(group.controls['trajnoOsnovno'].value || (group.get('datumiOsnovno.osnovnoOd').value && group.get('datumiOsnovno.osnovnoDo').value)) {
-          return null;
-        }
-      }
-      return {'baremJedanOsnovno': true};
-  }
-  //Metoda koja automatski upisuje šifru područnog ureda na osnovu upisanog naziva službe
-  nazivSluzbeToSif(value: string){
-      //Prolazim kroz polje područnih ureda
-      for(let ured of this.podrucniUredi){
-        //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
-        if(value === ured["nazivSluzbe"]){
-          //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUred').setValue(ured["sifUred"]);
-        }
-      }
-      this.forma.get('sifUred').updateValueAndValidity({emitEvent: false}); 
-  }
 
   //Ova metoda se poziva kada se stisne button "Potvrdi zdravstvene podatke"
   onSubmit(){
@@ -484,11 +367,11 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
         //Ako je "Oslobođen participacije" checked
         if(event.target.checked){
           //Postavljam glavnoj formi validaciju za participaciju
-          this.forma.setValidators(this.atLeastOneRequiredParticipacija);
+          this.forma.setValidators(Handler.atLeastOneRequiredParticipacija());
           //Omogućavam unos članka participacije i postavljam mu validatore
           this.forma.get('participacija.clanakParticipacija').enable({emitEvent: false});
           //Postavljam članku validatore
-          this.forma.get('participacija.clanakParticipacija').setValidators([Validators.required, this.isValidParticipacija.bind(this)]);
+          this.forma.get('participacija.clanakParticipacija').setValidators([Validators.required, Handler.isValidParticipacija(this.razloziParticipacije)]);
       }
       //Ako "Oslobođen participacije" nije checked":
       else{

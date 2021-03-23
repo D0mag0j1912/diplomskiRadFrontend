@@ -116,7 +116,6 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
               }
               //Sve nazive mjesta stavljam u posebno polje zbog validacije
               for(let mjesto of this.mjesta){
-                  console.log(mjesto);
                   this.naziviMjesta.push(mjesto["nazivMjesto"]);
                   this.pbrMjesta.push(mjesto["pbrMjesto"]);
               }
@@ -134,7 +133,7 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
               }
               //Kreiram svoju formu:
               this.forma = new FormGroup({
-                'ime': new FormControl(this.isPodatciAktivni ? this.pacijent.ime : null, this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime.bind(this)] : []),
+                'ime': new FormControl(this.isPodatciAktivni ? this.pacijent.ime : null, this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
                 'prezime': new FormControl(this.isPodatciAktivni ? this.pacijent.prezime : null, this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
                 'datRod': new FormControl(this.isPodatciAktivni ? this.pacijent.datRod: null, this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
                 'adresa': new FormControl(this.isPodatciAktivni ? this.pacijent.adresa: null, this.isPodatciAktivni ? [Validators.required] : []),
