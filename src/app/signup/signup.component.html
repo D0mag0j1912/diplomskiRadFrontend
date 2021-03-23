@@ -3,9 +3,13 @@
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
         <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
         <form (ngSubmit)="onSubmit()" [formGroup]="forma" *ngIf="forma">
-            <h3 style="text-align: center;">Registriraj se</h3>
+            <h3 
+                style="text-align: center; 
+                    font-family: Verdana, sans-serif">Registriraj se</h3>
             <div class="form-group">
-                <label for="tip">Tip korisnika</label>
+                <label 
+                    for="tip" 
+                    style="font-family: Verdana, sans-serif">Tip korisnika</label>
                 <select 
                     class="form-control" 
                     formControlName="tip">
@@ -14,7 +18,9 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="ime">Ime</label>
+                <label 
+                    for="ime" 
+                    style="font-family: Verdana, sans-serif">Ime</label>
                 <input 
                     type="text"
                     class="form-control" 
@@ -24,7 +30,9 @@
                 <span class="help-block" *ngIf="!ime.valid && ime.touched">Unos imena je obavezan!</span>
             </div>
             <div class="form-group">
-                <label for="prezime">Prezime</label>
+                <label 
+                    for="prezime" 
+                    style="font-family: Verdana, sans-serif">Prezime</label>
                 <input 
                     type="text"
                     formControlName="prezime"
@@ -34,7 +42,9 @@
                 <span class="help-block" *ngIf="!prezime.valid && prezime.touched">Unos prezimena je obavezan!</span>
             </div>
             <div class="form-group">
-                <label for="adresa">Adresa</label>
+                <label 
+                    for="adresa" 
+                    style="font-family: Verdana, sans-serif">Adresa</label>
                 <input 
                     type="text" 
                     formControlName="adresa" 
@@ -44,7 +54,9 @@
                 <span class="help-block" *ngIf="!adresa.valid && adresa.touched">Unos adrese je obavezan!</span>
             </div>
             <div class="form-group">
-                <label for="specijalizacija">Specijalizacija</label>
+                <label 
+                    for="specijalizacija" 
+                    style="font-family: Verdana, sans-serif">Specijalizacija</label>
                 <input 
                     type="text" 
                     formControlName="specijalizacija" 
@@ -54,7 +66,9 @@
                 <span class="help-block" *ngIf="!specijalizacija.valid && specijalizacija.touched">Unos specijalizacije je obavezan!</span>
             </div>
             <div class="form-group">
-                <label for="email">Email</label>
+                <label 
+                    for="email" 
+                    style="font-family: Verdana, sans-serif">Email</label>
                 <input 
                     type="email" 
                     formControlName="email" 
@@ -64,7 +78,9 @@
                 <span class="help-block" *ngIf="!email.valid && email.touched">Unos email-a je obavezan!</span>
             </div>
             <div class="form-group">
-                <label for="lozinka">Lozinka</label>
+                <label 
+                    for="lozinka" 
+                    style="font-family: Verdana, sans-serif">Lozinka</label>
                 <input 
                     type="password" 
                     formControlName="lozinka" 
@@ -74,7 +90,9 @@
                 <span class="help-block" *ngIf="!lozinka.valid && lozinka.touched">Unos lozinke je obavezan!</span>
             </div>
             <div class="form-group">
-                <label for="ponovnoLozinka">Ponovno lozinka</label>
+                <label 
+                    for="ponovnoLozinka" 
+                    style="font-family: Verdana, sans-serif">Ponovno lozinka</label>
                 <input 
                     type="password" 
                     formControlName="ponovnoLozinka" 

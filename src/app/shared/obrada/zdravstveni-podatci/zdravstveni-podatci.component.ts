@@ -121,7 +121,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                 if(response.zdravstveniPodatci["success"] !== "false"){
                     //Označavam da su podatci aktivni
                     this.isPodatciAktivni = true;
-                    console.log(response.zdravstveniPodatci[0]);
                     //Spremam sve ZDRAVSTVENE podatke u svoje polje
                     this.zdrPodatci = new ZdravstveniPodatci(response.zdravstveniPodatci[0]);
                     this.pacijent = new Pacijent(response.zdravstveniPodatci[0]);
@@ -132,11 +131,9 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     this.objektMjesto = new Mjesto(response.zdravstveniPodatci[0]);
                     this.objektRadniStatus = new RadniStatus(response.zdravstveniPodatci[0]);
                     this.objektStatusPacijent = new StatusPacijent(response.zdravstveniPodatci[0]);
-                    console.log(this.zdrPodatci);
                     //Spremam ID pacijenta
                     this.idPacijent = this.pacijent.id;
                 }
-                console.log(this.isPodatciAktivni);
                 //Sve nazive država osiguranja stavljam u posebno polje zbog validacije
                 for(let drzava of this.drzave){
                   this.naziviDrzava.push(drzava["nazivDrzave"]);
