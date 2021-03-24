@@ -34,8 +34,10 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     povijestiBolesti: PovijestBolesti[] = [];
     //Spremam opće podatke pregleda
     pregledi: Pregled[] = [];
+    //Spremam podatke recepta
     recept: Recept;
-
+    //Oznaka je li prozor podataka recepta otvoren ili nije
+    isIzdaniRecept: boolean = false;
     //Tip korisnika čiji je redak kliknut (koji je obradio taj redak)
     tip: string;
     //Dohvaćam alert box da mogu manipulirati dimenzijama prozora
@@ -96,7 +98,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             else{
                                 //Podatke sa servera spremam u svoj objekt
                                 objektPovijestBolesti = new PovijestBolesti(pregled);
-                                this.recept = new Recept(pregled);
+                                objektPovijestBolesti.recept = pregled;
                                 //Dodavam objekte u svoje polje
                                 this.povijestiBolesti.push(objektPovijestBolesti);
                                 //Označavam da se radi o POVIJESTI BOLESTI
@@ -228,6 +230,20 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         );   
     }
 
+    //Metoda koja se izvodi kada korisnik klikne na "Izdani recept"
+    onIzdaniRecept(recept: Recept){
+        //Ove podatke recepta šaljem komponenti "IzdaniReceptComponent"
+        this.recept = {...recept};
+        //Označavam da se otvori prozor izdanih recepata
+        this.isIzdaniRecept = true;
+    }
+
+    //Metoda koja se poziva kada korisnik izađe iz prozora izdanih recepata
+    onCloseIzdaniRecept(){
+        //Zatvaram prozor izdanih recepata
+        this.isIzdaniRecept = false;
+    }
+
     //Metoda koja dohvaća sve form groupove form arraya "Povijest bolesti"
     getControlsPovijestBolesti(){
         return (<FormArray>this.forma.get('povijestBolesti')).controls;
@@ -243,9 +259,16 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
                 'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
                 'sekundarneDijagnoze': new FormControl(null),
-                'proizvod': new FormControl(povijestBolesti.proizvod ? povijestBolesti.proizvod : null),
-                'kolicina': new FormControl(povijestBolesti.kolicina ? povijestBolesti.kolicina : null),
-                'doziranje': new FormControl(povijestBolesti.doziranje ? povijestBolesti.doziranje : null)
+                'recept': new FormGroup({
+                    'proizvod': new FormControl(povijestBolesti._recept.proizvod ? povijestBolesti._recept.proizvod : null),
+                    'kolicina': new FormControl(povijestBolesti._recept.kolicina ? povijestBolesti._recept.kolicina : null),
+                    'doziranje': new FormControl(povijestBolesti._recept.doziranje ? povijestBolesti._recept.doziranje : null),
+                    'dostatnost': new FormControl(povijestBolesti._recept.dostatnost ? povijestBolesti._recept.dostatnost : null),
+                    'hitnost': new FormControl(povijestBolesti._recept.hitnost ? povijestBolesti._recept.hitnost : null),
+                    'ponovljivost': new FormControl(povijestBolesti._recept.ponovljivost ? povijestBolesti._recept.ponovljivost : null),
+                    'brojPonavljanja': new FormControl(povijestBolesti._recept.brojPonavljanja ? povijestBolesti._recept.brojPonavljanja : null),
+                    'cijeliSpecijalist': new FormControl(povijestBolesti._recept.cijeliSpecijalist ? povijestBolesti._recept.cijeliSpecijalist : null)
+                })
             })
         );
     }

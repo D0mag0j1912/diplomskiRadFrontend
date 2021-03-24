@@ -1,4 +1,5 @@
 import { Time } from "@angular/common";
+import { Recept } from "./recept.model";
 
 export class PovijestBolesti {
     public idPovijestBolesti: number;
@@ -18,9 +19,7 @@ export class PovijestBolesti {
     public tip: string;
     public mkbSifraSekundarna?: string;
     public nazivPrimarna?: string;
-    public proizvod?: string;
-    public kolicina?: number;
-    public doziranje?: string;
+    public _recept?: Recept;
 
     constructor(response: any){
         if(response.idPovijestBolesti){
@@ -71,17 +70,12 @@ export class PovijestBolesti {
         if(response.NazivPrimarna){
             this.nazivPrimarna = response.NazivPrimarna;
         }
-        if(response.proizvod){
-            this.proizvod = response.proizvod;
-        }
-        if(response.kolicina){
-            this.kolicina = +response.kolicina;
-        }
-        if(response.doziranje){
-            this.doziranje = response.doziranje;
-        }
     }
     set sekundarne(sekundarneDijagnoze: string){
         this.sekundarneDijagnoze = sekundarneDijagnoze;
+    }
+
+    set recept(response: any){
+        this._recept = new Recept(response);
     }
 }
