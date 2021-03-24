@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
+import { ImportService } from '../med-sestra/import.service';
 import { LijecnikService } from './lijecnik.service';
 
 @Injectable({
@@ -10,12 +11,17 @@ export class LijecnikResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam liječnički servis
-        private lijecnikService: LijecnikService
+        private lijecnikService: LijecnikService,
+        //Dohvaćam import servis
+        private importService: ImportService
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
             Observable<any> | Promise<any> | any {
         //Pozivam metodu iz servisa i vraćam podatke tipa any 
-        return this.lijecnikService.getPersonalData();
+        return forkJoin([
+            this.lijecnikService.getPersonalData(),
+            this.importService.getSpecijalizacije()
+        ]);
     }
 }

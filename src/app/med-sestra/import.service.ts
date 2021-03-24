@@ -14,6 +14,11 @@ export class ImportService{
         private http: HttpClient
     ){}
 
+    //Metoda koja dohvaća sve specijalizacije
+    getSpecijalizacije(){
+        return this.http.get<any>(baseUrl + 'recept/importi/getZdravstveniRadnici.php').pipe(catchError(handleError));
+    }
+
     //Metoda koja šalje zahtjev serveru te od njega traži dohvat svih područnih ureda
     getPodrucniUred(){
 

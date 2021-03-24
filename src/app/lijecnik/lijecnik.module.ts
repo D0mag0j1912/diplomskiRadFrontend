@@ -5,14 +5,10 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 import { LijecnikRoutingModule } from './lijecnik-routing.module';
 import { LijecnikComponent } from './lijecnik.component';
-import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podataka/azuriranje-osobnih-podataka.component';
-import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
 import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.component';
 @NgModule({
     declarations: [
         LijecnikComponent,
-        AzuriranjeOsobnihPodatakaComponent,
-        AzuriranjeLozinkaComponent,
         PovijestBolestiComponent
     ],
     imports: [
@@ -25,8 +21,6 @@ import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.co
     ],
     exports: [
         LijecnikComponent,
-        AzuriranjeOsobnihPodatakaComponent,
-        AzuriranjeLozinkaComponent,
         PovijestBolestiComponent
     ]
 })

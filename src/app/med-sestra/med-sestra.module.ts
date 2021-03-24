@@ -5,16 +5,12 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 import { MedSestraRoutingModule } from './med-sestra-routing.module';
 import { MedSestraComponent } from './med-sestra.component';
-import { MedSestraAzuriranjePodatciComponent } from './med-sestra-azuriranje-podatci/med-sestra-azuriranje-podatci.component';
-import { MedSestraAzuriranjeLozinkaComponent } from './med-sestra-azuriranje-lozinka/med-sestra-azuriranje-lozinka.component';
 import { NarucivanjeComponent } from './narucivanje/narucivanje.component';
 import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podatci-pregleda.component';
 
 @NgModule({
     declarations: [
         MedSestraComponent,
-        MedSestraAzuriranjePodatciComponent,
-        MedSestraAzuriranjeLozinkaComponent,
         NarucivanjeComponent,
         OpciPodatciPregledaComponent
     ],
@@ -28,8 +24,6 @@ import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podat
     ],
     exports: [
         MedSestraComponent,
-        MedSestraAzuriranjePodatciComponent,
-        MedSestraAzuriranjeLozinkaComponent,
         NarucivanjeComponent,
         OpciPodatciPregledaComponent
     ]

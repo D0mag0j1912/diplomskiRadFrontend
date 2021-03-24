@@ -15,7 +15,7 @@ export class Korisnik{
     public datKreir?: string;
     constructor(response: any){
         if(response.idKorisnik){
-            this.idKorisnik = response.idKorisnik;
+            this.idKorisnik = +response.idKorisnik;
         }
         if(response.tip){
             this.tip = response.tip;
@@ -38,7 +38,7 @@ export class Korisnik{
         //Ako je tip korisnika "lijecnik":
         if(response.tip === "lijecnik"){
             if(response.idLijecnik){
-                this.idLijecnik = response.idLijecnik;
+                this.idLijecnik = +response.idLijecnik;
             }
             if(response.imeLijecnik){
                 this.ime = response.imeLijecnik;
@@ -49,8 +49,8 @@ export class Korisnik{
             if(response.adrLijecnik){
                 this.adresa = response.adrLijecnik;
             }
-            if(response.nazSpecLijecnik){
-                this.specijalizacija = response.nazSpecLijecnik;
+            if(response.tipSpecijalist){
+                this.specijalizacija = response.tipSpecijalist;
             }
             if(response.datKreirLijecnik){
                 this.datKreir = response.datKreirLijecnik;
@@ -59,7 +59,7 @@ export class Korisnik{
         //Ako je tip korisnika "sestra":
         else if(response.tip === "sestra"){
             if(response.idMedSestra){
-                this.idMedSestra = response.idMedSestra;
+                this.idMedSestra = +response.idMedSestra;
             }
             if(response.imeMedSestra){
                 this.ime = response.imeMedSestra;
@@ -70,8 +70,8 @@ export class Korisnik{
             if(response.adrMedSestra){
                 this.adresa = response.adrMedSestra;
             }
-            if(response.nazSpecMedSestra){
-                this.specijalizacija = response.nazSpecMedSestra;
+            if(response.tipSpecijalist){
+                this.specijalizacija = response.tipSpecijalist;
             }
             if(response.datKreirMedSestra){
                 this.datKreir = response.datKreirMedSestra;

@@ -1,0 +1,68 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-md-offset-3">
+            <h3 
+                style="font-family: Verdana, sans-serif;color:#337ab7">Ažuriraj osobne podatke</h3>
+            <p style="font-family: Verdana, sans-serif">
+                Datum registracije profila: <strong>{{osobniPodatci.datKreir}}</strong>
+            </p>
+            <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+            <form [formGroup]="forma" (ngSubmit)="onSubmit()" *ngIf="forma">
+                <div class="form-group">
+                    <label 
+                        for="ime" 
+                        style="font-family: Verdana, sans-serif">Ime</label>
+                    <input 
+                        type="text"
+                        class="form-control"
+                        formControlName="ime">
+                </div>
+                <div class="form-group">
+                    <label 
+                        for="prezime" 
+                        style="font-family: Verdana, sans-serif">Prezime</label>
+                    <input 
+                        type="text" 
+                        formControlName="prezime" 
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label 
+                        for="email" 
+                        style="font-family: Verdana, sans-serif">Email</label>
+                    <input 
+                        type="email" 
+                        formControlName="email" 
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label 
+                        for="adresa" 
+                        style="font-family: Verdana, sans-serif">Adresa</label>
+                    <input 
+                        type="text" 
+                        formControlName="adresa" 
+                        class="form-control">
+                </div>
+                <div class="form-group">
+                    <label 
+                        for="specijalizacija" 
+                        style="font-family: Verdana, sans-serif">Specijalizacija</label>
+                    <select 
+                        formControlName="specijalizacija" 
+                        class="form-control">
+                        <option    
+                            *ngFor="let specijalizacija of zdrRadnici" 
+                            value="{{specijalizacija.tipSpecijalist}}">{{specijalizacija.tipSpecijalist}}</option>
+                    </select>
+                </div>
+                <div>
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary" 
+                        [disabled]="!forma.valid">Ažuriraj</button>
+                </div>
+            </form>  
+        </div>   
+    </div>
+</div>
