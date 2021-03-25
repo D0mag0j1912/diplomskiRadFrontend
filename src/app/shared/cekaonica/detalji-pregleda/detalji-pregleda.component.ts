@@ -43,6 +43,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     //Dohvaćam alert box da mogu manipulirati dimenzijama prozora
     @ViewChild('detaljiPregleda') alertBox : ElementRef;
 
+    brojacPregleda: number = 0;
+
     constructor(
         //Dohvaćam servis čekaonice
         private cekaonicaService: CekaonicaService,
@@ -68,7 +70,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
             switchMap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
-                    console.log(odgovor);
                     //Spremam osobne podatke pacijenta detalja pregleda
                     this.detaljiPregleda = new DetaljiPregleda(odgovor[0][0]);
                     //Kreiram formu
@@ -251,6 +252,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
     //Metoda koja nadodava form groupove u form array "Povijest bolesti"
     addControlsPovijestBolesti(povijestBolesti: PovijestBolesti){
+        this.brojacPregleda++;
         (<FormArray>this.forma.get('povijestBolesti')).push(
             new FormGroup({
                 'idPovijestBolesti': new FormControl(povijestBolesti.idPovijestBolesti),
@@ -259,7 +261,9 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
                 'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
                 'sekundarneDijagnoze': new FormControl(null),
+                'vrijeme': new FormControl(this.brojacPregleda + '.pregled [' + povijestBolesti.vrijeme + ']'),
                 'recept': new FormGroup({
+                    'vrijemePregled': new FormControl(this.brojacPregleda + '.pregled [' + povijestBolesti.vrijeme + ']'),
                     'proizvod': new FormControl(povijestBolesti._recept.proizvod ? povijestBolesti._recept.proizvod : null),
                     'kolicina': new FormControl(povijestBolesti._recept.kolicina ? povijestBolesti._recept.kolicina : null),
                     'doziranje': new FormControl(povijestBolesti._recept.doziranje ? povijestBolesti._recept.doziranje : null),
@@ -279,11 +283,13 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     }
     //Metoda koja nadodava form group sa podatcima u form array "Opći podatci"
     addControlsOpciPodatci(opciPodatci: Pregled){
+        this.brojacPregleda++;
         (<FormArray>this.forma.get('opciPodatci')).push(
             new FormGroup({
                 'primarnaDijagnoza': new FormControl(opciPodatci.mkbSifraPrimarna + " | " + opciPodatci.nazivPrimarna),
                 'mkbSifraSekundarna': new FormControl(opciPodatci.mkbSifraSekundarna),
-                'sekundarneDijagnoze': new FormControl()
+                'sekundarneDijagnoze': new FormControl(),
+                'vrijemePregled': new FormControl(this.brojacPregleda + '.pregled [' + opciPodatci.vrijeme + ']')
             })
         );
     }

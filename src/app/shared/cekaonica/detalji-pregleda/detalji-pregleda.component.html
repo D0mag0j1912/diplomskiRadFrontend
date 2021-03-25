@@ -52,14 +52,16 @@
                             </tr> 
                             <ng-container formArrayName="opciPodatci" *ngFor="let control of getControlsOpciPodatci();let i = index">
                                 <ng-container [formGroupName]="i">
-                                    <tr>
+                                    <tr [ngClass]="(i === 0) ? 'border_top' : ''">
                                        <td colspan="3">
-                                            <h4 
+                                            <input 
                                                 style="font-family: Verdana, sans-serif;
-                                                    color:#337ab7;font-weight: bold;">{{(i+1) + '.pregled'}}</h4>
+                                                    color:#337ab7;font-weight: bold;border:0;width:200px;height:35px;" 
+                                                formControlName="vrijemePregled" 
+                                                readonly>
                                        </td> 
                                     </tr>
-                                    <tr>
+                                    <tr class="border_bottom">
                                         <td>
                                             <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
                                             <textarea 
@@ -106,24 +108,31 @@
                                 <ng-container [formGroupName]="j">
                                     <tr 
                                         formGroupName="recept" 
-                                        *ngIf="control.value.recept.proizvod">
+                                        *ngIf="control.value.recept.proizvod" 
+                                        [ngClass]="(j === 0) ? 'border_top' : ''">
                                         <td 
                                             colspan="3">
-                                            <h4 
+                                            <input 
                                                 style="font-family: Verdana, sans-serif; 
-                                                    color:#337ab7;font-weight: bold;">{{(j+1) + '.pregled'}}</h4>
+                                                    color:#337ab7;font-weight: bold;border:0;width:200px;height:35px;" 
+                                                formControlName="vrijemePregled" 
+                                                readonly>
                                             <button 
                                                 type="button" 
                                                 class="btn btn-warning btn-sm" 
-                                                style="float:right;margin-top:-35px;"
+                                                style="float:right;"
                                                 (click)="onIzdaniRecept(control.value.recept)"
                                                         >Izdani recept</button>
                                         </td>
                                     </tr>
-                                    <tr *ngIf="!control.value.recept.proizvod">
-                                        <h4 
-                                            style="font-family: Verdana, sans-serif;
-                                                color:#337ab7;font-weight: bold;">{{(j+1) + '.pregled'}}</h4>
+                                    <tr 
+                                        *ngIf="!control.value.recept.proizvod" 
+                                        [ngClass]="(j === 0) ? 'border_top' : ''">
+                                        <input 
+                                            style="font-family: Verdana, sans-serif; 
+                                                color:#337ab7;font-weight: bold;border:0;width:200px;height:35px;" 
+                                            formControlName="vrijeme" 
+                                            readonly>
                                     </tr>
                                     <tr>
                                         <td>
@@ -163,7 +172,7 @@
                                                 style="width:100%;"></textarea>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <tr class="border_bottom">
                                         <td colspan="3">
                                             <p style="font-family: Verdana, sans-serif;"><strong>Anamneza: </strong></p>
                                             <textarea
@@ -182,6 +191,9 @@
         </form> 
     </div>
     <div class="alert-box-actions">
-        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+        <button 
+            class="btn btn-primary" 
+            (click)="onClose()" 
+            style="right:10px;position: relative;">Izađi</button>
     </div>
 </div>

@@ -119,11 +119,4 @@ export class CekaonicaService{
         );   
     }
 
-    //Metoda koja dohvaća izdani recept za određeni povijest bolesti
-    getIzdaniRecept(idPovijestBolesti: number, idObrada: number){
-        let params = new HttpParams().append("idPovijestBolesti",idPovijestBolesti.toString());
-        params = params.append("idObrada",idObrada.toString());
-        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getIzdaniRecept.php').pipe(catchError(handleError));
-    }
-
 }
