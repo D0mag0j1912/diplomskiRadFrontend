@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { map, switchMap, take} from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
-import { HeaderService } from '../header/header.service';
 import { ObradaService } from './obrada.service';
 @Injectable({
     providedIn: 'root'
@@ -15,27 +15,27 @@ export class ObradaResolverService implements Resolve<any>{
         private obradaService: ObradaService,
         //Dohvaćam servis medicinske sestre
         private medSestraService: MedSestraService,
-        //Dohvaćam header servis
-        private headerService: HeaderService
+        //Dohvaćam login servis
+        private loginService: LoginService
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
             Observable<any> | Promise<any> | any {
         //Pozivam metodu iz servisa, pretplaćujem se i vraćam podatke tipa Obrada ili any
-        return this.headerService.tipKorisnikaObs.pipe(
+        return this.loginService.user.pipe(
             take(1),
-            switchMap(podatci => {
+            switchMap(user => {
                 //Ako je tip korisnika "lijecnik":
-                if(podatci === "lijecnik"){
+                if(user.tip === "lijecnik"){
                     //Vraćam samo podatke trenutno aktivnog pacijenta
-                    return this.obradaService.getPatientProcessing(podatci);
+                    return this.obradaService.getPatientProcessing(user.tip);
                 }
                 //Ako je tip korisnika "sestra":
-                else if(podatci === "sestra"){
+                else if(user.tip === "sestra"){
                     //Vraćam podatke trenutno aktivnog pacijenta i zdravstvene podatke zbog općih podataka pregleda
                     return forkJoin([
-                        this.obradaService.getPatientProcessing(podatci),
-                        this.medSestraService.getHealthData(podatci)
+                        this.obradaService.getPatientProcessing(user.tip),
+                        this.medSestraService.getHealthData(user.tip)
                     ]).pipe(
                         map(result => {
                             return {

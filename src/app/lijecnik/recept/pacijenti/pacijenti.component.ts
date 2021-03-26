@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { merge, of, Subject } from 'rxjs';
+import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
-import { PovijestBolestiService } from '../../povijest-bolesti/povijest-bolesti.service';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
 import { PacijentiService } from './pacijenti.service';
@@ -49,9 +48,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Dohvaćam servis liste recepata
         private listaReceptiService: ListaReceptiService,
         //Dohvaćam servis pacijenata
-        private pacijentiService: PacijentiService,
-        //Dohvaćam servis povijesti bolesti
-        private povijestBolestiService: PovijestBolestiService
+        private pacijentiService: PacijentiService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
@@ -97,6 +94,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     this.isPretraga = false;
                     //Spremam odgovor servera u svoju varijablu
                     this.nemaPacijenata = podatci["message"];
+                    console.log(this.nemaPacijenata);
                 } 
             }),
             takeUntil(this.pretplateSubject)

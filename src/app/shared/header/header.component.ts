@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { forkJoin, Subject, Subscription } from 'rxjs';
 import { LoginService } from 'src/app/login/login.service';
-import {takeUntil, tap} from 'rxjs/operators';
+import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import { HeaderService } from './header.service';
 import { Router } from '@angular/router';
 
@@ -26,8 +26,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     isLijecnik: boolean = false;
     //Deklariram varijablu koja dava informaciju je li korisnik medicinska sestra ili nije
     isMedSestra: boolean = false;
-    //Deklariram token timer koji kad istekne, liječnički header se diže
-    private tokenExpirationTimer: any;
     //Spremam ID liječnika
     idLijecnik: number;
     //Spremam ID medicinske sestre
@@ -47,8 +45,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       
       //Pretplaćujem se na Subject iz login servisa
       this.loginService.user.pipe(
-          tap(
-          (user) => {
+          take(1),
+          tap((user) => {
               //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
               this.prijavljen = !user ? false : true;
               //Ako je korisnik prijavljen
@@ -61,37 +59,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
                       //Označavam da se medicinska sestra prijavila
                       this.isMedSestra = true;
                   }
-                  //U Subject stavljam tip korisnika da ostale komponente mogu vidjeti tu informaciju
-                  this.headerService.tipKorisnika.next(user["tip"]);
-                  //Dohvaćam korisnikove podatke iz Session Storagea
-                  const userData: {
-                    tip: string;
-                    email: string;
-                    _tokenExpirationDate: Date;
-                    lozinka: string;
-                    _token: string;
-                  } = JSON.parse(sessionStorage.getItem('userData'));
-                  
-                  //Ako ne postoje nikakvi korisnikovi podatci u spremištu
-                  if(!userData){
-                      //Izađi iz ove metode
-                      return;
-                  }
-                  //Računam koliki je rok trajanja tokena 
-                  let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-                  
-                  //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
-                  this.tokenExpirationTimer = setTimeout(() => {
-                      //Ako je tip prijavljenog korisnika "lijecnik":
-                      if(user["tip"] == "lijecnik"){
-                        //Gasim liječnički header
-                        this.isLijecnik = false;
-                      } else if(user["tip"] == "sestra"){
-                        //Gasim sestrin header
-                        this.isMedSestra = false;
-                      }
-                      console.log("istekao sam");
-                  },expirationDuration);
               }
           }),
           takeUntil(this.pretplateSubject)
@@ -124,25 +91,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     //Metoda se poziva kada korisnik klikne button "Logout"
     onLogout(){
 
+        //Pretplaćivam se na klik logout buttona
         this.loginService.logout().pipe(
-            tap(() => {
-                  //Ako postoji aktivan timer, kada se ručno odlogiramo, resetiraj timer
-                  if(this.tokenExpirationTimer){
-                    clearTimeout(this.tokenExpirationTimer);
-                  }
-                  this.tokenExpirationTimer = null;
-              }
-            ),
+            take(1),
+            switchMap(() => {
+                return this.loginService.user.pipe(
+                    tap(user => {
+                        //Ako je tip korisnik "lijecnik":
+                        if(user.tip === "lijecnik"){
+                            //Postavljam varijablu isLijecnik = false da označim da korisnik više nije liječnik i da se header liječnika skrije
+                            this.isLijecnik = false;
+                        }
+                        //Ako je tip korisnika "sestra":
+                        else if(user.tip === "sestra"){
+                            //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
+                            this.isMedSestra = false;
+                        }
+                    }),
+                    takeUntil(this.pretplateSubject)
+                );
+            }),
             takeUntil(this.pretplateSubject)
-        ).subscribe(
-            (podatci) => {
-              console.log(podatci);
-              //Postavljam varijablu isLijecnik = false da označim da korisnik više nije liječnik i da se header liječnika skrije
-              this.isLijecnik = false;
-              //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
-              this.isMedSestra = false;
-            }
-        );
+        ).subscribe();
     }
 
     //Kada se klikne na "Logo" u headeru
@@ -168,7 +138,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
       this.pretplateSubject.next(true);
       this.pretplateSubject.complete();
-      this.headerService.tipKorisnika.next(null);
     }
 
 }

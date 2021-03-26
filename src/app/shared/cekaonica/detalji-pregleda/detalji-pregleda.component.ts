@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChi
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil } from 'rxjs/operators';
-import { HeaderService } from '../../header/header.service';
+import { LoginService } from 'src/app/login/login.service';
 import { DetaljiPregleda } from '../../modeli/detaljiPregleda.model';
 import { PovijestBolesti } from '../../modeli/povijestBolesti.model';
 import { Pregled } from '../../modeli/pregled.model';
@@ -48,19 +48,19 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     constructor(
         //Dohvaćam servis čekaonice
         private cekaonicaService: CekaonicaService,
-        //Dohvaćam servis headera
-        private headerService: HeaderService
+        //Dohvaćam login servis
+        private loginService: LoginService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
     ngOnInit() {
 
         //Pretplaćujem se na Observable u kojemu se nalaze detalji pregleda
-        this.headerService.tipKorisnikaObs.pipe(
+        this.loginService.user.pipe(
             take(1),
-            switchMap(tipKorisnik => {
+            switchMap(user => {
                 //Spremam tip prijavljenog korisnika
-                this.tipKorisnik = tipKorisnik;
+                this.tipKorisnik = user.tip;
                 return this.cekaonicaService.prikaziDetaljePregleda().pipe(
                     takeUntil(this.pretplateSubject)
                 );

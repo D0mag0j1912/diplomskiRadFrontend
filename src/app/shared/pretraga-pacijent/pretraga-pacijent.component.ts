@@ -1,8 +1,8 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { combineLatest, Subject } from 'rxjs';
-import { switchMap,takeUntil,tap } from 'rxjs/operators';
+import { switchMap,take,takeUntil,tap } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { CekaonicaService } from '../cekaonica/cekaonica.service';
-import { HeaderService } from '../header/header.service';
 import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from '../obrada/obrada.service';
 
@@ -35,8 +35,8 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
       private cekaonicaService: CekaonicaService,
       //Dohvaćam servis obrade
       private obradaService: ObradaService,
-      //Dohvaćam header service
-      private headerService: HeaderService
+      //Dohvaćam login servis
+      private loginService: LoginService
     ) { }
     //Kreiram event emitter koji će pokrenuti event kada se stisne "Close"
     @Output() close = new EventEmitter<any>();
@@ -111,9 +111,10 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     //Metoda koja dodava određenog pacijenta u čekaonicu
     onDodajCekaonica(id: number){
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje pacijenta u čekaonicu
-        this.headerService.tipKorisnikaObs.pipe(
-            switchMap(tipKorisnik => {
-                return this.cekaonicaService.addToWaitingRoom(tipKorisnik,id).pipe(
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                return this.cekaonicaService.addToWaitingRoom(user.tip,id).pipe(
                     takeUntil(this.pretplateSubject)
                 );
             }),

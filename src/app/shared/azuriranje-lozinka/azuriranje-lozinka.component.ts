@@ -3,9 +3,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
 import { LijecnikService } from '../../lijecnik/lijecnik.service';
-import { HeaderService } from '../header/header.service';
 
 @Component({
   selector: 'app-azuriranje-lozinka',
@@ -32,10 +32,10 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
         private lijecnikService: LijecnikService,
         //Dohvaćam podatke iz URL-a
         private route: ActivatedRoute,
-        //Dohvaćam header servis
-        private headerService: HeaderService,
         //Dohvaćam servis medicinske sestre
-        private medSestraService: MedSestraService
+        private medSestraService: MedSestraService,
+        //Dohvaćam login servis
+        private loginService: LoginService
     ) { }
 
     //Metoda koja se pokreće kada se komponenta inicijalizira
@@ -48,13 +48,13 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
           'ponovnoNovaLozinka': new FormControl(null, [Validators.required])
       });
       //Pretplaćivam se na tip korisnika
-      this.headerService.tipKorisnikaObs.pipe(
+      this.loginService.user.pipe(
           take(1),
-          switchMap(tipKorisnik => {
+          switchMap(user => {
               return this.route.params.pipe(
                   tap((params: Params) => {
                       //Ako je tip korisnika "lijecnik"
-                      if(tipKorisnik === "lijecnik"){
+                      if(user.tip === "lijecnik"){
                           this.idLijecnik = +params['id'];
                       }
                       //Ako je tip korisnika "sestra":

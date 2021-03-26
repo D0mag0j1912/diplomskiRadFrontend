@@ -2,8 +2,8 @@ import { Time } from '@angular/common';
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject} from 'rxjs';
-import { switchMap,distinctUntilChanged, takeUntil, debounceTime, tap } from 'rxjs/operators';
-import { HeaderService } from '../header/header.service';
+import { switchMap,distinctUntilChanged, takeUntil, debounceTime, tap, take } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from '../modeli/obrada.model';
 import { OtvoreniSlucaj } from '../modeli/otvoreniSlucaj.model';
 import { ObradaService } from '../obrada/obrada.service';
@@ -46,8 +46,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
       private otvoreniSlucajService: OtvoreniSlucajService,
       //Dohvaćam servis obrade
       private obradaService: ObradaService,
-      //Dohvaćam header servis
-      private headerService: HeaderService
+      //Dohvaćam login servis
+      private loginService: LoginService
     ) { } 
 
     //Metoda koja se poziva kada se komponenta inicijalizira
@@ -57,9 +57,10 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
             'parametar': new FormControl(null)
           });
         //Pretplaćujem se na odgovore servera
-        this.headerService.tipKorisnikaObs.pipe(
-            switchMap(tipKorisnik => {
-                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                return this.obradaService.getPatientProcessing(user.tip).pipe(
                     takeUntil(this.pretplateSubject)
                 );
             }),
@@ -154,9 +155,10 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
             switchMap(value => {
                 //Ako ID pacijent još nije definiran
                 if(!this.idPacijent){
-                    return this.headerService.tipKorisnikaObs.pipe(
-                        switchMap(tipKorisnik => {
-                            return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                    return this.loginService.user.pipe(
+                        take(1),
+                        switchMap(user => {
+                            return this.obradaService.getPatientProcessing(user.tip).pipe(
                                 switchMap(podatci => {
                                     this.idPacijent = +podatci[0].idPacijent;
                                     return this.pretraga(value, this.idPacijent);

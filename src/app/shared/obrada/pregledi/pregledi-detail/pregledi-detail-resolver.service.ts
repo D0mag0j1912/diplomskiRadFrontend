@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
 import { catchError, switchMap, take } from "rxjs/operators";
-import { HeaderService } from "src/app/shared/header/header.service";
+import { LoginService } from "src/app/login/login.service";
 import {handleError} from '../../../rxjs-error';
 import { PreglediDetailService } from "./pregledi-detail.service";
 
@@ -12,17 +12,17 @@ import { PreglediDetailService } from "./pregledi-detail.service";
 export class PreglediDetailResolverService implements Resolve<any>{
 
     constructor(
-        //Dohvaćam servis headera
-        private headerService: HeaderService,
+        //Dohvaćam login servis
+        private loginService: LoginService,
         //Dohvaćam servis pregleda
         private preglediDetailService: PreglediDetailService
     ){}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): 
             Observable<any> | Promise<any> | any{
-        return this.headerService.tipKorisnikaObs.pipe(
+        return this.loginService.user.pipe(
             take(1),
-            switchMap(tipKorisnik => {
-                return this.preglediDetailService.dohvatiCijeliPregled(+route.params['id'],tipKorisnik).pipe(
+            switchMap(user => {
+                return this.preglediDetailService.dohvatiCijeliPregled(+route.params['id'],user.tip).pipe(
                     catchError(handleError)
                 );
             })

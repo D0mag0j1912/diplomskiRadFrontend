@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { HeaderService } from '../../header/header.service';
+import { debounceTime, distinctUntilChanged, mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { PregledList } from '../../modeli/pregledList.model';
 import { SekundarniHeaderService } from '../../sekundarni-header/sekundarni-header.service';
 import { ObradaService } from '../obrada.service';
@@ -41,14 +41,14 @@ export class PreglediComponent implements OnInit, OnDestroy{
         private preglediService: PreglediService,
         //Dohvaćam servis sekundarnog headera
         private sekundarniHeaderService: SekundarniHeaderService,
-        //Dohvaćam servis headera
-        private headerService: HeaderService,
         //Dohvaćam servis liste prethodnih pregleda
         private preglediListService: PreglediListService,
         //Dohvaćam router
         private router: Router,
         //Dohvaćam servis detalja prethodnih pregleda
-        private preglediDetailService: PreglediDetailService
+        private preglediDetailService: PreglediDetailService,
+        //Dohvaćam login servis
+        private loginService: LoginService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -115,16 +115,17 @@ export class PreglediComponent implements OnInit, OnDestroy{
                         //Ako je kliknut button "Pregledi" u sek. headeru
                         if(vrijednost){
                             //Pretplaćujem se na tip korisnika koji je logiran
-                            return this.headerService.tipKorisnikaObs.pipe(
-                                switchMap(tipKorisnik => {
+                            return this.loginService.user.pipe(
+                                take(1),
+                                switchMap(user => {
                                     //Pretplaćujem se na podatke aktivnog korisnika
-                                    return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                                    return this.obradaService.getPatientProcessing(user.tip).pipe(
                                         switchMap(podatci => {
                                             //Ako JE pacijent aktivan u obradi
                                             if(podatci["success"] !== "false"){
                                                 return forkJoin([
-                                                    this.preglediListService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
-                                                    this.preglediService.getNajnovijiDatum(tipKorisnik,+podatci[0].idPacijent)
+                                                    this.preglediListService.dohvatiSvePreglede(user.tip,+podatci[0].idPacijent),
+                                                    this.preglediService.getNajnovijiDatum(user.tip,+podatci[0].idPacijent)
                                                 ]).pipe(
                                                     tap(podatci => {
                                                         //Ako aktivni pacijent NEMA evidentiranih pregleda
@@ -177,15 +178,16 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     distinctUntilChanged(),
                     switchMap(datum => {
                         //Pretplaćujem se na trenutni tip logiranog korisnika
-                        return this.headerService.tipKorisnikaObs.pipe(
-                            switchMap(tipKorisnik => {
+                        return this.loginService.user.pipe(
+                            take(1),
+                            switchMap(user => {
                                 //Pretplaćujem se na podatke aktivnog pacijenta
-                                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                                return this.obradaService.getPatientProcessing(user.tip).pipe(
                                     switchMap(podatci => {
                                         //Ako je pacijent AKTIVAN
                                         if(podatci["success"] !== "false"){
                                             //Dohvaćam sve pregleda za promijenjeni datum
-                                            return this.preglediListService.dohvatiPregledePoDatumu(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                            return this.preglediListService.dohvatiPregledePoDatumu(user.tip,+podatci[0].idPacijent,datum).pipe(
                                                 mergeMap(pregledi => {
                                                     //Ako aktivni pacijent IMA evidentiranih pregleda za taj datum
                                                     if(pregledi !== null){
@@ -201,7 +203,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                             //Dodavam ga u polje koje ažurira template
                                                             this.pregledi.push(objektPregled);
                                                         }
-                                                        return this.preglediDetailService.getNajnovijiIDPregledZaDatum(tipKorisnik,+podatci[0].idPacijent,datum).pipe(
+                                                        return this.preglediDetailService.getNajnovijiIDPregledZaDatum(user.tip,+podatci[0].idPacijent,datum).pipe(
                                                             tap(idPregled => {
                                                                 //Ako pacijent IMA evidentiranih pregleda za PROMIJENJENI DATUM U FILTERU
                                                                 if(idPregled !== null){
@@ -244,17 +246,18 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     distinctUntilChanged(),
                     switchMap(value => {
                         //Pretplaćujem se na tip korisnika koji je logiran
-                        return this.headerService.tipKorisnikaObs.pipe(
-                            switchMap(tipKorisnik => {
+                        return this.loginService.user.pipe(
+                            take(1),
+                            switchMap(user => {
                                 //Pretplaćujem se na podatke aktivnog korisnika
-                                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+                                return this.obradaService.getPatientProcessing(user.tip).pipe(
                                     switchMap(podatci => {
                                         //Ako JE pacijent aktivan u obradi
                                         if(podatci["success"] !== "false"){
                                             //Pretplaćivam se na sve preglede dobivene pretragom
                                             return forkJoin([
-                                                this.preglediListService.dohvatiSvePregledePretraga(tipKorisnik,+podatci[0].idPacijent,value),
-                                                this.preglediDetailService.getNajnovijiIDPregledZaPretragu(tipKorisnik,+podatci[0].idPacijent,value)
+                                                this.preglediListService.dohvatiSvePregledePretraga(user.tip,+podatci[0].idPacijent,value),
+                                                this.preglediDetailService.getNajnovijiIDPregledZaPretragu(user.tip,+podatci[0].idPacijent,value)
                                             ]).pipe(
                                                 tap(pregledi => {
                                                     console.log(pregledi);

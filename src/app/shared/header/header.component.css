@@ -1,8 +1,4 @@
-.active {
-    color:#000; 
- } 
-
- .nav-item{
-    padding-left:10px;
+.navbar {
+    padding-top:0;
+    padding-bottom: 0;
 }
-

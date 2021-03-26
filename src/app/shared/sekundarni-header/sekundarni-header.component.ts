@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { merge, of, Subject, Subscription } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
 import { PreglediDetailService } from '../obrada/pregledi/pregledi-detail/pregledi-detail.service';
@@ -29,8 +29,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     isAktivan: boolean = false;
     //Označavam je li pacijent ima pregleda
     imaLiPregleda: boolean = false;
-    //Deklariram token timer koji kad istekne, liječnički header se diže
-    private tokenExpirationTimer: any;
     //Spremam ID pregleda na koji se preusmjeravam klikom na link "Pregledi" AKO pacijent ima evidentiranih pregleda
     idPregled: number;
 
@@ -54,47 +52,20 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         const combined = merge(
             //Pretplaćujem se na Subject iz login servisa
             this.loginService.user.pipe(
+                take(1),
                 tap((user) => {
                     //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
                     this.prijavljen = !user ? false : true;
                     //Ako je korisnik prijavljen
                     if(this.prijavljen){
-                    //Ako je tip prijavljenog korisnika "lijecnik":
-                    if(user["tip"] == "lijecnik"){
-                        //Označavam da se liječnik prijavio
-                        this.isLijecnik = true;
-                    } else if(user["tip"] == "sestra"){
-                        //Označavam da se medicinska sestra prijavila
-                        this.isMedSestra = true;
-                    }
-                    //Dohvaćam korisnikove podatke iz Session Storagea
-                    const userData: {
-                        tip: string;
-                        email: string;
-                        _tokenExpirationDate: Date;
-                        lozinka: string;
-                        _token: string;
-                    } = JSON.parse(sessionStorage.getItem('userData'));
-                    
-                    //Ako ne postoje nikakvi korisnikovi podatci u spremištu
-                    if(!userData){
-                        //Izađi iz ove metode
-                        return;
-                    }
-                    //Računam koliki je rok trajanja tokena 
-                    let expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
-                    //Postavljam timer na taj interval vremena i kada istekne, poziva se metoda u kojoj skidam liječničke propertye iz headera
-                    this.tokenExpirationTimer = setTimeout(() => {
                         //Ako je tip prijavljenog korisnika "lijecnik":
                         if(user["tip"] == "lijecnik"){
-                            //Gasim liječnički header
-                            this.isLijecnik = false;
+                            //Označavam da se liječnik prijavio
+                            this.isLijecnik = true;
                         } else if(user["tip"] == "sestra"){
-                            //Gasim sestrin header
-                            this.isMedSestra = false;
+                            //Označavam da se medicinska sestra prijavila
+                            this.isMedSestra = true;
                         }
-                    },expirationDuration);
-
                     }
                 }),
                 //Tip prijavljenog korisnika prosljeđujem metodi koja dohvaća podatke aktivnog pacijenta u obradi

@@ -1,44 +1,68 @@
-<nav class="navbar navbar-expand-md navbar-light bg-light">
+<nav class="navbar navbar-expand-md">
     <button 
         class="navbar-toggler ml-auto"
         data-toggle="collapse"
         data-target="#collapse_target1">
-        <span class="navbar-toggler-icon"></span>
+        <span 
+            class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="collapse_target1">
+    <div 
+        class="collapse navbar-collapse" 
+        id="collapse_target1">
         <ul class="nav navbar-nav">
-            <li routerLinkActive="active" class="nav-item" *ngIf="isMedSestra">
-                <a  style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    routerLink="/med-sestra/obrada/opciPodatci" 
-                    class="nav-link">
+            <li 
+                routerLinkActive="active" 
+                *ngIf="isMedSestra">
+                <a  
+                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                    routerLink="/med-sestra/obrada/opciPodatci">
                     Opći podatci pregleda</a>
             </li>
-            <li routerLinkActive="active" class="nav-item" *ngIf="isLijecnik">
-                <a  style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    routerLink="/lijecnik/obrada/povijestBolesti" 
-                    class="nav-link">
+            <li 
+                routerLinkActive="active" 
+                *ngIf="isLijecnik">
+                <a  
+                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                    routerLink="/lijecnik/obrada/povijestBolesti">
                     Povijest bolesti</a>
             </li>
-            <li routerLinkActive="active" class="dropdown nav-item">
-                <a style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    class="dropdown-toggle nav-link"
-                    role="button" id="navbarDropdown" data-toggle="dropdown">Osobni podatci</a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a 
+            <li 
+                routerLinkActive="active" 
+                class="dropdown">
+                <a 
+                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                    class="dropdown-toggle"
+                    role="button" 
+                    id="navbarDropdown" 
+                    data-toggle="dropdown">Osobni podatci</a>
+                <ul 
+                    class="dropdown-menu" 
+                    aria-labelledby="navbarDropdown">
+                    <li>
+                        <a 
                             style="cursor: pointer;font-family:Verdana, sans-serif" 
-                            routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a></li>
+                            routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a>
+                    </li>
                     <div class="dropdown-divider"></div>
                     <li><a 
                             style="cursor: pointer;font-family:Verdana, sans-serif" 
-                            routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a></li>
+                            routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a>
+                    </li>
                 </ul>
             </li>
-            <li routerLinkActive="active" class="nav-item">
+            <li 
+                routerLinkActive="active">
                 <a  
                     style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    (click)="preumjeriNaPregled()" 
-                    class="nav-link">
+                    (click)="preumjeriNaPregled()">
                     Pregledi</a>
+            </li>
+            <li 
+                routerLinkActive="active">
+                <a  
+                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                    *ngIf="isLijecnik">
+                    Nalazi</a>
             </li>
         </ul>
     </div>

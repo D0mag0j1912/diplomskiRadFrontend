@@ -1,11 +1,10 @@
 import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
-import { HeaderService } from 'src/app/shared/header/header.service';
+import { Subject } from 'rxjs';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { PregledList } from 'src/app/shared/modeli/pregledList.model';
-import { PreglediService } from '../pregledi.service';
 import { PreglediListService } from './pregledi-list.service';
 
 @Component({
@@ -29,12 +28,10 @@ export class PreglediListComponent implements OnInit, OnDestroy{
         private router: Router,
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
-        //Dohvaćam servis headera
-        private headerService: HeaderService,
+        //Dohvaćam login servis
+        private loginService: LoginService,
         //Dohvaćam servis liste pregleda
-        private preglediListService: PreglediListService,
-        //Dohvaćam servis pregleda
-        private preglediService: PreglediService
+        private preglediListService: PreglediListService
     ) {}
 
     //Ova metoda se poziva kada se komponenta incicijalizira
@@ -128,9 +125,10 @@ export class PreglediListComponent implements OnInit, OnDestroy{
 
     //Metoda koja vraća Observable koji vraća traženi datum
     vratiTrazeniDatum(idPregled: number){
-        return this.headerService.tipKorisnikaObs.pipe(
-            switchMap(tipKorisnik => {
-                return this.preglediListService.dohvatiTrazeniPregled(tipKorisnik,idPregled).pipe(
+        return this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                return this.preglediListService.dohvatiTrazeniPregled(user.tip,idPregled).pipe(
                     tap(pregled => {
                         //Inicijaliziram objekt tipa "PregledList"
                         let objektPregled: PregledList;
@@ -147,7 +145,7 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                         const ids = this.pregledi.map((pregled) => {
                             return pregled.idPregled.toString();
                         });
-                        return this.preglediListService.provjeriIstuGrupaciju(tipKorisnik,ids).pipe(
+                        return this.preglediListService.provjeriIstuGrupaciju(user.tip,ids).pipe(
                             tap(pregledi => {
                                 //Ako postoji neki pregled koji treba izbrisati
                                 if(pregledi.length !== 0){

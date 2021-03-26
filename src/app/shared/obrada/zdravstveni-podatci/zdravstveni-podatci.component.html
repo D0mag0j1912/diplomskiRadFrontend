@@ -7,30 +7,29 @@
                 <table class="table table-striped">
                     <tbody>
                         <tr>
-                            <td>
-                                <label for="nositeljOsiguranja">Nositelj osiguranja</label><br>
-                                <div style="margin-left:150px;margin-top:-25px;">
-                                    <label>
-                                        <input 
-                                            type="radio" 
-                                            value="nositelj"
-                                            formControlName="nositeljOsiguranja">Nositelj osiguranja 
-                                    </label>
-                                </div>
-                            </td>
-                            <td>
+                            <td colspan="3">
+                                <label 
+                                    for="nositeljOsiguranja" 
+                                    style="font-family: Verdana, sans-serif;">Nositelj osiguranja</label><br>
                                 <label>
                                     <input 
-                                        type="radio"
-                                        value="clan"
-                                        formControlName="nositeljOsiguranja">Član obitelji
+                                        type="radio" 
+                                        value="nositelj"
+                                        formControlName="nositeljOsiguranja">Nositelj osiguranja 
+                                    <ng-container style="left:10px;position: relative;">
+                                        <input 
+                                            type="radio"
+                                            value="clan"
+                                            formControlName="nositeljOsiguranja">Član obitelji
+                                    </ng-container>
                                 </label>
                             </td>
-                            <td></td>
                         </tr>
                         <tr>
                             <td>
-                                <label for="drzavaOsiguranja">Država osiguranja</label>
+                                <label 
+                                    for="drzavaOsiguranja" 
+                                    style="font-family: Verdana, sans-serif;">Država osiguranja</label>
                                 <select  
                                     type="text"
                                     class="form-control"
@@ -45,7 +44,9 @@
                                 </span>
                             </td>
                             <td>
-                                <label for="kategorijaOsiguranja">Kategorija osiguranja</label>
+                                <label 
+                                    for="kategorijaOsiguranja" 
+                                    style="font-family: Verdana, sans-serif;">Kategorija osiguranja</label>
                                 <select  
                                     type="text"
                                     class="form-control"
@@ -63,7 +64,9 @@
                         </tr>
                         <tr>
                             <td>
-                                <label for="podrucniUred">Područni ured</label>
+                                <label 
+                                    for="podrucniUred" 
+                                    style="font-family: Verdana, sans-serif;">Područni ured</label>
                                 <select  
                                     type="text"
                                     class="form-control"
@@ -87,17 +90,19 @@
                         </tr>
                         <tr>
                             <td>
-                            <label for="mbo">Matični broj pacijenta</label>
-                            <input
-                                type="text"
-                                class="form-control" 
-                                formControlName="mbo"
-                                style="width:270px;"
-                                placeholder="Unesite matični broj pacijenta...">
-                            <span class="help-block" *ngIf="(mbo.touched || mbo.dirty) && !mbo.valid">
-                                <span *ngIf="mbo.errors['pattern']">Morate unijeti ispravan format MBO-a!</span>
-                                <span *ngIf="mbo.errors['required']">Ovo polje je obavezno za unos!</span>
-                            </span>
+                                <label 
+                                    for="mbo"
+                                    style="font-family: Verdana, sans-serif;">Matični broj pacijenta</label>
+                                <input
+                                    type="text"
+                                    class="form-control" 
+                                    formControlName="mbo"
+                                    style="width:270px;"
+                                    placeholder="Unesite matični broj pacijenta...">
+                                <span class="help-block" *ngIf="(mbo.touched || mbo.dirty) && !mbo.valid">
+                                    <span *ngIf="mbo.errors['pattern']">Morate unijeti ispravan format MBO-a!</span>
+                                    <span *ngIf="mbo.errors['required']">Ovo polje je obavezno za unos!</span>
+                                </span>
                             </td>
                             <td>
                                 <div style="margin-top:30px;">
@@ -107,7 +112,9 @@
                                         value="trajnoOsnovno"
                                         style="margin-top:5px;"
                                         (change)="onChecked($event)">
-                                    <label for="trajnoOsnovno" style="margin-left:5px;">Trajno osnovno osiguranje</label> 
+                                    <label 
+                                        for="trajnoOsnovno" 
+                                        style="margin-left:5px;font-family: Verdana, sans-serif;">Trajno osnovno osiguranje</label> 
                                     <span class="help-block" *ngIf="(trajnoOsnovno.touched || trajnoOsnovno.dirty) && !trajnoOsnovno.valid">
                                         <span *ngIf="trajnoOsnovno.errors?.required">Ovo polje je obavezno za unos!</span>
                                     </span>
@@ -119,7 +126,9 @@
                         </tr>
                         <tr formGroupName="datumiOsnovno">
                             <td>
-                                <label for="osnovnoOd">Osnovno osiguranje od</label>
+                                <label 
+                                    for="osnovnoOd" 
+                                    style="font-family: Verdana, sans-serif;">Osnovno osiguranje od</label>
                                 <input 
                                     type="date"
                                     class="form-control"
@@ -132,7 +141,9 @@
                                 <span class="help-block" *ngIf="datumiOsnovno.errors?.neValjaDatumOsnovno">Početni datum mora biti manji od završnog!</span>
                             </td>
                             <td>
-                                <label for="osnovnoDo">Osnovno osiguranje do</label>
+                                <label 
+                                    for="osnovnoDo" 
+                                    style="font-family: Verdana, sans-serif;">Osnovno osiguranje do</label>
                                 <input 
                                     type="date"
                                     class="form-control"
@@ -146,13 +157,17 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td><h4>Dopunsko osiguranje</h4></td>
+                            <td>
+                                <h4 style="font-family: Verdana, sans-serif;">Dopunsko osiguranje</h4>
+                            </td>
                             <td></td>
                             <td></td>
                         </tr>
                         <tr>
                             <td>
-                                <label for="brIskDopunsko">Broj iskaznice dopunskog osiguranja</label>
+                                <label 
+                                    for="brIskDopunsko" 
+                                    style="font-family: Verdana, sans-serif;">Broj iskaznice dopunskog osiguranja</label>
                                 <input  
                                     type="text"
                                     class="form-control"
@@ -168,7 +183,9 @@
                         </tr>
                         <tr formGroupName="datumiDopunsko">
                             <td>
-                                <label for="dopunskoOd">Dopunsko osiguranje od</label>
+                                <label 
+                                    for="dopunskoOd" 
+                                    style="font-family: Verdana, sans-serif;">Dopunsko osiguranje od</label>
                                 <input 
                                     type="date"
                                     class="form-control"
@@ -181,7 +198,9 @@
                                 <span class="help-block" *ngIf="datumiDopunsko.errors?.neValjaDatumDopunsko">Početni datum mora biti manji od završnog!</span>
                             </td>
                             <td>
-                                <label for="dopunskoDo">Dopunsko osiguranje do</label>
+                                <label 
+                                    for="dopunskoDo" 
+                                    style="font-family: Verdana, sans-serif;">Dopunsko osiguranje do</label>
                                 <input 
                                     type="date"
                                     class="form-control"
@@ -202,7 +221,9 @@
                                     value="oslobodenParticipacije"
                                     style="margin-top:5px;"
                                     (change)="onCheckedParticipacija($event)">
-                                <label for="oslobodenParticipacije" style="margin-left:5px;">Oslobođen participacije</label>
+                                <label 
+                                    for="oslobodenParticipacije" 
+                                    style="margin-left:5px;font-family: Verdana, sans-serif;">Oslobođen participacije</label>
                                 <span class="help-block" *ngIf="forma.errors?.mustBeCheckedParticipacija">Oslobođen participacije mora biti upisan!</span>
                             </td>
                             <td></td>
@@ -210,7 +231,9 @@
                         </tr>
                         <tr formGroupName="participacija">
                            <td>
-                               <label for="clanakParticipacija">Prema članku Zakona</label>
+                               <label 
+                                    for="clanakParticipacija" 
+                                    style="font-family: Verdana, sans-serif;">Prema članku Zakona</label>
                                <select  
                                     type="text"
                                     class="form-control"
@@ -233,7 +256,9 @@
                                         value="trajnoParticipacija"
                                         style="margin-top:5px;" 
                                         (change)="onCheckedTrajnaParticipacija($event)">
-                                    <label for="trajnoParticipacija" style="margin-left:5px;">Trajno participacija</label>
+                                    <label 
+                                        for="trajnoParticipacija" 
+                                        style="margin-left:5px;font-family: Verdana, sans-serif;">Trajno participacija</label>
                                 </div>
                                 <span *ngIf="(participacija.touched || participacija.dirty) && !participacija.valid">
                                     <span class="help-block" *ngIf="participacija.errors?.bothForbidden">Samo jedan unos je dozvoljen!</span>
@@ -241,7 +266,9 @@
                                 <span class="help-block" *ngIf="forma.errors?.baremJedan">Morate unijeti ili trajnu participaciju ili datum završetka oslobođenja od participacije!</span>
                            </td>
                            <td>
-                                <label for="participacijaDo">Participacija do</label>
+                                <label 
+                                    for="participacijaDo" 
+                                    style="font-family: Verdana, sans-serif;">Participacija do</label>
                                 <input 
                                     type="date"
                                     class="form-control"
@@ -254,14 +281,12 @@
                            </td>
                         </tr>
                         <tr>
-                            <td>
+                            <td colspan="3">
                                 <button 
                                     type="submit"
                                     class="btn btn-primary"
                                     [disabled]="!forma.valid">Potvrdi zdravstvene podatke</button>
                             </td>
-                            <td></td>
-                            <td></td>
                         </tr>
                     </tbody>
                 </table>

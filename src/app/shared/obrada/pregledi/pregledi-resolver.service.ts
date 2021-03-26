@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { forkJoin, Observable, of } from "rxjs";
 import { switchMap, take } from "rxjs/operators";
-import { HeaderService } from "../../header/header.service";
+import { LoginService } from "src/app/login/login.service";
 import { ObradaService } from "../obrada.service";
 import { PreglediListService } from "./pregledi-list/pregledi-list.service";
 import { PreglediService } from "./pregledi.service";
@@ -12,28 +12,28 @@ import { PreglediService } from "./pregledi.service";
 export class PreglediResolverService implements Resolve<any>{
 
     constructor(
-        //Dohvaćam servis headera
-        private headerService: HeaderService,
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam servis pregleda
         private preglediService: PreglediService,
         //Dohvaćam servis liste prethodnih pregleda
-        private preglediListService: PreglediListService
+        private preglediListService: PreglediListService,
+        //Dohvaćam login servis
+        private loginService: LoginService
     ){}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): 
             Observable<any> | Promise<any> | any{
-        return this.headerService.tipKorisnikaObs.pipe(
+        return this.loginService.user.pipe(
             take(1),
-            switchMap(tipKorisnik => {
-                return this.obradaService.getPatientProcessing(tipKorisnik).pipe(
+            switchMap(user => {
+                return this.obradaService.getPatientProcessing(user.tip).pipe(
                     take(1),
                     switchMap(podatci => {
                         //Ako JE pacijent aktivan u obradi
                         if(podatci["success"] !== "false"){
                             return forkJoin([
-                                this.preglediListService.dohvatiSvePreglede(tipKorisnik,+podatci[0].idPacijent),
-                                this.preglediService.getNajnovijiDatum(tipKorisnik,+podatci[0].idPacijent)
+                                this.preglediListService.dohvatiSvePreglede(user.tip,+podatci[0].idPacijent),
+                                this.preglediService.getNajnovijiDatum(user.tip,+podatci[0].idPacijent)
                             ]);
                         }
                         //Ako pacijent NIJE aktivan u obradi

@@ -2,11 +2,10 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, forkJoin, of, Subject } from 'rxjs';
+import { combineLatest, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
-import { HeaderService } from '../header/header.service';
 import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from './obrada.service';
 
@@ -68,9 +67,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam login servis
-        private loginService: LoginService,
-        //Dohvaćam header service
-        private headerService: HeaderService
+        private loginService: LoginService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -83,12 +80,12 @@ export class ObradaComponent implements OnInit, OnDestroy {
       }, {validators: this.atLeastOneRequired});
 
       //Pretplaćujem se na odgovore servera na traženje sljedećeg pacijenta koji čeka na pregled I na vrijeme narudžbe aktivnog pacijenta
-      this.headerService.tipKorisnikaObs.pipe(
+      this.loginService.user.pipe(
           take(1),
-          switchMap(podatci => {
+          switchMap(user => {
               return combineLatest([
-                this.obradaService.getSljedeciPacijent(podatci),
-                this.obradaService.getVrijemeNarudzbe(podatci),
+                this.obradaService.getSljedeciPacijent(user.tip),
+                this.obradaService.getVrijemeNarudzbe(user.tip),
                 this.loginService.user,
                 this.route.data
               ]).pipe(
@@ -250,9 +247,10 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Metoda koja se pokreće kada korisnik klikne "Dodaj u čekaonicu" u prozoru pretrage pacijenta
     onSljedeciPacijent(){
         //Pretplaćujem se na odgovor servera ima li sljedećeg pacijenta koji ima status "Čeka na pregled"
-        this.headerService.tipKorisnikaObs.pipe(
-            switchMap(tipKorisnik => {
-                return this.obradaService.getSljedeciPacijent(tipKorisnik);
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                return this.obradaService.getSljedeciPacijent(user.tip);
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe(
@@ -281,11 +279,12 @@ export class ObradaComponent implements OnInit, OnDestroy {
         //U Local Storage stavljam novu vrijednost ID-a obrade
         localStorage.setItem("idObrada",JSON.stringify(null));
         //Dohvaćam tip prijavljenog korisnika te tu informaciju predavam metodama
-        this.headerService.tipKorisnikaObs.pipe(
-            switchMap(podatci => {
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
                 return combineLatest([
-                    this.obradaService.editPatientStatus(this.trenutnoAktivniPacijent.idObrada,podatci,this.trenutnoAktivniPacijent.idPacijent),
-                    this.obradaService.getPatientProcessing(podatci)
+                    this.obradaService.editPatientStatus(this.trenutnoAktivniPacijent.idObrada,user.tip,this.trenutnoAktivniPacijent.idPacijent),
+                    this.obradaService.getPatientProcessing(user.tip)
                 ]).pipe(
                     takeUntil(this.pretplateSubject)
                 )

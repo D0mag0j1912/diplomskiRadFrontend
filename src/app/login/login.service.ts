@@ -77,8 +77,7 @@ export class LoginService implements OnDestroy{
         //Čim se korisnik prijavi, odmah pozivam metodu za automatsku odjavu
         this.autologout(expiresIn * 1000);
         //Spremam podatke u Session Storage
-        sessionStorage.setItem('userData',JSON.stringify(user));
-        
+        sessionStorage.setItem('userData',JSON.stringify(user));   
     }
 
     //Metoda za odjavu korisnika
@@ -105,7 +104,7 @@ export class LoginService implements OnDestroy{
                 token: userData._token  
             }).pipe(
                 catchError(handleError),
-                tap(podatci=> {
+                tap(() => {
                     //U BehaviorSubject stavljam vrijednost null
                     this.user.next(null);
                     //Preusmjeravam korisnika na login stranicu

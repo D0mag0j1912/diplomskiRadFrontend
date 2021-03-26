@@ -1,9 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-body{
-    font-family: 'Montserrat', sans-serif;
+.navbar {
+    padding-top:0;
+    padding-bottom: 0;
 }
-
-.nav-item{
-    padding-left:10px;
-}
-

@@ -2,8 +2,8 @@ import { Time } from '@angular/common';
 import { Component, OnInit,Output,EventEmitter, OnDestroy, Input } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { HeaderService } from 'src/app/shared/header/header.service';
+import { debounceTime, distinctUntilChanged, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -55,8 +55,8 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
         private obradaService: ObradaService,
         //Dohvaćam servis povezane povijesti bolesti
         private povezaniPovijestBolestiService: PovezaniPovijestBolestiService,
-        //Dohvaćam header servis
-        private headerService: HeaderService
+        //Dohvaćam login servis
+        private loginService: LoginService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
@@ -73,9 +73,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             switchMap(isObrada => {
                 //Ako sam došao dodavde preko obrade
                 if(isObrada){
-                    return this.headerService.tipKorisnikaObs.pipe(
-                        switchMap(podatci => {
-                            return this.obradaService.getPatientProcessing(podatci).pipe(
+                    return this.loginService.user.pipe(
+                        take(1),
+                        switchMap(user => {
+                            return this.obradaService.getPatientProcessing(user.tip).pipe(
                                 takeUntil(this.pretplateSubject)
                             );
                         }),
