@@ -52,7 +52,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         const combined = merge(
             //Pretplaćujem se na Subject iz login servisa
             this.loginService.user.pipe(
-                take(1),
                 tap((user) => {
                     //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
                     this.prijavljen = !user ? false : true;

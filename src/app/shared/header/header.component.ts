@@ -88,22 +88,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
         //Pretplaćivam se na klik logout buttona
         this.loginService.logout().pipe(
-            switchMap(() => {
-                return this.loginService.user.pipe(
-                    tap(user => {
-                        //Ako je tip korisnik "lijecnik":
-                        if(user.tip === "lijecnik"){
-                            //Postavljam varijablu isLijecnik = false da označim da korisnik više nije liječnik i da se header liječnika skrije
-                            this.isLijecnik = false;
-                        }
-                        //Ako je tip korisnika "sestra":
-                        else if(user.tip === "sestra"){
-                            //Postavljam varijablu isMedSestra = false da označim da korisnik više nije medicinska sestra i da se header medicinske sestre skrije
-                            this.isMedSestra = false;
-                        }
-                    }),
-                    takeUntil(this.pretplateSubject)
-                );
+            tap(() => {
+                //Postavljam obe oznake korisnika na false jer je odjavljen korisnik
+                this.isLijecnik = false;
+                this.isMedSestra = false;
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();

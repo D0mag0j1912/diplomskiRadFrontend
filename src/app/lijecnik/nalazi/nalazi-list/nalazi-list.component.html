@@ -1,9 +1,16 @@
 <div class="row">
     <div class="col-xs-12">
-        <ul class="list-group list-group-horizontal">
+        <ul class="list-inline">
             <li     
-                class="list-group-item flex-fill" 
-                style="cursor: pointer;border-radius: 5px;"></li>
+                class="list-inline-item" 
+                *ngFor="let nalaz of nalazi">
+                <h4 
+                    style="font-family: Verdana, sans-serif;">{{nalaz.datumNalaz}}</h4>
+                <h5 
+                    style="font-family: Verdana, sans-serif;">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h5>
+                <h3 
+                    style="font-family: Verdana, sans-serif;">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
+            </li>
         </ul>
     </div>
 </div>

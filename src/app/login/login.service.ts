@@ -103,7 +103,6 @@ export class LoginService implements OnDestroy{
                 tip: userData.tip,
                 token: userData._token  
             }).pipe(
-                catchError(handleError),
                 tap(() => {
                     //U BehaviorSubject stavljam vrijednost null
                     this.user.next(null);
@@ -117,7 +116,8 @@ export class LoginService implements OnDestroy{
                         clearTimeout(this.tokenExpirationTimer);
                     }
                     this.tokenExpirationTimer = null;
-                }));
+                }),
+                catchError(handleError));
     }
 
     //Kreiram metodu koja će automatski odjaviti korisnika kada token istekne (argument je rok trajanja u ms)

@@ -49,7 +49,6 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 this.datumiNazivi = podatci.podatci["datumiNazivi"];
                 //Spremam sva vremena
                 this.narudzbe = podatci.podatci["narudzbe"];
-                console.log(this.narudzbe);
                 //Spremam današnji datum
                 this.danasnjiDatum = podatci.podatci["danasnjiDatum"];
 

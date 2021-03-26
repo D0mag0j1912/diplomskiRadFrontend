@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { NalazList } from 'src/app/shared/modeli/nalazList.model';
 
 @Component({
   selector: 'app-nalazi-list',
@@ -7,9 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NalaziListComponent implements OnInit {
 
+
+    //Primam nalaze od roditelja
+    @Input() nalazi: NalazList[];
+
     constructor() { }
 
-    ngOnInit(): void {
+    //Ova metoda se pokreće kada se komponenta inicijalizira
+    ngOnInit(){
+        console.log(this.nalazi);
     }
 
 }

@@ -12,22 +12,16 @@
             (zatvaranje)="onCloseNarudzba()"></app-narudzba>
         <div class="col-xs-12 col-md-12">
             <form [formGroup]="forma">
-                <div class="table-responsive-sm">
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <td>
-                                <label for="datum">Datum</label>
-                                <input
-                                    type="date"
-                                    class="form-control" 
-                                    formControlName="datum"
-                                    style="width:270px;"
-                                    placeholder="Unesite datum početka naručivanja...">   
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="form-group">
+                    <label 
+                        for="datum" 
+                        style="font-family: Verdana, sans-serif;margin-top:5px;">Datum</label>
+                    <input
+                        type="date"
+                        class="form-control" 
+                        formControlName="datum"
+                        style="width:270px;"
+                        placeholder="Unesite datum početka naručivanja..."> 
                 </div>
             </form>
             <div style="background-color:#FAEBD7;border:1px solid gray;height:35px;">
