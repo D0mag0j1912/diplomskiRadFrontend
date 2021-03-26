@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { forkJoin, Subject, Subscription } from 'rxjs';
+import { forkJoin, Subject} from 'rxjs';
 import { LoginService } from 'src/app/login/login.service';
 import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import { HeaderService } from './header.service';
@@ -15,10 +15,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Kreiram varijable u kojoj pohranjujem pretplatu
-    subs: Subscription;
-    subLogout: Subscription;
-    subsCombined: Subscription;
     //Deklariram varijablu koja dava informaciju je li korisnik prijavljen ili nije
     prijavljen: boolean = false;
 
@@ -45,7 +41,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       
       //Pretplaćujem se na Subject iz login servisa
       this.loginService.user.pipe(
-          take(1),
           tap((user) => {
               //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
               this.prijavljen = !user ? false : true;
@@ -93,7 +88,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
         //Pretplaćivam se na klik logout buttona
         this.loginService.logout().pipe(
-            take(1),
             switchMap(() => {
                 return this.loginService.user.pipe(
                     tap(user => {

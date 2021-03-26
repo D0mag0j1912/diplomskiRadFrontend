@@ -6,10 +6,14 @@ import { SharedModule } from '../shared/shared.module';
 import { LijecnikRoutingModule } from './lijecnik-routing.module';
 import { LijecnikComponent } from './lijecnik.component';
 import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.component';
+import { NalaziComponent } from './nalazi/nalazi.component';
+import { NalaziListComponent } from './nalazi/nalazi-list/nalazi-list.component';
 @NgModule({
     declarations: [
         LijecnikComponent,
-        PovijestBolestiComponent
+        PovijestBolestiComponent,
+        NalaziComponent,
+        NalaziListComponent
     ],
     imports: [
         CommonModule,
@@ -21,7 +25,9 @@ import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.co
     ],
     exports: [
         LijecnikComponent,
-        PovijestBolestiComponent
+        PovijestBolestiComponent,
+        NalaziComponent,
+        NalaziListComponent
     ]
 })
 export class LijecnikModule{

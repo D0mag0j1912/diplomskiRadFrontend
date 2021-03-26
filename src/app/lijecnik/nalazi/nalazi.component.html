@@ -1,0 +1,54 @@
+<div class="row">
+    <div class="col-xs-12">
+        <form [formGroup]="forma" *ngIf="forma">
+            <div class="col-xs-4">
+                <label 
+                    for="filter" 
+                    style="font-family: Verdana, sans-serif;">Filtriraj prema:</label>
+                <select 
+                    formControlName="filter" 
+                    class="form-control" 
+                    style="width:200px;display:inline;margin-left:5px;" 
+                    (change)="onChangeFilter($event)">
+                    <option value="datum">Datum</option>
+                    <option value="pretraga">Pretraga</option>
+                </select> 
+            </div>
+            <div class="col-xs-6">
+                <ng-container *ngIf="isDatum">
+                    <label 
+                        for="datum"
+                        style="font-family: Verdana, sans-serif;">Datum:</label>
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        formControlName="datum"
+                        style="width:200px;display: inline;margin-left:5px;">
+                </ng-container>
+                <ng-container *ngIf="!isDatum">
+                    <label 
+                        for="pretraga"
+                        style="font-family: Verdana, sans-serif;">Pretraga:</label>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        formControlName="pretraga"
+                        style="width:300px;display: inline;margin-left:5px;" 
+                        placeholder="Unesite parametar pretrage...">
+                </ng-container>
+            </div>
+            <div class="col-xs-2">
+                <button 
+                    type="button" 
+                    class="btn btn-warning" 
+                    (click)="povuciNalaze()">Povuci nalaze</button>
+            </div>
+        </form>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="col-xs-12">
+        <app-nalazi-list></app-nalazi-list>
+    </div>
+</div>

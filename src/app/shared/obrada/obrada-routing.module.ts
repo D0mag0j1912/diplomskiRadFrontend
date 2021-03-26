@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { NalaziComponent } from 'src/app/lijecnik/nalazi/nalazi.component';
 import { PovijestBolestiComponent } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.component';
 import { ImportiResolverService } from '../../med-sestra/importi-resolver.service';
 import { OpciPodatciPregledaComponent } from '../../med-sestra/opci-podatci-pregleda/opci-podatci-pregleda.component';
@@ -23,7 +24,8 @@ const routes = [
         {path: 'zdravstveniPodatci', component: ZdravstveniPodatciComponent, resolve: {podatci: ImportiResolverService, zdravstveniPodatci: ZdravstveniPodatciResolverService}},
         {path: 'pregledi', component: PreglediComponent, resolve: {pregledi: PreglediResolverService}, children: [
             {path: ':id', component: PreglediDetailComponent,resolve: {cijeliPregled: PreglediDetailResolverService, obrada: ObradaResolverService}}
-        ]}
+        ]},
+        {path: 'nalazi', component: NalaziComponent}
     ]},
 ];
 
