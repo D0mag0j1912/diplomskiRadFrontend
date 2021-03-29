@@ -1,0 +1,18 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <div class="col-xs-12 col-md-12">
+        <form [formGroup]="forma" *ngIf="forma">
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr class="table-primary">
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+    <div class="alert-box-actions">
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

@@ -1,15 +1,23 @@
 <div class="row">
+    <router-outlet></router-outlet>
     <div class="col-xs-12">
-        <ul class="list-inline">
+        <ul class="list-group flex-md-row">
             <li     
-                class="list-inline-item" 
-                *ngFor="let nalaz of nalazi">
-                <h4 
-                    style="font-family: Verdana, sans-serif;">{{nalaz.datumNalaz}}</h4>
-                <h5 
-                    style="font-family: Verdana, sans-serif;">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h5>
-                <h3 
-                    style="font-family: Verdana, sans-serif;">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
+                class="list-group-item" 
+                *ngFor="let nalaz of nalazi" 
+                routerLinkActive="active" 
+                [routerLink]="[nalaz.idNalaz]" 
+                (click)="onClickItemList()">
+                <div class="pull-left">
+                    <h5 
+                        style="font-family: Verdana, sans-serif;">{{nalaz.datumNalaz}}</h5>
+                    <h5 
+                        style="font-family: Verdana, sans-serif;
+                        word-wrap: break-word; 
+                        ">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h5>
+                    <h5 
+                        style="font-family: Verdana, sans-serif;word-wrap: break-word;">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h5>
+                </div> 
             </li>
         </ul>
     </div>

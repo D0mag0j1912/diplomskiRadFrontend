@@ -56,6 +56,8 @@ export class NalaziComponent implements OnInit, OnDestroy{
                             tap(nalazi => {
                                 //Ako je odgovor servera null, znači da se procedura nije uspješno okinula
                                 if(nalazi !== null){
+                                    //Resetiram polje nalaza da se isti nalazi ne pushaju
+                                    this.nalazi = [];
                                     //Definiram objekt tipa "NalazList"
                                     let objektNalazList;
                                     for(const nalaz of nalazi){
@@ -63,9 +65,6 @@ export class NalaziComponent implements OnInit, OnDestroy{
                                         objektNalazList = new NalazList(nalaz);
                                         //Jednog po jednog spremam u polje
                                         this.nalazi.push(objektNalazList);
-                                    }
-                                    for(const nalaz of this.nalazi){
-                                        console.log(nalaz);
                                     }
                                 }
                             }),

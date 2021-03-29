@@ -8,12 +8,14 @@ import { LijecnikComponent } from './lijecnik.component';
 import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.component';
 import { NalaziComponent } from './nalazi/nalazi.component';
 import { NalaziListComponent } from './nalazi/nalazi-list/nalazi-list.component';
+import { NalaziDetailComponent } from './nalazi/nalazi-list/nalazi-detail/nalazi-detail.component';
 @NgModule({
     declarations: [
         LijecnikComponent,
         PovijestBolestiComponent,
         NalaziComponent,
-        NalaziListComponent
+        NalaziListComponent,
+        NalaziDetailComponent
     ],
     imports: [
         CommonModule,
@@ -27,7 +29,8 @@ import { NalaziListComponent } from './nalazi/nalazi-list/nalazi-list.component'
         LijecnikComponent,
         PovijestBolestiComponent,
         NalaziComponent,
-        NalaziListComponent
+        NalaziListComponent,
+        NalaziDetailComponent
     ]
 })
 export class LijecnikModule{
