@@ -28,52 +28,48 @@
     </div>
     <div class="row">
         <div class="col-xs-12 col-md-6">
-            <form (ngSubmit)="onSubmit()" [formGroup]="forma">
-                <div class="table-responsive-sm">
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <td>
-                                <p style="font-family: Verdana, sans-serif"><strong>Dodaj u čekaonicu</strong></p>
-                                <input 
-                                    type="text"
-                                    name="ime"
-                                    placeholder="Unesite ime..."
-                                    class="form-control"
-                                    style="width:200px;"
-                                    formControlName="ime">
-                                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
-                                    <span 
-                                        *ngIf="forma.hasError('error')" 
-                                        style="font-weight: bold;" 
-                                        class="help-block">Morate unijeti barem jedno od polja!</span>
-                                </span>
-                                </td>
-                                <td>
-                                <input 
-                                    type="text"
-                                    name="prezime"
-                                    placeholder="Unesite prezime..."
-                                    class="form-control"
-                                    style="width:200px;margin-top:29px;"
-                                    formControlName="prezime">
-                                </td>
-                                <td>
-                                <button 
-                                    type="submit"
-                                    class="btn btn-info"
-                                    style="cursor: pointer;"
-                                    style="width:100px;height:34px;margin-top:29px;"
-                                    [disabled]="!forma.valid">Pretraži</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <p 
+                style="font-family: Verdana, sans-serif"><strong>Dodaj u čekaonicu</strong></p>
+            <form (ngSubmit)="onSubmit()" [formGroup]="forma" class="form-inline">
+                <div class="form-group">
+                    <input 
+                        type="text"
+                        name="ime"
+                        placeholder="Unesite ime..."
+                        class="form-control"
+                        style="width:200px;"
+                        formControlName="ime">
                 </div>
+                <div class="form-group">
+                    <input 
+                        type="text"
+                        name="prezime"
+                        placeholder="Unesite prezime..."
+                        class="form-control"
+                        style="width:200px;margin-left:7px;"
+                        formControlName="prezime">
+                </div>
+                <div class="form-group">
+                    <button 
+                            type="submit"
+                            class="btn btn-info"
+                            style="cursor: pointer;"
+                            style="width:100px;height:34px;margin-left:7px;"
+                            [disabled]="!forma.valid">Pretraži</button>
+                </div>
+                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
+                    <span 
+                        *ngIf="forma.hasError('error')" 
+                        style="font-weight: bold;" 
+                        class="help-block">Morate unijeti barem jedno od polja!</span>
+                </span>
             </form>
         </div>
     </div>
-    <div class="row" *ngIf="isAktivan">
+    <div 
+        class="row" 
+        *ngIf="isAktivan" 
+        style="margin-top:10px;">
         <div class="col-xs-12 col-md-12">
             <div class="table-responsive-sm">
                 <table class="table table-striped table-hover table-bordered">

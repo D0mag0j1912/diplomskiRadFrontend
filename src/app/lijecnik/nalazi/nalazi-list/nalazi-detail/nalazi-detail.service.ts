@@ -18,6 +18,12 @@ export class NalaziDetailService {
         private http: HttpClient
     ){}
 
+    //Metoda koja dohvaća sve sekundarne dijagnoze za prikaz u detaljima nalaza
+    getSekundarneDijagnoze(idNalaz: number){
+        let params = new HttpParams().append("idNalaz",idNalaz.toString());
+        return this.http.get<any>(baseUrl + 'nalazi/nalazi-detail/getSekundarneDijagnoze.php', {params: params}).pipe(catchError(handleError));
+    }
+
     //Metoda koja dohvaća sve podatke koji su vezani za nalaz koji je kliknut u listi
     getNalaz(idNalaz: number){
         let params = new HttpParams().append("idNalaz",idNalaz.toString());

@@ -1,6 +1,5 @@
 export class Nalaz {
     public imePrezimeSpecijalist: string;
-    public sifraTipSpecijalist: string;
     public idZdrUst: number;
     public nazivZdrUst: string;
     public adresaZdrUst: string;
@@ -9,13 +8,11 @@ export class Nalaz {
     public primarnaDijagnoza: string;
     public misljenjeSpecijalist: string;
     public datumNalaz: Date;
+    public _sekundarneDijagnoze: string[] = [];
 
     constructor(response: any){
         if(response.specijalist){
             this.imePrezimeSpecijalist = response.specijalist;
-        }
-        if(response.sifraTipSpecijalist){
-            this.sifraTipSpecijalist = response.sifraTipSpecijalist;
         }
         if(response.idZdrUst){
             this.idZdrUst = +response.idZdrUst;
@@ -41,5 +38,9 @@ export class Nalaz {
         if(response.datumNalaz){
             this.datumNalaz = response.datumNalaz;
         }
+    }
+
+    set sekundarneDijagnoze(dijagnoza: string){
+        this._sekundarneDijagnoze.push(dijagnoza);
     }
 }

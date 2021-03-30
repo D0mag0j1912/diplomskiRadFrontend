@@ -47,7 +47,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
 
     //Metoda koja se aktivira kada liječnik klikne na button "Povuci nalaze"
     povuciNalaze(){
-        this.loginService.user.pipe(
+        return this.loginService.user.pipe(
             take(1),
             switchMap(user => {
                 return this.obradaService.getPatientProcessing(user.tip).pipe(

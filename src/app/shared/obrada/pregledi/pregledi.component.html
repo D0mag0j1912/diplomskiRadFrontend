@@ -53,8 +53,9 @@
     </div>
 </div>
 <ng-container *ngIf="isAktivan && imaLiPregleda && !porukaNemaRezultata">
-    <hr>
-    <div class="row">
+    <div 
+        class="row" 
+        style="margin-top:20px;">
         <div class="col-xs-4">
             <app-pregledi-list 
                 [pregledi]="pregledi" 

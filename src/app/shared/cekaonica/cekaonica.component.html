@@ -19,57 +19,52 @@
         <app-detalji-pregleda 
             *ngIf="isDetaljiPregleda"
             (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>
-        <div class="col-xs-12 col-md-12">
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 center_div">
             <h2 
                 style="text-align: center;
                     font-family:Verdana, sans-serif; 
                     color:#337ab7;">Popis pacijenata u čekaonici</h2>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-md-6 center_div">
-            <form (ngSubmit)="onSubmit()" [formGroup]="forma">
-                <div class="table-responsive-sm">
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <td>
-                                <input 
-                                    type="text"
-                                    name="ime"
-                                    placeholder="Unesite ime..."
-                                    class="form-control"
-                                    style="width:200px;"
-                                    formControlName="ime">
-                                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid" class="help-block">
-                                    <span *ngIf="forma.hasError('error')" style="font-weight: bold;">Morate unijeti barem jedno od polja!</span>
-                                </span>
-                                </td>
-                                <td>
-                                <input 
-                                    type="text"
-                                    name="prezime"
-                                    placeholder="Unesite prezime..."
-                                    class="form-control"
-                                    style="width:200px;"
-                                    formControlName="prezime">
-                                </td>
-                                <td>
-                                <button 
-                                    type="submit"
-                                    class="btn btn-info"
-                                    style="cursor: pointer;"
-                                    style="width:100px;height:34px;"
-                                    [disabled]="!forma.valid">Pretraži</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <form 
+                (ngSubmit)="onSubmit()" 
+                [formGroup]="forma" 
+                class="form-inline">
+                <div class="form-group">
+                    <input 
+                        type="text"
+                        name="ime"
+                        placeholder="Unesite ime..."
+                        class="form-control"
+                        style="width:200px;"
+                        formControlName="ime">
                 </div>
+                <div class="form-group">
+                    <input 
+                        type="text"
+                        name="prezime"
+                        placeholder="Unesite prezime..."
+                        class="form-control"
+                        style="width:200px;margin-left:7px;"
+                        formControlName="prezime">
+                </div>
+                <div class="form-group">
+                    <button 
+                        type="submit"
+                        class="btn btn-info"
+                        style="cursor: pointer;"
+                        style="width:100px;height:34px;margin-left:7px;"
+                        [disabled]="!forma.valid">Pretraži</button>
+                </div>
+                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid" class="help-block">
+                    <span *ngIf="forma.hasError('error')" style="font-weight: bold;">Morate unijeti barem jedno od polja!</span>
+                </span>
             </form>
         </div>
     </div>
-    <div class="row">
+    <div 
+        class="row" 
+        style="margin-top:20px;">
         <div class="col-xs-12 col-md-12" *ngIf="!isPrazna">
             <div class="text-center">
                 <div class="form-check form-check-inline" *ngFor="let control of getControlsStatusi(); let i = index">
