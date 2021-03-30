@@ -46,9 +46,15 @@
         </form>
     </div>
 </div>
+<div *ngIf="nemaNalaza">
+    <h4 
+        style="font-family: Verdana, sans-serif;
+            color:#a94442;text-align: center;">{{nemaNalaza}}</h4>
+</div>
 <div 
     class="row" 
-    style="margin-top:20px;">
+    style="margin-top:20px;" 
+    *ngIf="!nemaNalaza">
     <div class="col-xs-12">
         <app-nalazi-list 
             [nalazi]="nalazi"></app-nalazi-list>

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { merge, Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { NalazList } from 'src/app/shared/modeli/nalazList.model';
@@ -22,6 +22,10 @@ export class NalaziComponent implements OnInit, OnDestroy{
     isDatum: boolean = true;
     //Spremam sve dohvaćene nalaze 
     nalazi: NalazList[] = [];
+    //Spremam ID aktivnog pacijenta
+    idPacijent: number;
+    //Spremam poruku da nema nalaza
+    nemaNalaza: string = null;
 
     constructor(
         //Dohvaćam servis obrade
@@ -37,12 +41,35 @@ export class NalaziComponent implements OnInit, OnDestroy{
         //Kreiram formu
         this.forma = new FormGroup({
             'filter': new FormControl("datum"),
-            'datum': new FormControl(null),
+            'datum': new FormControl(null, [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
             'pretraga': new FormControl(null)
         });
         //Na početku onemogućavam filtriranje dok ne povučem podatke
         this.filter.disable({emitEvent: false});
         this.datum.disable({emitEvent: false});
+
+        const combined = merge(
+            this.datum.valueChanges.pipe(
+                switchMap(datum => {
+                    return this.nalaziService.dohvatiNalazePoDatumu(datum,this.idPacijent).pipe(
+                        tap(nalazi => {
+                            //Ako je odgovor servera null, znači da nema nalaza
+                            if(nalazi !== null){
+                                this.nemaNalaza = null;
+                                //Punim listu nalaza
+                                this.napuniNalaze(nalazi);
+                            }
+                            //Ako nema pronađenih nalaza za traženi datum
+                            else{
+                                this.nemaNalaza = 'Nema evidentiranih nalaza!';
+                            }
+                        }),
+                        takeUntil(this.pretplata)
+                    );
+                }),
+                takeUntil(this.pretplata)   
+            )
+        ).subscribe();
     }
 
     //Metoda koja se aktivira kada liječnik klikne na button "Povuci nalaze"
@@ -54,19 +81,16 @@ export class NalaziComponent implements OnInit, OnDestroy{
                     switchMap(podatci => {
                         return this.nalaziService.dohvatiSveNalaze(+podatci[0].idPacijent).pipe(
                             tap(nalazi => {
-                                //Ako je odgovor servera null, znači da se procedura nije uspješno okinula
+                                //Ako je odgovor servera null, znači da nema nalaza
                                 if(nalazi !== null){
-                                    //Resetiram polje nalaza da se isti nalazi ne pushaju
-                                    this.nalazi = [];
-                                    //Definiram objekt tipa "NalazList"
-                                    let objektNalazList;
-                                    for(const nalaz of nalazi){
-                                        //Punim svoje objekte
-                                        objektNalazList = new NalazList(nalaz);
-                                        //Jednog po jednog spremam u polje
-                                        this.nalazi.push(objektNalazList);
-                                    }
+                                    //Spremam ID aktivnog pacijenta
+                                    this.idPacijent = +podatci[0].idPacijent;
+                                    //Punim listu nalaza
+                                    this.napuniNalaze(nalazi);
                                 }
+                                //Omogućavam pretragu
+                                this.filter.enable({emitEvent: false});
+                                this.datum.enable({emitEvent: false});
                             }),
                             takeUntil(this.pretplata)
                         );
@@ -76,6 +100,20 @@ export class NalaziComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplata)
         ).subscribe();
+    }
+
+    //Metoda koja puni listu nalaza
+    napuniNalaze(response: any){
+        //Resetiram polje nalaza da se isti nalazi ne pushaju
+        this.nalazi = [];
+        //Definiram objekt tipa "NalazList"
+        let objektNalazList;
+        for(const nalaz of response){
+            //Punim svoje objekte
+            objektNalazList = new NalazList(nalaz);
+            //Jednog po jednog spremam u polje
+            this.nalazi.push(objektNalazList);
+        }
     }
 
     //Metoda koja se pokreće kada se promijeni vrijednost filtera

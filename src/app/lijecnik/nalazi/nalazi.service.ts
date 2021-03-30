@@ -11,6 +11,13 @@ export class NalaziService {
 
     constructor(private http: HttpClient){}
 
+    //Metoda koja pretraživa nalaze po datumu
+    dohvatiNalazePoDatumu(datum: Date, idPacijent: number){
+        let params = new HttpParams().append("datum",datum.toString());
+        params = params.append("idPacijent",idPacijent.toString());
+        return this.http.get<any>(baseUrl + 'nalazi/lista-nalaza/dohvatiNalazePoDatumu.php', {params: params}).pipe(catchError(handleError));
+    }
+
     //Metoda koja dohvaća sve nalaze te ih stavlja u listu
     dohvatiSveNalaze(idPacijent: number){
         let params = new HttpParams().append("idPacijent",idPacijent.toString());
