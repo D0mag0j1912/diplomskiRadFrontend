@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { Nalaz } from 'src/app/shared/modeli/nalaz.model';
-import { NalaziDetailService } from './nalazi-detail.service';
 
 @Component({
   selector: 'app-nalazi-detail',
@@ -25,8 +24,8 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
     constructor(
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
-        //Dohvaćam servis detalja nalaza
-        private nalaziDetailService: NalaziDetailService
+        //Dohvaćam router
+        private router: Router
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -48,7 +47,6 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
                         this.nalaz.sekundarneDijagnoze = dijagnoza.sekundarneDijagnoze;
                     }
                 }
-                console.log(this.nalaz);
                 //Kreiram novi prazni string
                 let str = new String("");
                 //Ako ima sekundarnih dijagnoza u mom modelu
@@ -85,8 +83,8 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
 
     //Ova metoda se poziva kada liječnik klikne na "Izađi" ili izvan prozora
     onClose(){
-        //Emitiram Subjectom vrijednost da liječnik želi zatvoriti ovaj prozor
-        this.nalaziDetailService.close.next(true);
+        //Preusmjeravam se na /nalazi
+        this.router.navigate(['../'],{relativeTo: this.route});
     }
 
     //Ova metoda se poziva kada se komponenta uništi

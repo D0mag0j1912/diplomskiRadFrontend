@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { merge, Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { FormControl, FormGroup } from '@angular/forms';
+import { merge, of, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { NalazList } from 'src/app/shared/modeli/nalazList.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -41,7 +41,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
         //Kreiram formu
         this.forma = new FormGroup({
             'filter': new FormControl("datum"),
-            'datum': new FormControl(null, [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
+            'datum': new FormControl(null),
             'pretraga': new FormControl(null)
         });
         //Na početku onemogućavam filtriranje dok ne povučem podatke
@@ -51,30 +51,70 @@ export class NalaziComponent implements OnInit, OnDestroy{
         const combined = merge(
             this.datum.valueChanges.pipe(
                 switchMap(datum => {
-                    return this.nalaziService.dohvatiNalazePoDatumu(datum,this.idPacijent).pipe(
-                        tap(nalazi => {
-                            //Ako je odgovor servera null, znači da nema nalaza
-                            if(nalazi !== null){
-                                this.nemaNalaza = null;
-                                //Punim listu nalaza
-                                this.napuniNalaze(nalazi);
-                            }
-                            //Ako nema pronađenih nalaza za traženi datum
-                            else{
-                                this.nemaNalaza = 'Nema evidentiranih nalaza!';
-                            }
-                        }),
-                        takeUntil(this.pretplata)
-                    );
+                    //Ako datum nije null (stavljam ga na null kada stisnem "Povuci nalaze")
+                    if(datum !== null){
+                        return this.nalaziService.dohvatiNalazePoDatumu(datum,this.idPacijent).pipe(
+                            tap(nalazi => {
+                                //Ako je odgovor servera null, znači da nema nalaza
+                                if(nalazi !== null){
+                                    this.nemaNalaza = null;
+                                    //Punim listu nalaza
+                                    this.napuniNalaze(nalazi);
+                                }
+                                //Ako nema pronađenih nalaza za traženi datum
+                                else{
+                                    this.nemaNalaza = 'Nema evidentiranih nalaza!';
+                                }
+                            }),
+                            takeUntil(this.pretplata)
+                        );
+                    }
+                    else{
+                        return of(null).pipe(
+                            takeUntil(this.pretplata)
+                        );
+                    }
                 }),
                 takeUntil(this.pretplata)   
+            ),
+            //Pretplaćujem se na promjene u polju tekstualne pretrage
+            this.pretraga.valueChanges.pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                switchMap(value => {
+                    //Ako value nije null (stavljam ga na null kada stisnem "Povuci nalaze")
+                    if(value !== null){
+                        return this.nalaziService.dohvatiNalazePoTekstu(value, this.idPacijent).pipe(
+                            tap(nalazi => {
+                                //Ako je server vratio nalaze
+                                if(nalazi.success !== "false"){
+                                    //Resetiram poruku da nema nalaza
+                                    this.nemaNalaza = null;
+                                    //Punim listu nalaza
+                                    this.napuniNalaze(nalazi);
+                                }
+                                //Ako je server vratio da nema rezultata
+                                else{
+                                    this.nemaNalaza = 'Nema evidentiranih nalaza!';
+                                }
+                            }),
+                            takeUntil(this.pretplata)
+                        );
+                    }
+                    //Ako je value null, nastavljam stream
+                    else{
+                        return of(null).pipe(
+                            takeUntil(this.pretplata)
+                        );
+                    }
+                })
             )
         ).subscribe();
     }
 
     //Metoda koja se aktivira kada liječnik klikne na button "Povuci nalaze"
     povuciNalaze(){
-        return this.loginService.user.pipe(
+        this.loginService.user.pipe(
             take(1),
             switchMap(user => {
                 return this.obradaService.getPatientProcessing(user.tip).pipe(
@@ -91,6 +131,9 @@ export class NalaziComponent implements OnInit, OnDestroy{
                                 //Omogućavam pretragu
                                 this.filter.enable({emitEvent: false});
                                 this.datum.enable({emitEvent: false});
+                                //Resetiram datum
+                                this.datum.reset(); 
+                                this.pretraga.reset();
                             }),
                             takeUntil(this.pretplata)
                         );
@@ -117,9 +160,9 @@ export class NalaziComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja se pokreće kada se promijeni vrijednost filtera
-    onChangeFilter($event: string){
+    onChangeFilter($event: any){
         //Ako je vrijednost filtera datum:
-        if($event === "datum"){
+        if($event.target.value === "datum"){
             //Označavam da se pretraživa po datumu
             this.isDatum = true;
         }
