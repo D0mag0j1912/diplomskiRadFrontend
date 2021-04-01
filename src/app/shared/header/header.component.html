@@ -47,6 +47,13 @@
             </li>
             <li 
                 routerLinkActive="active" 
+                *ngIf="prijavljen && isLijecnik">
+                <a 
+                    routerLink="/lijecnik/uputnica" 
+                    style="cursor: pointer;font-family: Verdana, sans-serif;">Uputnice</a>
+            </li>
+            <li 
+                routerLinkActive="active" 
                 *ngIf="prijavljen && isMedSestra">
                 <a 
                     routerLink="/med-sestra/narucivanje" 

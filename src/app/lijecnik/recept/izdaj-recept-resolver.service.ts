@@ -2,9 +2,8 @@ import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/r
 import { Observable } from 'rxjs';
 import {Injectable} from '@angular/core';
 import {forkJoin} from 'rxjs';
-import {map, switchMap, take, tap} from 'rxjs/operators';
-import { ReceptImportiService } from './recept-import.service';
-import { ImportService } from 'src/app/med-sestra/import.service';
+import {map, switchMap, take} from 'rxjs/operators';
+import { ImportService } from 'src/app/shared/import.service';
 import { ReceptService } from './recept.service';
 import { ListaReceptiService } from './lista-recepti/lista-recepti.service';
 @Injectable({
@@ -13,8 +12,6 @@ import { ListaReceptiService } from './lista-recepti/lista-recepti.service';
 export class IzdajReceptResolverService implements Resolve<any>{
 
     constructor(
-        //Dohvaćam importi recept servis
-        private receptImportiService: ReceptImportiService,
         //Dohvaćam importi service
         private importService: ImportService,
         //Dohvaćam servis recepta
@@ -32,13 +29,13 @@ export class IzdajReceptResolverService implements Resolve<any>{
                 if(!recept){
                     return forkJoin([
                         this.importService.getDijagnoze(),
-                        this.receptImportiService.getLijekoviOsnovnaLista(),
-                        this.receptImportiService.getLijekoviDopunskaLista(),
-                        this.receptImportiService.getMagistralniPripravciOsnovnaLista(),
-                        this.receptImportiService.getMagistralniPripravciDopunskaLista(),
+                        this.importService.getLijekoviOsnovnaLista(),
+                        this.importService.getLijekoviDopunskaLista(),
+                        this.importService.getMagistralniPripravciOsnovnaLista(),
+                        this.importService.getMagistralniPripravciDopunskaLista(),
                         this.receptService.getDatumDostatnost("30"),
                         this.receptService.getInicijalnoDijagnoze(+route.params['id']),
-                        this.receptImportiService.getZdravstveniRadnici()
+                        this.importService.getZdravstveniRadnici()
                     ]).pipe(
                         map(result => {
                             return {
@@ -58,12 +55,12 @@ export class IzdajReceptResolverService implements Resolve<any>{
                 else{
                     return forkJoin([
                         this.importService.getDijagnoze(),
-                        this.receptImportiService.getLijekoviOsnovnaLista(),
-                        this.receptImportiService.getLijekoviDopunskaLista(),
-                        this.receptImportiService.getMagistralniPripravciOsnovnaLista(),
-                        this.receptImportiService.getMagistralniPripravciDopunskaLista(),
+                        this.importService.getLijekoviOsnovnaLista(),
+                        this.importService.getLijekoviDopunskaLista(),
+                        this.importService.getMagistralniPripravciOsnovnaLista(),
+                        this.importService.getMagistralniPripravciDopunskaLista(),
                         this.receptService.getDatumDostatnost("30"),
-                        this.receptImportiService.getZdravstveniRadnici(),
+                        this.importService.getZdravstveniRadnici(),
                         this.receptService.getRecept(recept)
                     ]).pipe(
                         map(result => {

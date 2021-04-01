@@ -4,7 +4,7 @@ import {Injectable} from '@angular/core';
 import { map } from 'rxjs/operators';
 import { ListaReceptiService } from './lista-recepti/lista-recepti.service';
 import { PacijentiService } from './pacijenti/pacijenti.service';
-import { ImportService } from 'src/app/med-sestra/import.service';
+import { ImportService } from 'src/app/shared/import.service';
 @Injectable({
     providedIn: 'root'
 })

@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/r
 import { forkJoin, Observable } from 'rxjs';
 import { NarucivanjeService } from './narucivanje.service';
 import {map} from 'rxjs/operators';
+import { ImportService } from 'src/app/shared/import.service';
 @Injectable({
     providedIn: 'root'
 })
@@ -10,7 +11,9 @@ export class DateTimeResolverService implements Resolve<any | any[]>{
 
     constructor(
         //Dohvaćam servis naručivanja
-        private narucivanjeService: NarucivanjeService
+        private narucivanjeService: NarucivanjeService,
+        //Dohvaćam import servis
+        private importService: ImportService
     ){}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
@@ -19,7 +22,7 @@ export class DateTimeResolverService implements Resolve<any | any[]>{
         return forkJoin([
             this.narucivanjeService.getDatumiNazivi(),
             this.narucivanjeService.getVremena(),
-            this.narucivanjeService.getPacijenti(),
+            this.importService.getPacijenti(),
             this.narucivanjeService.getRazliciteVrstePregleda(),
             this.narucivanjeService.dohvatiDanasnjiDatum()
         ]).pipe(

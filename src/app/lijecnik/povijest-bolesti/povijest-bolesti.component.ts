@@ -2,16 +2,16 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PovezaniPovijestBolestiService} from '../povezani-povijest-bolesti/povezani-povijest-bolesti.service';
-import { combineLatest, merge, of, Subject } from 'rxjs';
+import { merge,Subject } from 'rxjs';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
-import { OtvoreniSlucajService } from 'src/app/shared/otvoreni-slucaj/otvoreni-slucaj.service';
 import { PovijestBolestiService } from './povijest-bolesti.service';
-import { mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import * as Validacija from '../recept/recept-validations';
 import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
+import * as SharedHandler from '../../shared/shared-handler';
 
 @Component({
   selector: 'app-povijest-bolesti',
@@ -282,7 +282,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
       onChangeNazivSekundarna(nazivSekundarna: string, index: number){
           //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
-          Validacija.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+          SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
       }
 
       //Metoda koja INICIJALNO postavlja da bude required jedan od tipova slučaja
@@ -528,7 +528,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                             //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
                             (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                             //Postavljam MKB šifre sek.dijagnoza
-                            Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                            SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                         });
                         //Zatvaram prozor povijesti bolesti
                         this.otvorenPovijestBolesti = false;

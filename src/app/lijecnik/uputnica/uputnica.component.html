@@ -1,0 +1,41 @@
+<div class="container">
+    <app-izdaj-uputnica 
+        (close)="onCloseIzdajUputnica()" 
+        *ngIf="isIzdavanjeUputnice" 
+        [dijagnoze]="dijagnoze" 
+        [pacijenti]="pacijenti" 
+        [zdravstveneUstanove]="zdravstveneUstanove" 
+        [zdravstveneDjelatnosti]="zdravstveneDjelatnosti"></app-izdaj-uputnica>
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <h2 
+                style="font-family: Verdana, sans-serif; 
+                    color:#337ab7;text-align: center;">Uputnice</h2>
+            <button 
+                type="button"
+                class="btn btn-warning" 
+                style="float:right" 
+                (click)="onNovaUputnica()">Nova uputnica</button>
+            <div class="table-responsive-sm">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Datum</th>
+                            <th scope="col">Pacijent</th>
+                            <th scope="col">MKB dijagnoza</th>
+                            <th scope="col">Djelatnost</th>
+                            <th scope="col">Akcija</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

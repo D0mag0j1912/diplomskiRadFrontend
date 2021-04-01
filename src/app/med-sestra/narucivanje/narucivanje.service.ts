@@ -39,12 +39,6 @@ export class NarucivanjeService{
         return this.http.get<any>(baseUrl + 'narucivanje/getNarudzba.php',{params: params}).pipe(catchError(handleError));
     }
 
-    //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti (IME I PREZIME)
-    getPacijenti(){
-
-        return this.http.get<any[]>(baseUrl + 'narucivanje/getPacijenti.php').pipe(catchError(handleError));
-    }
-
     //Metoda koja vraća Observable u kojemu se nalaze sve vrste pregleda i ostali podatci vezani za pacijenta i narudžbu
     getVrstaPregled(){
 

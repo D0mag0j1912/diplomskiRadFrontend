@@ -70,6 +70,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     if(podatci.pregledi[0] === null){
                         //Označavam da aktivni pacijent NEMA aktivnih pregleda
                         this.imaLiPregleda = false;
+                        console.log("tu sam");
                     }
                     else{
                         //Označavam da aktivni pacijent IMA pregleda

@@ -1,7 +1,7 @@
 import { HttpClient} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs/operators';
-import {handleError} from '../shared/rxjs-error';
+import {handleError} from './rxjs-error';
 import {baseUrl} from '../backend-path';
 
 @Injectable({
@@ -13,6 +13,43 @@ export class ImportService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Metoda koja vraća Observable u kojemu se nalaze sve zdravstvene djelatnosti
+    getZdravstveneDjelatnosti(){
+        return this.http.get<any>(baseUrl + 'uputnica/importi/getZdravstveneDjelatnosti.php').pipe(catchError(handleError));
+    }
+    //Metoda koja vraća Observable u kojemu se nalaze svi pacijenti (IME I PREZIME)
+    getPacijenti(){
+        return this.http.get<any>(baseUrl + 'narucivanje/getPacijenti.php').pipe(catchError(handleError));
+    }
+
+    //Metoda koja dohvaća sve zdravstvene ustanove
+    getZdravstveneUstanove(){
+        return this.http.get<any>(baseUrl + 'uputnica/importi/getZdravstveneUstanove.php').pipe(catchError(handleError));
+    }
+
+    //Metoda koja šalje zahtjev serveru te od njega traži dohvati svih tipova zdravstvenih radnika
+    getZdravstveniRadnici(){
+        //Vraća Observable sa svim zdravstvenim radnicima
+        return this.http.get<any>(baseUrl + 'recept/importi/getZdravstveniRadnici.php').pipe(catchError(handleError));
+    }
+
+    //Metoda koja vraća Observable sa svim lijekovima sa osnovne liste
+    getLijekoviOsnovnaLista(){
+        return this.http.get<any>(baseUrl + 'recept/importi/getLijekoviOsnovnaLista.php').pipe(catchError(handleError));
+    }
+    //Metoda koja vraća Observable sa svim lijekovima sa dopunske liste
+    getLijekoviDopunskaLista(){
+        return this.http.get<any>(baseUrl + 'recept/importi/getLijekoviDopunskaLista.php').pipe(catchError(handleError));
+    }
+    //Metoda koja vraća Observable sa svim lijekovima sa osnovne liste
+    getMagistralniPripravciOsnovnaLista(){
+        return this.http.get<any>(baseUrl + 'recept/importi/getMagistralniPripravciOsnovnaLista.php').pipe(catchError(handleError));
+    }
+    //Metoda koja vraća Observable sa svim lijekovima sa osnovne liste
+    getMagistralniPripravciDopunskaLista(){
+        return this.http.get<any>(baseUrl + 'recept/importi/getMagistralniPripravciDopunskaLista.php').pipe(catchError(handleError));
+    }
 
     //Metoda koja dohvaća sve specijalizacije
     getSpecijalizacije(){

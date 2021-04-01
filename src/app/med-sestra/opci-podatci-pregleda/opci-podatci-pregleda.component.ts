@@ -14,8 +14,8 @@ import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import * as Validacija from '../../lijecnik/recept/recept-validations';
-import { Time } from '@angular/common';
 import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
+import * as SharedHandler from '../../shared/shared-handler';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -418,7 +418,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
     onChangeNazivSekundarna(nazivSekundarna: string, index: number){
         //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
-        Validacija.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+        SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
     }
 
     //Metoda koja provjerava je li uneseni MBO jednak MBO-u koji ima trenutno aktivni pacijent
@@ -803,7 +803,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                       //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
                       (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                       //Postavljam MKB šifre sek.dijagnoza
-                      Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                      SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                   });
                   //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                   this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});

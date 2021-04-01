@@ -13,6 +13,7 @@ import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
 import { PrikazReceptService } from '../../lista-recepti/prikaz-recept/prikaz-recept.service';
 import { HeaderService } from 'src/app/shared/header/header.service';
+import * as Handler from '../../../../shared/shared-handler';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -53,7 +54,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     //Spremam trenutno izabranu sekundarnu dijagnozu zbog validacije duplikata
     sekDijagnoza: string = null;
     //Spremam dijagnozu koja je ista kod primarne i kod sekundarne dijagnoze
-    dijagnoza: string;
+    dijagnoza: string = null;
     //Spremam sve dijagnoze
     dijagnoze: Dijagnoza[] = [];
     //Dohvaćam sve zdravstvene radnike
@@ -409,7 +410,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
                         (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                         //Postavljam MKB šifre sek.dijagnoza
-                        Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                        Handler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                     });
                 } 
             }),
@@ -449,7 +450,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
                                     (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                                     //Postavljam MKB šifre sek.dijagnoza
-                                    Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                                    Handler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                                 });
                             }
                             //Ako je definiran specijalist
@@ -2046,16 +2047,16 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     
     //Metoda koja provjerava je li primarna dijagnoza ista kao i neka od sekundarnih dijagnoza
     isValidDijagnoze(group: FormGroup): {[key: string]: boolean} | null{
-      //Prolazim kroz polje sekundarnih dijagnoza
-      for(let control of (group.get('sekundarnaDijagnoza') as FormArray).controls){
-          //Ako je vrijednost primarne dijagnoze jednaka vrijednosti sekundarne dijagnoze, ali da oba dvije nisu null, jer bih bilo (Odaberite dijagnozu === Odaberite dijagnozu)
-          if(group.get('primarnaDijagnoza').value === control.value.nazivSekundarna && (group.get('primarnaDijagnoza') !== null && control.value.nazivSekundarna !== null)){
-              //Spremam vrijednost sekundarne dijagnoze koja je jednaka primarnoj dijagnozi
-              this.dijagnoza = control.value.nazivSekundarna;
-              return {'primarnaJeIstaKaoSekundarna': true};
-          }
-      }
-      return null;
+        //Prolazim kroz polje sekundarnih dijagnoza
+        for(let control of (group.get('sekundarnaDijagnoza') as FormArray).controls){
+            //Ako je vrijednost primarne dijagnoze jednaka vrijednosti sekundarne dijagnoze, ali da oba dvije nisu null, jer bih bilo (Odaberite dijagnozu === Odaberite dijagnozu)
+            if(group.get('primarnaDijagnoza').value === control.value.nazivSekundarna && (group.get('primarnaDijagnoza') !== null && control.value.nazivSekundarna !== null)){
+                //Spremam vrijednost sekundarne dijagnoze koja je jednaka primarnoj dijagnozi
+                this.dijagnoza = control.value.nazivSekundarna;
+                return {'primarnaJeIstaKaoSekundarna': true};
+            }
+        }
+        return null;
     }
     //Metoda koja se poziva kada je liječnik mijenja vrijednosti checkboxa "Svjesno prekoračenje"
     onChangeSvjesnoPrekoracenje($event){
@@ -2173,7 +2174,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
     onChangeNazivSekundarna(nazivSekundarna: string, index: number){
         //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
-        Validacija.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+        Handler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
     }
 
     //Dohvaća pojedine form controlove unutar polja 

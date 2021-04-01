@@ -10,6 +10,8 @@ import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povije
 import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.service';
 import { ObradaService } from '../obrada/obrada.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
+import * as SharedHandler from '../shared-handler';
+
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
   templateUrl: './prikazi-povijest-bolesti.component.html',
@@ -240,7 +242,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
     onChangeNazivSekundarna(nazivSekundarna: string, index: number){
         //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
-        Validacija.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+        SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
     }
 
     //Metoda koja provjerava je li uneseno više istih sekundarnih dijagnoza
@@ -492,7 +494,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                       //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
                       (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                       //Postavljam MKB šifre sek.dijagnoza
-                      Validacija.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                      SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                   });
                   //Zatvaram prozor povijesti bolesti
                   this.otvorenPovijestBolesti = false;

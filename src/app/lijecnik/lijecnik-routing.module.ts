@@ -19,7 +19,8 @@ const routes = [
         {path: 'editPersonalData', component: AzuriranjeOsobnihPodatakaComponent, resolve: {podatci: LijecnikResolverService}},
         //Označavam da će u URL-u biti ID liječnika
         {path: 'editPassword/:id', component: AzuriranjeLozinkaComponent},
-        {path: 'recept',loadChildren:() => import('./recept/recept.module').then(module => module.ReceptModule)}  
+        {path: 'recept',loadChildren:() => import('./recept/recept.module').then(module => module.ReceptModule)},
+        {path: 'uputnica', loadChildren:() => import('./uputnica/uputnica.module').then(module => module.UputnicaModule)}
     ]}
 ];
 

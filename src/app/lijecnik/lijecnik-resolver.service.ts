@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
-import { ImportService } from '../med-sestra/import.service';
+import { ImportService } from '../shared/import.service';
 import { LijecnikService } from './lijecnik.service';
 
 @Injectable({
