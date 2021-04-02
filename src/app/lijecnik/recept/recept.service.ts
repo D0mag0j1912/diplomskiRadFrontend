@@ -147,8 +147,9 @@ export class ReceptService{
     }
 
     //Metoda koja šalje ID pacijenta te vraća Observable u kojemu se nalazi odgovor servera na dohvat dijagnoza za unos recepta
-    getInicijalnoDijagnoze(id: number){
-        const params = new HttpParams().append("idPacijent",id.toString());
+    getInicijalnoDijagnoze(id: number,idObrada: number){
+        let params = new HttpParams().append("idPacijent",id.toString());
+        params = params.append("idObrada",idObrada.toString());
         return this.http.get<any>(baseUrl + 'recept/getInicijalnoDijagnoze.php',
         {
             params: params

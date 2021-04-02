@@ -11,6 +11,7 @@ import { ObradaService } from '../obrada/obrada.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../shared-handler';
 import * as SharedValidations from '../shared-validations';
+import { SharedService } from '../shared.service';
 
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
@@ -29,7 +30,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     //Definiram formu
     forma: FormGroup;
     //Kreiram EventEmitter
-    @Output() close = new EventEmitter<any>();
+    @Output() closeRecept = new EventEmitter<any>();
+    //Kreiram EventEmitter koji će uz informaciju da se treba zatvoriti ovaj prozor poslati i ID pacijenta kojemu se upisala povijest bolesti
+    @Output() closeUputnica = new EventEmitter<number>();
     //Primam sve dijagnoze od roditelja
     @Input() primljeneDijagnoze: Dijagnoza[];
     //Primam ID pacijenta kojemu pišem povijest bolesti
@@ -53,6 +56,8 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     prosliPregled: string = "";
     //Spremam boju sa prethodnog pregleda
     proslaBoja: string = "";
+    //Spremam oznaku jesam li došao ovdje preko recepta ili preko uputnice
+    receptIliUputnica: string = null;
 
     constructor(
         //Dohvaćam router
@@ -68,7 +73,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam servis prethodnih pregleda
-        private preglediService: PreglediService
+        private preglediService: PreglediService,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -111,97 +118,104 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
         //Pretplaćujem se na promjene u poljima forme
         const promjeneForme = merge(
-          //Pretplaćujem se na Observable u kojemu se nalazi ID obrade trenutno aktivnog pacijenta kojega šalje komponenta "ObradaComponent"
-          this.obradaService.podatciObradaObs.pipe(
-            tap(idObrada => {
-                //Spremam ID obrade 
-                this.idObrada = idObrada;
-            }),
-            takeUntil(this.pretplateSubject)
-          ),
-          //Slušam promjene u polju unosa primarne dijagnoze
-          this.primarnaDijagnoza.valueChanges.pipe(
-            tap(value => {
-                //Na početku postavljam da nisam pronašao naziv primarne dijagnoze
-                let pronasao = false;
-                //Prolazim kroz sve nazive primarnih dijagnoza
-                for(const dijagnoza of this.dijagnoze){
-                    //Ako su jednaki
-                    if(value === dijagnoza.imeDijagnoza){
-                        //Označavam da se poklapaju nazivi
-                        pronasao = true;
+            //Pretplaćivam se na informaciju odakle je otvoren ovaj prozor (ili iz izdavanja recepta ili iz izdavanja uputnice)
+            this.sharedService.receptIliUputnicaObs.pipe(
+                tap(receptIliUputnica => {
+                    this.receptIliUputnica = receptIliUputnica;
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na Observable u kojemu se nalazi ID obrade trenutno aktivnog pacijenta kojega šalje komponenta "ObradaComponent"
+            this.obradaService.podatciObradaObs.pipe(
+                tap(idObrada => {
+                    //Spremam ID obrade 
+                    this.idObrada = idObrada;
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Slušam promjene u polju unosa primarne dijagnoze
+            this.primarnaDijagnoza.valueChanges.pipe(
+                tap(value => {
+                    //Na početku postavljam da nisam pronašao naziv primarne dijagnoze
+                    let pronasao = false;
+                    //Prolazim kroz sve nazive primarnih dijagnoza
+                    for(const dijagnoza of this.dijagnoze){
+                        //Ako su jednaki
+                        if(value === dijagnoza.imeDijagnoza){
+                            //Označavam da se poklapaju nazivi
+                            pronasao = true;
+                        }
                     }
-                }
-                //Ako je unos primarne dijagnoze ispravan
-                if(pronasao){
-                    if(this.primarnaDijagnoza.valid){
-                        //Pozivam metodu da popuni polje MKB šifre te dijagnoze
-                        SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
-                        //Omogućavam unos sekundarnih dijagnoza
-                        this.sekundarnaDijagnoza.enable({emitEvent: false});
+                    //Ako je unos primarne dijagnoze ispravan
+                    if(pronasao){
+                        if(this.primarnaDijagnoza.valid){
+                            //Pozivam metodu da popuni polje MKB šifre te dijagnoze
+                            SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
+                            //Omogućavam unos sekundarnih dijagnoza
+                            this.sekundarnaDijagnoza.enable({emitEvent: false});
+                        }
                     }
-                }
-                //Ako unos primarne dijagnoze nije ispravan ili je null
-                if(!pronasao || !this.primarnaDijagnoza.value){
-                    //Resetiraj polje MKB šifre primarne dijagnoze
-                    this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
-                    //Dok ne ostane jedna sekundarna dijagnoza u arrayu
-                    while(this.getControlsSekundarna().length !== 1){
-                        //Briši mu prvi element 
-                        (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+                    //Ako unos primarne dijagnoze nije ispravan ili je null
+                    if(!pronasao || !this.primarnaDijagnoza.value){
+                        //Resetiraj polje MKB šifre primarne dijagnoze
+                        this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
+                        //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+                        while(this.getControlsSekundarna().length !== 1){
+                            //Briši mu prvi element 
+                            (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+                        }
+                        //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+                        this.sekundarnaDijagnoza.reset();
+                        this.sekundarnaDijagnoza.disable({emitEvent: false});
                     }
-                    //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
-                    this.sekundarnaDijagnoza.reset();
-                    this.sekundarnaDijagnoza.disable({emitEvent: false});
-                }
-            }),
-            takeUntil(this.pretplateSubject)
-          ),
-          //Slušam promjene u polju unosa MKB šifre primarne dijagnoze
-          this.mkbPrimarnaDijagnoza.valueChanges.pipe(
-              tap(value => {
-                  //Ako je MKB ispravno unesen (ako je prošao validaciju)
-                  if(this.mkbPrimarnaDijagnoza.valid){
-                      //Prolazim kroz sve MKB šifre
-                      for(const mkb of this.mkbSifre){
-                          //Ako se upisana vrijednost nalazi u polju MKB šifri
-                          if(mkb.toLowerCase() === value.toLowerCase()){
-                              //U polje MKB šifri postavi šifru velikim slovima
-                              this.mkbPrimarnaDijagnoza.patchValue(mkb,{emitEvent: false});
-                          }
-                      }
-                      //Pozivam metodu da popuni polje naziva primarne dijagnoze
-                      SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
-                      //Omogućavam unos sekundarne dijagnoze
-                      this.sekundarnaDijagnoza.enable({emitEvent: false}); 
-                  }
-                  //Ako je MKB neispravno unesen
-                  else{
-                      //Postavi naziv primarne dijagnoze na null
-                      this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
-                      //Dok ne ostane jedna sekundarna dijagnoza u arrayu
-                      while(this.getControlsSekundarna().length !== 1){
-                          //Briši mu prvi element 
-                          (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
-                      }
-                      //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
-                      this.sekundarnaDijagnoza.reset();
-                      this.sekundarnaDijagnoza.disable({emitEvent: false});
-                  }
-              }),
-              takeUntil(this.pretplateSubject)
-          ),
-          //Pretplaćujem se na dohvat ID-a liječnika
-          this.headerService.getIDLijecnik().pipe(
-              tap(//Dohvaćam ID liječnika
-                  (idLijecnik) => {
-                      //Spremam ID liječnika
-                      this.idLijecnik = idLijecnik[0].idLijecnik;
-                  }
-              ),
-              takeUntil(this.pretplateSubject)
-          )
-      ).subscribe();
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Slušam promjene u polju unosa MKB šifre primarne dijagnoze
+            this.mkbPrimarnaDijagnoza.valueChanges.pipe(
+                tap(value => {
+                    //Ako je MKB ispravno unesen (ako je prošao validaciju)
+                    if(this.mkbPrimarnaDijagnoza.valid){
+                        //Prolazim kroz sve MKB šifre
+                        for(const mkb of this.mkbSifre){
+                            //Ako se upisana vrijednost nalazi u polju MKB šifri
+                            if(mkb.toLowerCase() === value.toLowerCase()){
+                                //U polje MKB šifri postavi šifru velikim slovima
+                                this.mkbPrimarnaDijagnoza.patchValue(mkb,{emitEvent: false});
+                            }
+                        }
+                        //Pozivam metodu da popuni polje naziva primarne dijagnoze
+                        SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
+                        //Omogućavam unos sekundarne dijagnoze
+                        this.sekundarnaDijagnoza.enable({emitEvent: false}); 
+                    }
+                    //Ako je MKB neispravno unesen
+                    else{
+                        //Postavi naziv primarne dijagnoze na null
+                        this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
+                        //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+                        while(this.getControlsSekundarna().length !== 1){
+                            //Briši mu prvi element 
+                            (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+                        }
+                        //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+                        this.sekundarnaDijagnoza.reset();
+                        this.sekundarnaDijagnoza.disable({emitEvent: false});
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na dohvat ID-a liječnika
+            this.headerService.getIDLijecnik().pipe(
+                tap(//Dohvaćam ID liječnika
+                    (idLijecnik) => {
+                        //Spremam ID liječnika
+                        this.idLijecnik = idLijecnik[0].idLijecnik;
+                    }
+                ),
+                takeUntil(this.pretplateSubject)
+            )
+        ).subscribe();
     }
 
     //Metoda koja se poziva kada liječnik promijeni checkbox "Brzi unos"
@@ -313,8 +327,13 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Metoda koja se poziva kada se klikne izvan prozora ili "Izađi"
     onClose(){
-        //Emitiram event prema roditeljima
-        this.close.emit();
+        //Ako sam došao ovdje iz izdavanja recepta
+        if(this.receptIliUputnica === 'recept'){
+            this.closeRecept.emit();
+        }
+        else{
+            this.closeUputnica.emit(this.idPacijent);
+        }
     }
 
     //Metoda koja se poziva kada se klikne "Potvrdi"
@@ -346,10 +365,6 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 this.napomena.value,this.idObrada,this.prosliPregled, this.proslaBoja).pipe(
                 //Dohvaćam odgovor servera
                 tap(() => {
-                    //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
-                    this.close.emit();
-                    //Preusmjeri liječnika na prozor izdavanja recepta
-                    this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
                     //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
                     const podatciProslogPregleda = {
                         idObrada: this.idObrada,
@@ -366,63 +381,79 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                     };
                     //U Local Storage postavljam tu informaciju
                     localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                    //Ako sam došao ovdje iz izdavanja recepta
+                    if(this.receptIliUputnica === 'recept'){
+                        //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
+                        this.closeRecept.emit();
+                        //Preusmjeri liječnika na prozor izdavanja recepta
+                        this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+                    }
+                    //Ako sam došao ovdje iz izdavanja uputnice 
+                    else if(this.receptIliUputnica === 'uputnica'){
+                        this.closeUputnica.emit(this.idPacijent);
+                    }
                 }),
                 takeUntil(this.pretplateSubject)
-            ).subscribe(); 
-          }
-          //Ako je slučaj povezan
-          else if(this.povezanSlucaj.value === true){
-              //Dohvaćam podatke prošlog pregleda
-              const podatci: {
-                  idObrada: number,
-                  mkbPrimarnaDijagnoza: string
-              } = JSON.parse(localStorage.getItem("podatciProslogPregleda"));
-              let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
-              let proslaIDObrada = +podatci.idObrada;
-              this.povijestBolestiService.getIDPovijestBolesti(this.idPacijent,proslaIDObrada,proslaMKBSifra).pipe(
-                  tap(podatci => {
-                        //Spremam podatke prošlog pregleda u svoje varijable
-                        this.proslaBoja = podatci[0].bojaPregled;
-                        this.prosliPregled = podatci[0].idPovijestBolesti;
-                  }),
-                  switchMap(() => {
-                      //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
-                      return this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
-                          this.anamneza.value,this.status.value,this.nalaz.value,
-                          this.mkbPrimarnaDijagnoza.value,mkbPolje,
-                          this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-                          this.terapija.value,this.preporukaLijecnik.value,
-                          this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
-                          //Dohvaćam odgovor servera
-                          tap(() => {
-                              //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
-                              this.close.emit();
-                              //Preusmjeri liječnika na prozor izdavanja recepta
-                              this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
-                              //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                              const podatciProslogPregleda = {
-                                 idObrada: this.idObrada,
-                                 mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
-                              };
-                              //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                              localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                              //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
-                              this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
-                              //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
-                              const isDodanPregled = {
-                                  isDodan: true,
-                                  tipKorisnik: "lijecnik"
-                              };
-                              //U Local Storage postavljam tu informaciju
-                              localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+            ).subscribe();  
+        }
+        //Ako je slučaj povezan
+        else if(this.povezanSlucaj.value === true){
+            //Dohvaćam podatke prošlog pregleda
+            const podatci: {
+                idObrada: number,
+                mkbPrimarnaDijagnoza: string
+            } = JSON.parse(localStorage.getItem("podatciProslogPregleda"));
+            let proslaMKBSifra = podatci.mkbPrimarnaDijagnoza;
+            let proslaIDObrada = +podatci.idObrada;
+            this.povijestBolestiService.getIDPovijestBolesti(this.idPacijent,proslaIDObrada,proslaMKBSifra).pipe(
+                tap(podatci => {
+                    //Spremam podatke prošlog pregleda u svoje varijable
+                    this.proslaBoja = podatci[0].bojaPregled;
+                    this.prosliPregled = podatci[0].idPovijestBolesti;
+                }),
+                switchMap(() => {
+                    //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
+                    return this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
+                        this.anamneza.value,this.status.value,this.nalaz.value,
+                        this.mkbPrimarnaDijagnoza.value,mkbPolje,
+                        this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+                        this.terapija.value,this.preporukaLijecnik.value,
+                        this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
+                        //Dohvaćam odgovor servera
+                        tap(() => {
+                            //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                            const podatciProslogPregleda = {
+                                idObrada: this.idObrada,
+                                mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                            };
+                            //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                            localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                            //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
+                            this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
+                            //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
+                            const isDodanPregled = {
+                                isDodan: true,
+                                tipKorisnik: "lijecnik"
+                            };
+                            //U Local Storage postavljam tu informaciju
+                            localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                            //Ako sam došao ovdje iz izdavanja recepta
+                            if(this.receptIliUputnica === 'recept'){
+                                //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
+                                this.closeRecept.emit();
+                                //Preusmjeri liječnika na prozor izdavanja recepta
+                                this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
                             }
-                          ),
-                          takeUntil(this.pretplateSubject)
-                      ); 
-                  }),
-                  takeUntil(this.pretplateSubject)
-              ).subscribe();
-          }
+                            else{
+                                this.closeUputnica.emit(this.idPacijent);
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    ); 
+                }),
+                takeUntil(this.pretplateSubject)
+            ).subscribe();
+        }
     }
 
     //Metoda koja se aktivira kada korisnik klikne "Poništi povezani slučaj"

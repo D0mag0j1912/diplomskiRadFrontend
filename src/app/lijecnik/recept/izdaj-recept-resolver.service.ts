@@ -34,7 +34,7 @@ export class IzdajReceptResolverService implements Resolve<any>{
                         this.importService.getMagistralniPripravciOsnovnaLista(),
                         this.importService.getMagistralniPripravciDopunskaLista(),
                         this.receptService.getDatumDostatnost("30"),
-                        this.receptService.getInicijalnoDijagnoze(+route.params['id']),
+                        this.receptService.getInicijalnoDijagnoze(+route.params['id'],+JSON.parse(localStorage.getItem("idObrada"))),
                         this.importService.getZdravstveniRadnici()
                     ]).pipe(
                         map(result => {

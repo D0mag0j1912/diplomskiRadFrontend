@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
+import { SharedService } from 'src/app/shared/shared.service';
 import { ListaReceptiService } from '../lista-recepti/lista-recepti.service';
 import { ReceptService } from '../recept.service';
 import { PacijentiService } from './pacijenti.service';
@@ -48,7 +49,9 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         //Dohvaćam servis liste recepata
         private listaReceptiService: ListaReceptiService,
         //Dohvaćam servis pacijenata
-        private pacijentiService: PacijentiService
+        private pacijentiService: PacijentiService,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
@@ -217,6 +220,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     this.idPacijent = id;
                     //Otvaram prozor povijesti bolesti
                     this.isPovijestBolesti = true;
+                    //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
+                    this.sharedService.receptIliUputnica.next("recept");
                 }
                 else{
                     //Preusmjeri liječnika na prozor izdavanja recepta

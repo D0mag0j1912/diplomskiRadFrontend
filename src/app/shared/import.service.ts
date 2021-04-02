@@ -1,4 +1,4 @@
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError } from 'rxjs/operators';
 import {handleError} from './rxjs-error';
@@ -13,6 +13,18 @@ export class ImportService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Dohvaćam MBO pacijent na osnovu njegovog ID-a
+    getMBOPacijent(idPacijent: number){
+        let params = new HttpParams().append("idPacijent",idPacijent.toString());
+        return this.http.get<string>(baseUrl + 'uputnica/izdajUputnica/getMBOPacijent.php',{params: params}).pipe(catchError(handleError));
+    }
+
+    //Dohvaćam ID pacijenta na osnovu njegovog MBO-a
+    getIDPacijent(mboPacijent: string){
+        let params = new HttpParams().append("mboPacijent",mboPacijent);
+        return this.http.get<string>(baseUrl + 'uputnica/izdajUputnica/getIDPacijent.php',{params: params}).pipe(catchError(handleError));
+    }
 
     //Metoda koja vraća Observable u kojemu se nalaze sve zdravstvene djelatnosti
     getZdravstveneDjelatnosti(){
