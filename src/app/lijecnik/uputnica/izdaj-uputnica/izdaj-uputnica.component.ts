@@ -7,8 +7,8 @@ import { HeaderService } from 'src/app/shared/header/header.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
-import * as Handler from '../../../shared/shared-handler';
-import * as Validacija from '../../recept/recept-validations';
+import * as SharedHandler from '../../../shared/shared-handler';
+import * as SharedValidations from '../../../shared/shared-validations';
 
 @Component({
   selector: 'app-izdaj-uputnica',
@@ -56,12 +56,12 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         //Kreiram formu
         this.forma = new FormGroup({
             'primarnaDijagnoza': new FormControl(null, [Validators.required]),
-            'mkbPrimarnaDijagnoza': new FormControl(null, [Validators.required,Validacija.provjeriMKB(this.mkbSifre)]),
+            'mkbPrimarnaDijagnoza': new FormControl(null, [Validators.required,SharedValidations.provjeriMKB(this.mkbSifre)]),
             'sekundarnaDijagnoza': new FormArray([
                 new FormGroup({
                     'nazivSekundarna': new FormControl(null),
                     'mkbSifraSekundarna': new FormControl(null)
-                },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]})  
+                },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})  
             ],{validators: this.isValidSekundarnaDijagnoza.bind(this)})
         });
 
@@ -83,7 +83,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                         //Ako je taj unos ispravan
                         if(this.primarnaDijagnoza.valid){
                             //Pozivam metodu da popuni polje MKB šifre te dijagnoze
-                            Validacija.nazivToMKB(value,this.dijagnoze,this.forma);
+                            SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
                             //Omogućavam unos sekundarnih dijagnoza
                             this.sekundarnaDijagnoza.enable({emitEvent: false});
                         }
@@ -119,7 +119,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             }
                         }
                         //Pozivam metodu da popuni polje naziva primarne dijagnoze
-                        Validacija.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
+                        SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
                         //Omogućavam unos sekundarne dijagnoze
                         this.sekundarnaDijagnoza.enable({emitEvent: false}); 
                     }
@@ -180,7 +180,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
     onChangeNazivSekundarna(nazivSekundarna: string, index: number){
         //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
-        Handler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+        SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
     }
 
     //Kada se klikne button "Dodaj dijagnozu"
@@ -189,7 +189,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         const formGroup = new FormGroup({
             'nazivSekundarna': new FormControl(null),
             'mkbSifraSekundarna': new FormControl(null)
-        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]});
+        },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]});
         //Nadodavam novi form group u form array
         (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(formGroup);
     }
@@ -206,7 +206,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
               }
           }
           //Pozivam metodu da popuni polje naziva primarne dijagnoze
-          Validacija.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
+          SharedHandler.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
       }
       //Ako je MKB neispravno unesen
       else{

@@ -13,9 +13,9 @@ import { MedSestraService } from '../med-sestra.service';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
-import * as Validacija from '../../lijecnik/recept/recept-validations';
 import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../../shared/shared-handler';
+import * as SharedValidations from '../../shared/shared-validations';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -177,12 +177,12 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   'mbrPacijent': new FormControl(null, this.isAktivan ? [Validators.required, Validators.pattern("^\\d{9}$"), this.isValidMBO.bind(this)] : []),
                   'brIskDopunsko': new FormControl(null),
                   'primarnaDijagnoza': new FormControl(null),
-                  'mkbPrimarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validacija.provjeriMKB(this.mkbSifre)] : []),
+                  'mkbPrimarnaDijagnoza': new FormControl(null,this.isAktivan ? [SharedValidations.provjeriMKB(this.mkbSifre)] : []),
                   'sekundarnaDijagnoza': new FormArray([
                       new FormGroup({
                         'nazivSekundarna': new FormControl(null),
                         'mkbSifraSekundarna': new FormControl(null)
-                      },{validators: this.isAktivan ? [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)] : []}) 
+                      },{validators: this.isAktivan ? [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)] : []}) 
                   ],{validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
                   'tipSlucaj': new FormGroup({
                     'noviSlucaj': new FormControl(null),
@@ -335,7 +335,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                       if(pronasao){
                           if(this.primarnaDijagnoza.valid){
                               //Pozivam metodu da popuni polje MKB šifre te dijagnoze
-                              Validacija.nazivToMKB(value,this.dijagnoze,this.forma);
+                              SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
                               //Omogućavam unos sekundarnih dijagnoza
                               this.sekundarnaDijagnoza.enable({emitEvent: false});
                           }
@@ -370,7 +370,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                                 }
                             }
                             //Pozivam metodu da popuni polje naziva primarne dijagnoze
-                            Validacija.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
+                            SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
                             //Omogućavam unos sekundarne dijagnoze
                             this.sekundarnaDijagnoza.enable({emitEvent: false}); 
                         }
@@ -407,7 +407,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 }
             }
             //Pozivam metodu da popuni polje naziva primarne dijagnoze
-            Validacija.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
+            SharedHandler.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
         }
         //Ako je MKB neispravno unesen
         else{
@@ -808,7 +808,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                   this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
                   //Postavljam MKB šifru primarne dijagnoze
-                  Validacija.nazivToMKB(this.primarnaDijagnozaOtvoreniSlucaj,this.dijagnoze,this.forma);
+                  SharedHandler.nazivToMKB(this.primarnaDijagnozaOtvoreniSlucaj,this.dijagnoze,this.forma);
                   //Zatvaram prozor otvorenog slučaja
                   this.otvoren = false;
                   //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
@@ -873,7 +873,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         const formGroup = new FormGroup({
             'nazivSekundarna': new FormControl(null),
             'mkbSifraSekundarna': new FormControl(null)
-        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]});
+        },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]});
         //Nadodavam novi form group u form array
         (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(formGroup);
     }

@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Dijagnoza } from '../modeli/dijagnoza.model';
-import * as Validacija from '../../lijecnik/recept/recept-validations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
 import { tap, takeUntil, switchMap } from 'rxjs/operators';
@@ -11,6 +10,7 @@ import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povije
 import { ObradaService } from '../obrada/obrada.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../shared-handler';
+import * as SharedValidations from '../shared-validations';
 
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
@@ -91,12 +91,12 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
           'anamneza': new FormControl(null,[Validators.required]),
           'status': new FormControl(null),
           'primarnaDijagnoza': new FormControl(null,[Validators.required]),
-          'mkbPrimarnaDijagnoza': new FormControl(null,[Validators.required,Validacija.provjeriMKB(this.mkbSifre)]),
+          'mkbPrimarnaDijagnoza': new FormControl(null,[Validators.required,SharedValidations.provjeriMKB(this.mkbSifre)]),
           'sekundarnaDijagnoza': new FormArray([
               new FormGroup({
                 'nazivSekundarna': new FormControl(null),
                 'mkbSifraSekundarna': new FormControl(null)
-              },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]}) 
+              },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]}) 
           ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
           'nalaz': new FormControl(null),
           'terapija': new FormControl(null),
@@ -136,7 +136,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 if(pronasao){
                     if(this.primarnaDijagnoza.valid){
                         //Pozivam metodu da popuni polje MKB šifre te dijagnoze
-                        Validacija.nazivToMKB(value,this.dijagnoze,this.forma);
+                        SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
                         //Omogućavam unos sekundarnih dijagnoza
                         this.sekundarnaDijagnoza.enable({emitEvent: false});
                     }
@@ -171,7 +171,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                           }
                       }
                       //Pozivam metodu da popuni polje naziva primarne dijagnoze
-                      Validacija.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
+                      SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
                       //Omogućavam unos sekundarne dijagnoze
                       this.sekundarnaDijagnoza.enable({emitEvent: false}); 
                   }
@@ -231,7 +231,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 }
             }
             //Pozivam metodu da popuni polje naziva primarne dijagnoze
-            Validacija.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
+            SharedHandler.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
         }
         //Ako je MKB neispravno unesen
         else{
@@ -301,7 +301,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         const formGroup = new FormGroup({
             'nazivSekundarna': new FormControl(null),
             'mkbSifraSekundarna': new FormControl(null)
-        },{validators: [Validacija.requiredMKBSifraSekundarna(),Validacija.provjeriMKBSifraSekundarna(this.mkbSifre)]});
+        },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]});
         //Nadodavam novi form group u form array
         (<FormArray>this.forma.get('sekundarnaDijagnoza')).push(formGroup);
     }
@@ -488,7 +488,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                   //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                   this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
                   //Popunjavam polje MKB šifre primarne dijagnoze
-                  Validacija.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
+                  SharedHandler.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
                   //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
                   this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
                       //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
