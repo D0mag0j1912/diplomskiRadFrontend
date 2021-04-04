@@ -110,7 +110,8 @@ export class LoginService implements OnDestroy{
                     this.router.navigate(['/login']);
                     //Praznim Session storage
                     sessionStorage.removeItem('userData');
-                    
+                    //Postavljam ID obrade LocalStorage-a na null
+                    localStorage.setItem("idObrada",JSON.stringify(null));
                     //Ako postoji aktivan timer, kada se ručno odlogiramo, resetiraj timer
                     if(this.tokenExpirationTimer){
                         clearTimeout(this.tokenExpirationTimer);

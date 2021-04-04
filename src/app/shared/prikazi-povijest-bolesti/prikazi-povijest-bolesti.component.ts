@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Dijagnoza } from '../modeli/dijagnoza.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { merge, Subject } from 'rxjs';
+import { merge, of, Subject } from 'rxjs';
 import { tap, takeUntil, switchMap, mergeMap, take } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
@@ -481,18 +481,23 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         }
                         //Ako je pacijent aktivan
                         else{
-                            //Ako sam došao ovdje iz izdavanja recepta
-                            if(this.receptIliUputnica === 'recept'){
-                                //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
-                                this.closeRecept.emit();
-                                //Preusmjeri liječnika na prozor izdavanja recepta
-                                this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
-                            }
-                            //Ako sam došao ovdje iz izdavanja uputnice 
-                            else if(this.receptIliUputnica === 'uputnica'){
-                                //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
-                                this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
-                            }
+                            return of(null).pipe(
+                                tap(() => {
+                                    //Ako sam došao ovdje iz izdavanja recepta
+                                    if(this.receptIliUputnica === 'recept'){
+                                        //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
+                                        this.closeRecept.emit();
+                                        //Preusmjeri liječnika na prozor izdavanja recepta
+                                        this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+                                    }
+                                    //Ako sam došao ovdje iz izdavanja uputnice 
+                                    else if(this.receptIliUputnica === 'uputnica'){
+                                        //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
+                                        this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
+                                    }
+                                }),
+                                takeUntil(this.pretplateSubject)
+                            );
                         }
                     }),
                     takeUntil(this.pretplateSubject)

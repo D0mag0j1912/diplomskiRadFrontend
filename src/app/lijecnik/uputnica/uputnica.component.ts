@@ -1,10 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
+import { InicijalneDijagnoze } from 'src/app/shared/modeli/inicijalneDijagnoze.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
+import { ObradaService } from 'src/app/shared/obrada/obrada.service';
+import { IzdajUputnicaService } from './izdaj-uputnica/izdajuputnica.service';
 
 @Component({
   selector: 'app-uputnica',
@@ -25,10 +29,20 @@ export class UputnicaComponent implements OnInit, OnDestroy{
     dijagnoze: Dijagnoza[] = [];
     //Spremam sve pacijente
     pacijenti: string[] = [];
+    //Spremam inicijalne dijagnoze aktivnog pacijenta da ih pošaljem child komponenti
+    inicijalneDijagnoze: InicijalneDijagnoze[] = [];
+    //Spremam aktivnog pacijenta
+    aktivniPacijent: string = null;
 
     constructor(
         //Dohvaćam trenutni route
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        //Dohvaćam login servis
+        private loginService: LoginService,
+        //Dohvaćam servis izdavanja uputnice 
+        private izdajUputnicaService: IzdajUputnicaService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService
     ) { }
 
     //Metoda koja se pokreće kada se komponenta inicijalizira
@@ -60,6 +74,53 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                     objektZdrDjel = new ZdravstvenaDjelatnost(djel);
                     this.zdravstveneDjelatnosti.push(objektZdrDjel);
                 }
+            }),
+            switchMap(() => {
+                //Pretplaćivam se na informaciju je li pacijent aktivan
+                return this.loginService.user.pipe(
+                    take(1),
+                    switchMap(user => {
+                        return this.obradaService.getPatientProcessing(user.tip).pipe(
+                            switchMap(podatci => {
+                                //Ako JE PACIJENT AKTIVAN
+                                if(podatci.success !== "false"){
+                                    //Prolazim kroz sve pacijente koji se nalaze u dropdownu
+                                    for(const pacijent of this.pacijenti){
+                                        //Splitam im podatke razmakom
+                                        let polje = pacijent.split(" ");
+                                        //Ako je MBO aktivnog pacijenta jednak MBO-u pacijenta iz dropdowna
+                                        if(polje[2] === podatci[0].mboPacijent){
+                                            //Spremam tog pacijenta
+                                            this.aktivniPacijent = pacijent;
+                                        }
+                                    }
+                                    //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
+                                    return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), podatci[0].mboPacijent).pipe(
+                                        tap(dijagnoze => {
+                                            //Definiram praznu varijablu
+                                            let obj;
+                                            //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
+                                            for(const dijagnoza of dijagnoze){
+                                                //Kreiram svoj objekt
+                                                obj = new InicijalneDijagnoze(dijagnoza);
+                                                //Spremam ga u svoje polje
+                                                this.inicijalneDijagnoze.push(obj);
+                                            }
+                                        }),
+                                        takeUntil(this.pretplata)
+                                    );
+                                }
+                                //Ako pacijent NIJE aktivan
+                                else{
+                                    return of(null).pipe(
+                                        takeUntil(this.pretplata)
+                                    );
+                                }
+                            }),
+                            takeUntil(this.pretplata)
+                        );
+                    })
+                )
             }),
             takeUntil(this.pretplata)
         ).subscribe();
