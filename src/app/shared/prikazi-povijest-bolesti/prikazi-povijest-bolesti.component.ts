@@ -3,7 +3,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Dijagnoza } from '../modeli/dijagnoza.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge, Subject } from 'rxjs';
-import { tap, takeUntil, switchMap } from 'rxjs/operators';
+import { tap, takeUntil, switchMap, mergeMap, take } from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
 import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.service';
@@ -12,6 +12,8 @@ import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../shared-handler';
 import * as SharedValidations from '../shared-validations';
 import { SharedService } from '../shared.service';
+import { PrikaziPovijestBolestiService } from './prikazi-povijest-bolesti.service';
+import { LoginService } from 'src/app/login/login.service';
 
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
@@ -32,7 +34,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     //Kreiram EventEmitter
     @Output() closeRecept = new EventEmitter<any>();
     //Kreiram EventEmitter koji će uz informaciju da se treba zatvoriti ovaj prozor poslati i ID pacijenta kojemu se upisala povijest bolesti
-    @Output() closeUputnica = new EventEmitter<number>();
+    @Output() closeUputnica = new EventEmitter<{idPacijent: number, potvrden: boolean}>();
     //Primam sve dijagnoze od roditelja
     @Input() primljeneDijagnoze: Dijagnoza[];
     //Primam ID pacijenta kojemu pišem povijest bolesti
@@ -75,7 +77,11 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Dohvaćam servis prethodnih pregleda
         private preglediService: PreglediService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis prikaza povijesti bolesti
+        private prikaziPovijestBolestiService: PrikaziPovijestBolestiService,
+        //Dohvaćam login servis
+        private loginService: LoginService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -329,10 +335,12 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     onClose(){
         //Ako sam došao ovdje iz izdavanja recepta
         if(this.receptIliUputnica === 'recept'){
+            //Emitiraj prema komponenti recepta (PacijentiComponent) da se izgasi ovaj prozor
             this.closeRecept.emit();
         }
         else{
-            this.closeUputnica.emit(this.idPacijent);
+            //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
+            this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: false});
         }
     }
 
@@ -381,17 +389,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                     };
                     //U Local Storage postavljam tu informaciju
                     localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
-                    //Ako sam došao ovdje iz izdavanja recepta
-                    if(this.receptIliUputnica === 'recept'){
-                        //Aktiviraj event prema roditeljskoj komponenti da se izgasi ovaj prozor
-                        this.closeRecept.emit();
-                        //Preusmjeri liječnika na prozor izdavanja recepta
-                        this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
-                    }
-                    //Ako sam došao ovdje iz izdavanja uputnice 
-                    else if(this.receptIliUputnica === 'uputnica'){
-                        this.closeUputnica.emit(this.idPacijent);
-                    }
+                }),
+                mergeMap(() => {
+                    return this.prikaziPovijestBolestiHandler();
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe();  
@@ -437,16 +437,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                             };
                             //U Local Storage postavljam tu informaciju
                             localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
-                            //Ako sam došao ovdje iz izdavanja recepta
-                            if(this.receptIliUputnica === 'recept'){
-                                //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
-                                this.closeRecept.emit();
-                                //Preusmjeri liječnika na prozor izdavanja recepta
-                                this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
-                            }
-                            else{
-                                this.closeUputnica.emit(this.idPacijent);
-                            }
+                        }),
+                        mergeMap(() => {
+                            return this.prikaziPovijestBolestiHandler();
                         }),
                         takeUntil(this.pretplateSubject)
                     ); 
@@ -454,6 +447,58 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 takeUntil(this.pretplateSubject)
             ).subscribe();
         }
+    }
+    //Metoda koja se poziva kada liječnik klikne "Potvrdi povijest bolesti"
+    prikaziPovijestBolestiHandler(){
+        //Pretplaćivam se na tip prijavljenog korisnika
+        return this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                //Pretplaćivam se na podatke aktivnog korisnika 
+                return this.obradaService.getPatientProcessing(user.tip).pipe(
+                    switchMap(podatci => {  
+                        //Ako pacijent NIJE AKTIVAN
+                        if(podatci.success === "false"){
+                            return this.prikaziPovijestBolestiService.getRandomIDObrada().pipe(
+                                tap(idObrada => {
+                                    //Postavljam zadnje generirani slučajni ID obrade u LocalStorage
+                                    localStorage.setItem("idObrada",JSON.stringify(+idObrada));
+                                    //Ako sam došao ovdje iz izdavanja recepta
+                                    if(this.receptIliUputnica === 'recept'){
+                                        //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
+                                        this.closeRecept.emit();
+                                        //Preusmjeri liječnika na prozor izdavanja recepta
+                                        this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+                                    }
+                                    //Ako sam došao ovdje iz izdavanja uputnice 
+                                    else if(this.receptIliUputnica === 'uputnica'){
+                                        //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
+                                        this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
+                                    }
+                                }),
+                                takeUntil(this.pretplateSubject)
+                            );
+                        }
+                        //Ako je pacijent aktivan
+                        else{
+                            //Ako sam došao ovdje iz izdavanja recepta
+                            if(this.receptIliUputnica === 'recept'){
+                                //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
+                                this.closeRecept.emit();
+                                //Preusmjeri liječnika na prozor izdavanja recepta
+                                this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
+                            }
+                            //Ako sam došao ovdje iz izdavanja uputnice 
+                            else if(this.receptIliUputnica === 'uputnica'){
+                                //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
+                                this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
+                            }
+                        }
+                    }),
+                    takeUntil(this.pretplateSubject)
+                );
+            })
+        );
     }
 
     //Metoda koja se aktivira kada korisnik klikne "Poništi povezani slučaj"

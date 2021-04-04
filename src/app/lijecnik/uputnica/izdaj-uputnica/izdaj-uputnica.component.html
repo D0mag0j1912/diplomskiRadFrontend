@@ -9,7 +9,7 @@
         [primljeneDijagnoze]="dijagnoze" 
         [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
     <div class="col-xs-12 col-md-12">
-        <form [formGroup]="forma" *ngIf="forma">
+        <form [formGroup]="forma" *ngIf="forma" (ngSubmit)="onSubmit()">
             <div class="table-responsive-sm">
                 <table class="table table-striped">
                     <tbody>
@@ -37,7 +37,10 @@
                                     style="margin-top:8px;font-family: Verdana, sans-serif;">Primarna dijagnoza:</label>
                             </td>
                             <td>
-                                <select class="form-control" style="width:350px;height:35px" formControlName="primarnaDijagnoza">
+                                <select 
+                                    class="form-control" 
+                                    style="width:350px;height:35px" 
+                                    formControlName="primarnaDijagnoza">
                                     <option [ngValue]="null" >Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
@@ -135,6 +138,21 @@
                                     [disabled]="sekundarnaDijagnoza.errors?.duplikat || 
                                             forma.errors?.primarnaJeIstaKaoSekundarna || 
                                             !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button 
+                                    type="submit"
+                                    [disabled]="!forma.valid"
+                                    class="btn btn-info" 
+                                    style="float:right;right:100px;position: relative;">Izdaj uputnicu</button>
+                            </td>
+                            <td colspan="2">
+                                <h4 
+                                    style="text-align: right;color:#006600; 
+                                    font-family: Verdana, sans-serif;font-weight: bold;" 
+                                    *ngIf="forma.valid">Uputnica je spremna za unos!</h4>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

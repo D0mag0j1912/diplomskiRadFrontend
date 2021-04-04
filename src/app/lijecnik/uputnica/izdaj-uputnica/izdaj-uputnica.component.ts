@@ -2,12 +2,14 @@ import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { tap, takeUntil, switchMap } from 'rxjs/operators';
+import { tap, takeUntil, switchMap, take } from 'rxjs/operators';
+import { LoginService } from 'src/app/login/login.service';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
+import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { SharedService } from 'src/app/shared/shared.service';
 import * as SharedHandler from '../../../shared/shared-handler';
 import * as SharedValidations from '../../../shared/shared-validations';
@@ -62,7 +64,11 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         //Dohvaćam servis importa
         private importService: ImportService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam login servis
+        private loginService: LoginService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -208,52 +214,102 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     onChangePacijent($event: any){
         //Splitam pacijentove podatke u polje
         const polje = $event.target.value.split(" ");
-        //Pretplaćivam se na informaciju je li unesena povijest bolesti za ovu sesiju obrade
-        const combined = forkJoin([
-            this.izdajUputnicaService.isUnesenaPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
-                switchMap(brojPovijestiBolesti => {
-                    //Ako ovaj pacijent NEMA upisanu povijest bolesti za ovu sesiju
-                    if(+brojPovijestiBolesti === 0){
-                        //Otvaram prozor unosa povijesti bolesti
-                        this.isPovijestBolesti = true;
-                        //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
-                        this.sharedService.receptIliUputnica.next("uputnica");
-                        return of(null).pipe(
-                            takeUntil(this.pretplate)
-                        );
-                    }
-                    //Ako ovaj pacijent IMA upisanu povijest bolesti za ovu sesiju
-                    else{
-                        //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                        return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
-                            tap(dijagnoze => {
-                                this.dohvatiInicijalneDijagnoze(dijagnoze);
-                                //Stavljam false u slučaju da je bilo true
-                                this.isPovijestBolesti = false;
-                                //Omogućavam unos primarne dijagnoze
-                                this.primarnaDijagnoza.enable({emitEvent: false});
-                                this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
-                            }),
-                            takeUntil(this.pretplate)
-                        );
-                    } 
-                })
-            ),
+        //Ako pacijent NIJE TRENUTNO AKTIVAN u obradi
+        if(JSON.parse(localStorage.getItem("idObrada")) === null){
+            //Pretplaćivam se na dohvat ID-a pacijenta kojega je liječnik izabrao u dropdownu
             this.importService.getIDPacijent(polje[2]).pipe(
                 tap(idPacijent => {
+                    //Otvaram prozor povijesti bolesti
+                    this.isPovijestBolesti = true;
                     //Spremam ID pacijenta
                     this.idPacijent = +idPacijent;
-                })
-            )
-        ]).pipe(
-            takeUntil(this.pretplate)
-        ).subscribe();
+                    //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
+                    this.sharedService.receptIliUputnica.next("uputnica");
+                }),
+                takeUntil(this.pretplate)
+            ).subscribe();
+        }
+        //Ako je pacijent AKTIVAN u obradi
+        else{
+            //Pretplaćivam se na informaciju je li unesena povijest bolesti za kliknutog pacijenta za ovu sesiju obrade
+            const combined = forkJoin([
+                //Dohvaćam iz LocalStorage-a trenutni ID-obrade i šaljem MBO pacijenta kliknutog retka
+                this.izdajUputnicaService.isUnesenaPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
+                    switchMap(brojPovijestiBolesti => {
+                        //Ako ovaj pacijent NEMA upisanu povijest bolesti za ovu sesiju
+                        if(+brojPovijestiBolesti === 0){
+                            //Praznim polja primarne i sekundarnih dijagnoza
+                            this.sekundarnaDijagnoza.clear();
+                            //Resetiram svoje polje sekundarnih dijagnoza
+                            this.sekundarnaDijagnozaPovijestBolesti = [];
+                            //Dodavam jedan form control u polje sekundarnih dijagnoza
+                            this.onAddDiagnosis();
+                            //Resetiram primarnu dijagnozu
+                            this.primarnaDijagnoza.reset();
+                            //Otvaram prozor unosa povijesti bolesti
+                            this.isPovijestBolesti = true;
+                            //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
+                            this.sharedService.receptIliUputnica.next("uputnica");
+                            return of(null).pipe(
+                                takeUntil(this.pretplate)
+                            );
+                        }
+                        //Ako ovaj pacijent IMA upisanu povijest bolesti za ovu sesiju
+                        else{
+                            //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
+                            return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
+                                tap(dijagnoze => {
+                                    this.dohvatiInicijalneDijagnoze(dijagnoze);
+                                    //Stavljam false u slučaju da je bilo true
+                                    this.isPovijestBolesti = false;
+                                    //Omogućavam unos primarne dijagnoze
+                                    this.primarnaDijagnoza.enable({emitEvent: false});
+                                    this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
+                                    this.sekundarnaDijagnoza.enable({emitEvent: false});
+                                }),
+                                takeUntil(this.pretplate)
+                            );
+                        } 
+                    }),
+                    takeUntil(this.pretplate)
+                ),
+                //Pretplaćivam se na dohvat ID-a pacijenta kojega je liječnik izabrao u dropdownu
+                this.importService.getIDPacijent(polje[2]).pipe(
+                    tap(idPacijent => {
+                        //Spremam ID pacijenta
+                        this.idPacijent = +idPacijent;
+                    }),
+                    takeUntil(this.pretplate)
+                )
+            ]).pipe(
+                takeUntil(this.pretplate)
+            ).subscribe(); 
+        }
     }
 
     //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
     onChangeNazivSekundarna(nazivSekundarna: string, index: number){
         //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
         SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+    }
+
+    //Metoda koja se poziva kada liječnik klikne "Izdaj uputnicu"
+    onSubmit(){
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                return this.obradaService.getPatientProcessing(user.tip).pipe(
+                    tap(podatci => {
+                        //Ako pacijent NIJE AKTIVAN
+                        if(podatci.success === "false"){
+                            //Praznim ID obrade u LocalStorage-u
+                            localStorage.setItem("idObrada",JSON.stringify(null)); 
+                        }
+                    }),
+                    takeUntil(this.pretplate)
+                );
+            })
+        ).subscribe();
     }
 
     //Kada se klikne button "Dodaj dijagnozu"
@@ -304,28 +360,41 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja se poziva kada liječnik želi izaći iz prozora povijesti bolesti
-    onClosePovijestBolesti($event: number){
-        //Dohvaćam MBO pacijenta kojemu se upravo upisao povijest bolesti te ga prosljeđujem metodi koja dohvaća njegove inicijalne dijagnoze
-        this.importService.getMBOPacijent($event).pipe(
-            switchMap(mboPacijent => {
-                //Zatvaram prozor
-                this.isPovijestBolesti = false;
-                //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), mboPacijent).pipe(
-                    tap(dijagnoze => {
-                        this.dohvatiInicijalneDijagnoze(dijagnoze);
-                        //Omogućavam unos primarne dijagnoze
-                        this.primarnaDijagnoza.enable({emitEvent: false});
-                        this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
-                    }),
-                    takeUntil(this.pretplate)
-                );
-            }),
-            takeUntil(this.pretplate)
-        ).subscribe();  
+    onClosePovijestBolesti($event: {idPacijent: number, potvrden: boolean}){
+        //Ako je liječnik POTVRDIO povijest bolesti 
+        if($event.potvrden){
+            //Dohvaćam MBO pacijenta kojemu se upravo upisao povijest bolesti te ga prosljeđujem metodi koja dohvaća njegove inicijalne dijagnoze
+            this.importService.getMBOPacijent($event.idPacijent).pipe(
+                switchMap(mboPacijent => {
+                    //Zatvaram prozor
+                    this.isPovijestBolesti = false;
+                    //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
+                    return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), mboPacijent).pipe(
+                        tap(dijagnoze => {
+                            this.dohvatiInicijalneDijagnoze(dijagnoze);
+                            //Omogućavam unos primarne dijagnoze
+                            this.primarnaDijagnoza.enable({emitEvent: false});
+                            this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
+                            this.sekundarnaDijagnoza.enable({emitEvent: false});
+                        }),
+                        takeUntil(this.pretplate)
+                    );
+                }),
+                takeUntil(this.pretplate)
+            ).subscribe(); 
+        } 
+        //Ako liječnik NIJE POTVRDIO povijest bolesti
+        else{
+            //Samo zatvori prozor povijesti bolesti
+            this.isPovijestBolesti = false;
+            //Onemogućavam unos dijagnoza
+            this.primarnaDijagnoza.disable({emitEvent: false});
+            this.mkbPrimarnaDijagnoza.disable({emitEvent: false});
+            this.sekundarnaDijagnoza.disable({emitEvent: false});
+        }
     }
 
-    //Metoda koja će dohvatiti sve dijagnoze koje su postavljene u zadnjoj povijesti bolesti
+    //Metoda koja će postaviti sve dijagnoze koje su postavljene u zadnjoj povijesti bolesti
     dohvatiInicijalneDijagnoze(dijagnoze: any){
         //Omogućavam unos sekundarne dijagnoze koja je inicijalno disable
         this.sekundarnaDijagnoza.enable({emitEvent: false});

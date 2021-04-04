@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { concatMap, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, debounceTime, distinctUntilChanged, map, mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
 import { ReceptService } from '../../recept.service';
@@ -15,6 +15,8 @@ import { PrikazReceptService } from '../../lista-recepti/prikaz-recept/prikaz-re
 import { HeaderService } from 'src/app/shared/header/header.service';
 import * as SharedHandler from '../../../../shared/shared-handler';
 import * as SharedValidations from '../../../../shared/shared-validations';
+import { LoginService } from 'src/app/login/login.service';
+import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -123,7 +125,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Dohvaćam servis prikaza recepta
         private prikazService: PrikazReceptService,
         //Dohvaćam servis headera
-        private headerService: HeaderService
+        private headerService: HeaderService,
+        //Dohvaćam login servis
+        private loginService: LoginService,
+        //Dohvaćam obrada servis
+        private obradaService: ObradaService
     ) {}
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -1926,6 +1932,23 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.responsePoruka = odgovor.message;
                     //Emitiraj event Subjectom prema komponenti pacijenata (lijevoj tablici)
                     this.receptService.messenger.next(true);
+                }),
+                mergeMap(() => {
+                    return this.loginService.user.pipe(
+                        take(1),
+                        switchMap(user => {
+                            return this.obradaService.getPatientProcessing(user.tip).pipe(
+                                tap(podatci => {
+                                    //Ako pacijent NIJE AKTIVAN
+                                    if(podatci.success === "false"){
+                                        //Praznim ID obrade u LocalStorage-u
+                                        localStorage.setItem("idObrada",JSON.stringify(null)); 
+                                    }
+                                }),
+                                takeUntil(this.pretplateSubject)
+                            );
+                        })
+                    );
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe(); 

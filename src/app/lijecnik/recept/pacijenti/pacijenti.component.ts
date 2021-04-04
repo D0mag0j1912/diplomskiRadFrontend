@@ -208,28 +208,42 @@ export class PacijentiComponent implements OnInit, OnDestroy {
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"
     izdajRecept(id: number){
-        //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
-        this.listaReceptiService.editMessenger.next(null);
-        //Treba provjeriti je li ovaj pacijent ima već upisan povijest bolesti za ovu sesiju obrade (možda mu se upisao, pa se prozor izdavanja recepta slučajno zatvorio)
-        //Pa da se ne upisuje ponovno povijest bolesti
-        this.pacijentiService.provjeraPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")),id).pipe(
-            tap(brojPovijestiBolesti => {
-                //Ako je "brojPovijestiBolesti" 0 
-                if(+brojPovijestiBolesti === 0){
-                    //Šaljem child komponenti ovaj ID pacijenta
-                    this.idPacijent = id;
-                    //Otvaram prozor povijesti bolesti
-                    this.isPovijestBolesti = true;
-                    //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
-                    this.sharedService.receptIliUputnica.next("recept");
-                }
-                else{
-                    //Preusmjeri liječnika na prozor izdavanja recepta
-                    this.router.navigate(['./',id],{relativeTo: this.route});
-                }
-            }),
-            takeUntil(this.pretplateSubject)
-        ).subscribe();
+        //Ako pacijent NIJE TRENUTNO AKTIVAN u obradi
+        if(JSON.parse(localStorage.getItem("idObrada")) === null){
+            //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
+            this.listaReceptiService.editMessenger.next(null);
+            //Šaljem child komponenti ovaj ID pacijenta
+            this.idPacijent = id;
+            //Otvaram prozor povijesti bolesti
+            this.isPovijestBolesti = true;
+            //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
+            this.sharedService.receptIliUputnica.next("recept");
+        }
+        //Ako JE PACIJENT AKTIVAN U OBRADI
+        else{
+            //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
+            this.listaReceptiService.editMessenger.next(null);
+            //Treba provjeriti je li ovaj pacijent ima već upisan povijest bolesti za ovu sesiju obrade (možda mu se upisao, pa se prozor izdavanja recepta slučajno zatvorio)
+            //Pa da se ne upisuje ponovno povijest bolesti
+            this.pacijentiService.provjeraPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")),id).pipe(
+                tap(brojPovijestiBolesti => {
+                    //Ako je "brojPovijestiBolesti" 0 
+                    if(+brojPovijestiBolesti === 0){
+                        //Šaljem child komponenti ovaj ID pacijenta
+                        this.idPacijent = id;
+                        //Otvaram prozor povijesti bolesti
+                        this.isPovijestBolesti = true;
+                        //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
+                        this.sharedService.receptIliUputnica.next("recept");
+                    }
+                    else{
+                        //Preusmjeri liječnika na prozor izdavanja recepta
+                        this.router.navigate(['./',id],{relativeTo: this.route});
+                    }
+                }),
+                takeUntil(this.pretplateSubject)
+            ).subscribe();
+        }
     }
 
     //Metoda koja prima poslani event od komponente "PovijestBolestiComponent"
