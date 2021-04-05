@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LoginService } from './login/login.service';
 import { ObradaService } from './shared/obrada/obrada.service';
 import { PreglediService } from './shared/obrada/pregledi/pregledi.service';
+import { SharedService } from './shared/shared.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,9 @@ export class AppComponent implements OnInit{
       //Dohvaćam servis obrade
       private obradaService: ObradaService,
       //Dohvaćam servis prethodnih pregleda
-      private preglediService: PreglediService
+      private preglediService: PreglediService,
+      //Dohvaćam shared servis
+      private sharedService: SharedService
   ){}
 
   //Kada se komponenta loada, poziva se ova metoda
@@ -27,6 +30,8 @@ export class AppComponent implements OnInit{
       this.obradaService.refreshPodatciObrada();
       //Pozivam metodu koja čuva informaciju je li novi pregled dodan (ta informacija treba "SekundarniHeaderComponent" kada se klikne "Pregledi")
       this.preglediService.refreshOnDodanPregled();
+      //Pozivam metodu koja će sačuvati ID-ove pacijenata kojima je dodana povijest bolesti kada pacijent NIJE aktivan
+      this.sharedService.refreshPacijentiIDs();
   }
   
 }

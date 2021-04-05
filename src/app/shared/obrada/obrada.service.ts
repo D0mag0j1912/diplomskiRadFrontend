@@ -26,8 +26,8 @@ export class ObradaService{
     ){}
     //Metoda koja dohvaća ID obrade iz Local Storagea te ga stavlja u Subject
     refreshPodatciObrada(){
-        const idObrada = JSON.parse(localStorage.getItem("idObrada"));
-        if(!idObrada){
+        const idObrada = +JSON.parse(localStorage.getItem("idObrada"));
+        if(!idObrada || idObrada > 999){
             return;
         }
         this.podatciObrada.next(idObrada);

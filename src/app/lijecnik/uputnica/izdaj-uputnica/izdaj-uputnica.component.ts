@@ -2,15 +2,13 @@ import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { tap, takeUntil, switchMap, take } from 'rxjs/operators';
-import { LoginService } from 'src/app/login/login.service';
+import { tap, takeUntil, switchMap } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { InicijalneDijagnoze } from 'src/app/shared/modeli/inicijalneDijagnoze.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
-import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { SharedService } from 'src/app/shared/shared.service';
 import * as SharedHandler from '../../../shared/shared-handler';
 import * as SharedValidations from '../../../shared/shared-validations';
@@ -67,11 +65,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         //Dohvaćam servis importa
         private importService: ImportService,
         //Dohvaćam shared servis
-        private sharedService: SharedService,
-        //Dohvaćam servis obrade
-        private obradaService: ObradaService,
-        //Dohvaćam login servis
-        private loginService: LoginService
+        private sharedService: SharedService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -272,6 +266,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
                             return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
                                 tap(dijagnoze => {
+                                    //Restartam polje inicijalnih dijagnoza
+                                    this.inicijalneDijagnoze = [];
                                     //Definiram praznu varijablu
                                     let obj;
                                     //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
@@ -317,21 +313,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada liječnik klikne "Izdaj uputnicu"
     onSubmit(){
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.obradaService.getPatientProcessing(user.tip).pipe(
-                    tap(podatci => {
-                        //Ako pacijent NIJE AKTIVAN
-                        if(podatci.success === "false"){
-                            //Praznim ID obrade u LocalStorage-u
-                            localStorage.setItem("idObrada",JSON.stringify(null)); 
-                        }
-                    }),
-                    takeUntil(this.pretplate)
-                );
-            })
-        ).subscribe();
+        
     }
 
     //Kada se klikne button "Dodaj dijagnozu"
@@ -388,25 +370,33 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             //Dohvaćam MBO pacijenta kojemu se upravo upisao povijest bolesti te ga prosljeđujem metodi koja dohvaća njegove inicijalne dijagnoze
             this.importService.getMBOPacijent($event.idPacijent).pipe(
                 switchMap(mboPacijent => {
-                    //Zatvaram prozor
-                    this.isPovijestBolesti = false;
-                    //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                    return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), mboPacijent).pipe(
-                        tap(dijagnoze => {
-                            //Definiram praznu varijablu
-                            let obj;
-                            //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
-                            for(const dijagnoza of dijagnoze){
-                                //Kreiram svoj objekt
-                                obj = new InicijalneDijagnoze(dijagnoza);
-                                //Spremam ga u svoje polje
-                                this.inicijalneDijagnoze.push(obj);
-                            }
-                            this.dohvatiInicijalneDijagnoze(this.inicijalneDijagnoze);
-                            //Omogućavam unos primarne dijagnoze
-                            this.primarnaDijagnoza.enable({emitEvent: false});
-                            this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
-                            this.sekundarnaDijagnoza.enable({emitEvent: false});
+                    //Dohvaćam zadnje dodani ID obrade (ID obrade koji sam unio u povijesti bolesti koju sam sad zatvorio)
+                    return this.sharedService.getRandomIDObrada($event.idPacijent).pipe(
+                        switchMap(idObrada => {
+                            //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
+                            return this.izdajUputnicaService.getInicijalneDijagnoze(+idObrada, mboPacijent).pipe(
+                                tap(dijagnoze => {
+                                    //Restartam polje inicijalnih dijagnoza
+                                    this.inicijalneDijagnoze = [];
+                                    //Zatvaram prozor
+                                    this.isPovijestBolesti = false;
+                                    //Definiram praznu varijablu
+                                    let obj;
+                                    //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
+                                    for(const dijagnoza of dijagnoze){
+                                        //Kreiram svoj objekt
+                                        obj = new InicijalneDijagnoze(dijagnoza);
+                                        //Spremam ga u svoje polje
+                                        this.inicijalneDijagnoze.push(obj);
+                                    }
+                                    this.dohvatiInicijalneDijagnoze(this.inicijalneDijagnoze);
+                                    //Omogućavam unos primarne dijagnoze
+                                    this.primarnaDijagnoza.enable({emitEvent: false});
+                                    this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
+                                    this.sekundarnaDijagnoza.enable({emitEvent: false});
+                                }),
+                                takeUntil(this.pretplate)
+                            );
                         }),
                         takeUntil(this.pretplate)
                     );
@@ -427,6 +417,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja će postaviti sve dijagnoze koje su postavljene u zadnjoj povijesti bolesti
     dohvatiInicijalneDijagnoze(dijagnoze: InicijalneDijagnoze[]){
+        console.log(dijagnoze);
         //Omogućavam unos sekundarne dijagnoze koja je inicijalno disable
         this.sekundarnaDijagnoza.enable({emitEvent: false});
         this.sekundarnaDijagnoza.clear();
@@ -444,8 +435,11 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             this.poslanoVrijeme = dijagnoza.vrijeme.toString();
             //Spremam naziv primarne dijagnoze povezane povijesti bolesti
             this.primarnaDijagnozaPovijestBolesti = dijagnoza.nazivPrimarna;
-            //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
-            this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.nazivSekundarna);
+            //Ako ima sek. dijagnoza
+            if(dijagnoza.nazivSekundarna){
+                //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
+                this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.nazivSekundarna);
+            }
             //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
             this.onAddDiagnosis();
         }
@@ -455,15 +449,16 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
         //Postavljam MKB šifru na osnove odabranog naziva primarne dijagnoze
         SharedHandler.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
-        //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
-        this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
-            //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
-            (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
-            //Postavljam MKB šifre sek.dijagnoza
-            SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
-        });
-        //Restartam polje inicijalnih dijagnoza
-        this.inicijalneDijagnoze = [];
+        //Ako uopće ima sek. dijagnoza
+        if(this.sekundarnaDijagnozaPovijestBolesti.length > 0){
+            //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
+            this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
+                //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
+                //Postavljam MKB šifre sek.dijagnoza
+                SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+            });
+        }
     }
 
     //Ova metoda se pokreće kada se komponenta uništi
