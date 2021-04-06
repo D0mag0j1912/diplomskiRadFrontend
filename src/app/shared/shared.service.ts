@@ -34,11 +34,15 @@ export class SharedService {
 
     //Metoda koja se poziva kada se refresha preglednik
     refreshPacijentiIDs(){
+        //Dohvaćam trenutno polje ID-ova pacijenata iz LS
         const pacijentiIDs: number[] = JSON.parse(localStorage.getItem("pacijentiIDs"));
         if(!pacijentiIDs){
             return;
         }
-        this.pacijentiIDsSubject.next(pacijentiIDs);
+        //Kopiram to cijelo polje u svoje iz servisa
+        this.pacijentiIDs = [...pacijentiIDs];
+        //Polje iz LS stavljam u Subject
+        this.pacijentiIDsSubject.next(pacijentiIDs); 
     }
  
 }

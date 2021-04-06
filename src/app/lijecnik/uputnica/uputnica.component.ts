@@ -3,11 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
+import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { InicijalneDijagnoze } from 'src/app/shared/modeli/inicijalneDijagnoze.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
+import { SharedService } from 'src/app/shared/shared.service';
 import { IzdajUputnicaService } from './izdaj-uputnica/izdajuputnica.service';
 
 @Component({
@@ -33,6 +35,10 @@ export class UputnicaComponent implements OnInit, OnDestroy{
     inicijalneDijagnoze: InicijalneDijagnoze[] = [];
     //Spremam aktivnog pacijenta
     aktivniPacijent: string = null;
+    //Oznaka je li otvoren prozor povijesti bolesti
+    isPovijestBolesti: boolean = false;
+    //Spremam ID aktivnog pacijenta u slučaju da nema upisanu povijest bolesti kad je došao ovamo
+    idPacijent: number;
 
     constructor(
         //Dohvaćam trenutni route
@@ -42,7 +48,11 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         //Dohvaćam servis izdavanja uputnice 
         private izdajUputnicaService: IzdajUputnicaService,
         //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private obradaService: ObradaService,
+        //Dohvaćam import servis
+        private importService: ImportService,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     //Metoda koja se pokreće kada se komponenta inicijalizira
@@ -96,15 +106,34 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                                     }
                                     //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
                                     return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), podatci[0].mboPacijent).pipe(
-                                        tap(dijagnoze => {
-                                            //Definiram praznu varijablu
-                                            let obj;
-                                            //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
-                                            for(const dijagnoza of dijagnoze){
-                                                //Kreiram svoj objekt
-                                                obj = new InicijalneDijagnoze(dijagnoza);
-                                                //Spremam ga u svoje polje
-                                                this.inicijalneDijagnoze.push(obj);
+                                        switchMap(dijagnoze => {
+                                            //Ako pacijent ima zapisanu povijest bolesti u ovoj sesiji obrade
+                                            if(dijagnoze){
+                                                //Restartam polje inicijalnih dijagnoza
+                                                this.inicijalneDijagnoze = [];
+                                                //Definiram praznu varijablu
+                                                let obj;
+                                                //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
+                                                for(const dijagnoza of dijagnoze){
+                                                    //Kreiram svoj objekt
+                                                    obj = new InicijalneDijagnoze(dijagnoza);
+                                                    //Spremam ga u svoje polje
+                                                    this.inicijalneDijagnoze.push(obj);
+                                                }
+                                                return of(null).pipe(
+                                                    takeUntil(this.pretplata)
+                                                );
+                                            }
+                                            //Ako pacijent NEMA zapisanu povijest bolesti
+                                            else{
+                                                //Dohvaćam ID aktivnog pacijenta da ga mogu prenijeti u prozor povijesti bolesti
+                                                return this.importService.getIDPacijent(podatci[0].mboPacijent).pipe(
+                                                    tap(idPacijent => {
+                                                        //Spremam ID aktivnog pacijenta
+                                                        this.idPacijent = +idPacijent;
+                                                    }),
+                                                    takeUntil(this.pretplata)
+                                                );
                                             }
                                         }),
                                         takeUntil(this.pretplata)
@@ -126,10 +155,61 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         ).subscribe();
     }
 
+    //Metoda koja se poziva kada liječnik želi izaći iz prozora povijesti bolesti
+    onClosePovijestBolesti($event: {idPacijent: number, potvrden: boolean}){
+        //Ako je liječnik POTVRDIO povijest bolesti 
+        if($event.potvrden){
+            //Zatvaram prozor povijesti bolesti
+            this.isPovijestBolesti = false;
+            //Otvaram prozor izdavanja uputnice
+            this.isIzdavanjeUputnice = true;
+        }
+        //Ako liječnik NIJE POTVRDIO povijest bolesti
+        else{
+            //Zatvaram prozor povijesti bolesti
+            this.isPovijestBolesti = false;
+        } 
+    }
+
     //Metoda koja se pokreće kada se klikne button "Nova uputnica"
     onNovaUputnica(){
-        //Otvori prozor izdavanja uputnice
-        this.isIzdavanjeUputnice = true;
+        //Ako je pacijent AKTIVAN U OBRADI
+        if(JSON.parse(localStorage.getItem("idObrada"))){
+            //Ako je već dohvaćen ID aktivnog pacijenta, otvaram prozor povijesti bolesti ILI izdavanje uputnice (zavisi jesam li već unio povijest bolesti preko "PrikaziPovijestBolestiComponent")
+            if(this.idPacijent){
+                //Sad se ovdje trebam pretplatiti na informaciju da sam možda već unio povijest bolesti te da ne otvaram taj prozor opet
+                this.importService.getMBOPacijent(this.idPacijent).pipe(
+                    switchMap(mboPacijent => {
+                        return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")),mboPacijent).pipe(
+                            tap(dijagnoze => {
+                                //Ako POSTOJE unesene dijagnoze
+                                if(dijagnoze){
+                                    //Otvaram prozor izdavanja uputnice
+                                    this.isIzdavanjeUputnice = true;
+                                }
+                                //Ako NE POSTOJE unesene dijagnoze
+                                else{
+                                    //Otvaram prozor povijesti bolesti
+                                    this.isPovijestBolesti = true;
+                                    //Emitiram informaciju Subjectom komponenti povijesti bolesti da dolazim iz uputnice
+                                    this.sharedService.receptIliUputnica.next("uputnica");
+                                }
+                            }),
+                            takeUntil(this.pretplata)
+                        );
+                    })
+                ).subscribe();
+            }
+            //Ako NIJE dohvaćen ID pacijenta, otvaram prozor izdavanja uputnice jer mu je već upisana povijest bolesti u ovoj sesiji obrade
+            else{
+                //Otvori prozor izdavanja uputnice
+                this.isIzdavanjeUputnice = true;
+            }
+        }
+        //Ako pacijent NIJE AKTIVAN u obradi
+        else{
+            this.isIzdavanjeUputnice = true;
+        }
     }
 
     //Metoda koja se poziva kada liječnik želi izaći iz prozora izdavanja uputnice

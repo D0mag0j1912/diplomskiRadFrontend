@@ -80,6 +80,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit(){
+        console.log(this.idPacijent);
         //Inicijaliziram varijablu u koju spremam objekte tipa "Dijagnoza"
         let objektDijagnoza;
         //Prolazim poljem dijagnoza sa servera
@@ -402,10 +403,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                     this.sharedService.pacijentiIDsSubject.next(this.sharedService.pacijentiIDs.slice());
                     //U Local Storage postavljam ID pacijenta kojemu sam upravo unio povijest bolesti
                     localStorage.setItem("pacijentiIDs",JSON.stringify(this.sharedService.pacijentiIDs.slice()));
-                    console.log(this.sharedService.pacijentiIDs);
                 }),
                 takeUntil(this.pretplateSubject)
-            ).subscribe();  
+            ).subscribe();
         }
         //Ako je slučaj povezan
         else if(this.povezanSlucaj.value === true){

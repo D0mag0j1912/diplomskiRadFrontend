@@ -294,6 +294,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             debounceTime(300),
             distinctUntilChanged(),
             switchMap(value => {
+                console.log(this.isObrada);
                 return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.isObrada ? this.idPacijent : this.primljeniIDPacijent,value).pipe(
                     takeUntil(this.pretplateSubject)
                 );
@@ -344,7 +345,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         for(let i = 0;i< this.getControls().length;i++){
                             polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(this.getControls()[i].value.datum, 
                                             this.getControls()[i].value.razlogDolaska,this.getControls()[i].value.mkbSifraPrimarna,
-                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.idPacijent));
+                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.primljeniIDPacijent));
                         }
                         //VRAĆAM POLJE OBSERVABLE-A u kojima se nalaze šifre i nazivi sekundarnih dijagnoza
                         return forkJoin(polje).pipe(

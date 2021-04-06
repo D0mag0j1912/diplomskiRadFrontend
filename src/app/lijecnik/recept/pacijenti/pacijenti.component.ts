@@ -207,7 +207,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     }
 
     //Metoda koja se poziva kada liječnik klikne na "Izdaj recept"
-    izdajRecept(id: number){
+    izdajRecept(id: string){
         //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
         this.listaReceptiService.editMessenger.next(null);
         //Ako pacijent NIJE TRENUTNO AKTIVAN u obradi
@@ -218,14 +218,15 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                 tap(pacijentiIDs => {
                     console.log(pacijentiIDs);
                     //Ako se ID pacijenta kojemu je kliknut redak NALAZI u polju ID-ova (tj. njemu je dodana povijest bolesti)
-                    if(pacijentiIDs.indexOf(id) !== -1){
+                    if(pacijentiIDs.indexOf(+id) !== -1){
                         //Preusmjeri liječnika na prozor izdavanja recepta
                         this.router.navigate(['./',id],{relativeTo: this.route});
                     }
                     //Ako se ID pacijenta kojemu je klinut redak NE NALAZI u polju ID-ova (tj. NIJE mu još dodana povijest bolesti)
                     else{
+                        console.log("tu sam");
                         //Šaljem child komponenti ovaj ID pacijenta
-                        this.idPacijent = id;
+                        this.idPacijent = +id;
                         //Otvaram prozor povijesti bolesti
                         this.isPovijestBolesti = true;
                         //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
@@ -239,12 +240,12 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         else{
             //Treba provjeriti je li ovaj pacijent ima već upisan povijest bolesti za ovu sesiju obrade (možda mu se upisao, pa se prozor izdavanja recepta slučajno zatvorio)
             //Pa da se ne upisuje ponovno povijest bolesti
-            this.pacijentiService.provjeraPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")),id).pipe(
+            this.pacijentiService.provjeraPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")),+id).pipe(
                 tap(brojPovijestiBolesti => {
                     //Ako je "brojPovijestiBolesti" 0 
                     if(+brojPovijestiBolesti === 0){
                         //Šaljem child komponenti ovaj ID pacijenta
-                        this.idPacijent = id;
+                        this.idPacijent = +id;
                         //Otvaram prozor povijesti bolesti
                         this.isPovijestBolesti = true;
                         //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
