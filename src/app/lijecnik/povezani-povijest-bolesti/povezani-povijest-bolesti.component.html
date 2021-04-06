@@ -72,24 +72,23 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong style="font-family:Verdana, sans-serif">MKB šifra primarne dijagnoze: </strong>
-                                        <input 
+                                        <p><strong style="font-family:Verdana, sans-serif">Anamneza: </strong></p>
+                                        <textarea 
                                             type="text"
-                                            formControlName="mkbSifraPrimarna"
-                                            style="border:0;width:450px;height:20px; 
-                                            font-family: Verdana, sans-serif;" 
-                                            readonly>
+                                            formControlName="anamneza"
+                                            readonly 
+                                            rows="3" 
+                                            style="width:700px"></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong style="font-family:Verdana, sans-serif">Naziv primarne dijagnoze: </strong>
-                                        <input 
-                                            type="text"
-                                            formControlName="nazivPrimarna"
-                                            style="border:0;width:450px;height:20px; 
-                                            font-family: Verdana, sans-serif;" 
-                                            readonly>
+                                        <p><strong style="font-family:Verdana, sans-serif">Primarna dijagnoza: </strong></p>
+                                        <textarea 
+                                            rows="2"
+                                            formControlName="primarnaDijagnoza"
+                                            style="width:700px" 
+                                            readonly></textarea>
                                     </td>
                                 </tr>
                                 <tr class="border_bottom" formArrayName="sekundarneDijagnoze" *ngFor="let sekundarna of getControlsSekundarna(i);let j = index">

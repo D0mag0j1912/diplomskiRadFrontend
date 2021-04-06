@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, switchMap, take, takeUntil, tap } f
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
+import { PovijestBolesti } from 'src/app/shared/modeli/povijestBolesti.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { PovezaniPovijestBolestiService } from './povezani-povijest-bolesti.service';
 
@@ -45,10 +46,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
     porukaAktivan: string = null;
     //Spremam poruku ako pacijent nema inicijalno rezultata za povijest bolesti
     porukaPovijestBolesti: string = null;
-    //Spremam evidentirane povijesti bolesti za pacijenta
-    povijestiBolesti: any;
     //Primam ID pacijenta od roditeljske komponente u slučaju da nisam došao dodavde iz obrade
     @Input() primljeniIDPacijent: number;
+    //Spremam sve povijesti bolesti u svoj model
+    povijestBolesti: PovijestBolesti[] = [];
 
     constructor(
         //Dohvaćam servis obrade
@@ -115,30 +116,38 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         switchMap(
                             //Dohvaćam odgovor servera
                             (odgovor) => {
-                                console.log(odgovor);
                                 //Ako je pacijent AKTIVAN te IMA evidentiranih povijesti bolesti
                                 if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] !== "false"){
                                     //Označavam da pacijent ima evidentiranih povijesti bolesti
                                     this.isPovijestBolesti = true;
-                                    //Spremam odgovore servera (povijesti bolesti i godine)
-                                    this.povijestiBolesti = odgovor[0];
+                                    //Restartam polje povijesti bolesti
+                                    this.povijestBolesti = [];
+                                    //Definiram svoj objekt
+                                    let objPovijestBolesti;
+                                    //Prolazim kroz sve dohvaćene povijesti bolesti sa servera
+                                    for(const povijest of odgovor[0]){
+                                        //Kreiram objekt tipa "PovijestBolesti"
+                                        objPovijestBolesti = new PovijestBolesti(povijest);
+                                        //Nadodavam taj objekt u svoje polje
+                                        this.povijestBolesti.push(objPovijestBolesti);
+                                    }
                                     //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
                                     let pom = [];
                                     //Za svaku vrijednost u polju povijesti bolesti
-                                    for(let povijestB of this.povijestiBolesti){
+                                    for(let povijest of this.povijestBolesti){
                                         //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
-                                        if(pom.indexOf(povijestB.Godina) === -1){
+                                        if(pom.indexOf(povijest._godina) === -1){
                                             //Dodaj tu godinu u pomoćno polje
-                                            pom.push(povijestB.Godina);
+                                            pom.push(povijest._godina);
                                         }
                                         //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
                                         else{
                                             //Dodjeljuje joj se vrijednost null
-                                            povijestB.Godina = null;
+                                            povijest.godina = null;
                                         }
                                     }
                                     //Za svaku povijest bolesti, dodaj cijeli form array u formu 
-                                    for(let povijest of this.povijestiBolesti){
+                                    for(let povijest of this.povijestBolesti){
                                         this.addControls(povijest);
                                     }
                                     let polje = [];
@@ -209,30 +218,38 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         switchMap(odgovor => {
                             //Označavam da sam došao iz neke druge komponente
                             this.isObrada = false;
-                            console.log(odgovor);
                             //Ako pacijent ima zabilježenih povijesti bolesti
                             if(odgovor["success"] !== "false"){
                                 //Označavam da pacijent ima evidentiranih povijesti bolesti
                                 this.isPovijestBolesti = true;
-                                //Spremam odgovore servera (povijesti bolesti i godine)
-                                this.povijestiBolesti = odgovor;
+                                //Restartam polje povijesti bolesti
+                                this.povijestBolesti = [];
+                                //Definiram svoj objekt
+                                let objPovijestBolesti;
+                                //Prolazim kroz sve dohvaćene povijesti bolesti sa servera
+                                for(const povijest of odgovor){
+                                    //Kreiram objekt tipa "PovijestBolesti"
+                                    objPovijestBolesti = new PovijestBolesti(povijest);
+                                    //Nadodavam taj objekt u svoje polje
+                                    this.povijestBolesti.push(objPovijestBolesti);
+                                }
                                 //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
                                 let pom = [];
                                 //Za svaku vrijednost u polju povijesti bolesti
-                                for(let povijestB of this.povijestiBolesti){
+                                for(let povijest of this.povijestBolesti){
                                     //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
-                                    if(pom.indexOf(povijestB.Godina) === -1){
+                                    if(pom.indexOf(povijest._godina) === -1){
                                         //Dodaj tu godinu u pomoćno polje
-                                        pom.push(povijestB.Godina);
+                                        pom.push(povijest._godina);
                                     }
                                     //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
                                     else{
                                         //Dodjeljuje joj se vrijednost null
-                                        povijestB.Godina = null;
+                                        povijest.godina = null;
                                     }
                                 }
                                 //Za svaku povijest bolesti, dodaj cijeli form array u formu 
-                                for(let povijest of this.povijestiBolesti){
+                                for(let povijest of this.povijestBolesti){
                                     this.addControls(povijest);
                                 }
                                 let polje = [];
@@ -294,7 +311,6 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             debounceTime(300),
             distinctUntilChanged(),
             switchMap(value => {
-                console.log(this.isObrada);
                 return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.isObrada ? this.idPacijent : this.primljeniIDPacijent,value).pipe(
                     takeUntil(this.pretplateSubject)
                 );
@@ -304,7 +320,6 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             switchMap(
                 //Dohvaćam odgovor
                 (odgovor) => {
-                    console.log(odgovor);
                     //Ako je server vratio neke rezultate
                     if(odgovor["success"] !== "false"){
                         //Brišem svaki form group u form arrayu povijesti bolesti prije nadodavanja novih form groupova pretrage
@@ -318,26 +333,34 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         this.porukaPovijestBolestiPretraga = null;
                         //Označavam da korisnik pretražuje povijesti bolesti
                         this.isPovijestBolestiPretraga = true;
-                        //Spremam nove rezultate u svoje polje povijesti bolesti
-                        this.povijestiBolesti = odgovor;
-                        //console.log(this.povijestiBolesti);
+                        //Restartam polje povijesti bolesti
+                        this.povijestBolesti = [];
+                        //Definiram svoj objekt
+                        let objPovijestBolesti;
+                        //Prolazim kroz sve dohvaćene povijesti bolesti sa servera
+                        for(const povijest of odgovor){
+                            //Kreiram objekt tipa "PovijestBolesti"
+                            objPovijestBolesti = new PovijestBolesti(povijest);
+                            //Nadodavam taj objekt u svoje polje
+                            this.povijestBolesti.push(objPovijestBolesti);
+                        }
                         //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
                         let pomPretraga = [];
                         //Za svaku vrijednost u polju povijesti bolesti
-                        for(let povijestB of this.povijestiBolesti){
+                        for(let povijest of this.povijestBolesti){
                             //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
-                            if(pomPretraga.indexOf(povijestB.Godina) === -1){
+                            if(pomPretraga.indexOf(povijest._godina) === -1){
                                 //Dodaj tu godinu u pomoćno polje
-                                pomPretraga.push(povijestB.Godina);
+                                pomPretraga.push(povijest._godina);
                             }
                             //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
                             else{
                                 //Dodjeljuje joj se vrijednost null
-                                povijestB.Godina = null;
+                                povijest.godina = null;
                             }
                         }
                         //Za svaku povijest bolesti, dodaj cijeli form group u form array  
-                        for(let povijest of this.povijestiBolesti){
+                        for(let povijest of this.povijestBolesti){
                             this.addControls(povijest);
                         }
                         let polje = [];    
@@ -345,7 +368,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                         for(let i = 0;i< this.getControls().length;i++){
                             polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(this.getControls()[i].value.datum, 
                                             this.getControls()[i].value.razlogDolaska,this.getControls()[i].value.mkbSifraPrimarna,
-                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.primljeniIDPacijent));
+                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.isObrada ? this.idPacijent : this.primljeniIDPacijent));
                         }
                         //VRAĆAM POLJE OBSERVABLE-A u kojima se nalaze šifre i nazivi sekundarnih dijagnoza
                         return forkJoin(polje).pipe(
@@ -405,15 +428,15 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
     }
 
     //Metoda za dodavanje form controlova u form array godina
-    addControls(povijestBolesti: any){
+    addControls(povijestBolesti: PovijestBolesti){
         
         (<FormArray>this.glavnaForma.get('povijestBolesti')).push(
             new FormGroup({
-              'godina': new FormControl(povijestBolesti.Godina),
-              'datum': new FormControl(povijestBolesti.Datum),
-              'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
-              'mkbSifraPrimarna': new FormControl(povijestBolesti.mkbSifraPrimarna),
-              'nazivPrimarna': new FormControl(povijestBolesti.NazivPrimarna),
+              'godina': new FormControl(povijestBolesti._godina),
+              'datum': new FormControl(povijestBolesti.datum),
+              'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska), 
+              'anamneza': new FormControl(povijestBolesti.anamneza),
+              'primarnaDijagnoza': new FormControl(povijestBolesti.primarnaDijagnoza),
               'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
               'sekundarneDijagnoze': new FormArray([]),
               'slucaj': new FormControl(povijestBolesti.tipSlucaj),

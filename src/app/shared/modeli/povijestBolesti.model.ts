@@ -20,6 +20,7 @@ export class PovijestBolesti {
     public mkbSifraSekundarna?: string;
     public nazivPrimarna?: string;
     public _recept?: Recept;
+    public _godina?: string;
 
     constructor(response: any){
         if(response.idPovijestBolesti){
@@ -58,6 +59,12 @@ export class PovijestBolesti {
         if(response.datum){
             this.datum = response.datum;
         }
+        else if(response.Datum){
+            this.datum = response.Datum;
+        }
+        if(response.Godina){
+            this._godina = response.Godina;
+        }
         if(response.vrijeme){
             this.vrijeme = response.vrijeme;
         }
@@ -77,5 +84,9 @@ export class PovijestBolesti {
 
     set recept(response: any){
         this._recept = new Recept(response);
+    }
+
+    set godina(godina: string){
+        this._godina = godina;
     }
 }
