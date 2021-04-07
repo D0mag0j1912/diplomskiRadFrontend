@@ -10,23 +10,33 @@ import {baseUrl} from '../../backend-path';
     providedIn: 'root'
 })
 export class PovezaniPovijestBolestiService{
-    
+
     //Kreiram Subject koji će obavjestiti komponentu "PovezaniPovijestBolestiComponent" je li se u nju ušlo preko obrade ili preko recepta
     isObrada = new BehaviorSubject<boolean>(false);
     isObradaObs = this.isObrada.asObservable();
-    
+
     constructor(
         //Dohvaćam http
         private http: HttpClient
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalaze podatci za povezanu povijest bolesti
-    getPovijestBolestiPovezanSlucaj(event: {datum: Date,razlogDolaska: string,mkbSifraPrimarna: string, vrijeme: Time,tipSlucaj: string},id: number){
+    getPovijestBolestiPovezanSlucaj(
+        event: {
+            datum: Date,
+            razlogDolaska: string,
+            primarnaDijagnoza: string,
+            anamneza: string,
+            vrijeme: Time,
+            tipSlucaj: string
+        },id: number){
         event.razlogDolaska = encodeURIComponent(event.razlogDolaska);
+        event.anamneza = encodeURIComponent(event.anamneza);
         //Kreiram paramse
         let params = new HttpParams().append("datum",event.datum.toString());
         params = params.append("razlogDolaska",event.razlogDolaska);
-        params = params.append("mkbSifraPrimarna",event.mkbSifraPrimarna);
+        params = params.append("anamneza",event.anamneza);
+        params = params.append("primarnaDijagnoza",event.primarnaDijagnoza);
         params = params.append("vrijeme",event.vrijeme.toString());
         params = params.append("tipSlucaj",event.tipSlucaj);
         params = params.append("id",id.toString());
@@ -42,14 +52,17 @@ export class PovezaniPovijestBolestiService{
     }
 
     //Metoda koja vraća Observable sa svim ŠIFRAMA I NAZIVIMA SEKUNDARNIH DIJAGNOZA za određenu povijest bolesti
-    getSekundarneDijagnoze(datum: string, razlogDolaska: string, mkbSifraPrimarna: string, 
-                        tipSlucaj: string, vrijeme: string, idPacijent: number){
-        razlogDolaska = encodeURIComponent(razlogDolaska);
-        let params = new HttpParams().append("datum",datum);
-        params = params.append("razlogDolaska",razlogDolaska);
-        params = params.append("mkbSifraPrimarna",mkbSifraPrimarna);
+    getSekundarneDijagnoze(
+        datum: Date,
+        vrijeme: Time,
+        tipSlucaj: string,
+        primarnaDijagnoza: string,
+        idPacijent: number
+    ){
+        let params = new HttpParams().append("datum",datum.toString());
+        params = params.append("vrijeme",vrijeme.toString());
         params = params.append("tipSlucaj",tipSlucaj);
-        params = params.append("vrijeme",vrijeme);
+        params = params.append("primarnaDijagnoza",primarnaDijagnoza);
         params = params.append("idPacijent",idPacijent.toString());
         return this.http.get<any>(baseUrl + 'otvorenaPovijestBolesti/getSekundarneDijagnoze.php',{params: params}).pipe(catchError(handleError))
     }
@@ -61,5 +74,5 @@ export class PovezaniPovijestBolestiService{
         let params = new HttpParams().append("id",id.toString());
         params = params.append("pretraga",pretraga);
         return this.http.get<any>(baseUrl + 'otvorenaPovijestBolesti/getPovijestBolestiPretraga.php',{params: params}).pipe(catchError(handleError));
-    } 
+    }
 }

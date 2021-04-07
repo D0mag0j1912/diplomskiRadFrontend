@@ -27,7 +27,13 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
     //Kreiram event emitter koji će obavjestiti drugu komponentu da je korisnik kliknuo "Izađi"
     @Output() close = new EventEmitter<any>();
     //Kreiram event emitter koji će poslati podatke retka drugoj komponenti
-    @Output() podatciRetka = new EventEmitter<{datum: Date,razlogDolaska: string, mkbSifraPrimarna: string, vrijeme: Time, tipSlucaj: string}>();
+    @Output() podatciRetka = new EventEmitter<{
+        datum: Date,
+        razlogDolaska: string,
+        primarnaDijagnoza: string,
+        anamneza: string,
+        vrijeme: Time,
+        tipSlucaj: string}>();
     //Kreiram formu koja služi za pretragu povijesti bolesti
     forma: FormGroup;
     //Kreiram glavnu formu
@@ -107,7 +113,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                 //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                                 this.porukaAktivan = response["message"];
                                 //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                                return of(this.porukaAktivan); 
+                                return of(this.porukaAktivan);
                             }
                         }),
                         takeUntil(this.pretplateSubject)
@@ -146,45 +152,43 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                             povijest.godina = null;
                                         }
                                     }
-                                    //Za svaku povijest bolesti, dodaj cijeli form array u formu 
+                                    //Za svaku povijest bolesti, dodaj cijeli form array u formu
                                     for(let povijest of this.povijestBolesti){
                                         this.addControls(povijest);
                                     }
                                     let polje = [];
                                     //Za svaku iteraciju povijesti bolesti
                                     for(let i = 0;i< this.getControls().length;i++){
-                                        polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(this.getControls()[i].value.datum, 
-                                            this.getControls()[i].value.razlogDolaska,this.getControls()[i].value.mkbSifraPrimarna,
-                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.idPacijent)); 
+                                        polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(
+                                            this.getControls()[i].value.datum,
+                                            this.getControls()[i].value.vrijeme,
+                                            this.getControls()[i].value.slucaj,
+                                            this.getControls()[i].value.primarnaDijagnoza,
+                                            this.idPacijent
+                                        ));
                                     }
                                     return forkJoin(polje).pipe(
                                         tap((odgovor: any) => {
                                             for(let i = 0;i< this.getControls().length;i++){
-                                                //Za svaku povijesti bolesti, ja pusham prazni form control u polje sekundarnih dijagnoza
-                                                (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                                    new FormControl(null)
-                                                );
                                                 //Za svaku iteraciju povijesti bolesti, string se resetira
                                                 let str = new String("");
                                                 for(const dijagnoza of odgovor){
                                                     dijagnoza.forEach((element) => {
                                                         //Ako je šifra primarne dijagnoze iz form array-a JEDNAKA onoj iz fork joina
-                                                        if(this.getControls()[i].value.mkbSifraPrimarna === element.mkbSifraPrimarna && 
-                                                        this.getControls()[i].value.datum === element.Datum && 
-                                                        this.getControls()[i].value.vrijeme === element.vrijeme && 
-                                                        this.getControls()[i].value.slucaj === element.tipSlucaj && 
-                                                        this.getControls()[i].value.razlogDolaska === element.razlogDolaska){
+                                                        if(this.getControls()[i].value.datum === element.Datum
+                                                          && this.getControls()[i].value.vrijeme === element.vrijeme
+                                                          && this.getControls()[i].value.slucaj === element.tipSlucaj){
                                                             //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                                            str = str.concat(element.mkbSifra + " | " + element.imeDijagnoza + "\n");
-                                                        } 
+                                                            str = str.concat(element.sekundarneDijagnoze + "\n");
+                                                        }
                                                     });
                                                 }
                                                 //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                                (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str]);
+                                                (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                             }
                                         }),
                                         takeUntil(this.pretplateSubject)
-                                    ); 
+                                    );
                                 }
                                 //Ako je pacijent AKTIVAN te NEMA evidentiranih povijesti bolesti
                                 else if(odgovor !== "Nema aktivnih pacijenata!" && odgovor[0]["success"] === "false"){
@@ -248,45 +252,44 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                         povijest.godina = null;
                                     }
                                 }
-                                //Za svaku povijest bolesti, dodaj cijeli form array u formu 
+                                //Za svaku povijest bolesti, dodaj cijeli form array u formu
                                 for(let povijest of this.povijestBolesti){
                                     this.addControls(povijest);
                                 }
                                 let polje = [];
                                 //Za svaku iteraciju povijesti bolesti
                                 for(let i = 0;i< this.getControls().length;i++){
-                                    polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(this.getControls()[i].value.datum, 
-                                            this.getControls()[i].value.razlogDolaska,this.getControls()[i].value.mkbSifraPrimarna,
-                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.primljeniIDPacijent));
+                                    polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(
+                                        this.getControls()[i].value.datum,
+                                        this.getControls()[i].value.vrijeme,
+                                        this.getControls()[i].value.slucaj,
+                                        this.getControls()[i].value.primarnaDijagnoza,
+                                        this.primljeniIDPacijent
+                                    ));
                                 }
                                 return forkJoin(polje).pipe(
                                     tap((odgovor: any) => {
-                                        for(let i = 0;i< this.getControls().length;i++){
-                                            //Za svaku povijesti bolesti, ja pusham prazni form control u polje sekundarnih dijagnoza
-                                            (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                                new FormControl(null)
-                                            );
-                                            //Za svaku iteraciju povijesti bolesti, string se resetira
-                                            let str = new String("");
-                                            for(const dijagnoza of odgovor){
-                                                dijagnoza.forEach((element) => {
-                                                    //Ako je šifra primarne dijagnoze iz form array-a JEDNAKA onoj iz fork joina
-                                                    if(this.getControls()[i].value.mkbSifraPrimarna === element.mkbSifraPrimarna && 
-                                                    this.getControls()[i].value.datum === element.Datum && 
-                                                    this.getControls()[i].value.vrijeme === element.vrijeme && 
-                                                    this.getControls()[i].value.slucaj === element.tipSlucaj && 
-                                                    this.getControls()[i].value.razlogDolaska === element.razlogDolaska){
-                                                        //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                                        str = str.concat(element.mkbSifra + " | " + element.imeDijagnoza + "\n");
-                                                    } 
-                                                });
-                                            }
-                                            //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                            (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str]);
+                                      for(let i = 0;i< this.getControls().length;i++){
+                                        //Za svaku iteraciju povijesti bolesti, string se resetira
+                                        let str = new String("");
+                                        for(const dijagnoza of odgovor){
+                                            dijagnoza.forEach((element) => {
+                                                //Ako je šifra primarne dijagnoze iz form array-a JEDNAKA onoj iz fork joina
+                                                if(this.getControls()[i].value.datum === element.Datum
+                                                  && this.getControls()[i].value.vrijeme === element.vrijeme
+                                                  && this.getControls()[i].value.slucaj === element.tipSlucaj){
+                                                    console.log(element);
+                                                    //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
+                                                    str = str.concat(element.sekundarneDijagnoze + "\n");
+                                                }
+                                            });
                                         }
+                                        //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
+                                        (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str, {emitEvent: false});
+                                      }
                                     }),
                                     takeUntil(this.pretplateSubject)
-                                ); 
+                                );
                             }
                             //Ako pacijent NEMA evidentiranih povijesti bolesti
                             else if(odgovor["success"] === "false" && odgovor["message"] === "Pacijent nema evidentiranih povijesti bolesti!"){
@@ -323,10 +326,10 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     //Ako je server vratio neke rezultate
                     if(odgovor["success"] !== "false"){
                         //Brišem svaki form group u form arrayu povijesti bolesti prije nadodavanja novih form groupova pretrage
-                        
+
                         //Dok form array nije prazan
                         while(this.getControls().length !== 0){
-                            //Briši mu prvi element 
+                            //Briši mu prvi element
                             (<FormArray>this.glavnaForma.get('povijestBolesti')).removeAt(0);
                         }
                         //Stavljam neuspješnu poruku pretrage na null da se ne prikazuje na ekranu
@@ -359,52 +362,52 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                 povijest.godina = null;
                             }
                         }
-                        //Za svaku povijest bolesti, dodaj cijeli form group u form array  
+                        //Za svaku povijest bolesti, dodaj cijeli form group u form array
                         for(let povijest of this.povijestBolesti){
                             this.addControls(povijest);
                         }
-                        let polje = [];    
+                        let polje = [];
                         //Za svaku iteraciju povijesti bolesti
                         for(let i = 0;i< this.getControls().length;i++){
-                            polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(this.getControls()[i].value.datum, 
-                                            this.getControls()[i].value.razlogDolaska,this.getControls()[i].value.mkbSifraPrimarna,
-                                            this.getControls()[i].value.slucaj,this.getControls()[i].value.vrijeme,this.isObrada ? this.idPacijent : this.primljeniIDPacijent));
+                            polje.push(this.povezaniPovijestBolestiService.getSekundarneDijagnoze(
+                                this.getControls()[i].value.datum,
+                                this.getControls()[i].value.vrijeme,
+                                this.getControls()[i].value.slucaj,
+                                this.getControls()[i].value.primarnaDijagnoza,
+                                this.isObrada ? this.idPacijent : this.primljeniIDPacijent
+                            ));
                         }
                         //VRAĆAM POLJE OBSERVABLE-A u kojima se nalaze šifre i nazivi sekundarnih dijagnoza
                         return forkJoin(polje).pipe(
                             tap((odgovor: any) => {
+                                console.log(odgovor);
                                 if(odgovor !== "false"){
-                                    for(let i = 0;i< this.getControls().length;i++){
-                                        //Za svaku povijesti bolesti, ja pusham prazni form control u polje sekundarnih dijagnoza
-                                        (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).push(
-                                            new FormControl(null)
-                                        );
-                                        //Za svaku iteraciju povijesti bolesti, string se resetira
-                                        let str = new String("");
-                                        for(const dijagnoza of odgovor){
-                                            dijagnoza.forEach((element) => {
-                                                //Ako je šifra primarne dijagnoze iz form array-a JEDNAKA onoj iz fork joina
-                                                if(this.getControls()[i].value.mkbSifraPrimarna === element.mkbSifraPrimarna && 
-                                                this.getControls()[i].value.datum === element.Datum && 
-                                                this.getControls()[i].value.vrijeme === element.vrijeme && 
-                                                this.getControls()[i].value.slucaj === element.tipSlucaj && 
-                                                this.getControls()[i].value.razlogDolaska === element.razlogDolaska){
-                                                    //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                                    str = str.concat(element.mkbSifra + " | " + element.imeDijagnoza + "\n");
-                                                } 
-                                            });
-                                        }
-                                        //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                        (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(i)).get('sekundarneDijagnoze')).patchValue([str], {emitEvent: false});
-                                    }
+                                  for(let i = 0;i< this.getControls().length;i++){
+                                      //Za svaku iteraciju povijesti bolesti, string se resetira
+                                      let str = new String("");
+                                      for(const dijagnoza of odgovor){
+                                          dijagnoza.forEach((element) => {
+                                              //Ako je šifra primarne dijagnoze iz form array-a JEDNAKA onoj iz fork joina
+                                              if(this.getControls()[i].value.datum === element.Datum
+                                                && this.getControls()[i].value.vrijeme === element.vrijeme
+                                                && this.getControls()[i].value.slucaj === element.tipSlucaj){
+                                                  console.log(element);
+                                                  //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
+                                                  str = str.concat(element.sekundarneDijagnoze + "\n");
+                                              }
+                                          });
+                                      }
+                                      //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
+                                      (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str, {emitEvent: false});
+                                  }
                                 }
                             }),
                             takeUntil(this.pretplateSubject)
-                        ); 
+                        );
                     }
                     //Ako je server vratio poruku da nema rezultata za navedenu pretragu
                     else{
-                        //Spremam poruku servera 
+                        //Spremam poruku servera
                         this.porukaPovijestBolestiPretraga = odgovor["message"];
                         //VRAĆAM "false"
                         return of(odgovor["success"]);
@@ -414,12 +417,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             takeUntil(this.pretplateSubject)
         //Pretplaćujem se na odgovor servera (ILI šifre i nazive sek. dijagnoza ILI da NEMA REZULTATA ZA PRETRAGU)
         ).subscribe();
-        
-    }
 
-    //Dohvati form controlove formarraya sekundarnih dijagnoza na određenom indeksu
-    getControlsSekundarna(index: number){
-        return (<FormArray>(<FormGroup>(<FormArray>this.glavnaForma.get('povijestBolesti')).at(index)).get('sekundarneDijagnoze')).controls;
     }
 
     //Metoda koja dohvaća form arrayove pojedinih povijesti bolesti
@@ -429,30 +427,36 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Metoda za dodavanje form controlova u form array godina
     addControls(povijestBolesti: PovijestBolesti){
-        
+
         (<FormArray>this.glavnaForma.get('povijestBolesti')).push(
             new FormGroup({
               'godina': new FormControl(povijestBolesti._godina),
               'datum': new FormControl(povijestBolesti.datum),
-              'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska), 
+              'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
               'anamneza': new FormControl(povijestBolesti.anamneza),
               'primarnaDijagnoza': new FormControl(povijestBolesti.primarnaDijagnoza),
               'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
-              'sekundarneDijagnoze': new FormArray([]),
+              'sekundarneDijagnoze': new FormControl(null),
               'slucaj': new FormControl(povijestBolesti.tipSlucaj),
               'vrijeme': new FormControl(povijestBolesti.vrijeme)
-            }) 
+            })
         );
     }
 
     //Metoda koja emitira event prema komponenti "PovijestBolestiComponent" te joj prosljeđuje podatke iz retka stisnutog buttona
-    poveziPovijestBolesti(datum: Date,razlogDolaska: string, 
-                        mkbSifraPrimarna: string,vrijeme: Time,tipSlucaj: string){
-        //Emitiram event 
+    poveziPovijestBolesti(
+        datum: Date,
+        razlogDolaska: string,
+        primarnaDijagnoza: string,
+        anamneza: string,
+        vrijeme: Time,
+        tipSlucaj: string){
+        //Emitiram event
         this.podatciRetka.emit({
             datum,
             razlogDolaska,
-            mkbSifraPrimarna,
+            primarnaDijagnoza,
+            anamneza,
             vrijeme,
             tipSlucaj
         });

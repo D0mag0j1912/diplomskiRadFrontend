@@ -458,6 +458,13 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
         this.sekundarnaDijagnoza.reset();
         this.sekundarnaDijagnoza.disable({emitEvent: false});
+        this.razlogDolaska.patchValue(null,{emitEvent: false});
+        this.anamneza.patchValue(null, {emitEvent: false});
+        this.status.patchValue(null,{emitEvent: false});
+        this.nalaz.patchValue(null, {emitEvent: false});
+        this.terapija.patchValue(null, {emitEvent: false});
+        this.preporukaLijecnik.patchValue(null, {emitEvent: false});
+        this.napomena.patchValue(null, {emitEvent: false});
         this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
         this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
         //Skrivam button "Poništi povezani slučaj"
@@ -543,7 +550,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     }
                   ),
                   takeUntil(this.pretplateSubject)
-              ).subscribe();
+              ).subscribe(); 
           }
       }
 
