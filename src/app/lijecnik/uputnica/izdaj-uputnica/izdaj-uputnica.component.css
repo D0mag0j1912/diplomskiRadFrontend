@@ -11,7 +11,7 @@
     position:fixed;
     top:10vh;
     left: 27.5vw;
-    width: 45vw;
+    width: 52.5vw;
     height:40vw;
     padding: 16px;
     z-index: 100;
@@ -23,7 +23,7 @@
 }
 
 .alert-box-actions{
-    text-align:right;   
+    text-align:right;
 }
 span{
     color:#a94442;
