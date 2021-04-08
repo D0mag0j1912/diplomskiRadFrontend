@@ -1,4 +1,20 @@
 import { ValidatorFn, FormControl, FormGroup } from "@angular/forms";
+import { Dijagnoza } from "./modeli/dijagnoza.model";
+
+//Funkcija koja provjerava ispravnost unosa dijagnoza
+export function provjeriNazivDijagnoza(dijagnoze: Dijagnoza[]):ValidatorFn{
+    return (control: FormControl): {[key: string]: boolean} | null => {
+        const naziv = dijagnoze.find((element) => {
+            return element.imeDijagnoza === control.value;
+        });
+        if(!naziv){
+            return {'neispravanNazivDijagnoza': true};
+        }
+        else{
+            return null;
+        }
+    }
+}
 
 //Funkcija koja provjerava ispravnost MKB šifre primarne dijagnoze
 export function provjeriMKB(mkbSifre: string[]): ValidatorFn{
@@ -30,7 +46,7 @@ export function requiredMKBSifraSekundarna(): ValidatorFn{
         }
     }
 }
-//Funkcija koja nadodava ISPRAVNOST? validator na MKB šifru sek. dijagnoze 
+//Funkcija koja nadodava ISPRAVNOST? validator na MKB šifru sek. dijagnoze
 export function provjeriMKBSifraSekundarna(mkbSifre: string[]): ValidatorFn{
     return (group: FormGroup): {[key: string]:boolean} | null => {
         //Ako su popunjeni i naziv sekundarne dijagnoze i njezina MKB šifra

@@ -14,6 +14,7 @@ import * as SharedHandler from '../../../shared/shared-handler';
 import * as SharedValidations from '../../../shared/shared-validations';
 import { IzdajUputnicaService } from './izdajuputnica.service';
 import * as UputnicaHandler from './izdaj-uputnica-handler';
+import * as UputnicaValidators from './izdaj-uputnica-validators';
 
 @Component({
   selector: 'app-izdaj-uputnica',
@@ -37,8 +38,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     forma: FormGroup;
     //Spremam MKB šifre
     mkbSifre: string[] = [];
-    //Spremam nazive dijagnoza
-    naziviDijagnoze: string[] = [];
     //Spremam trenutno izabranu sekundarnu dijagnozu zbog validacije duplikata
     sekDijagnoza: string = null;
     //Spremam dijagnozu koja je ista kod primarne i kod sekundarne dijagnoze
@@ -71,28 +70,39 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
-        console.log(this.zdravstveneDjelatnosti);
         //Prolazim kroz polje svih dijagnoza
         for(const dijagnoza of this.dijagnoze){
-            //U polje naziva dijagnoza dodavam svaki naziv dijagnoze iz importanog polja
-            this.naziviDijagnoze.push(dijagnoza.imeDijagnoza);
             //U polje MKB šifra dijagnoza dodavam svaki MKB dijagnoze iz importanog polja
             this.mkbSifre.push(dijagnoza.mkbSifra);
         }
         //Kreiram formu
         this.forma = new FormGroup({
-            'primarnaDijagnoza': new FormControl(null, [Validators.required]),
-            'mkbPrimarnaDijagnoza': new FormControl(null, [Validators.required,SharedValidations.provjeriMKB(this.mkbSifre)]),
+            'primarnaDijagnoza': new FormControl(null,
+                [Validators.required,
+                SharedValidations.provjeriNazivDijagnoza(this.dijagnoze)]),
+            'mkbPrimarnaDijagnoza': new FormControl(null, [Validators.required, SharedValidations.provjeriMKB(this.mkbSifre)]),
             'sekundarnaDijagnoza': new FormArray([
                 new FormGroup({
                     'nazivSekundarna': new FormControl(null),
                     'mkbSifraSekundarna': new FormControl(null)
-                },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})
+                },{validators: [SharedValidations.requiredMKBSifraSekundarna(), SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})
             ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
             'pacijent': new FormControl(this.aktivniPacijent ? this.aktivniPacijent : null,[Validators.required]),
             'zdravstvenaDjelatnost': new FormGroup({
-                'nazivZdrDjel': new FormControl(null),
-                'sifZdrDjel': new FormControl(null)
+                'nazivZdrDjel': new FormControl(null,
+                    [Validators.required,
+                    UputnicaValidators.provjeriNazivZdrDjelatnosti(this.zdravstveneDjelatnosti)]),
+                'sifZdrDjel': new FormControl(null,
+                    [Validators.required,
+                    Validators.pattern("^[0-9]*$"),
+                    UputnicaValidators.provjeriSifruZdrDjelatnosti(this.zdravstveneDjelatnosti)])
+            }),
+            'zdravstvenaUstanova': new FormGroup({
+                'nazivZdrUst': new FormControl(null,
+                    [UputnicaValidators.provjeriNazivZdrUstanove(this.zdravstveneUstanove)]),
+                'sifZdrUst': new FormControl(null,
+                    [Validators.pattern("^[0-9]*$"),
+                    UputnicaValidators.provjeriSifruZdrUstanove(this.zdravstveneUstanove)])
             })
         }, {validators: [this.isValidDijagnoze.bind(this)]});
         //Onemogućavam inicijalno unos primarne dijagnoze dok se ne unese pacijent
@@ -156,18 +166,15 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             this.primarnaDijagnoza.valueChanges.pipe(
                 tap(value => {
                     console.log("U promjenama primarne dijagnoze sam!");
-                    //Ako se unesena vrijednost NALAZI u nazivima dijagnoza, onda znam da je liječnik unio vrijednost primarne dijagnoze
-                    if(this.naziviDijagnoze.indexOf(value) !== -1){
-                        //Ako je taj unos ispravan
-                        if(this.primarnaDijagnoza.valid){
-                            //Pozivam metodu da popuni polje MKB šifre te dijagnoze
-                            SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
-                            //Omogućavam unos sekundarnih dijagnoza
-                            this.sekundarnaDijagnoza.enable({emitEvent: false});
-                        }
+                    //Ako je taj unos ispravan
+                    if(this.primarnaDijagnoza.valid){
+                        //Pozivam metodu da popuni polje MKB šifre te dijagnoze
+                        SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
+                        //Omogućavam unos sekundarnih dijagnoza
+                        this.sekundarnaDijagnoza.enable({emitEvent: false});
                     }
                     //Ako je polje naziva primarne dijagnoze prazno
-                    if(!this.primarnaDijagnoza.value){
+                    if(!this.primarnaDijagnoza.value || !this.primarnaDijagnoza.valid){
                         //Resetiraj polje MKB šifre primarne dijagnoze
                         this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
                         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
@@ -220,16 +227,83 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             //Pretplaćivam se na promjene u nazivu (dropdownu) zdravstvene djelatnosti
             this.nazivZdrDjel.valueChanges.pipe(
                 tap(naziv => {
-                    //Pozivam metodu
-                    UputnicaHandler.nazivZdrDjelToSif(this.forma,this.zdravstveneDjelatnosti,naziv);
+                    //Ako je naziv zdr. djelatnosti ispravno unesen
+                    if(this.nazivZdrDjel.valid){
+                        //Pozivam metodu
+                        UputnicaHandler.nazivZdrDjelToSif(this.forma,this.zdravstveneDjelatnosti,naziv);
+                    }
+                    //Ako je naziv zdr. djelatnosti neispravno unesen
+                    else{
+                        //Isprazni šifru zdr. djelatnosti
+                        this.sifZdrDjel.patchValue(null, {emitEvent: false});
+                    }
                 }),
                 takeUntil(this.pretplate)
             ),
             //Pretplaćivam se na promjene u polju šifre zdravstvene djelatnosti
             this.sifZdrDjel.valueChanges.pipe(
                 tap(sifra => {
-                    //Pozivam funkciju
-                    UputnicaHandler.sifraZdrDjelToNaziv(this.forma,this.zdravstveneDjelatnosti,sifra);
+                    //Ako je šifra zdr. djelatnosti validna
+                    if(this.sifZdrDjel.valid){
+                        //Pozivam funkciju
+                        UputnicaHandler.sifraZdrDjelToNaziv(this.forma,this.zdravstveneDjelatnosti,sifra);
+                    }
+                    //Ako nije ispravno unesena
+                    else{
+                        //Praznim polje naziva zdr. djelatnosti
+                        this.nazivZdrDjel.patchValue(null, {emitEvent: false});
+                    }
+                }),
+                takeUntil(this.pretplate)
+            ),
+            //Pretplaćivam se na promjene u polju naziva zdravstvene ustanove
+            this.nazivZdrUst.valueChanges.pipe(
+                tap(naziv => {
+                    //Ako je naziv ispravno unesen
+                    if(this.nazivZdrUst.valid){
+                        //Pozivam metodu
+                        UputnicaHandler.nazivZdrUstToSif(this.forma,this.zdravstveneUstanove,naziv);
+                    }
+                    //Ako je naziv zdr. ustanove neispravno unesen
+                    else{
+                        //Isprazni šifru zdr. ustanove
+                        this.sifZdrUst.patchValue("", {emitEvent: false});
+                    }
+                }),
+                takeUntil(this.pretplate)
+            ),
+            //Pretplaćivam se na promjene u polju šifre zdravstvene ustanove
+            this.sifZdrUst.valueChanges.pipe(
+                tap(sifra => {
+                    //Ako je prazno polje šifre zdr. ustanove
+                    if(this.sifZdrUst.value.length === 0){
+                        //Uklanjam validatore
+                        this.sifZdrUst.clearValidators();
+                        this.sifZdrUst.updateValueAndValidity({emitEvent: false});
+                        this.nazivZdrUst.clearValidators();
+                        this.nazivZdrUst.updateValueAndValidity({emitEvent: false});
+                        //Isprazni naziv zdr. ustanove
+                        this.nazivZdrUst.patchValue(null, {emitEvent: false});
+                    }
+                    //Ako NIJE PRAZNO polje šifre zdr. ustanove
+                    else{
+                        //Postavljam validatore
+                        this.sifZdrUst.setValidators([Validators.pattern("^[0-9]*$"),
+                                                    UputnicaValidators.provjeriSifruZdrUstanove(this.zdravstveneUstanove)]);
+                        this.sifZdrUst.updateValueAndValidity({emitEvent: false});
+                        this.nazivZdrUst.setValidators([UputnicaValidators.provjeriNazivZdrUstanove(this.zdravstveneUstanove)]);
+                        this.nazivZdrUst.updateValueAndValidity({emitEvent: false});
+                        //Ako je šifra zdravstvene ustanove ispravno unesena
+                        if(this.sifZdrUst.valid){
+                            //Pozivam metodu
+                            UputnicaHandler.sifraZdrUstToNaziv(this.forma,this.zdravstveneUstanove,sifra);
+                        }
+                        //Ako je šifra zdravstvene ustanove neispravno unesena
+                        else{
+                            //Isprazni naziv zdr. ustanove
+                            this.nazivZdrUst.patchValue(null, {emitEvent: false});
+                        }
+                    }
                 }),
                 takeUntil(this.pretplate)
             )
@@ -601,6 +675,15 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         return this.forma.get('zdravstvenaDjelatnost.nazivZdrDjel') as FormControl;
     }
     get sifZdrDjel(): FormControl{
-      return this.forma.get('zdravstvenaDjelatnost.sifZdrDjel') as FormControl;
-  }
+        return this.forma.get('zdravstvenaDjelatnost.sifZdrDjel') as FormControl;
+    }
+    get zdravstvenaUstanova(): FormGroup{
+        return this.forma.get('zdravstvenaUstanova') as FormGroup;
+    }
+    get nazivZdrUst(): FormControl{
+        return this.forma.get('zdravstvenaUstanova.nazivZdrUst') as FormControl;
+    }
+    get sifZdrUst(): FormControl{
+        return this.forma.get('zdravstvenaUstanova.sifZdrUst') as FormControl;
+    }
 }

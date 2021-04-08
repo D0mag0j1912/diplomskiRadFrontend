@@ -18,7 +18,7 @@
                                 <label for="pacijent"
                                     style="margin-top:8px;
                                         font-family: Verdana, sans-serif;
-                                        float:right;margin-right:15px;">Pacijent:</label>
+                                        float:right;margin-right:50px;">Pacijent:</label>
                             </td>
                             <td colspan="3">
                                 <select
@@ -41,7 +41,7 @@
                                     class="form-control"
                                     style="width:350px;height:35px"
                                     formControlName="primarnaDijagnoza">
-                                    <option [ngValue]="null" >Odaberite dijagnozu</option>
+                                    <option [ngValue]="null" [disabled]="true">Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
                                 <span
@@ -49,6 +49,8 @@
                                     *ngIf="((primarnaDijagnoza.touched || primarnaDijagnoza.dirty) && !primarnaDijagnoza.valid)"
                                     style="font-family: Verdana, sans-serif;font-weight: bold;">
                                     <span *ngIf="primarnaDijagnoza.errors?.required">Primarna dijagnoza je obavezna!</span>
+                                    <span *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza &&
+                                          !primarnaDijagnoza.errors?.required">Neispravan unos primarne dijagnoze!</span>
                                 </span>
                             </td>
                             <td>
@@ -141,43 +143,104 @@
                                             !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button></td>
                         </tr>
                         <tr formGroupName="zdravstvenaDjelatnost">
+                            <td>
+                                <label for="zdravstvenaDjelatnost"
+                                    style="margin-top:8px;
+                                        font-family: Verdana, sans-serif;">Zdravstvena djelatnost:</label>
+                            </td>
+                            <td colspan="3">
+                                <select
+                                    class="form-control"
+                                    style="width:350px;height:35px;float:left"
+                                    formControlName="nazivZdrDjel">
+                                    <option [ngValue]="null" [disabled]="true">Odaberite zdravstvenu djelatnost</option>
+                                    <option *ngFor="let djelatnost of zdravstveneDjelatnosti" value="{{djelatnost.nazivDjelatnosti}}">{{djelatnost.nazivDjelatnosti}}</option>
+                                </select>
+                                <input
+                                    type="text"
+                                    formControlName="sifZdrDjel"
+                                    class="form-control"
+                                    placeholder="Šifra djelatnosti"
+                                    style="width:250px;display:inline;margin-left:30px;">
+                                <span
+                                    class="help-block"
+                                    *ngIf="(nazivZdrDjel.touched || nazivZdrDjel.dirty) && !nazivZdrDjel.valid"
+                                    style="font-weight: bold;font-family: Verdana, sans-serif;">
+                                    <span
+                                        *ngIf="nazivZdrDjel.errors?.required">Naziv zdravstvene djelatnosti je obvezan za unos!</span>
+                                    <span
+                                        *ngIf="nazivZdrDjel.errors?.neispravanNazivZdrDjelatnosti &&
+                                              !nazivZdrDjel.errors?.required">Neispravan unos naziva zdr. djelatnosti!</span>
+                                </span>
+                                <span
+                                    class="help-block"
+                                    *ngIf="(sifZdrDjel.touched || sifZdrDjel.dirty) && !sifZdrDjel.valid"
+                                    style="font-weight: bold;font-family: Verdana, sans-serif;display:block;">
+                                    <span
+                                        *ngIf="sifZdrDjel.errors?.required">Šifra zdravstvene djelatnosti je obvezna za unos!</span>
+                                    <span
+                                        *ngIf="sifZdrDjel.errors?.pattern && !sifZdrDjel.errors?.required">Samo pozitivne cjelobrojne vrijednosti su dozvoljene!</span>
+                                    <span
+                                        *ngIf="sifZdrDjel.errors?.neispravnaSifraZdrDjelatnosti &&
+                                              !sifZdrDjel.errors?.required &&
+                                              !sifZdrDjel.errors?.pattern">Neispravan unos šifre zdr. djelatnosti!</span>
+                                </span>
+                            </td>
+                      </tr>
+                      <tr formGroupName="zdravstvenaUstanova">
                           <td>
-                              <label for="zdravstvenaDjelatnost"
+                              <label for="zdravstvenaUstanova"
                                   style="margin-top:8px;
-                                      font-family: Verdana, sans-serif;
-                                      float:right;margin-right:15px;">Zdravstvena djelatnost:</label>
+                                      font-family: Verdana, sans-serif;">Zdravstvena ustanova:</label>
                           </td>
                           <td colspan="3">
                               <select
                                   class="form-control"
                                   style="width:350px;height:35px;float:left"
-                                  formControlName="nazivZdrDjel">
-                                  <option [ngValue]="null" [disabled]="true">Odaberite zdravstvenu djelatnost</option>
-                                  <option *ngFor="let djelatnost of zdravstveneDjelatnosti" value="{{djelatnost.nazivDjelatnosti}}">{{djelatnost.nazivDjelatnosti}}</option>
+                                  formControlName="nazivZdrUst">
+                                  <option [ngValue]="null" [disabled]="true">Odaberite zdravstvenu ustanovu</option>
+                                  <option *ngFor="let ustanova of zdravstveneUstanove" value="{{ustanova.naziv}}">{{ustanova.naziv}}</option>
                               </select>
                               <input
                                   type="text"
-                                  formControlName="sifZdrDjel"
+                                  formControlName="sifZdrUst"
                                   class="form-control"
-                                  placeholder="Šifra djelatnosti"
-                                  style="width:250px;display:inline;left:15px;position: relative;">
+                                  placeholder="Šifra zdravstvene ustanove"
+                                  style="width:250px;display:inline;margin-left:30px;">
+                              <span
+                                  class="help-block"
+                                  *ngIf="(nazivZdrUst.touched || nazivZdrUst.dirty) && !nazivZdrUst.valid"
+                                  style="font-weight: bold;font-family: Verdana, sans-serif;">
+                                  <span
+                                      *ngIf="nazivZdrUst.errors?.neispravanNazivZdrUstanova">Neispravan unos naziva zdr. ustanove!</span>
+                              </span>
+                              <span
+                                  class="help-block"
+                                  *ngIf="sifZdrUst.value"
+                                  style="font-weight: bold;font-family: Verdana, sans-serif;display:block;">
+                                  <span
+                                      *ngIf="sifZdrUst.errors?.pattern">Samo pozitivne cjelobrojne vrijednosti su dozvoljene!</span>
+                                  <span
+                                      *ngIf="sifZdrUst.errors?.neispravnaSifraZdrUstanova &&
+                                            !sifZdrUst.errors?.pattern">Neispravan unos šifre zdr. ustanove!</span>
+                              </span>
                           </td>
                       </tr>
-                        <tr>
-                            <td colspan="2">
-                                <button
-                                    type="submit"
-                                    [disabled]="!forma.valid"
-                                    class="btn btn-info"
-                                    style="float:right;right:200px;position:relative">Izdaj uputnicu</button>
-                            </td>
-                            <td colspan="2">
-                                <h4
-                                    style="text-align: right;color:#006600;
-                                    font-family: Verdana, sans-serif;font-weight: bold;"
-                                    *ngIf="forma.valid">Uputnica je spremna za unos!</h4>
-                            </td>
-                        </tr>
+                      <tr>
+                          <td colspan="2">
+                              <button
+                                  type="submit"
+                                  [disabled]="!forma.valid"
+                                  class="btn btn-info"
+                                  style="float:right;right:200px;position:relative">Izdaj uputnicu</button>
+                          </td>
+                          <td colspan="2">
+                              <h4
+                                  style="text-align: right;color:#006600;
+                                  font-family: Verdana, sans-serif;font-weight: bold;"
+                                  *ngIf="forma.valid">Uputnica je spremna za unos!</h4>
+                          </td>
+                      </tr>
                     </tbody>
                 </table>
             </div>

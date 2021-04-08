@@ -10,7 +10,7 @@
 .alert-box{
     position:fixed;
     top:10vh;
-    left: 27.5vw;
+    left: 25vw;
     width: 52.5vw;
     height:40vw;
     padding: 16px;
@@ -27,4 +27,5 @@
 }
 span{
     color:#a94442;
+    font-weight: bold;
 }
