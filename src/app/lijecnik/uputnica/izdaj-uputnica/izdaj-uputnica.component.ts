@@ -464,6 +464,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                         this.onAddDiagnosis();
                                         //Resetiram primarnu dijagnozu
                                         this.primarnaDijagnoza.reset();
+                                        //Praznim sva polja
+                                        this.isprazniPolja();
                                         //Otvaram prozor povijesti bolesti
                                         this.isPovijestBolesti = true;
                                         //Spremam ID pacijenta
@@ -497,6 +499,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             this.onAddDiagnosis();
                             //Resetiram primarnu dijagnozu
                             this.primarnaDijagnoza.reset();
+                            //Praznim sve unose
+                            this.isprazniPolja();
                             //Otvaram prozor unosa povijesti bolesti
                             this.isPovijestBolesti = true;
                             //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
@@ -558,6 +562,27 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     //Metoda koja se poziva kada liječnik klikne "Izdaj uputnicu"
     onSubmit(){
 
+    }
+
+    //Metoda koja prazni sva polja
+    isprazniPolja(){
+        this.nazivZdrDjel.patchValue(null, {emitEvent: false});
+        this.sifZdrDjel.patchValue(null, {emitEvent: false});
+        this.nazivZdrUst.patchValue(null, {emitEvent: false});
+        this.sifZdrUst.patchValue(null, {emitEvent: false});
+        //Gasim specijalista
+        this.isPreporukaSpecijalist.patchValue(false, {emitEvent: false});
+        this.isSpecijalist = false;
+        this.sifraSpecijalist.patchValue("", {emitEvent: false});
+        this.tipSpecijalist.patchValue(null, {emitEvent: false});
+        //Praznim ostala polja
+        this.molimTraziSe.patchValue(null, {emitEvent: false});
+        this.napomena.patchValue(null, {emitEvent: false});
+        //Uklanjam validatore
+        this.sifZdrUst.clearValidators();
+        this.sifZdrUst.updateValueAndValidity({emitEvent: false});
+        this.nazivZdrUst.clearValidators();
+        this.nazivZdrUst.updateValueAndValidity({emitEvent: false});
     }
 
     //Kada se klikne button "Dodaj dijagnozu"
@@ -757,9 +782,9 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         return this.forma.get('specijalist.tipSpecijalist') as FormControl;
     }
     get molimTraziSe(): FormControl{
-        return this.forma.get('specijalist.molimTraziSe') as FormControl;
+        return this.forma.get('molimTraziSe') as FormControl;
     }
     get napomena(): FormControl{
-        return this.forma.get('specijalist.napomena') as FormControl;
+        return this.forma.get('napomena') as FormControl;
     }
 }

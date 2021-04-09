@@ -303,6 +303,13 @@
                                   rows="2"
                                   class="form-control"
                                   formControlName="molimTraziSe"></textarea>
+                              <span
+                                  class="help-block"
+                                  *ngIf="(molimTraziSe.touched || molimTraziSe.dirty) && !molimTraziSe.valid"
+                                  style="font-weight: bold;font-family: Verdana, sans-serif;">
+                                  <span
+                                      *ngIf="molimTraziSe.errors?.required">"Molim - Traži se" je obvezno za unos!</span>
+                              </span>
                           </td>
                       </tr>
                       <tr>
