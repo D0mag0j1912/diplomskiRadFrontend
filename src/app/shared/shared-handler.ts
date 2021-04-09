@@ -1,4 +1,34 @@
-import { FormGroup, FormArray } from "@angular/forms";
+import { FormGroup, FormArray, Validators } from "@angular/forms";
+import { ZdravstveniRadnik } from "./modeli/zdravstveniRadnik.model";
+import * as SharedValidations from './shared-validations';
+
+//Funkcija koja nadodava validatore šifri specijalista
+export function setValidatorsSifraSpecijalist(forma: FormGroup,zdravstveniRadnici: ZdravstveniRadnik[],isSpecijalist: boolean){
+    //Postavljam validatore šifri specijalista
+    forma.get('specijalist.sifraSpecijalist').setValidators([Validators.pattern("^[0-9]*$"),
+                                        SharedValidations.provjeraSifraSpecijalist(zdravstveniRadnici,isSpecijalist),
+                                        SharedValidations.requiredSifraSpecijalist(isSpecijalist)]);
+    //Ažuriram validatore šifre specijalista
+    forma.get('specijalist.sifraSpecijalist').updateValueAndValidity({emitEvent: false});
+}
+
+//Funkcija koja popunjava polje tipa specijaliste ovisno o unesenoj šifri specijalista
+export function sifraSpecijalistToTip(sifraSpecijalist: string, zdravstveniRadnici: ZdravstveniRadnik[],
+    forma: FormGroup, isSpecijalist: boolean){
+    //Ako je potrebno upisati šifru specijalista
+    if(isSpecijalist){
+        //Prolazim poljem zdravstvenih radnika
+        for(const radnik of zdravstveniRadnici){
+            //Ako unesena vrijednost šifre specijalista odgovara nekoj šifri specijalista u polju
+            if(radnik.sifraSpecijalist == +sifraSpecijalist){
+                //Popuni polje tipa specijalista ovisno o toj šifri
+                forma.get('specijalist.tipSpecijalist').patchValue(radnik.tipSpecijalist,{emitEvent: false});
+            }
+        }
+        //Ažuriram vrijednosti
+        forma.get('specijalist.tipSpecijalist').updateValueAndValidity({emitEvent: false});
+    }
+}
 
 //Funkcija koja popunjava unos naziva sekundarne dijagnoze, kada je unesena njena MKB šifra u polje unosa MKB šifre
 export function MKBtoNazivSekundarna(mkbSifra: string,dijagnoze: any,forma: FormGroup,index: number){

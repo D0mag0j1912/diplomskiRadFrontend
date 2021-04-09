@@ -98,13 +98,13 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
           'razlogDolaska': new FormControl(null,[Validators.required]),
           'anamneza': new FormControl(null,[Validators.required]),
           'status': new FormControl(null),
-          'primarnaDijagnoza': new FormControl(null,[Validators.required]),
+          'primarnaDijagnoza': new FormControl(null,[Validators.required, SharedValidations.provjeriNazivDijagnoza(this.dijagnoze)]),
           'mkbPrimarnaDijagnoza': new FormControl(null,[Validators.required,SharedValidations.provjeriMKB(this.mkbSifre)]),
           'sekundarnaDijagnoza': new FormArray([
               new FormGroup({
                 'nazivSekundarna': new FormControl(null),
                 'mkbSifraSekundarna': new FormControl(null)
-              },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]}) 
+              },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})
           ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
           'nalaz': new FormControl(null),
           'terapija': new FormControl(null),
@@ -129,7 +129,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
             //Pretplaćujem se na Observable u kojemu se nalazi ID obrade trenutno aktivnog pacijenta kojega šalje komponenta "ObradaComponent"
             this.obradaService.podatciObradaObs.pipe(
                 tap(idObrada => {
-                    //Spremam ID obrade 
+                    //Spremam ID obrade
                     this.idObrada = idObrada;
                     console.log(this.idObrada);
                 }),
@@ -163,7 +163,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
                         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
                         while(this.getControlsSekundarna().length !== 1){
-                            //Briši mu prvi element 
+                            //Briši mu prvi element
                             (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
                         }
                         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
@@ -189,7 +189,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         //Pozivam metodu da popuni polje naziva primarne dijagnoze
                         SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
                         //Omogućavam unos sekundarne dijagnoze
-                        this.sekundarnaDijagnoza.enable({emitEvent: false}); 
+                        this.sekundarnaDijagnoza.enable({emitEvent: false});
                     }
                     //Ako je MKB neispravno unesen
                     else{
@@ -197,7 +197,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
                         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
                         while(this.getControlsSekundarna().length !== 1){
-                            //Briši mu prvi element 
+                            //Briši mu prvi element
                             (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
                         }
                         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
@@ -265,7 +265,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     isValidSekundarnaDijagnoza(array: FormArray): {[key: string]: boolean}{
       //Kreiram pomoćno polje
       let pom = [];
-      //Prolazim kroz array 
+      //Prolazim kroz array
       for(let control of array.controls){
           //Ako se vrijednost sekundarne dijagnoze VEĆ NALAZI u pom polju, ali da nije "Odaberite sekundarnu dijagnozu"
           if(pom.indexOf(control.value.nazivSekundarna) !== -1 && control.value.nazivSekundarna !== null){
@@ -280,8 +280,8 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
           }
       }
       return null;
-    } 
-  
+    }
+
     //Metoda koja provjerava je li primarna dijagnoza ista kao i neka od sekundarnih dijagnoza
     isValidDijagnoze(group: FormGroup): {[key: string]: boolean} {
       //Prolazim kroz polje sekundarnih dijagnoza
@@ -306,7 +306,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
       return {'baremJedanTipSlucaj': true};
     }
 
-    //Dohvaća pojedine form controlove unutar polja 
+    //Dohvaća pojedine form controlove unutar polja
     getControlsSekundarna(){
       return (this.forma.get('sekundarnaDijagnoza') as FormArray).controls;
     }
@@ -392,7 +392,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         //Preusmjeri liječnika na prozor izdavanja recepta
                         this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
                     }
-                    //Ako sam došao ovdje iz izdavanja uputnice 
+                    //Ako sam došao ovdje iz izdavanja uputnice
                     else if(this.receptIliUputnica === 'uputnica'){
                         //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
                         this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
@@ -455,7 +455,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                                 //Preusmjeri liječnika na prozor izdavanja recepta
                                 this.router.navigate(['./',this.idPacijent],{relativeTo: this.route});
                             }
-                            //Ako sam došao ovdje iz izdavanja uputnice 
+                            //Ako sam došao ovdje iz izdavanja uputnice
                             else if(this.receptIliUputnica === 'uputnica'){
                                 //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
                                 this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
@@ -468,10 +468,10 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                             localStorage.setItem("pacijentiIDs",JSON.stringify(this.sharedService.pacijentiIDs.slice()));
                         }),
                         takeUntil(this.pretplateSubject)
-                    ); 
+                    );
                 }),
                 takeUntil(this.pretplateSubject)
-            ).subscribe(); 
+            ).subscribe();
         }
     }
 
@@ -480,7 +480,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Resetiram i čistim polja dijagnoza
         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
         while(this.getControlsSekundarna().length !== 1){
-          //Briši mu prvi element 
+          //Briši mu prvi element
           (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
         }
         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
@@ -530,18 +530,18 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                       this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
                       //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
                       this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
-                      //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                      //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
                       this.onAddDiagnosis();
                   }
                   //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                  this.onDeleteDiagnosis(-1); 
+                  this.onDeleteDiagnosis(-1);
                   //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                   this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
                   //Popunjavam polje MKB šifre primarne dijagnoze
                   SharedHandler.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
                   //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
                   this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
-                      //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                      //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
                       (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                       //Postavljam MKB šifre sek.dijagnoza
                       SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);

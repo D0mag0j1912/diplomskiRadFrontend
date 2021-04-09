@@ -227,6 +227,99 @@
                           </td>
                       </tr>
                       <tr>
+                          <td>
+                              <label for="vrstaPregled"
+                                  style="margin-top:8px;
+                                      font-family: Verdana, sans-serif;
+                                      float:right;margin-right:50px;">Vrsta pregleda:</label>
+                          </td>
+                          <td colspan="3">
+                              <select
+                                  class="form-control"
+                                  style="width:350px;height:35px"
+                                  formControlName="vrstaPregled">
+                                  <option [ngValue]="null" [disabled]="true">Odaberite vrstu pregleda</option>
+                                  <option *ngFor="let pregled of vrstePregleda" value="{{pregled}}">{{pregled}}</option>
+                              </select>
+                          </td>
+                      </tr>
+                      <tr formGroupName="specijalist">
+                          <td>
+                              <input
+                                  type="checkbox"
+                                  class="form-check-input"
+                                  formControlName="isPreporukaSpecijalist"
+                                  (change)="onChangeSpecijalist($event)">
+                              <label
+                                  class="form-check-label"
+                                  for="isPreporukaSpecijalist"
+                                  style="left:20px;position: relative;font-family: Verdana, sans-serif">Preporučio specijalist</label>
+                          </td>
+                          <td colspan="3">
+                              <ng-container *ngIf="isSpecijalist">
+                                  <label
+                                      for="sifraSpecijalist"
+                                      style="margin-top:6px;font-family: Verdana, sans-serif;float:left;margin-top:2px;">Šifra specijalista:</label>
+                                  <input
+                                      type="text"
+                                      class="form-control"
+                                      formControlName="sifraSpecijalist"
+                                      placeholder="Šifra specijalista..."
+                                      style="width:200px;height:35px;
+                                          margin-top:-4px;left:10px;position: relative;float:left;">
+                                  <input
+                                      type="text"
+                                      class="form-control"
+                                      formControlName="tipSpecijalist"
+                                      placeholder="Naziv tipa specijalista..."
+                                      style="width:250px;height:35px;margin-top:-4px;left:40px;position:relative;"
+                                      readonly>
+                                  <span
+                                    class="help-block"
+                                    *ngIf="sifraSpecijalist.errors?.requiredSpecijalist"
+                                    style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Morate unijeti šifru specijalista!</span>
+                                  <span
+                                      class="help-block"
+                                      *ngIf="sifraSpecijalist.errors?.pattern"
+                                      style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Šifra specijalista mora biti pozitivna cjelobrojna vrijednost!</span>
+                                  <span
+                                      class="help-block"
+                                      *ngIf="sifraSpecijalist.errors?.neispravnaSifraSpecijalista &&
+                                          !sifraSpecijalist.errors?.pattern &&
+                                          !sifraSpecijalist.errors?.requiredSpecijalist"
+                                      style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Neispravan unos šifre specijalista!</span>
+                              </ng-container>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                              <label for="molimTraziSe"
+                                  style="margin-top:8px;
+                                      font-family: Verdana, sans-serif;
+                                      float:right;margin-right:50px;">Molim traži se:</label>
+                          </td>
+                          <td colspan="3">
+                              <textarea
+                                  rows="2"
+                                  class="form-control"
+                                  formControlName="molimTraziSe"></textarea>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td>
+                              <label for="napomena"
+                                  style="margin-top:8px;
+                                      font-family: Verdana, sans-serif;
+                                      float:right;margin-right:50px;">Napomena liječnika:</label>
+                          </td>
+                          <td colspan="3">
+                              <textarea
+                                  rows="2"
+                                  class="form-control"
+                                  formControlName="napomena"></textarea>
+                          </td>
+                      </tr>
+                      <tr>
                           <td colspan="2">
                               <button
                                   type="submit"

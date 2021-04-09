@@ -8,6 +8,7 @@ import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { InicijalneDijagnoze } from 'src/app/shared/modeli/inicijalneDijagnoze.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
+import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { SharedService } from 'src/app/shared/shared.service';
 import { IzdajUputnicaService } from './izdaj-uputnica/izdajuputnica.service';
@@ -27,6 +28,8 @@ export class UputnicaComponent implements OnInit, OnDestroy{
     zdravstveneUstanove: ZdravstvenaUstanova[] = [];
     //Spremam sve zdravstvene djelatnosti
     zdravstveneDjelatnosti: ZdravstvenaDjelatnost[] = [];
+    //Spremam sve zdravstvene radnike
+    zdravstveniRadnici: ZdravstveniRadnik[] = [];
     //Spremam sve dijagnoze
     dijagnoze: Dijagnoza[] = [];
     //Spremam sve pacijente
@@ -45,7 +48,7 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         private route: ActivatedRoute,
         //Dohvaćam login servis
         private loginService: LoginService,
-        //Dohvaćam servis izdavanja uputnice 
+        //Dohvaćam servis izdavanja uputnice
         private izdajUputnicaService: IzdajUputnicaService,
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
@@ -83,6 +86,12 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                 for(const djel of podatci.zdravstveneDjelatnosti){
                     objektZdrDjel = new ZdravstvenaDjelatnost(djel);
                     this.zdravstveneDjelatnosti.push(objektZdrDjel);
+                }
+                //Definiram objekt u kojega spremam sve zdravstvene radnike
+                let objektZdrRadnik;
+                for(const djel of podatci.zdravstveniRadnici){
+                    objektZdrRadnik = new ZdravstveniRadnik(djel);
+                    this.zdravstveniRadnici.push(objektZdrRadnik);
                 }
             }),
             switchMap(() => {
@@ -157,7 +166,7 @@ export class UputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada liječnik želi izaći iz prozora povijesti bolesti
     onClosePovijestBolesti($event: {idPacijent: number, potvrden: boolean}){
-        //Ako je liječnik POTVRDIO povijest bolesti 
+        //Ako je liječnik POTVRDIO povijest bolesti
         if($event.potvrden){
             //Zatvaram prozor povijesti bolesti
             this.isPovijestBolesti = false;
@@ -168,7 +177,7 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         else{
             //Zatvaram prozor povijesti bolesti
             this.isPovijestBolesti = false;
-        } 
+        }
     }
 
     //Metoda koja se pokreće kada se klikne button "Nova uputnica"

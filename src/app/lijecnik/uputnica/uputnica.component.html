@@ -1,27 +1,28 @@
 <div class="container">
-    <app-izdaj-uputnica 
-        (close)="onCloseIzdajUputnica()" 
-        *ngIf="isIzdavanjeUputnice" 
-        [dijagnoze]="dijagnoze" 
-        [pacijenti]="pacijenti" 
-        [zdravstveneUstanove]="zdravstveneUstanove" 
-        [zdravstveneDjelatnosti]="zdravstveneDjelatnosti" 
-        [inicijalneDijagnoze]="inicijalneDijagnoze" 
+    <app-izdaj-uputnica
+        (close)="onCloseIzdajUputnica()"
+        *ngIf="isIzdavanjeUputnice"
+        [dijagnoze]="dijagnoze"
+        [pacijenti]="pacijenti"
+        [zdravstveneUstanove]="zdravstveneUstanove"
+        [zdravstveneDjelatnosti]="zdravstveneDjelatnosti"
+        [zdravstveniRadnici]="zdravstveniRadnici"
+        [inicijalneDijagnoze]="inicijalneDijagnoze"
         [aktivniPacijent]="aktivniPacijent"></app-izdaj-uputnica>
     <app-prikazi-povijest-bolesti
-        *ngIf="isPovijestBolesti" 
-        (closeUputnica)="onClosePovijestBolesti($event)" 
-        [primljeneDijagnoze]="dijagnoze" 
+        *ngIf="isPovijestBolesti"
+        (closeUputnica)="onClosePovijestBolesti($event)"
+        [primljeneDijagnoze]="dijagnoze"
         [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
     <div class="row">
         <div class="col-xs-12 col-md-12">
-            <h2 
-                style="font-family: Verdana, sans-serif; 
+            <h2
+                style="font-family: Verdana, sans-serif;
                     color:#337ab7;text-align: center;">Uputnice</h2>
-            <button 
+            <button
                 type="button"
-                class="btn btn-warning" 
-                style="float:right" 
+                class="btn btn-warning"
+                style="float:right"
                 (click)="onNovaUputnica()">Nova uputnica</button>
             <div class="table-responsive-sm">
                 <table class="table table-striped">

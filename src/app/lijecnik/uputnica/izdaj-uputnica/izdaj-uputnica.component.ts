@@ -15,6 +15,7 @@ import * as SharedValidations from '../../../shared/shared-validations';
 import { IzdajUputnicaService } from './izdajuputnica.service';
 import * as UputnicaHandler from './izdaj-uputnica-handler';
 import * as UputnicaValidators from './izdaj-uputnica-validators';
+import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
 
 @Component({
   selector: 'app-izdaj-uputnica',
@@ -32,6 +33,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     @Input() pacijenti: string[];
     @Input() zdravstveneUstanove: ZdravstvenaUstanova[];
     @Input() zdravstveneDjelatnosti: ZdravstvenaDjelatnost[];
+    @Input() zdravstveniRadnici: ZdravstveniRadnik[];
     @Input() inicijalneDijagnoze: InicijalneDijagnoze[];
     @Input() aktivniPacijent: string;
     //Definiram formu
@@ -48,6 +50,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     idPacijent: number;
     //Oznaka hoće li se prikazati prozor za unos povijesti bolesti
     isPovijestBolesti: boolean = false;
+    //Oznaka hoće li se prikazati polje za unos šifre specijalista
+    isSpecijalist: boolean = false;
     //Kreiram polje u koje ću spremati inicijalne sekundarne dijagnoze
     sekundarnaDijagnozaPovijestBolesti: string[] = [];
     //Spremam naziv inicijalne primarne dijagnoze
@@ -56,6 +60,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     poslaniIDObrada: string = "";
     poslaniTipSlucaj: string = "";
     poslanoVrijeme: string = "";
+    //Vrste pregleda
+    vrstePregleda: string[] = ['Specijalistički pregled','Bolničko liječenje','Konzilijarni pregled','Ambulantno liječenje'];
 
     constructor(
         //Dohvaćam header servis
@@ -98,12 +104,17 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                     UputnicaValidators.provjeriSifruZdrDjelatnosti(this.zdravstveneDjelatnosti)])
             }),
             'zdravstvenaUstanova': new FormGroup({
-                'nazivZdrUst': new FormControl(null,
-                    [UputnicaValidators.provjeriNazivZdrUstanove(this.zdravstveneUstanove)]),
-                'sifZdrUst': new FormControl(null,
-                    [Validators.pattern("^[0-9]*$"),
-                    UputnicaValidators.provjeriSifruZdrUstanove(this.zdravstveneUstanove)])
-            })
+                'nazivZdrUst': new FormControl(null),
+                'sifZdrUst': new FormControl(null)
+            }),
+            'vrstaPregled': new FormControl('Specijalistički pregled', [Validators.required]),
+            'specijalist': new FormGroup({
+                'isPreporukaSpecijalist': new FormControl(false),
+                'sifraSpecijalist': new FormControl(null),
+                'tipSpecijalist': new FormControl(null)
+            }),
+            'molimTraziSe': new FormControl(null, [Validators.required]),
+            'napomena': new FormControl(null)
         }, {validators: [this.isValidDijagnoze.bind(this)]});
         //Onemogućavam inicijalno unos primarne dijagnoze dok se ne unese pacijent
         this.primarnaDijagnoza.disable({emitEvent: false});
@@ -259,6 +270,18 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             //Pretplaćivam se na promjene u polju naziva zdravstvene ustanove
             this.nazivZdrUst.valueChanges.pipe(
                 tap(naziv => {
+                    //Ako postoji vrijednost u nazivu zdr. ustanove
+                    if(this.nazivZdrUst.value){
+                        //Postavljam validatore
+                        this.nazivZdrUst.setValidators([UputnicaValidators.provjeriNazivZdrUstanove(this.zdravstveneUstanove)]);
+                        this.nazivZdrUst.updateValueAndValidity({emitEvent: false});
+                    }
+                    //Ako nema vrijednosti naziva zdr. ustanove
+                    else{
+                        //Dižem validatore
+                        this.nazivZdrUst.clearValidators();
+                        this.nazivZdrUst.updateValueAndValidity({emitEvent: false});
+                    }
                     //Ako je naziv ispravno unesen
                     if(this.nazivZdrUst.valid){
                         //Pozivam metodu
@@ -306,8 +329,40 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                     }
                 }),
                 takeUntil(this.pretplate)
+            ),
+            //Pretplaćivam se na promjene u polju unosa šifre specijalista
+            this.sifraSpecijalist.valueChanges.pipe(
+                tap(value => {
+                    //Ako šifra specijalista nije unesena
+                    if(this.sifraSpecijalist.value.length === 0){
+                        //Praznim polje tipa specijalista
+                        this.tipSpecijalist.patchValue(null, {emitEvent: false});
+                    }
+                    //Pozivam funkciju koja puni polje tipa specijalista na osnovu unesene šifre specijalista
+                    SharedHandler.sifraSpecijalistToTip(value,this.zdravstveniRadnici,this.forma,this.isSpecijalist);
+                }),
+                takeUntil(this.pretplate)
             )
         ).subscribe();
+    }
+
+    //Metoda koja se poziva kada liječnik klikne checkbox "Preporučio specijalist"
+    onChangeSpecijalist($event: any){
+        //Ako je checkbox checked
+        if($event.target.checked){
+            //Označavam da se prikaže polje unosa šifre specijalista
+            this.isSpecijalist = true;
+            //Postavljam validatore na polje šifre specijalista
+            SharedHandler.setValidatorsSifraSpecijalist(this.forma,this.zdravstveniRadnici,this.isSpecijalist);
+        }
+        //Ako checkbox nije checked
+        else{
+            //Označavam da se digne polje unosa šifre specijalista
+            this.isSpecijalist = false;
+            //Dižem validatore za specijalista
+            this.sifraSpecijalist.clearValidators();
+            this.sifraSpecijalist.updateValueAndValidity({emitEvent: false});
+        }
     }
 
     //Metoda koja provjerava je li uneseno više istih sekundarnih dijagnoza
@@ -685,5 +740,26 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     }
     get sifZdrUst(): FormControl{
         return this.forma.get('zdravstvenaUstanova.sifZdrUst') as FormControl;
+    }
+    get vrstaPregled(): FormControl{
+        return this.forma.get('vrstaPregled') as FormControl;
+    }
+    get specijalist(): FormGroup{
+        return this.forma.get('specijalist') as FormGroup;
+    }
+    get isPreporukaSpecijalist(): FormControl{
+        return this.forma.get('specijalist.isPreporukaSpecijalist') as FormControl;
+    }
+    get sifraSpecijalist(): FormControl{
+        return this.forma.get('specijalist.sifraSpecijalist') as FormControl;
+    }
+    get tipSpecijalist(): FormControl{
+        return this.forma.get('specijalist.tipSpecijalist') as FormControl;
+    }
+    get molimTraziSe(): FormControl{
+        return this.forma.get('specijalist.molimTraziSe') as FormControl;
+    }
+    get napomena(): FormControl{
+        return this.forma.get('specijalist.napomena') as FormControl;
     }
 }

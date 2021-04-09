@@ -19,14 +19,16 @@ export class UputnicaResolverService implements Resolve<any>{
             this.importService.getDijagnoze(),
             this.importService.getZdravstveneUstanove(),
             this.importService.getPacijenti(),
-            this.importService.getZdravstveneDjelatnosti()
+            this.importService.getZdravstveneDjelatnosti(),
+            this.importService.getZdravstveniRadnici()
         ]).pipe(
             map(importi => {
                 return {
                     dijagnoze: importi[0],
                     zdravstveneUstanove: importi[1],
                     pacijenti: importi[2],
-                    zdravstveneDjelatnosti: importi[3]
+                    zdravstveneDjelatnosti: importi[3],
+                    zdravstveniRadnici: importi[4]
                 };
             })
         );

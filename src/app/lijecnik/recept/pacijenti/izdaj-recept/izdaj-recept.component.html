@@ -17,7 +17,7 @@
                                     style="margin-top:8px;font-family: Verdana, sans-serif;">Primarna dijagnoza:</label></td>
                             <td>
                                 <select class="form-control" style="width:350px;height:35px" formControlName="primarnaDijagnoza">
-                                    <option [ngValue]="null" >Odaberite dijagnozu</option>
+                                    <option [ngValue]="null" [disabled]="true">Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
                                 <span
@@ -25,6 +25,8 @@
                                     *ngIf="((primarnaDijagnoza.touched || primarnaDijagnoza.dirty) && !primarnaDijagnoza.valid) || !forma.errors?.baremJedan"
                                     style="font-family: Verdana, sans-serif;font-weight: bold;">
                                     <span *ngIf="primarnaDijagnoza.errors?.required">Primarna dijagnoza je obavezna!</span>
+                                    <span *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza &&
+                                          !primarnaDijagnoza.errors?.required">Neispravan unos primarne dijagnoze!</span>
                                 </span>
                             </td>
                             <td>
@@ -512,7 +514,7 @@
                                     readonly>
                                 <span
                                     class="help-block"
-                                    *ngIf="forma.errors?.requiredSpecijalist"
+                                    *ngIf="sifraSpecijalist.errors?.requiredSpecijalist"
                                     style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Morate unijeti šifru specijalista!</span>
                                 <span
                                     class="help-block"
@@ -522,7 +524,7 @@
                                     class="help-block"
                                     *ngIf="sifraSpecijalist.errors?.neispravnaSifraSpecijalista &&
                                         !sifraSpecijalist.errors?.pattern &&
-                                        !forma.errors?.requiredSpecijalist"
+                                        !sifraSpecijalist.errors?.requiredSpecijalist"
                                     style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Neispravan unos šifre specijalista!</span>
                             </td>
                         </tr>

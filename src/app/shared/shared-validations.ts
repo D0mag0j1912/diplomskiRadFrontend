@@ -1,5 +1,45 @@
 import { ValidatorFn, FormControl, FormGroup } from "@angular/forms";
 import { Dijagnoza } from "./modeli/dijagnoza.model";
+import { ZdravstveniRadnik } from "./modeli/zdravstveniRadnik.model";
+
+//Funkcija koja provjerava je li šifra specijalista unesena
+export function requiredSifraSpecijalist(isSpecijalist: boolean): ValidatorFn{
+  return (control: FormControl): {[key: string]: boolean} | null => {
+      if(control){
+          //Ako je unesen proizvod koji traži šifru specijalista
+          if(isSpecijalist){
+              //Ako polje šifre specijalista nije uneseno
+              if(!control.value){
+                  //Vrati grešku
+                  return {'requiredSpecijalist': true};
+              }
+              //Inače vrati da je u redu
+              return null;
+          }
+      }
+  }
+}
+
+//Funkcija koja provjerava JE LI šifra specijalista ISPRAVNO UNESENA
+export function provjeraSifraSpecijalist(zdravstveniRadnici: ZdravstveniRadnik[],isSpecijalist: boolean): ValidatorFn{
+  return (control: FormControl): {[key: string]: boolean} | null => {
+      if(control){
+          //Ako je potrebno upisati šifru specijalista:
+          if(isSpecijalist && control.value){
+              //Prolazim kroz polje zdravstvenih radnika
+              for(const radnik of zdravstveniRadnici){
+                  //Ako se unesena vrijednost nalazi u šiframa specijalista
+                  if(+control.value === radnik.sifraSpecijalist){
+                      //Vrati da je u redu
+                      return null;
+                  }
+              }
+              //Ako se unesena vrijednost NE NALAZI u šiframa specijalista, vrati grešku
+              return {'neispravnaSifraSpecijalista': true};
+          }
+      }
+  }
+}
 
 //Funkcija koja provjerava ispravnost unosa dijagnoza
 export function provjeriNazivDijagnoza(dijagnoze: Dijagnoza[]):ValidatorFn{

@@ -29,3 +29,7 @@ span{
     color:#a94442;
     font-weight: bold;
 }
+textarea{
+    font-family: Verdana, sans-serif;
+    resize:none;
+}
