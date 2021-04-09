@@ -41,14 +41,26 @@ export function dohvatiDefiniranaDoza(forma: AbstractControl, receptService: Rec
 }
 
 //Funkcija koja vraća Observable u kojemu se nalazi dostatnost u danima
-export function azuriranjeDostatnosti(forma: AbstractControl,receptService: ReceptService): Observable<any>{
+export function azuriranjeDostatnosti(
+    forma: AbstractControl,
+    receptService: ReceptService,
+    isPonovljiv: boolean): Observable<any>{
     //Dohvaćam količinu
     let kolicina: string = forma.get('kolicina.kolicinaDropdown').value;
     //Inicijaliziram dozu i lijek
     let doza: string;
     let lijek: string;
-    //Dohvaćam broj ponavljanja lijeka
-    let brojPonavljanja: string = forma.get('ostaliPodatci.brojPonavljanja').value;
+    let brojPonavljanja: string;
+    //Ako je recept ponovljiv
+    if(isPonovljiv){
+        //Dohvaćam broj ponavljanja lijeka
+        brojPonavljanja = forma.get('ostaliPodatci.brojPonavljanja').value;
+    }
+    //Ako recept nije ponovljiv
+    else{
+        //Postavljam broj ponavljanja na null
+        brojPonavljanja = null;
+    }
     //Dohvaćam unesenu dozu lijeka
     if(forma.get('doziranje.doziranjeFrekvencija').value && forma.get('doziranje.doziranjeFrekvencija').valid){
         doza = forma.get('doziranje.doziranjeFrekvencija').value + "x" + forma.get('doziranje.doziranjePeriod').value;
@@ -77,10 +89,15 @@ export function azuriranjeDostatnosti(forma: AbstractControl,receptService: Rece
     }
 }
 //Funkcija koja vraća Observable ažuriranja dostatnosti te koja ažurira potrebna polja
-export function azuriranjeDostatnostiHandler(forma: FormGroup,receptService: ReceptService,
-                                            pretplateSubject: Subject<boolean>,trajanjeTerapije: number) : Observable<any>{
-    return azuriranjeDostatnosti(forma,receptService).pipe(
+export function azuriranjeDostatnostiHandler(
+    forma: FormGroup,
+    receptService: ReceptService,
+    pretplateSubject: Subject<boolean>,
+    trajanjeTerapije: number,
+    isPonovljiv: boolean) : Observable<any>{
+    return azuriranjeDostatnosti(forma,receptService,isPonovljiv).pipe(
         tap(value => {
+            console.log(value);
             //Vrijednost dostatnosti stavljam u polje
             forma.get('trajanje.dostatnost').patchValue(value === null ? value : value.toString(),{emitEvent: false});
         }),

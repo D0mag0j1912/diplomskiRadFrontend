@@ -9,10 +9,10 @@
 }
 .alert-box{
     position:fixed;
-    top:10vh;
+    top:5vh;
     left: 30vw;
     width: 45vw;
-    height:40vw;
+    height:45vw;
     padding: 16px;
     z-index: 100;
     background: white;
@@ -23,7 +23,7 @@
 }
 
 .alert-box-actions{
-    text-align:right;   
+    text-align:right;
 }
 span{
     color:#a94442;

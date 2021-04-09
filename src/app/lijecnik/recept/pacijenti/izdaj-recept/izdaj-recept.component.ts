@@ -582,7 +582,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }),
                 concatMap(value => {
                     return forkJoin([
-                        receptHandler.azuriranjeDostatnosti(this.forma,this.receptService),
+                        receptHandler.azuriranjeDostatnosti(this.forma,this.receptService,this.isPonovljiv),
                         this.receptService.getOznakaLijek(value),
                         receptHandler.dohvatiDefiniranaDoza(this.forma,this.receptService)
                     ]).pipe(
@@ -715,7 +715,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     return forkJoin([
                         this.receptService.getCijenaLijekDL(value),
                         this.receptService.getOznakaLijek(value),
-                        receptHandler.azuriranjeDostatnosti(this.forma,this.receptService),
+                        receptHandler.azuriranjeDostatnosti(this.forma,this.receptService,this.isPonovljiv),
                         receptHandler.dohvatiDefiniranaDoza(this.forma,this.receptService)
                     ]).pipe(
                         tap(value => {
@@ -989,7 +989,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(value => {
                     return forkJoin([
                         receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
-                            this.pretplateSubject,this.trajanjeTerapije),
+                            this.pretplateSubject,this.trajanjeTerapije,this.isPonovljiv),
                         receptHandler.doziranjePresloDDD(this.forma,this.receptService)
                     ]).pipe(
                         tap((value) => {
@@ -1017,7 +1017,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(value => {
                     return forkJoin([
                         receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
-                            this.pretplateSubject,this.trajanjeTerapije),
+                            this.pretplateSubject,this.trajanjeTerapije,this.isPonovljiv),
                         receptHandler.doziranjePresloDDD(this.forma,this.receptService)
                     ]).pipe(
                         tap((value) => {
@@ -1083,7 +1083,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(() => {
                     return forkJoin([
                         receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
-                            this.pretplateSubject,this.trajanjeTerapije),
+                            this.pretplateSubject,this.trajanjeTerapije,this.isPonovljiv),
                         receptHandler.doziranjePresloDDD(this.forma,this.receptService)
                     ]).pipe(
                         tap((value) => {
@@ -1479,7 +1479,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Pretplaćujem se na informaciju ima li izabrani lijek oznaku "RS"
         const combined = forkJoin([
             this.receptService.getOznakaLijek(lijek),
-            receptHandler.azuriranjeDostatnosti(this.forma,this.receptService),
+            receptHandler.azuriranjeDostatnosti(this.forma,this.receptService,this.isPonovljiv),
             receptHandler.dohvatiDefiniranaDoza(this.forma,this.receptService)
         ]).pipe(
             //Dohvaćam odgovor
@@ -1592,7 +1592,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.receptService.getCijenaLijekDL(lijek),
             this.receptService.getOznakaLijek(lijek),
-            receptHandler.azuriranjeDostatnosti(this.forma,this.receptService),
+            receptHandler.azuriranjeDostatnosti(this.forma,this.receptService,this.isPonovljiv),
             receptHandler.dohvatiDefiniranaDoza(this.forma,this.receptService)
         ]).pipe(
             tap(odgovor => {
@@ -2148,7 +2148,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Dohvaćam dnevno definiranu dozu i dostatnost
             const pretplata = forkJoin([
                 receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
-                    this.pretplateSubject,this.trajanjeTerapije),
+                    this.pretplateSubject,this.trajanjeTerapije,this.isPonovljiv),
                 receptHandler.doziranjePresloDDD(this.forma,this.receptService)
             ]).pipe(
                 tap((value) => {
@@ -2184,7 +2184,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = forkJoin([
                 receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
-                    this.pretplateSubject,this.trajanjeTerapije),
+                    this.pretplateSubject,this.trajanjeTerapije,this.isPonovljiv),
                 receptHandler.doziranjePresloDDD(this.forma,this.receptService)
             ]).pipe(
                 tap((value) => {
@@ -2224,7 +2224,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = forkJoin([
                 receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
-                    this.pretplateSubject,this.trajanjeTerapije),
+                    this.pretplateSubject,this.trajanjeTerapije,this.isPonovljiv),
                 receptHandler.doziranjePresloDDD(this.forma,this.receptService)
             ]).pipe(
                 tap((value) => {
