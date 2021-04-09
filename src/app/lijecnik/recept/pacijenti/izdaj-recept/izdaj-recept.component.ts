@@ -223,7 +223,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         new FormGroup({
                             'nazivSekundarna': new FormControl(null),
                             'mkbSifraSekundarna': new FormControl(null)
-                        },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})  
+                        },{validators: [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})
                     ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
                     'tip': new FormControl("lijek"),
                     'osnovnaListaLijek': new FormGroup({
@@ -299,7 +299,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.dostatnost.updateValueAndValidity({emitEvent: false});
                 //Ako je komponenta u MODU AŽURIRANJA
                 if(this.editMode){
-                    //Ako je definiran broj ponavljanja recepta 
+                    //Ako je definiran broj ponavljanja recepta
                     if(this.recept.brojPonavljanja){
                         //Postavi vrijednost broja ponavljanja riječima
                         this.onChangeBrojPonavljanja(this.recept.brojPonavljanja.toString());
@@ -320,7 +320,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.dostatnost.patchValue(this.recept.dostatnost,{emitEvent: false});
                     //Ako JE DEFINIRAN OJP u podatcima dohvaćenog recepta
                     if(this.recept.oblikJacinaPakiranjeLijek){
-                        //Provjeravam je li se dohvaćeni lijek nalazi u OSNOVNOJ LISTI LIJEKOVA 
+                        //Provjeravam je li se dohvaćeni lijek nalazi u OSNOVNOJ LISTI LIJEKOVA
                         for(const lijek of podatci.lijekoviOsnovnaLista){
                             if(lijek.zasticenoImeLijek === this.recept.proizvod && lijek.oblikJacinaPakiranjeLijek === this.recept.oblikJacinaPakiranjeLijek){
                                 //Postavljam vrijednost lijeka u dropdown OSNOVNE liste
@@ -377,7 +377,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         }
                     }
                 }
-                
+
                 //Dohvaćam inicijalne dijagnoze ako ih ovaj pacijent ima te ako je dodavanje recepta
                 if(podatci.inicijalneDijagnoze !== null && !this.editMode){
                     //Omogućavam unos sekundarne dijagnoze koja je inicijalno disable
@@ -392,7 +392,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         console.log(dijagnoza);
                         //Spremam ID obrade liječnika koji šaljem backendu
                         this.poslaniIDObrada = dijagnoza.idObradaLijecnik;
-                        //Spremam tip slučaja 
+                        //Spremam tip slučaja
                         this.poslaniTipSlucaj = dijagnoza.tipSlucaj;
                         //Spremam vrijeme
                         this.poslanoVrijeme = dijagnoza.vrijeme;
@@ -400,23 +400,23 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
                         //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
                         this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
-                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
                         this.onAddDiagnosis();
                     }
                     //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                    this.onDeleteDiagnosis(-1);  
+                    this.onDeleteDiagnosis(-1);
                     //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
                     this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
                     //Postavljam MKB šifru na osnove odabranog naziva primarne dijagnoze
                     SharedHandler.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
                     //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
                     this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
-                        //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                        //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
                         (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                         //Postavljam MKB šifre sek.dijagnoza
                         SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
                     });
-                } 
+                }
             }),
             switchMap(podatci => {
                 //Ako se u Resolveru NALAZE podatci recepta (MOD AŽURIRANJA RECEPTA)
@@ -444,14 +444,14 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                 for(let dijagnoza of podatci[1]){
                                     //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
                                     this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.imeDijagnoza);
-                                    //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL 
+                                    //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
                                     this.onAddDiagnosis();
                                 }
                                 //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                                this.onDeleteDiagnosis(-1); 
+                                this.onDeleteDiagnosis(-1);
                                 //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
                                 this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
-                                    //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu 
+                                    //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
                                     (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
                                     //Postavljam MKB šifre sek.dijagnoza
                                     SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
@@ -475,7 +475,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
-        
+
         //Pretplaćujem se na promjene u pojedinim dijelovima forme
         const prviDio = merge(
             //Pretplaćivam se na dohvat ID-a liječnika
@@ -500,13 +500,13 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             this.sekundarnaDijagnoza.enable({emitEvent: false});
                         }
                     }
-                    //Ako je polje naziva primarne dijagnoze prazno 
+                    //Ako je polje naziva primarne dijagnoze prazno
                     if(!this.primarnaDijagnoza.value){
                         //Resetiraj polje MKB šifre primarne dijagnoze
                         this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
                         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
                         while(this.getControlsSekundarna().length !== 1){
-                            //Briši mu prvi element 
+                            //Briši mu prvi element
                             (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
                         }
                         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
@@ -533,7 +533,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         //Pozivam metodu da popuni polje naziva primarne dijagnoze
                         SharedHandler.MKBtoNaziv(this.mkbPrimarnaDijagnoza.value,this.dijagnoze,this.forma);
                         //Omogućavam unos sekundarne dijagnoze
-                        this.sekundarnaDijagnoza.enable({emitEvent: false}); 
+                        this.sekundarnaDijagnoza.enable({emitEvent: false});
                     }
                     //Ako je MKB neispravno unesen
                     else{
@@ -541,7 +541,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
                         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
                         while(this.getControlsSekundarna().length !== 1){
-                            //Briši mu prvi element 
+                            //Briši mu prvi element
                             (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
                         }
                         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
@@ -558,7 +558,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     //Ako se unesena vrijednost NALAZI u polju OSNOVNE LISTE LIJEKOVA
                     if(this.lijekoviOsnovnaListaOJP.indexOf(value) !== -1){
                         //Te ako je popunjen dropdown OSNOVNE LISTE LIJEKOVA
-                        if(this.lijekoviOsnovnaListaOJP.indexOf(this.osnovnaListaLijekDropdown.value) !== -1/*  
+                        if(this.lijekoviOsnovnaListaOJP.indexOf(this.osnovnaListaLijekDropdown.value) !== -1/*
                             || this.lijekoviOsnovnaListaOJP.indexOf(this.forma.get('osnovnaListaLijek.osnovnaListaLijekText').value) !== -1 */){
                             //Resetiram poruku da nema rezultata
                             this.porukaNemaRezultata = null;
@@ -567,7 +567,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Ažurira validaciju cijele forme
                             this.forma.updateValueAndValidity({emitEvent: false});
                             //Resetiraj polja dopunske liste lijekova te tekstualno polje osnovne liste lijekova
-                            this.dopunskaListaLijekDropdown.patchValue(null,{emitEvent: false});   
+                            this.dopunskaListaLijekDropdown.patchValue(null,{emitEvent: false});
                             this.dopunskaListaLijekText.patchValue("",{emitEvent: false});
                             this.osnovnaListaLijekText.patchValue("",{emitEvent:false});
                             //Zatvori liste ako su bile otvorene
@@ -653,7 +653,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Ako je server vratio null za dostatnost (uključuje da je odabran mag.pripravak ili je prazno doziranje, lijek ili količina)
                             if(value[0] === null){
                                 return of(null).pipe(
-                                    tap(value => {
+                                    tap(() => {
                                         //Ponovno postavljam trajanje terapije na 30 dana
                                         this.trajanjeTerapije = 30;
                                         //Ako je postavljen broj ponavljanja
@@ -664,7 +664,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                         this.dostatnost.patchValue(this.trajanjeTerapije.toString(),{emitEvent: false});
                                     }),
                                     //Kada server vrati null za dostatnost, pozovi funkciju koja ažurira datum "vrijediDo"
-                                    concatMap(value => {
+                                    concatMap(() => {
                                         return this.receptService.getDatumDostatnost(this.trajanjeTerapije.toString()).pipe(
                                             tap(datum => {
                                                 //Postavi datum
@@ -672,7 +672,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                             }),
                                             takeUntil(this.pretplateSubject)
                                         );
-                                    }), 
+                                    }),
                                     takeUntil(this.pretplateSubject)
                                 );
                             }
@@ -689,8 +689,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     //Ako se unesena vrijednost NALAZI u polju DOPUNSKE LISTE LIJEKOVA
                     if(this.lijekoviDopunskaListaOJP.indexOf(value) !== -1){
                         //Te ako je popunjen dropdown DOPUNSKE LISTE LIJEKOVA
-                        if(this.lijekoviDopunskaListaOJP.indexOf(this.dopunskaListaLijekDropdown.value) !== -1/*  
-                            || this.lijekoviDopunskaListaOJP.indexOf(this.forma.get('dopunskaListaLijek.dopunskaListaLijekText').value) !== -1 */){
+                        if(this.lijekoviDopunskaListaOJP.indexOf(this.dopunskaListaLijekDropdown.value) !== -1){
                             //Resetiram poruku da nema rezultata
                             this.porukaNemaRezultata = null;
                             //Označavam da se pojave cijene u formi
@@ -698,7 +697,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Ažuriram validaciju cijele forme
                             this.forma.updateValueAndValidity({emitEvent: false});
                             //Resetiraj polja osnovne liste lijekova te tekstualno polje dopunske liste lijekova
-                            this.osnovnaListaLijekDropdown.patchValue(null,{emitEvent: false});  
+                            this.osnovnaListaLijekDropdown.patchValue(null,{emitEvent: false});
                             this.osnovnaListaLijekText.patchValue("",{emitEvent: false});
                             this.dopunskaListaLijekText.patchValue("",{emitEvent: false});
                             //Zatvori liste ako su ostale otvorene
@@ -751,7 +750,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             //Postavljam vrijednosti cijena u formu
                             this.cijenaUkupno.patchValue(`${value[0][0].cijenaLijek} kn`,{emitEvent: false});
                             this.cijenaZavod.patchValue(`${value[0][0].cijenaZavod} kn`,{emitEvent: false});
-                            this.cijenaOsiguranik.patchValue(`${value[0][0].doplataLijek} kn`,{emitEvent: false}); 
+                            this.cijenaOsiguranik.patchValue(`${value[0][0].doplataLijek} kn`,{emitEvent: false});
                             //Ako server nije vratio null za prekoračenje doze (vratio je null ako lijek ne završava na mg ili g)
                             if(value[3] !== null){
                                 //Ako je server vratio da je doziranje prekoračilo dnevno definiranu dozu
@@ -789,7 +788,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             else if(value[2] === null){
                                 //Nastavi niz podataka
                                 return of(null).pipe(
-                                    tap(value => {
+                                    tap(() => {
                                         //Ponovno postavljam trajanje terapije na 30 dana
                                         this.trajanjeTerapije = 30;
                                         //Ako je postavljen broj ponavljanja
@@ -800,7 +799,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                         this.dostatnost.patchValue(this.trajanjeTerapije.toString(),{emitEvent: false});
                                     }),
                                     //Kada server vrati null za dostatnost, pozovi funkciju koja ažurira datum "vrijediDo"
-                                    concatMap(value => {
+                                    concatMap(() => {
                                         return this.receptService.getDatumDostatnost(this.trajanjeTerapije.toString()).pipe(
                                             tap(datum => {
                                                 //Postavi datum
@@ -825,7 +824,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     //Ako se unesena vrijednost NALAZI u polju MAGISTRALNIH PRIPRAVAKA OSNOVNE LISTE
                     if(this.magPripravciOsnovnaLista.indexOf(value) !== -1){
                         //Ako se unesena vrijednost odnosi na dropdown OSNOVNE LISTE MAG. PRIPRAVAKA
-                        if(this.magPripravciOsnovnaLista.indexOf(this.osnovnaListaMagPripravakDropdown.value) !== -1/*  
+                        if(this.magPripravciOsnovnaLista.indexOf(this.osnovnaListaMagPripravakDropdown.value) !== -1/*
                             || this.magPripravciOsnovnaLista.indexOf(this.forma.get('osnovnaListaMagPripravak.osnovnaListaMagPripravakText').value) !== -1 */){
                                 //Resetiram poruku da nema rezultata
                                 this.porukaNemaRezultata = null;
@@ -906,7 +905,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     //Ako se unesena vrijednost NALAZI u polju MAGISTRALNIH PRIPRAVAKA DOPUNSKE LISTE
                     if(this.magPripravciDopunskaLista.indexOf(value) !== -1){
                         //Ako se unesena vrijednost odnosi na dropdown DOPUNSKE LISTE MAG.PRIPRAVAKA
-                        if(this.magPripravciDopunskaLista.indexOf(this.dopunskaListaMagPripravakDropdown.value) !== -1/*  
+                        if(this.magPripravciDopunskaLista.indexOf(this.dopunskaListaMagPripravakDropdown.value) !== -1/*
                             || this.magPripravciDopunskaLista.indexOf(this.forma.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakText').value) !== -1 */){
                                 //Resetiram poruku da nema rezultata
                                 this.porukaNemaRezultata = null;
@@ -1131,7 +1130,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.osnovnaListaLijekText.valueChanges.pipe(
                 debounceTime(100),
                 distinctUntilChanged(),
-                tap(value => {
+                tap(() => {
                     console.log("U osnovnoj listi lijekova texta sam!");
                     //Označavam da je liječnik počeo pretraživati LIJEKOVE OSNOVNE liste
                     this.isPretragaLijekOsnovnaLista = true;
@@ -1143,6 +1142,68 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(value => {
                     return this.receptPretragaService.getLijekOsnovnaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
+                    ).pipe(
+                        tap(odgovor => {
+                            //Ako liječnik pretražuje LIJEKOVE sa OSNOVNE LISTE
+                            if(this.isPretragaLijekOsnovnaLista){
+                              //Ako je polje unosa prazno
+                              if(this.osnovnaListaLijekText.value.length === 0){
+                                  //Digni ul tag
+                                  this.isPretragaLijekOsnovnaLista = false;
+                                  //Ažuriraj validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Ako je prikazano polje unosa šifre specijalista
+                                  if(this.isSpecijalist){
+                                      this.isSpecijalist = false;
+                                      //Resetiram polje šifre specijalista
+                                      this.sifraSpecijalist.patchValue("",{emitEvent: false});
+                                      //Resetiram polje tipa specijalista
+                                      this.tipSpecijalist.patchValue("",{emitEvent: false});
+                                      //Digni validatore šifri specijalista
+                                      receptHandler.clearValidatorsSifraSpecijalist(this.forma);
+                                      //Dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                      azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                                      this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                                                      this.isMagPripravak, this.isValidDijagnoze.bind(this),this.isSpecijalist);
+                                  }
+                              }
+                              //Ako je server vratio uspješnu poruku
+                              if(odgovor["success"] !== "false"){
+                                  //Prolazim kroz LIJEKOVE OSNOVNE LISTE
+                                  for(const lijek of this.lijekoviOsnovnaListaOJP){
+                                      //Ako je neki lijek (malim slovima) jednak lijeku (malim slovima) koji je liječnik upisao u pretragu
+                                      if(lijek.toLowerCase() === this.osnovnaListaLijekText.value.toLowerCase()){
+                                          //Postavljam lijek iz polja u polje pretrage automatski
+                                          this.osnovnaListaLijekText.patchValue(lijek,{emitEvent: false});
+                                          //Ažuriram validaciju cijele forme
+                                          this.forma.updateValueAndValidity({emitEvent: false});
+                                      }
+                                  }
+                                  //Ako se unesena vrijednost polja pretrage NALAZI u polju osnovnih lijekova BEZ ODABIRA IZ LISTE
+                                  if(this.lijekoviOsnovnaListaOJP.indexOf(this.osnovnaListaLijekText.value) !== -1){
+                                      //Pozivam metodu koja se poziva kada liječnik unese ispravan lijek sa osnovne liste
+                                      this.ispravanUnosLijekOL(this.osnovnaListaLijekText.value);
+                                  }
+                                  //Resetiram poruku
+                                  this.porukaNemaRezultata = null;
+                                  //Spremam odgovor servera u svoje polje rezultata
+                                  this.resultLijekOsnovnaLista = odgovor;
+                              }
+                              //Ako je server vratio da nema rezultata
+                              else{
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Ako NEMA vrijednosti u dropdownu dopunske liste lijekova ili u tekstualnom polju
+                                  if(!this.dopunskaListaLijekDropdown.value && !this.dopunskaListaLijekText.value){
+                                      //Digni cijene
+                                      this.isCijene = false;
+                                  }
+                                  //Spremam odgovor servera da nema rezultata
+                                  this.porukaNemaRezultata = odgovor["message"];
+                              }
+                          }
+                        }),
+                        takeUntil(this.pretplateSubject)
                     );
                 }),
                 takeUntil(this.pretplateSubject)
@@ -1151,7 +1212,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.dopunskaListaLijekText.valueChanges.pipe(
                 debounceTime(100),
                 distinctUntilChanged(),
-                tap(value => {
+                tap(() => {
                     console.log("U dopunskoj listi lijekova texta sam!");
                     //Označavam da je liječnik počeo pretraživati LIJEKOVE DOPUNSKE liste
                     this.isPretragaLijekDopunskaLista = true;
@@ -1163,6 +1224,73 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(value => {
                     return this.receptPretragaService.getLijekDopunskaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
+                    ).pipe(
+                        tap(odgovor => {
+                            //Ako liječnik pretražuje LIJEKOVE sa DOPUNSKE LISTE
+                            if(this.isPretragaLijekDopunskaLista){
+                              //Ako je polje unosa prazno
+                              if(this.dopunskaListaLijekText.value.length === 0){
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Digni ul tag
+                                  this.isPretragaLijekDopunskaLista = false;
+                                  //Ako dropdown dopunske liste lijekova nije prazan
+                                  if(!this.dopunskaListaLijekDropdown.value){
+                                      //Digni cijene
+                                      this.isCijene = false;
+                                  }
+                                  //Ako je prikazano polje unosa šifre specijalista
+                                  if(this.isSpecijalist){
+                                      this.isSpecijalist = false;
+                                      //Resetiram polje šifre specijalista
+                                      this.sifraSpecijalist.patchValue("",{emitEvent: false});
+                                      //Resetiram polje tipa specijalista
+                                      this.tipSpecijalist.patchValue("",{emitEvent: false});
+                                      //Digni validatore šifri specijalista
+                                      receptHandler.clearValidatorsSifraSpecijalist(this.forma);
+                                      //Dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                      azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                                    this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                                                    this.isMagPripravak, this.isValidDijagnoze.bind(this),this.isSpecijalist);
+                                  }
+                              }
+                              //Ako je server vratio uspješnu poruku (tj. da ima rezultata)
+                              if(odgovor["success"] !== "false"){
+                                  //Prolazim kroz lijekove dopunske liste
+                                  for(const lijek of this.lijekoviDopunskaListaOJP){
+                                      //Ako je lijek iz polja (malim slovima) jednak unesenome lijeku (malim slovima)
+                                      if(lijek.toLowerCase() === this.dopunskaListaLijekText.value.toLowerCase()){
+                                          //Postavljam lijek iz polja u polje pretrage
+                                          this.dopunskaListaLijekText.patchValue(lijek,{emitEvent: false});
+                                          //Ažuriram validaciju cijele forme
+                                          this.forma.updateValueAndValidity({emitEvent: false});
+                                      }
+                                  }
+                                  //Ako se unesena vrijednost u polju pretrage DOPUNSKE LISTE LIJEKOVA nalazi u polju dopunske liste lijekova
+                                  if(this.lijekoviDopunskaListaOJP.indexOf(this.dopunskaListaLijekText.value) !== -1){
+                                      //Pozivam metodu koja se poziva kada liječnik unese ispravan lijek sa DOPUNSKE LISTE
+                                      this.ispravanUnosLijekDL(this.dopunskaListaLijekText.value);
+                                  }
+                                  //Resetiram poruku
+                                  this.porukaNemaRezultata = null;
+                                  //Spremam odgovor servera u svoje polje rezultata
+                                  this.resultLijekDopunskaLista = odgovor;
+                              }
+                              //Ako server NIJE vratio rezultate
+                              else{
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Ako dropdown dopunske liste lijekova nije prazan
+                                  if(!this.dopunskaListaLijekDropdown.value){
+                                      //Digni cijene
+                                      this.isCijene = false;
+                                  }
+                                  //Spremam odgovor servera da nema rezultata
+                                  this.porukaNemaRezultata = odgovor["message"];
+                              }
+                          }
+                        }),
+                        takeUntil(this.pretplateSubject)
                     );
                 }),
                 takeUntil(this.pretplateSubject)
@@ -1171,7 +1299,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.osnovnaListaMagPripravakText.valueChanges.pipe(
                 debounceTime(100),
                 distinctUntilChanged(),
-                tap(value => {
+                tap(() => {
                     console.log("U osnovnoj listi mag. pripravaka sam!");
                     //Označavam da je liječnik počeo pretraživati MAGISTRALNE PRIPRAVKE sa OSNOVNE LISTE
                     this.isPretragaMagPripravakOsnovnaLista = true;
@@ -1183,6 +1311,68 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(value => {
                     return this.receptPretragaService.getMagPripravciOsnovnaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
+                    ).pipe(
+                        tap(odgovor => {
+                            //Ako liječnik pretražuje MAGISTRALNE PRIPRAVKE sa OSNOVNE LISTE
+                            if(this.isPretragaMagPripravakOsnovnaLista){
+                              //Ako je polje unosa prazno
+                              if(this.osnovnaListaMagPripravakText.value.length === 0){
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Digni ul tag
+                                  this.isPretragaMagPripravakOsnovnaLista = false;
+                                  //Ako je prikazano polje unosa šifre specijalista
+                                  if(this.isSpecijalist){
+                                      this.isSpecijalist = false;
+                                      //Resetiram polje šifre specijalista
+                                      this.sifraSpecijalist.patchValue("",{emitEvent: false});
+                                      //Resetiram polje tipa specijalista
+                                      this.tipSpecijalist.patchValue("",{emitEvent: false});
+                                      //Digni validatore šifri specijalista
+                                      receptHandler.clearValidatorsSifraSpecijalist(this.forma);
+                                      //Dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                      azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                                    this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                                                    this.isMagPripravak, this.isValidDijagnoze.bind(this),this.isSpecijalist);
+                                  }
+                              }
+                              //Ako JE server vratio neke rezultate
+                              if(odgovor["success"] !== "false"){
+                                  //Prolazim polje mag.pripravaka osnovne liste
+                                  for(const magPripravak of this.magPripravciOsnovnaLista){
+                                      //Ako je mag.pripravak iz polja (malim slovima) JEDNAK mag. pripravku iz polja pretrage (malim slovima)
+                                      if(magPripravak.toLowerCase() === this.osnovnaListaMagPripravakText.value.toLowerCase()){
+                                          //Postavljam mag. pripravak iz polja u polje pretrage
+                                          this.osnovnaListaMagPripravakText.patchValue(magPripravak,{emitEvent: false});
+                                          //Ažuriram validaciju cijele forme
+                                          this.forma.updateValueAndValidity({emitEvent: false});
+                                      }
+                                  }
+                                  //Ako se vrijednost u polju unosa NALAZI u polju mag. pripravaka OSNOVNE LISTE
+                                  if(this.magPripravciOsnovnaLista.indexOf(this.osnovnaListaMagPripravakText.value) !== -1){
+                                      //Pozivam metodu koja se poziva kada liječnik unese ispravan mag. pripravak sa DOPUNSKE LISTE
+                                      this.ispravanUnosMagPripravakOL(this.osnovnaListaMagPripravakText.value);
+                                  }
+                                  //Resetiram poruku
+                                  this.porukaNemaRezultata = null;
+                                  //Spremam odgovor servera u svoje polje rezultata
+                                  this.resultMagPripravciOsnovnaLista = odgovor;
+                              }
+                              //Ako server NIJE vratio rezultate
+                              else{
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Ako nema vrijednosti u dropdownu mag. pripravaka dopunske liste
+                                  if(!this.dopunskaListaMagPripravakDropdown.value && !this.dopunskaListaMagPripravakText.value){
+                                      //Digni cijene
+                                      this.isCijene = false;
+                                  }
+                                  //Spremam odgovor servera da nema rezultata
+                                  this.porukaNemaRezultata = odgovor["message"];
+                              }
+                          }
+                        }),
+                        takeUntil(this.pretplateSubject)
                     );
                 }),
                 takeUntil(this.pretplateSubject)
@@ -1191,7 +1381,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.dopunskaListaMagPripravakText.valueChanges.pipe(
                 debounceTime(100),
                 distinctUntilChanged(),
-                tap(value => {
+                tap(() => {
                     console.log("U dopunskoj listi mag. pripravaka sam!");
                     //Označavam da je liječnik počeo pretraživati MAGISTRALNE PRIPRAVKE sa DOPUNSKE LISTE
                     this.isPretragaMagPripravakDopunskaLista = true;
@@ -1203,200 +1393,78 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 switchMap(value => {
                     return this.receptPretragaService.getMagPripravciDopunskaListaPretraga(value).pipe(
                         takeUntil(this.pretplateSubject)
+                    ).pipe(
+                        tap(odgovor => {
+                            //Ako liječnik pretražuje MAGISTRALNE PRIPRAVKE sa DOPUNSKE LISTE
+                            if(this.isPretragaMagPripravakDopunskaLista){
+                              //Ako je polje unosa prazno
+                              if(this.dopunskaListaMagPripravakText.value.length === 0){
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Ako dropdown dopunske liste magistralnih pripravaka nije prazan
+                                  if(!this.dopunskaListaMagPripravakDropdown.value){
+                                      //Digni cijene
+                                      this.isCijene = false;
+                                  }
+                                  //Digni ul tag
+                                  this.isPretragaMagPripravakDopunskaLista = false;
+                                  //Ako je prikazano polje unosa šifre specijalista
+                                  if(this.isSpecijalist){
+                                      this.isSpecijalist = false;
+                                      //Resetiram polje šifre specijalista
+                                      this.sifraSpecijalist.patchValue("",{emitEvent: false});
+                                      //Resetiram polje tipa specijalista
+                                      this.tipSpecijalist.patchValue("",{emitEvent: false});
+                                      //Digni validatore šifri specijalista
+                                      receptHandler.clearValidatorsSifraSpecijalist(this.forma);
+                                      //Dinamički postavljam validatore na cijelu formu (automatski uklanja prethodne validatore)
+                                      azurirajValidatore(this.forma,this.lijekoviOsnovnaListaOJP,this.lijekoviDopunskaListaOJP,
+                                                    this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
+                                                    this.isMagPripravak, this.isValidDijagnoze.bind(this),this.isSpecijalist);
+                                  }
+                              }
+                              //Ako JE server vratio neke rezultate
+                              if(odgovor["success"] !== "false"){
+                                  //Prolazim kroz polje mag. pripravaka dopunske liste
+                                  for(const magPripravak of this.magPripravciDopunskaLista){
+                                      //Ako je mag. pripravak iz polja (malim slovima) JEDNAK mag. pripravku iz polja pretrage (malim slovima)
+                                      if(magPripravak.toLowerCase() === this.dopunskaListaMagPripravakText.value.toLowerCase()){
+                                          //Postavljam mag. pripravak iz polja u polje pretrage
+                                          this.dopunskaListaMagPripravakText.patchValue(magPripravak,{emitEvent: false});
+                                          //Ažuriram validaciju cijele forme
+                                          this.forma.updateValueAndValidity({emitEvent: false});
+                                      }
+                                  }
+                                  //Ako se vrijednost u polju unosa NALAZI u polju mag. pripravaka DOPUNSKE LISTE
+                                  if(this.magPripravciDopunskaLista.indexOf(this.dopunskaListaMagPripravakText.value) !== -1){
+                                      //Pozivam metodu koja se poziva kada liječnik unese ispravan mag.pripravak sa DOPUNSKE LISTE
+                                      this.ispravanUnosMagPripravakDL(this.dopunskaListaMagPripravakText.value);
+                                  }
+                                  //Resetiram poruku
+                                  this.porukaNemaRezultata = null;
+                                  //Spremam odgovor servera u svoje polje rezultata
+                                  this.resultMagPripravciDopunskaLista = odgovor;
+                              }
+                              //Ako server NIJE vratio rezultate
+                              else{
+                                  //Ažuriram validaciju cijele forme
+                                  this.forma.updateValueAndValidity({emitEvent: false});
+                                  //Ako dropdown dopunske liste magistralnih pripravaka nije prazan
+                                  if(!this.dopunskaListaMagPripravakDropdown.value){
+                                      //Digni cijene
+                                      this.isCijene = false;
+                                  }
+                                  //Spremam odgovor servera da nema rezultata
+                                  this.porukaNemaRezultata = odgovor["message"];
+                              }
+                          }
+                        }),
+                        takeUntil(this.pretplateSubject)
                     );
                 }),
                 takeUntil(this.pretplateSubject)
             )
-        ).subscribe(
-            (odgovor) => {
-                //Ako liječnik pretražuje LIJEKOVE sa OSNOVNE LISTE
-                if(this.isPretragaLijekOsnovnaLista){
-                    //Ako je polje unosa prazno
-                    if(this.osnovnaListaLijekText.value.length === 0){
-                        //Digni ul tag
-                        this.isPretragaLijekOsnovnaLista = false;
-                        //Ažuriraj validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                    }
-                    //Ako je server vratio uspješnu poruku
-                    if(odgovor["success"] !== "false"){
-                        //Prolazim kroz LIJEKOVE OSNOVNE LISTE
-                        for(const lijek of this.lijekoviOsnovnaListaOJP){
-                            //Ako je neki lijek (malim slovima) jednak lijeku (malim slovima) koji je liječnik upisao u pretragu
-                            if(lijek.toLowerCase() === this.osnovnaListaLijekText.value.toLowerCase()){
-                                //Postavljam lijek iz polja u polje pretrage automatski
-                                this.osnovnaListaLijekText.patchValue(lijek,{emitEvent: false});
-                                //Ažuriram validaciju cijele forme
-                                this.forma.updateValueAndValidity({emitEvent: false});
-                            }
-                        }
-                        //Ako se unesena vrijednost polja pretrage NALAZI u polju osnovnih lijekova BEZ ODABIRA IZ LISTE
-                        if(this.lijekoviOsnovnaListaOJP.indexOf(this.osnovnaListaLijekText.value) !== -1){
-                            //Pozivam metodu koja se poziva kada liječnik unese ispravan lijek sa osnovne liste
-                            this.ispravanUnosLijekOL(this.osnovnaListaLijekText.value);
-                        }
-                        //Resetiram poruku 
-                        this.porukaNemaRezultata = null;
-                        //Spremam odgovor servera u svoje polje rezultata
-                        this.resultLijekOsnovnaLista = odgovor;
-                    } 
-                    //Ako je server vratio da nema rezultata
-                    else{
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Ako NEMA vrijednosti u dropdownu dopunske liste lijekova ili u tekstualnom polju
-                        if(!this.dopunskaListaLijekDropdown.value && !this.dopunskaListaLijekText.value){
-                            //Digni cijene
-                            this.isCijene = false;
-                        }
-                        //Spremam odgovor servera da nema rezultata
-                        this.porukaNemaRezultata = odgovor["message"];
-                    } 
-                }
-                //Ako liječnik pretražuje LIJEKOVE sa DOPUNSKE LISTE
-                else if(this.isPretragaLijekDopunskaLista){
-                    //Ako je polje unosa prazno
-                    if(this.dopunskaListaLijekText.value.length === 0){
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Digni ul tag
-                        this.isPretragaLijekDopunskaLista = false;
-                        //Ako dropdown dopunske liste lijekova nije prazan
-                        if(!this.dopunskaListaLijekDropdown.value){
-                            //Digni cijene
-                            this.isCijene = false;
-                        }
-                    }
-                    //Ako je server vratio uspješnu poruku (tj. da ima rezultata)
-                    if(odgovor["success"] !== "false"){
-                        //Prolazim kroz lijekove dopunske liste
-                        for(const lijek of this.lijekoviDopunskaListaOJP){
-                            //Ako je lijek iz polja (malim slovima) jednak unesenome lijeku (malim slovima)
-                            if(lijek.toLowerCase() === this.dopunskaListaLijekText.value.toLowerCase()){
-                                //Postavljam lijek iz polja u polje pretrage
-                                this.dopunskaListaLijekText.patchValue(lijek,{emitEvent: false});
-                                //Ažuriram validaciju cijele forme
-                                this.forma.updateValueAndValidity({emitEvent: false});
-                            }
-                        }
-                        //Ako se unesena vrijednost u polju pretrage DOPUNSKE LISTE LIJEKOVA nalazi u polju dopunske liste lijekova
-                        if(this.lijekoviDopunskaListaOJP.indexOf(this.dopunskaListaLijekText.value) !== -1){
-                            //Pozivam metodu koja se poziva kada liječnik unese ispravan lijek sa DOPUNSKE LISTE
-                            this.ispravanUnosLijekDL(this.dopunskaListaLijekText.value);
-                        }
-                        //Resetiram poruku
-                        this.porukaNemaRezultata = null;
-                        //Spremam odgovor servera u svoje polje rezultata
-                        this.resultLijekDopunskaLista = odgovor;
-                    }
-                    //Ako server NIJE vratio rezultate
-                    else{
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Ako dropdown dopunske liste lijekova nije prazan
-                        if(!this.dopunskaListaLijekDropdown.value){
-                            //Digni cijene
-                            this.isCijene = false;
-                        } 
-                        //Spremam odgovor servera da nema rezultata
-                        this.porukaNemaRezultata = odgovor["message"];
-                    }
-                } 
-                //Ako liječnik pretražuje MAGISTRALNE PRIPRAVKE sa OSNOVNE LISTE
-                else if(this.isPretragaMagPripravakOsnovnaLista){
-                    //Ako je polje unosa prazno
-                    if(this.osnovnaListaMagPripravakText.value.length === 0){
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Digni ul tag
-                        this.isPretragaMagPripravakOsnovnaLista = false;
-                    }
-                    //Ako JE server vratio neke rezultate
-                    if(odgovor["success"] !== "false"){
-                        //Prolazim polje mag.pripravaka osnovne liste
-                        for(const magPripravak of this.magPripravciOsnovnaLista){
-                            //Ako je mag.pripravak iz polja (malim slovima) JEDNAK mag. pripravku iz polja pretrage (malim slovima)
-                            if(magPripravak.toLowerCase() === this.osnovnaListaMagPripravakText.value.toLowerCase()){
-                                //Postavljam mag. pripravak iz polja u polje pretrage
-                                this.osnovnaListaMagPripravakText.patchValue(magPripravak,{emitEvent: false});
-                                //Ažuriram validaciju cijele forme
-                                this.forma.updateValueAndValidity({emitEvent: false});
-                            }
-                        }
-                        //Ako se vrijednost u polju unosa NALAZI u polju mag. pripravaka OSNOVNE LISTE
-                        if(this.magPripravciOsnovnaLista.indexOf(this.osnovnaListaMagPripravakText.value) !== -1){
-                            //Pozivam metodu koja se poziva kada liječnik unese ispravan mag. pripravak sa DOPUNSKE LISTE
-                            this.ispravanUnosMagPripravakOL(this.osnovnaListaMagPripravakText.value);
-                        }
-                        //Resetiram poruku
-                        this.porukaNemaRezultata = null;
-                        //Spremam odgovor servera u svoje polje rezultata
-                        this.resultMagPripravciOsnovnaLista = odgovor;
-                    }
-                    //Ako server NIJE vratio rezultate
-                    else{
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Ako nema vrijednosti u dropdownu mag. pripravaka dopunske liste
-                        if(!this.dopunskaListaMagPripravakDropdown.value && !this.dopunskaListaMagPripravakText.value){
-                            //Digni cijene
-                            this.isCijene = false;
-                        }
-                        //Spremam odgovor servera da nema rezultata
-                        this.porukaNemaRezultata = odgovor["message"];
-                    }
-                }
-                //Ako liječnik pretražuje MAGISTRALNE PRIPRAVKE sa DOPUNSKE LISTE
-                else if(this.isPretragaMagPripravakDopunskaLista){
-                    //Ako je polje unosa prazno
-                    if(this.dopunskaListaMagPripravakText.value.length === 0){
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Ako dropdown dopunske liste magistralnih pripravaka nije prazan
-                        if(!this.dopunskaListaMagPripravakDropdown.value){
-                            //Digni cijene
-                            this.isCijene = false;
-                        }
-                        //Digni ul tag
-                        this.isPretragaMagPripravakDopunskaLista = false;
-                    }
-                    //Ako JE server vratio neke rezultate
-                    if(odgovor["success"] !== "false"){
-                        //Prolazim kroz polje mag. pripravaka dopunske liste
-                        for(const magPripravak of this.magPripravciDopunskaLista){
-                            //Ako je mag. pripravak iz polja (malim slovima) JEDNAK mag. pripravku iz polja pretrage (malim slovima)
-                            if(magPripravak.toLowerCase() === this.dopunskaListaMagPripravakText.value.toLowerCase()){
-                                //Postavljam mag. pripravak iz polja u polje pretrage
-                                this.dopunskaListaMagPripravakText.patchValue(magPripravak,{emitEvent: false});
-                                //Ažuriram validaciju cijele forme
-                                this.forma.updateValueAndValidity({emitEvent: false});
-                            }
-                        }
-                        //Ako se vrijednost u polju unosa NALAZI u polju mag. pripravaka DOPUNSKE LISTE
-                        if(this.magPripravciDopunskaLista.indexOf(this.dopunskaListaMagPripravakText.value) !== -1){
-                            //Pozivam metodu koja se poziva kada liječnik unese ispravan mag.pripravak sa DOPUNSKE LISTE
-                            this.ispravanUnosMagPripravakDL(this.dopunskaListaMagPripravakText.value);
-                        }
-                        //Resetiram poruku
-                        this.porukaNemaRezultata = null;
-                        //Spremam odgovor servera u svoje polje rezultata
-                        this.resultMagPripravciDopunskaLista = odgovor;
-                    }
-                    //Ako server NIJE vratio rezultate
-                    else{
-                        //Ažuriram validaciju cijele forme
-                        this.forma.updateValueAndValidity({emitEvent: false});
-                        //Ako dropdown dopunske liste magistralnih pripravaka nije prazan
-                        if(!this.dopunskaListaMagPripravakDropdown.value){
-                            //Digni cijene
-                            this.isCijene = false;
-                        }
-                        //Spremam odgovor servera da nema rezultata
-                        this.porukaNemaRezultata = odgovor["message"];
-                    }
-                }
-            }
-        );
+        ).subscribe();
     }
 
     //Metoda koja se pokreće kada korisnik unese pravu vrijednost u polje pretrage OSNOVNE LISTE LIJEKOVA
@@ -1507,7 +1575,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         takeUntil(this.pretplateSubject)
                     );
                 }
-            }), 
+            }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
     }
@@ -1683,7 +1751,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     this.magPripravciOsnovnaLista, this.magPripravciDopunskaLista, this.isLijek,
                                     this.isMagPripravak, this.isValidDijagnoze.bind(this),this.isSpecijalist);
                 }
-                //Postavljam datum 
+                //Postavljam datum
                 this.vrijediDo.patchValue(odgovor[1],{emitEvent: false});
             }),
             takeUntil(this.pretplateSubject)
@@ -1822,7 +1890,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.osnovnaListaMagPripravakDropdown.patchValue(null,{emitEvent: false});
             this.osnovnaListaMagPripravakText.patchValue("",{emitEvent: false});
             this.dopunskaListaMagPripravakDropdown.patchValue(null,{emitEvent: false});
-            this.dopunskaListaMagPripravakText.patchValue("",{emitEvent: false});  
+            this.dopunskaListaMagPripravakText.patchValue("",{emitEvent: false});
             //Resetiram polje šifre specijalista
             this.sifraSpecijalist.patchValue("",{emitEvent: false});
             //Dižem redak svjesnog prekoračenja
@@ -1886,8 +1954,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.dopunskaListaMagPripravakDropdown.value,this.dopunskaListaMagPripravakText.value,
                 this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
                 this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
-                this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value, 
-                this.sifraSpecijalist.value,this.idPacijent, 
+                this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value,
+                this.sifraSpecijalist.value,this.idPacijent,
                 this.recept.datumRecept,this.recept.vrijemeRecept,this.recept.mkbSifraPrimarna).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
@@ -1919,8 +1987,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 this.dopunskaListaMagPripravakDropdown.value,this.dopunskaListaMagPripravakText.value,
                 this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
                 this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
-                this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value, 
-                this.sifraSpecijalist.value,this.idPacijent,this.idLijecnik, 
+                this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value,
+                this.sifraSpecijalist.value,this.idPacijent,this.idLijecnik,
                 poslanaMKBSifra,this.poslaniIDObrada,this.poslaniTipSlucaj,this.poslanoVrijeme).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
@@ -1929,7 +1997,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.responsePoruka = odgovor.message;
                     //Emitiraj event Subjectom prema komponenti pacijenata (lijevoj tablici)
                     this.receptService.messenger.next(true);
-                    //Filtriram polje ID-ova pacijenata kojima je dodana povijest bolesti 
+                    //Filtriram polje ID-ova pacijenata kojima je dodana povijest bolesti
                     const filtiranoPolje = this.sharedService.pacijentiIDs.filter((element) => {
                         //Izbacujem ID pacijenta iz polja kojemu je upravo dodan recept
                         return element != +this.idPacijent;
@@ -1941,8 +2009,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     localStorage.setItem("pacijentiIDs",JSON.stringify(this.sharedService.pacijentiIDs.slice()));
                 }),
                 takeUntil(this.pretplateSubject)
-            ).subscribe(); 
-        }   
+            ).subscribe();
+        }
     }
 
     //Metoda se poziva kada liječnik promijeni količinu (broj pakiranja proizvoda)
@@ -1961,46 +2029,46 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     onChangeBrojPonavljanja(brojPonavljanja: string){
         //Ako je broj ponavljanja 1:
         if(brojPonavljanja === "1"){
-            //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
+            //U polje unosa riječima postavi vrijednost koja odgovara tom broju
             this.rijecimaBrojPonavljanja.patchValue("jedan put",{emitEvent: false});
             //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
             //Ažuriram validaciju
             this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 2:
         else if(brojPonavljanja === "2"){
-            //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
+            //U polje unosa riječima postavi vrijednost koja odgovara tom broju
             this.rijecimaBrojPonavljanja.patchValue("dva puta",{emitEvent: false});
             //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
             //Ažuriram validaciju
             this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 3:
         else if(brojPonavljanja === "3"){
-            //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
+            //U polje unosa riječima postavi vrijednost koja odgovara tom broju
             this.rijecimaBrojPonavljanja.patchValue("tri puta",{emitEvent: false});
             //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
             //Ažuriram validaciju
             this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 4:
         else if(brojPonavljanja === "4"){
-            //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
+            //U polje unosa riječima postavi vrijednost koja odgovara tom broju
             this.rijecimaBrojPonavljanja.patchValue("četiri puta",{emitEvent: false});
             //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
             //Ažuriram validaciju
             this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako je broj ponavljanja 5:
         else if(brojPonavljanja === "5"){
-            //U polje unosa riječima postavi vrijednost koja odgovara tom broju 
+            //U polje unosa riječima postavi vrijednost koja odgovara tom broju
             this.rijecimaBrojPonavljanja.patchValue("pet puta",{emitEvent: false});
             //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
+            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
             //Ažuriram validaciju
             this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
@@ -2019,21 +2087,21 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         else if(tip === "lijekDL"){
             //Zatvori listu pretrage dopunske liste lijekova
             this.isPretragaLijekDopunskaLista = false;
-            //Isprazni polje unosa 
+            //Isprazni polje unosa
             this.dopunskaListaLijekText.patchValue("",{emitEvent: false});
         }
         //Ako je otvorena lista pretrage MAGISTRALNIH PRIPRAVAKA OSNOVNE LISTE
         else if(tip === "magPripravakOL"){
             //Zatvori listu pretrage magistralnih pripravaka osnovne liste
             this.isPretragaMagPripravakOsnovnaLista = false;
-            //Isprazni polje unosa 
+            //Isprazni polje unosa
             this.osnovnaListaMagPripravakText.patchValue("",{emitEvent: false});
         }
         //Ako je otvorena lista pretrage MAGISTRALNIH PRIPRAVAKA DOPUNSKE LISTE
         else if(tip === "magPripravakDL"){
             //Zatvori listu pretrage magistralnih pripravaka dopunske liste
             this.isPretragaMagPripravakDopunskaLista = false;
-            //Isprazni polje unosa 
+            //Isprazni polje unosa
             this.dopunskaListaMagPripravakText.patchValue("",{emitEvent: false});
         }
     }
@@ -2042,7 +2110,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
     isValidSekundarnaDijagnoza(array: FormArray): {[key: string]: boolean}{
         //Kreiram pomoćno polje
         let pom = [];
-        //Prolazim kroz array 
+        //Prolazim kroz array
         for(let control of array.controls){
             //Ako se vrijednost sekundarne dijagnoze VEĆ NALAZI u pom polju, ali da nije "Odaberite sekundarnu dijagnozu"
             if(pom.indexOf(control.value.nazivSekundarna) !== -1 && control.value.nazivSekundarna !== null){
@@ -2057,8 +2125,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             }
         }
         return null;
-    }  
-    
+    }
+
     //Metoda koja provjerava je li primarna dijagnoza ista kao i neka od sekundarnih dijagnoza
     isValidDijagnoze(group: FormGroup): {[key: string]: boolean} | null{
         //Prolazim kroz polje sekundarnih dijagnoza
@@ -2116,6 +2184,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.isPonovljiv = true;
             //Postavljam broj ponavljanja na 1
             this.brojPonavljanja.patchValue("1",{emitEvent: false});
+            //Postavljam riječima broj ponavljanja na "jedan put"
+            this.rijecimaBrojPonavljanja.patchValue("jedan put", {emitEvent: false});
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = forkJoin([
                 receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
@@ -2123,12 +2193,20 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 receptHandler.doziranjePresloDDD(this.forma,this.receptService)
             ]).pipe(
                 tap((value) => {
+                    console.log(value);
+                    //Postavljam validatore na polje dostatnosti
+                    this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
+                    //Ažuriram validaciju
+                    this.dostatnost.updateValueAndValidity({emitEvent: false});
                     //Ako server nije vratio null tj. ako lijek završava na mg ili g
                     if(value[1] !== null){
                         //Te ako je server vratio informaciju da je trenutno doziranje PREŠLO definiranu dnevnu dozu
                         if(value[1]["success"] === "false"){
-                            //Prikaži redak svjesnog prekoračenja
-                            this.isValidatorDDD = true;
+                            //Ako već nije prikazano polje svjesnog prekoračenja
+                            if(!this.isValidatorDDD){
+                                //Prikaži redak svjesnog prekoračenja
+                                this.isValidatorDDD = true;
+                            }
                         }
                     }
                     //Ako je server vratio null ILI informaciju da doziranje NIJE PREŠLO dnevno definiranu dozu
@@ -2139,17 +2217,15 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe();
-            //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
-            //Ažuriram validaciju
-            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
         //Ako "ponovljiv" NIJE CHECKED
         else{
             //Označi da recept NIJE PONOVLJIV
             this.isPonovljiv = false;
-            //Postavljam broj ponavljanja na null
-            this.brojPonavljanja.patchValue(null,{emitEvent: false});
+            //Postavljam broj ponavljanja na 1
+            this.brojPonavljanja.patchValue("1",{emitEvent: false});
+            //Postavljam riječima broj ponavljanja na "jedan put"
+            this.rijecimaBrojPonavljanja.patchValue("jedan put", {emitEvent: false});
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = forkJoin([
                 receptHandler.azuriranjeDostatnostiHandler(this.forma,this.receptService,
@@ -2157,6 +2233,10 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 receptHandler.doziranjePresloDDD(this.forma,this.receptService)
             ]).pipe(
                 tap((value) => {
+                    //Postavljam validatore na polje dostatnosti
+                    this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]);
+                    //Ažuriram validaciju
+                    this.dostatnost.updateValueAndValidity({emitEvent: false});
                     //Ako server nije vratio null tj. ako lijek završava na mg ili g
                     if(value[1] !== null){
                         //Te ako je server vratio informaciju da je trenutno doziranje PREŠLO definiranu dnevnu dozu
@@ -2173,10 +2253,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe();
-            //Postavljam validatore na polje dostatnosti
-            this.dostatnost.setValidators([Validacija.provjeriDostatnost(this.isPonovljiv,this.brojPonavljanja.value),Validators.pattern("^[0-9]*$"),Validators.required]); 
-            //Ažuriram validaciju
-            this.dostatnost.updateValueAndValidity({emitEvent: false});
         }
     }
 
@@ -2191,7 +2267,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
     }
 
-    //Dohvaća pojedine form controlove unutar polja 
+    //Dohvaća pojedine form controlove unutar polja
     getControlsSekundarna(){
         return (this.forma.get('sekundarnaDijagnoza') as FormArray).controls;
     }
@@ -2246,8 +2322,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Postavljam Subject na true
         this.pretplateSubject.next(true);
         this.pretplateSubject.complete();
-        //Restartiram Subject 
-        this.receptService.messenger.next(false); 
+        //Restartiram Subject
+        this.receptService.messenger.next(false);
     }
 
     //Getteri za dijelove forme

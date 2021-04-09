@@ -1,5 +1,5 @@
 import { AbstractControl, FormGroup, Validators } from "@angular/forms";
-import { forkJoin, Observable, of, Subject } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 import { tap, takeUntil, switchMap } from "rxjs/operators";
 import {ReceptService} from './recept.service';
 import * as Validacija from './recept-validations';
@@ -78,19 +78,16 @@ export function azuriranjeDostatnosti(forma: AbstractControl,receptService: Rece
 //Funkcija koja vraća Observable ažuriranja dostatnosti te koja ažurira potrebna polja
 export function azuriranjeDostatnostiHandler(forma: FormGroup,receptService: ReceptService,
                                             pretplateSubject: Subject<boolean>,trajanjeTerapije: number) : Observable<any>{
-    return forkJoin([
-        azuriranjeDostatnosti(forma,receptService)
-    ]).pipe(
+    return azuriranjeDostatnosti(forma,receptService).pipe(
         tap(value => {
             //Vrijednost dostatnosti stavljam u polje
-            forma.get('trajanje.dostatnost').patchValue(value[0] === null ? value[0] : value[0].toString(),{emitEvent: false});
+            forma.get('trajanje.dostatnost').patchValue(value === null ? value : value.toString(),{emitEvent: false});
         }),
         //Svaku vrijednost dostatnosti prosljeđujem funkciji koja izvodi DATUM od te DOSTATNOSTI
         switchMap(value => {
-            console.log(value);
             //Ako vrijednost dostatnosti nije null
-            if(value[0] !== null){
-                return receptService.getDatumDostatnost(value[0].toString()).pipe(
+            if(value !== null){
+                return receptService.getDatumDostatnost(value.toString()).pipe(
                     tap(datum => {
                         //Vrijednost datuma postavljam u njegovo polje
                         forma.get('trajanje.vrijediDo').patchValue(datum,{emitEvent: false});
@@ -108,12 +105,12 @@ export function azuriranjeDostatnostiHandler(forma: FormGroup,receptService: Rec
                     trajanjeTerapije = trajanjeTerapije * (+forma.get('ostaliPodatci.brojPonavljanja').value + 1);
                 }
                 return of(null).pipe(
-                    tap(value => {
+                    tap(() => {
                         //Postavi dostatnost inicijalno na 30 dana
                         forma.get('trajanje.dostatnost').patchValue(trajanjeTerapije.toString(),{emitEvent: false});
                     }),
                     //Kada server vrati null za dostatnost, pozovi funkciju koja ažurira datum "vrijediDo"
-                    switchMap(value => {
+                    switchMap(() => {
                         return receptService.getDatumDostatnost(trajanjeTerapije.toString()).pipe(
                             tap(datum => {
                                 //Postavi datum
@@ -157,7 +154,7 @@ export function doziranjePresloDDD(forma: FormGroup, receptService: ReceptServic
 
 //Funkcija koja resetira te diže svjesno prekoračenje te diže validatore dnevno definirane doze
 export function resetirajSvjesnoPrekoracenje(forma: FormGroup){
-    //Praznim polje unosa DDD-a 
+    //Praznim polje unosa DDD-a
     forma.get('doziranje.dddLijek').patchValue(null,{emitEvent: false});
     //Resetiram vrijednosti svjesnog prekoračenja
     forma.get('svjesnoPrekoracenje').reset();
@@ -169,7 +166,7 @@ export function resetirajSvjesnoPrekoracenje(forma: FormGroup){
 //Funkcija koja nadodava validatore šifri specijalista
 export function setValidatorsSifraSpecijalist(forma: FormGroup,zdravstveniRadnici: ZdravstveniRadnik[],isSpecijalist: boolean){
     //Postavljam validatore šifri specijalista
-    forma.get('specijalist.sifraSpecijalist').setValidators([Validators.pattern("^[0-9]*$"), 
+    forma.get('specijalist.sifraSpecijalist').setValidators([Validators.pattern("^[0-9]*$"),
                                         Validacija.provjeraSifraSpecijalist(zdravstveniRadnici,isSpecijalist)]);
     //Ažuriram validatore šifre specijalista
     forma.get('specijalist.sifraSpecijalist').updateValueAndValidity({emitEvent: false});

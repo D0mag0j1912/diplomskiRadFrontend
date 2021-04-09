@@ -1,4 +1,4 @@
-import { FormArray, FormControl } from "@angular/forms";
+import { FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
 import { ZdravstveniRadnik } from "src/app/shared/modeli/zdravstveniRadnik.model";
 
@@ -22,7 +22,7 @@ export function prekoracenjeDoze(objekt:{success:string,message:string,maxDoza:s
 }
 
 //Funkcija koja popunjava polje tipa specijaliste ovisno o unesenoj šifri specijalista
-export function sifraSpecijalistToTip(sifraSpecijalist: string,zdravstveniRadnici: ZdravstveniRadnik[], 
+export function sifraSpecijalistToTip(sifraSpecijalist: string,zdravstveniRadnici: ZdravstveniRadnik[],
                                     forma: FormGroup, isSpecijalist: boolean){
     //Ako je potrebno upisati šifru specijalista
     if(isSpecijalist){
@@ -97,7 +97,7 @@ export function provjeriBrojPonavljanja(): ValidatorFn{
 export function provjeriDostatnost(isPonovljiv: boolean, brojPonavljanja: string): ValidatorFn{
     return (control: FormControl): {[key: string]:boolean} | null => {
         //Ako je definiran ovaj form control
-        if(control){    
+        if(control){
             //Ako je recept ponovljiv
             if(isPonovljiv){
                 //Ako je broj ponavljanja 1 i vrijednost trajanja terapije je veća od 60:
@@ -166,7 +166,7 @@ export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopun
                             //Vrati da je u redu
                             return null;
                         }
-                    }  
+                    }
                 }
                 //Ako dropdown dopunske liste lijekova ima neku vrijednost
                 if(group.get('dopunskaListaLijek.dopunskaListaLijekDropdown').value){
@@ -208,7 +208,7 @@ export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopun
                             //Vrati da je u redu
                             return null;
                         }
-                    }  
+                    }
                 }
                 //Ako dropdown DOPUNSKE liste magistralnih pripravaka ima neku vrijednost
                 if(group.get('dopunskaListaMagPripravak.dopunskaListaMagPripravakDropdown').value){
@@ -227,14 +227,14 @@ export function isUnesenProizvod(lijekoviOsnovnaListaOJP: string[],lijekoviDopun
                             //Vrati da je u redu
                             return null;
                         }
-                    }  
+                    }
                 }
                 //Inače, vrati grešku
                 return {'baremJedan': true};
             }
         }
     }
-} 
+}
 //Metoda koja provjerava je li doziranje uneseno PRIJE proizvoda
 export function doziranjePrijeProizvod(): ValidatorFn{
     return (group: FormGroup): {[key: string]: boolean} | null => {
