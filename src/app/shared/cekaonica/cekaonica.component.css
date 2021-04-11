@@ -16,3 +16,6 @@ span{
     margin: 0 auto;
     width:70%;
 }
+th, td{
+  font-family: Verdana, sans-serif;
+}

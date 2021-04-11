@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Dijagnoza } from '../modeli/dijagnoza.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { merge, Subject } from 'rxjs';
-import { tap, takeUntil, switchMap} from 'rxjs/operators';
+import { merge, of, Subject } from 'rxjs';
+import { tap, takeUntil, switchMap, mergeMap} from 'rxjs/operators';
 import { HeaderService } from '../header/header.service';
 import { PovijestBolestiService } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.service';
 import { PovezaniPovijestBolestiService } from 'src/app/lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.service';
@@ -131,7 +131,6 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 tap(idObrada => {
                     //Spremam ID obrade
                     this.idObrada = idObrada;
-                    console.log(this.idObrada);
                 }),
                 takeUntil(this.pretplateSubject)
             ),
@@ -385,6 +384,41 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                     };
                     //U Local Storage postavljam tu informaciju
                     localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                }),
+                //Pretplaćivam se na stanje polje ID-eva pacijenata
+                mergeMap(() => {
+                    return this.obradaService.getPatientProcessing('lijecnik').pipe(
+                        tap(podatci => {
+                            //Ako pacijent NIJE AKTIVAN
+                            if(podatci.success === "false"){
+                                //Nadodavam ID pacijenta u polje da se zna ko me je napisana povijest bolesti kada pacijent nije aktivan
+                                this.sharedService.addPacijentiIDs(this.idPacijent);
+                            }
+                        }),
+                        switchMap(podatci => {
+                            //Ako pacijent NIJE AKTIVAN
+                            if(podatci.success === "false"){
+                                //Dohvaćam trenutno stanje polja ID-a pacijenata
+                                return this.sharedService.pacijentiIDsObs.pipe(
+                                    tap(pacijentiIDs => {
+                                        console.log(pacijentiIDs);
+                                        //U Local Storage postavljam ID pacijenta kojemu sam upravo unio povijest bolesti
+                                        localStorage.setItem("pacijentiIDs",JSON.stringify(pacijentiIDs));
+                                    }),
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                            //Ako je pacijent AKTIVAN
+                            else{
+                                return of(null).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
+                }),
+                tap(() => {
                     //Ako sam došao ovdje iz izdavanja recepta
                     if(this.receptIliUputnica === 'recept'){
                         //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
@@ -397,12 +431,6 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
                         this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
                     }
-                    //Nadodavam ID-pacijenta u polje ID-ova pacijenata da se zna kome je sve dodana povijest bolesti
-                    this.sharedService.pacijentiIDs.push(this.idPacijent);
-                    //Ažurirano polje nadodavam u Subject
-                    this.sharedService.pacijentiIDsSubject.next(this.sharedService.pacijentiIDs.slice());
-                    //U Local Storage postavljam ID pacijenta kojemu sam upravo unio povijest bolesti
-                    localStorage.setItem("pacijentiIDs",JSON.stringify(this.sharedService.pacijentiIDs.slice()));
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe();
@@ -448,6 +476,41 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                             };
                             //U Local Storage postavljam tu informaciju
                             localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                        }),
+                        //Pretplaćivam se na stanje polje ID-eva pacijenata
+                        mergeMap(() => {
+                            return this.obradaService.getPatientProcessing('lijecnik').pipe(
+                                tap(podatci => {
+                                    //Ako pacijent NIJE AKTIVAN
+                                    if(podatci.success === "false"){
+                                        //Nadodavam ID pacijenta u polje da se zna ko me je napisana povijest bolesti kada pacijent nije aktivan
+                                        this.sharedService.addPacijentiIDs(this.idPacijent);
+                                    }
+                                }),
+                                switchMap(podatci => {
+                                    //Ako pacijent NIJE AKTIVAN
+                                    if(podatci.success === "false"){
+                                        //Dohvaćam trenutno stanje polja ID-a pacijenata
+                                        return this.sharedService.pacijentiIDsObs.pipe(
+                                            tap(pacijentiIDs => {
+                                                console.log(pacijentiIDs);
+                                                //U Local Storage postavljam ID pacijenta kojemu sam upravo unio povijest bolesti
+                                                localStorage.setItem("pacijentiIDs",JSON.stringify(pacijentiIDs));
+                                            }),
+                                            takeUntil(this.pretplateSubject)
+                                        );
+                                    }
+                                    //Ako je pacijent AKTIVAN
+                                    else{
+                                        return of(null).pipe(
+                                            takeUntil(this.pretplateSubject)
+                                        );
+                                    }
+                                }),
+                                takeUntil(this.pretplateSubject)
+                            );
+                        }),
+                        tap(() => {
                             //Ako sam došao ovdje iz izdavanja recepta
                             if(this.receptIliUputnica === 'recept'){
                                 //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
@@ -460,12 +523,6 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                                 //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
                                 this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
                             }
-                            //Nadodavam ID-pacijenta u polje ID-ova pacijenata da se zna kome je sve dodana povijest bolesti
-                            this.sharedService.pacijentiIDs.push(this.idPacijent);
-                            //Ažurirano polje nadodavam u Subject
-                            this.sharedService.pacijentiIDsSubject.next(this.sharedService.pacijentiIDs.slice());
-                            //U Local Storage postavljam ID pacijenta kojemu sam upravo unio povijest bolesti
-                            localStorage.setItem("pacijentiIDs",JSON.stringify(this.sharedService.pacijentiIDs.slice()));
                         }),
                         takeUntil(this.pretplateSubject)
                     );

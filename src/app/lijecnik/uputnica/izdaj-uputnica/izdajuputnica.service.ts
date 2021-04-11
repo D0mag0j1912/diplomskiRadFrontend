@@ -10,6 +10,43 @@ import {handleError} from '../../../shared/rxjs-error';
 export class IzdajUputnicaService {
     constructor(private http: HttpClient){}
 
+    //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje uputnice
+    izdajUputnicu(
+        idZdrUst: string,
+        sifDjel: string,
+        idPacijent: number,
+        sifraSpecijalist: string,
+        mkbSifraPrimarna: string,
+        mkbPolje: string[],
+        vrstaPregled: string,
+        molimTraziSe: string,
+        napomena: string,
+        poslanaPrimarna: string,
+        poslaniIDObrada: string,
+        poslaniTipSlucaj: string,
+        poslanoVrijeme: string,
+        idLijecnik: number
+    ){
+        molimTraziSe = encodeURIComponent(molimTraziSe);
+        napomena = encodeURIComponent(napomena);
+        return this.http.post<any>(baseUrl + 'uputnica/izdajUputnica/izdajUputnica.php',{
+            idZdrUst,
+            sifDjel,
+            idPacijent,
+            sifraSpecijalist,
+            mkbSifraPrimarna,
+            mkbPolje,
+            vrstaPregled,
+            molimTraziSe,
+            napomena,
+            poslanaPrimarna,
+            poslaniIDObrada,
+            poslaniTipSlucaj,
+            poslanoVrijeme,
+            idLijecnik
+        }).pipe(catchError(handleError));
+    }
+
     //Metoda koja dohvaća dijagnoze koje su postavljene u zadnjoj povijesti bolesti
     getInicijalneDijagnoze(idObrada: number, mboPacijent: string){
         let params = new HttpParams().append("mboPacijent",mboPacijent);

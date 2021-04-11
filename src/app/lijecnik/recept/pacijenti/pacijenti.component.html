@@ -1,36 +1,36 @@
-<router-outlet></router-outlet> 
-<app-prikazi-povijest-bolesti 
-    *ngIf="isPovijestBolesti" 
-    (closeRecept)="onClosePovijestBolesti()" 
-    [primljeneDijagnoze]="dijagnoze" 
+<router-outlet></router-outlet>
+<app-prikazi-povijest-bolesti
+    *ngIf="isPovijestBolesti"
+    (closeRecept)="onClosePovijestBolesti()"
+    [primljeneDijagnoze]="dijagnoze"
     [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Tablica pacijenata</h3>
 <form [formGroup]="formaPretraga">
     <div class="col-md-offset-1">
         <p style="font-family: Verdana, sans-serif;"><strong>Pretraži:</strong></p>
-        <input 
-            type="text" 
-            class="form-control" 
-            formControlName="pretraga" 
-            placeholder="Unesite pacijenta..." 
+        <input
+            type="text"
+            class="form-control"
+            formControlName="pretraga"
+            placeholder="Unesite pacijenta..."
             style="width:300px;left:80px;position: relative;margin-top:-35px;">
-        <span 
-            class="help-block" 
-            *ngIf="!isPretraga && porukaPretraga" 
+        <span
+            class="help-block"
+            *ngIf="!isPretraga && porukaPretraga"
             style="font-weight: bold;color:#337ab7; font-size:20px">{{porukaPretraga}}</span>
     </div>
 </form>
-<div 
-    class="row" 
-    style="margin-top:10px;" 
+<div
+    class="row"
+    style="margin-top:10px;margin-left:30px;"
     *ngIf="!isPacijenti && nemaPacijenata">
-    <h3 style="text-align: center; 
-            color:#337ab7;font-family: Verdana, sans-serif; 
+    <h3 style="text-align: center;
+            color:#337ab7;font-family: Verdana, sans-serif;
             left:30px;position: relative;">{{nemaPacijenata}}</h3>
 </div>
-<div 
-    class="table-responsive-sm" 
-    style="margin-top:10px;" 
+<div
+    class="table-responsive-sm"
+    style="margin-top:10px;"
     *ngIf="isPretraga && isPacijenti && !nemaPacijenata">
     <table class="table table-striped table-bordered tablicaPretraga">
         <thead>
@@ -46,9 +46,9 @@
                 <td style="font-family: Verdana, sans-serif;">{{pacijent.prezime}}</td>
                 <td style="font-family: Verdana, sans-serif;">{{pacijent.datRod}}</td>
                 <td style="font-family: Verdana, sans-serif;">{{pacijent.mbo}}</td>
-                <td style="font-family: Verdana, sans-serif;"><button 
-                        type="button" 
-                        (click)="izdajRecept(pacijent.id)" 
+                <td style="font-family: Verdana, sans-serif;"><button
+                        type="button"
+                        (click)="izdajRecept(pacijent.id)"
                         class="btn btn-primary">Izdaj recept</button></td>
             </tr>
         </tbody>

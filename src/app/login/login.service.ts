@@ -6,6 +6,7 @@ import { catchError,takeUntil,tap } from 'rxjs/operators';
 import { Korisnik } from '../shared/modeli/korisnik.model';
 import {handleError} from '../shared/rxjs-error';
 import {baseUrl} from '../backend-path';
+import { SharedService } from '../shared/shared.service';
 
 @Injectable({
     providedIn: 'root'
@@ -30,7 +31,9 @@ export class LoginService implements OnDestroy{
         //Dohvaćam http da mogu raditi http requestove sa backendom
         private http: HttpClient,
         //Dohvaćam router da se mogu preusmjeravati
-        private router: Router
+        private router: Router,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na unos lozinke
@@ -38,7 +41,7 @@ export class LoginService implements OnDestroy{
         let params = new HttpParams().append("email",email);
         params = params.append("lozinka",lozinka);
         return this.http.get<any>(baseUrl + 'auth/provjeriPassword.php',{params: params}).pipe(catchError(handleError));
-    }   
+    }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi registrirani emailovi
     getAllEmails(){
@@ -77,7 +80,7 @@ export class LoginService implements OnDestroy{
         //Čim se korisnik prijavi, odmah pozivam metodu za automatsku odjavu
         this.autologout(expiresIn * 1000);
         //Spremam podatke u Session Storage
-        sessionStorage.setItem('userData',JSON.stringify(user));   
+        sessionStorage.setItem('userData',JSON.stringify(user));
     }
 
     //Metoda za odjavu korisnika
@@ -91,7 +94,7 @@ export class LoginService implements OnDestroy{
             lozinka: string;
             _token: string;
         } = JSON.parse(sessionStorage.getItem('userData'));
-        
+
         //Ako ne postoje nikakvi korisnikovi podatci u spremištu
         if(!userData){
             return;
@@ -101,7 +104,7 @@ export class LoginService implements OnDestroy{
         return this.http.post<any>(baseUrl + 'auth/logout.php',
             {
                 tip: userData.tip,
-                token: userData._token  
+                token: userData._token
             }).pipe(
                 tap(() => {
                     //U BehaviorSubject stavljam vrijednost null
@@ -117,6 +120,7 @@ export class LoginService implements OnDestroy{
                         clearTimeout(this.tokenExpirationTimer);
                     }
                     this.tokenExpirationTimer = null;
+                    this.sharedService.resetPacijentiIDs();
                 }),
                 catchError(handleError));
     }

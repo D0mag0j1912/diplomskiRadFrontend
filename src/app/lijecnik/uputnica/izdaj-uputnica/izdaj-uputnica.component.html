@@ -8,6 +8,10 @@
         (closeUputnica)="onClosePovijestBolesti($event)"
         [primljeneDijagnoze]="dijagnoze"
         [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
+    <app-alert
+        *ngIf="response"
+        [message]="responsePoruka"
+        (close)="onCloseAlert()"></app-alert>
     <div class="col-xs-12 col-md-12">
         <form [formGroup]="forma" *ngIf="forma" (ngSubmit)="onSubmit()">
             <div class="table-responsive-sm">

@@ -6,12 +6,14 @@ import { LoginService } from 'src/app/login/login.service';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { InicijalneDijagnoze } from 'src/app/shared/modeli/inicijalneDijagnoze.model';
+import { Uputnica } from 'src/app/shared/modeli/uputnica.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { SharedService } from 'src/app/shared/shared.service';
 import { IzdajUputnicaService } from './izdaj-uputnica/izdajuputnica.service';
+import { UputnicaService } from './uputnica.service';
 
 @Component({
   selector: 'app-uputnica',
@@ -42,6 +44,8 @@ export class UputnicaComponent implements OnInit, OnDestroy{
     isPovijestBolesti: boolean = false;
     //Spremam ID aktivnog pacijenta u slučaju da nema upisanu povijest bolesti kad je došao ovamo
     idPacijent: number;
+    //Spremam sve dohvaćene uputnice
+    uputnice: Uputnica[] = [];
 
     constructor(
         //Dohvaćam trenutni route
@@ -55,7 +59,9 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         //Dohvaćam import servis
         private importService: ImportService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis uputnice
+        private uputnicaService: UputnicaService
     ) { }
 
     //Metoda koja se pokreće kada se komponenta inicijalizira
@@ -64,6 +70,13 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         this.route.data.pipe(
             map(podatci => podatci.importi),
             tap(podatci => {
+                //Definiram objekt u kojega ću spremati uputnice
+                let objektUputnica;
+                //Prolazim kroz sve uputnice koje su dohvaćene sa servera
+                for(const uputnica of podatci.uputnice){
+                    objektUputnica = new Uputnica(uputnica);
+                    this.uputnice.push(objektUputnica);
+                }
                 //Definiram objekt u kojega ću spremati dijagnoze
                 let objektDijagnoza;
                 //Prolazim kroz sve dijagnoze vraćene sa servera
@@ -159,6 +172,25 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                         );
                     })
                 )
+            }),
+            takeUntil(this.pretplata)
+        ).subscribe();
+    }
+
+    //Metoda koja se poziva kada je izdana nova uputnica (poslana od childa)
+    onIzdanaUputnica(){
+        //Pretplaćivam se na dohvat uputnica
+        this.uputnicaService.getUputnice().pipe(
+            tap(uputnice => {
+                //Restartam polje uputnica
+                this.uputnice = [];
+                //Definiram objekt u kojega ću spremati uputnice
+                let objektUputnica;
+                //Prolazim kroz sve uputnice koje su dohvaćene sa servera
+                for(const uputnica of uputnice){
+                    objektUputnica = new Uputnica(uputnica);
+                    this.uputnice.push(objektUputnica);
+                }
             }),
             takeUntil(this.pretplata)
         ).subscribe();

@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/r
 import { forkJoin, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { ImportService } from "src/app/shared/import.service";
+import { UputnicaService } from "./uputnica.service";
 
 @Injectable({
     providedIn: 'root'
@@ -11,7 +12,9 @@ export class UputnicaResolverService implements Resolve<any>{
 
     constructor(
         //Dohvaćam servis importa
-        private importService: ImportService
+        private importService: ImportService,
+        //Dohvaćam servis uputnice
+        private uputnicaService: UputnicaService
     ){}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
         Observable<any> | Promise<any> | any {
@@ -20,7 +23,8 @@ export class UputnicaResolverService implements Resolve<any>{
             this.importService.getZdravstveneUstanove(),
             this.importService.getPacijenti(),
             this.importService.getZdravstveneDjelatnosti(),
-            this.importService.getZdravstveniRadnici()
+            this.importService.getZdravstveniRadnici(),
+            this.uputnicaService.getUputnice()
         ]).pipe(
             map(importi => {
                 return {
@@ -28,7 +32,8 @@ export class UputnicaResolverService implements Resolve<any>{
                     zdravstveneUstanove: importi[1],
                     pacijenti: importi[2],
                     zdravstveneDjelatnosti: importi[3],
-                    zdravstveniRadnici: importi[4]
+                    zdravstveniRadnici: importi[4],
+                    uputnice: importi[5]
                 };
             })
         );

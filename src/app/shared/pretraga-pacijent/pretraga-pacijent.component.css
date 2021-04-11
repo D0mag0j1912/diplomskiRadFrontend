@@ -20,5 +20,11 @@
 }
 
 .alert-box-actions{
-    text-align:right;   
+    text-align:right;
+}
+th {
+    font-family: Verdana, sans-serif;
+}
+td{
+    font-family: Verdana, sans-serif;
 }

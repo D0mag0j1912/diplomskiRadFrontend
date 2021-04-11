@@ -11,7 +11,7 @@
                     <th scope="col">Datum rođenja</th>
                     <th scope="col">Adresa</th>
                     <th scope="col">Akcija</th>
-                </tr>   
+                </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let pacijent of pacijenti">
@@ -29,11 +29,11 @@
         <div *ngFor="let item of fakeArray; let i = index;" style="display: inline-block;">
             <!--Prikazuju se brojevi stranica-->
             <a class="btn btn-primary" (click)="setPage(i+1)" style="margin-right:5px;">{{i+1}}</a>
-        </div> 
+        </div>
         <!--Sljedeća se prikazuje ako je i+1 > stranica-->
-        <a class="btn btn-info" (click)="setPage(stranica+1)" *ngIf="stranica < brojStranica">Sljedeća</a> 
-    </div> 
+        <a class="btn btn-info" (click)="setPage(stranica+1)" *ngIf="stranica < brojStranica">Sljedeća</a>
+    </div>
     <div class="alert-box-actions">
         <button class="btn btn-primary" (click)="onClose()">Izađi</button>
     </div>
-</div> 
+</div>

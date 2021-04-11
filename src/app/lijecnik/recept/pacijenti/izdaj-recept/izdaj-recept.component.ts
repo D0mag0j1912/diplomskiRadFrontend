@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { concatMap, debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, debounceTime, distinctUntilChanged, map, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ReceptPretragaService } from '../../recept-pretraga.service';
 import * as Validacija from '../../recept-validations';
 import { ReceptService } from '../../recept.service';
@@ -16,6 +16,7 @@ import { HeaderService } from 'src/app/shared/header/header.service';
 import * as SharedHandler from '../../../../shared/shared-handler';
 import * as SharedValidations from '../../../../shared/shared-validations';
 import { SharedService } from 'src/app/shared/shared.service';
+import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 
 @Component({
   selector: 'app-izdaj-recept',
@@ -124,7 +125,9 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         //Dohvaćam servis headera
         private headerService: HeaderService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService
     ) {}
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -1973,18 +1976,31 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     poslanaMKBSifra = dijagnoza.mkbSifra;
                 }
             }
-            console.log(poslanaMKBSifra);
-            console.log(this.poslaniIDObrada);
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
-            this.receptService.dodajRecept(this.mkbPrimarnaDijagnoza.value,mkbPolje,this.osnovnaListaLijekDropdown.value,
-                this.osnovnaListaLijekText.value,this.dopunskaListaLijekDropdown.value,this.dopunskaListaLijekText.value,
-                this.osnovnaListaMagPripravakDropdown.value,this.osnovnaListaMagPripravakText.value,
-                this.dopunskaListaMagPripravakDropdown.value,this.dopunskaListaMagPripravakText.value,
-                this.kolicinaDropdown.value,this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
-                this.dostatnost.value,this.hitnost.value ? "hitno": "nijehitno",
-                this.ponovljivost.value ? "ponovljiv": "obican",this.brojPonavljanja.value,
-                this.sifraSpecijalist.value,this.idPacijent,this.idLijecnik,
-                poslanaMKBSifra,this.poslaniIDObrada,this.poslaniTipSlucaj,this.poslanoVrijeme).pipe(
+            this.receptService.dodajRecept(
+                this.mkbPrimarnaDijagnoza.value,
+                mkbPolje,
+                this.osnovnaListaLijekDropdown.value,
+                this.osnovnaListaLijekText.value,
+                this.dopunskaListaLijekDropdown.value,
+                this.dopunskaListaLijekText.value,
+                this.osnovnaListaMagPripravakDropdown.value,
+                this.osnovnaListaMagPripravakText.value,
+                this.dopunskaListaMagPripravakDropdown.value,
+                this.dopunskaListaMagPripravakText.value,
+                this.kolicinaDropdown.value,
+                this.doziranjeFrekvencija.value + "x" + this.doziranjePeriod.value,
+                this.dostatnost.value,
+                this.hitnost.value ? "hitno": "nijehitno",
+                this.ponovljivost.value ? "ponovljiv": "obican",
+                this.brojPonavljanja.value,
+                this.sifraSpecijalist.value,
+                this.idPacijent,
+                this.idLijecnik,
+                poslanaMKBSifra,
+                this.poslaniIDObrada,
+                this.poslaniTipSlucaj,
+                this.poslanoVrijeme).pipe(
                 tap(odgovor => {
                     //Označavam da se prikaže odgovor servera
                     this.response = true;
@@ -1992,16 +2008,39 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.responsePoruka = odgovor.message;
                     //Emitiraj event Subjectom prema komponenti pacijenata (lijevoj tablici)
                     this.receptService.messenger.next(true);
-                    //Filtriram polje ID-ova pacijenata kojima je dodana povijest bolesti
-                    const filtiranoPolje = this.sharedService.pacijentiIDs.filter((element) => {
-                        //Izbacujem ID pacijenta iz polja kojemu je upravo dodan recept
-                        return element != +this.idPacijent;
-                    });
-                    this.sharedService.pacijentiIDs = [...filtiranoPolje];
-                    //Novo polje stavljam u Subject
-                    this.sharedService.pacijentiIDsSubject.next(this.sharedService.pacijentiIDs.slice());
-                    //Postavljam polje sa jednim elementom manje u Local Storage
-                    localStorage.setItem("pacijentiIDs",JSON.stringify(this.sharedService.pacijentiIDs.slice()));
+                }),
+                mergeMap(() => {
+                    //Pretplaćivam se na informaciju je li pacijent aktivan ili nije
+                    return this.obradaService.getPatientProcessing('lijecnik').pipe(
+                        tap(podatci => {
+                            //Ako pacijent NIJE AKTIVAN
+                            if(podatci.success === "false"){
+                                //Filtriram polje ID-eva pacijenata
+                                this.sharedService.filterPacijentiIDs(this.idPacijent);
+                            }
+                        }),
+                        switchMap(podatci => {
+                            //Ako pacijent NIJE AKTIVAN
+                            if(podatci.success === "false"){
+                                //Pretplaćivam se na trenutno stanje polja ID-a pacijenata
+                                return this.sharedService.pacijentiIDsObs.pipe(
+                                    tap(pacijentiIDs => {
+                                        console.log(pacijentiIDs);
+                                        //Postavljam polje sa jednim elementom manje u Local Storage
+                                        localStorage.setItem("pacijentiIDs",JSON.stringify(pacijentiIDs));
+                                    }),
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                            //Ako je pacijent AKTIVAN
+                            else{
+                                return of(null).pipe(
+                                    takeUntil(this.pretplateSubject)
+                                );
+                            }
+                        }),
+                        takeUntil(this.pretplateSubject)
+                    );
                 }),
                 takeUntil(this.pretplateSubject)
             ).subscribe();

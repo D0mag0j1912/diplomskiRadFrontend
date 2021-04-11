@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { tap, takeUntil, switchMap } from 'rxjs/operators';
+import { tap, takeUntil, switchMap, take, mergeMap } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
@@ -16,6 +16,7 @@ import { IzdajUputnicaService } from './izdajuputnica.service';
 import * as UputnicaHandler from './izdaj-uputnica-handler';
 import * as UputnicaValidators from './izdaj-uputnica-validators';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
+import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 
 @Component({
   selector: 'app-izdaj-uputnica',
@@ -24,10 +25,16 @@ import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model
 })
 export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
+    //Označavam je li otvoren prozor poruke
+    response: boolean = false;
+    //Spremam poruku servera
+    responsePoruka: string = null;
     //Spremam pretplate
     pretplate = new Subject<boolean>();
     //Šaljem event roditeljskoj komponenti
     @Output() close = new EventEmitter<any>();
+    //Šaljem event prema roditeljskoj komponenti da je uputnica izdana
+    @Output() uputnicaIzdana = new EventEmitter<any>();
     //Primam podatke iz roditeljske komponente
     @Input() dijagnoze: Dijagnoza[];
     @Input() pacijenti: string[];
@@ -56,10 +63,11 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     sekundarnaDijagnozaPovijestBolesti: string[] = [];
     //Spremam naziv inicijalne primarne dijagnoze
     primarnaDijagnozaPovijestBolesti: string = null;
-    //Spremam podatke koje šaljem backendu
+    //Spremam podatke povijesti bolesti u koju upisujem ID uputnice
     poslaniIDObrada: string = "";
     poslaniTipSlucaj: string = "";
     poslanoVrijeme: string = "";
+
     //Vrste pregleda
     vrstePregleda: string[] = ['Specijalistički pregled','Bolničko liječenje','Konzilijarni pregled','Ambulantno liječenje'];
 
@@ -71,7 +79,9 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         //Dohvaćam servis importa
         private importService: ImportService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -127,15 +137,20 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             if(this.inicijalneDijagnoze.length === 0){
                 //Dohvaćam MBO aktivnog pacijenta
                 const polje = this.aktivniPacijent.split(" ");
-                //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
-                    tap(dijagnoze => {
+                //Pretplaćivam se na podatke
+                const combined = forkJoin([
+                    //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
+                    this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), polje[2]),
+                    //Dohvaćam ID pacijenta
+                    this.importService.getIDPacijent(polje[2])
+                ]).pipe(
+                    tap(podatci => {
                         //Ako pacijent ima zapisanu povijest bolesti u ovoj sesiji obrade
-                        if(dijagnoze){
+                        if(podatci[0]){
                             //Definiram praznu varijablu
                             let obj;
                             //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
-                            for(const dijagnoza of dijagnoze){
+                            for(const dijagnoza of podatci[0]){
                                 //Kreiram svoj objekt
                                 obj = new InicijalneDijagnoze(dijagnoza);
                                 //Spremam ga u svoje polje
@@ -149,6 +164,9 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
                             this.sekundarnaDijagnoza.enable({emitEvent: false});
                         }
+                        //Spremam ID pacijenta
+                        this.idPacijent = +podatci[1];
+                        console.log(this.idPacijent);
                     }),
                     takeUntil(this.pretplate)
                 ).subscribe();
@@ -409,6 +427,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         if(JSON.parse(localStorage.getItem("idObrada")) === null){
             //Pretplaćivam se na Subject u kojemu se nalaze ID-evi pacijenata kojima je već unesena povijest bolesti
             this.sharedService.pacijentiIDsObs.pipe(
+                take(1),
                 switchMap(pacijentiIDs => {
                     //Pretplaćivam se na dohvat ID-a pacijenta kojega je liječnik izabrao u dropdownu
                     return this.importService.getIDPacijent(polje[2]).pipe(
@@ -442,6 +461,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                                     this.primarnaDijagnoza.enable({emitEvent: false});
                                                     this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
                                                     this.sekundarnaDijagnoza.enable({emitEvent: false});
+                                                    //Spremam ID pacijenta
+                                                    this.idPacijent = +idPacijent;
                                                 }
                                             }),
                                             takeUntil(this.pretplate)
@@ -561,7 +582,97 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada liječnik klikne "Izdaj uputnicu"
     onSubmit(){
-
+        //Ako forma nije valjana
+        if(!this.forma.valid){
+            return;
+        }
+        //Pomoćno polje u koje spremam samo MKB šifre sek. dijagnoza
+        let mkbPolje: string[] = [];
+        //Prolazim kroz polje sekundarnih dijagnoza i uzimam samo MKB šifre
+        for(const el of this.getControlsSekundarna()){
+            if(el.value.mkbSifraSekundarna !== null){
+                mkbPolje.push(el.value.mkbSifraSekundarna);
+            }
+        }
+        //Definiram MKB šifru tražene dijagnoze
+        let poslanaMKBSifra="";
+        //Tražim MKB šifru primarne dijagnoze koja se nalazi u povijesti bolesti u koju želim upisati ID uputnice
+        for(const dijagnoza of this.dijagnoze){
+            if(this.primarnaDijagnozaPovijestBolesti === dijagnoza.imeDijagnoza){
+                poslanaMKBSifra = dijagnoza.mkbSifra;
+            }
+        }
+        this.izdajUputnicaService.izdajUputnicu(
+           this.sifZdrUst.value,
+           this.sifZdrDjel.value,
+           this.idPacijent,
+           this.sifraSpecijalist.value,
+           this.mkbPrimarnaDijagnoza.value,
+           mkbPolje,
+           this.vrstaPregled.value,
+           this.molimTraziSe.value,
+           this.napomena.value,
+           poslanaMKBSifra,
+           this.poslaniIDObrada,
+           this.poslaniTipSlucaj,
+           this.poslanoVrijeme,
+           this.idLijecnik
+        ).pipe(
+            tap((odgovor) => {
+                //Označavam da se prikaže odgovor servera
+                this.response = true;
+                //Spremam poruku servera u svoju varijablu i prikazujem je
+                this.responsePoruka = odgovor.message;
+                //Ako je server vratio potvrdi odgovor
+                if(odgovor.success === "true"){
+                    //Emitiram event prema roditelju da zna da je dodana nova uputnica
+                    this.uputnicaIzdana.emit();
+                }
+            }),
+            mergeMap((odgovor) => {
+                //Ako je server vratio potvrdni odgovor
+                if(odgovor.success  === "true"){
+                    //Pretplaćivam se na informaciju je li pacijent aktivan ili nije
+                    return this.obradaService.getPatientProcessing('lijecnik').pipe(
+                      tap(podatci => {
+                          //Ako pacijent NIJE AKTIVAN
+                          if(podatci.success === "false"){
+                              //Filtriram polje ID-eva pacijenata
+                              this.sharedService.filterPacijentiIDs(this.idPacijent.toString());
+                          }
+                      }),
+                      switchMap(podatci => {
+                          //Ako pacijent NIJE AKTIVAN
+                          if(podatci.success === "false"){
+                              //Pretplaćivam se na trenutno stanje polja ID-a pacijenata
+                              return this.sharedService.pacijentiIDsObs.pipe(
+                                  tap(pacijentiIDs => {
+                                      console.log(pacijentiIDs);
+                                      //Postavljam polje sa jednim elementom manje u Local Storage
+                                      localStorage.setItem("pacijentiIDs",JSON.stringify(pacijentiIDs));
+                                  }),
+                                  takeUntil(this.pretplate)
+                              );
+                          }
+                          //Ako je pacijent AKTIVAN
+                          else{
+                              return of(null).pipe(
+                                  takeUntil(this.pretplate)
+                              );
+                          }
+                      }),
+                      takeUntil(this.pretplate)
+                    );
+                }
+                //Ako je server vratio negativni odgovor
+                else{
+                    return of(null).pipe(
+                        takeUntil(this.pretplate)
+                    );
+                }
+            }),
+            takeUntil(this.pretplate)
+        ).subscribe();
     }
 
     //Metoda koja prazni sva polja
@@ -636,6 +747,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     onClosePovijestBolesti($event: {idPacijent: number, potvrden: boolean}){
         //Ako je liječnik POTVRDIO povijest bolesti
         if($event.potvrden){
+            //Spremam ID pacijenta
+            this.idPacijent = $event.idPacijent;
             //Dohvaćam MBO pacijenta kojemu se upravo upisao povijest bolesti te ga prosljeđujem metodi koja dohvaća njegove inicijalne dijagnoze
             this.importService.getMBOPacijent($event.idPacijent).pipe(
                 switchMap(mboPacijent => {
@@ -727,6 +840,14 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
             });
         }
+    }
+
+    //Metoda koja se poziva kada liječnik želi zatvoriti prozor alerta
+    onCloseAlert(){
+        //Zatvori alert
+        this.response = false;
+        //Emitiram vrijednost prema roditeljskoj komponenti da izađem iz ovog prozora
+        this.close.emit();
     }
 
     //Ova metoda se pokreće kada se komponenta uništi
