@@ -1,7 +1,7 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <h3 style="text-align: center; 
-        font-family: Verdana, sans-serif; 
+    <h3 style="text-align: center;
+        font-family: Verdana, sans-serif;
         color: #337ab7">Narudžba</h3>
     <div class="row">
         <app-alert *ngIf="response" [message]="responsePoruka" (close)="onCloseAlert()"></app-alert>
@@ -11,17 +11,21 @@
                     <tbody>
                         <tr>
                             <td>
-                                <label for="vrijeme">Vrijeme</label>
-                                <input 
+                                <label
+                                    for="vrijeme"
+                                    style="font-family: Verdana, sans-serif">Vrijeme</label>
+                                <input
                                     type="time"
                                     formControlName="vrijeme"
                                     class="form-control">
                                 <span class="help-block" *ngIf="(vrijeme.touched || vrijeme.dirty) && !vrijeme.valid">
                                     <span *ngIf="vrijeme.errors['required']">Ovo polje je obavezno za unos!</span>
-                                </span> 
+                                </span>
                             </td>
                             <td>
-                                <label for="vrstaPregleda">Vrsta pregleda</label>
+                                <label
+                                    for="vrstaPregleda"
+                                    style="font-family: Verdana, sans-serif">Vrsta pregleda</label>
                                 <select class="form-control" style="width:300px;" formControlName="vrstaPregleda">
                                     <option [value]="null" [disabled]="true">Odaberite vrstu pregleda</option>
                                     <option *ngFor="let vrsta of razliciteVrstePregleda" [value]="vrsta.nazivVrstaPregled">{{vrsta.nazivVrstaPregled}}</option>
@@ -32,8 +36,10 @@
                                 </span>
                             </td>
                             <td>
-                                <label for="datum">Datum</label>
-                                <input 
+                                <label
+                                    for="datum"
+                                    style="font-family: Verdana, sans-serif">Datum</label>
+                                <input
                                     type="date"
                                     formControlName="datum"
                                     class="form-control">
@@ -60,11 +66,13 @@
                         <tr>
                             <td></td>
                             <td>
-                                <label for="napomena">Napomena</label>
+                                <label
+                                    for="napomena"
+                                    style="font-family: Verdana, sans-serif">Napomena</label>
                                 <textarea
-                                    rows="3" 
-                                    class="form-control" 
-                                    formControlName="napomena" 
+                                    rows="3"
+                                    class="form-control"
+                                    formControlName="napomena"
                                     placeholder="Unesite napomenu...">
                                 </textarea>
                             </td>
@@ -81,7 +89,7 @@
                     </tbody>
                 </table>
             </div>
-        </form>   
+        </form>
     </div>
     <div class="alert-box-actions">
         <button class="btn btn-primary" (click)="onClose()">Izađi</button>

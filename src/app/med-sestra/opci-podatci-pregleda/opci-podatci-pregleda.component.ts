@@ -750,6 +750,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                           localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
                           //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
                           this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
+                          //Resetiram formu
+                          this.ponistiPovezaniSlucajHandler();
                       }),
                       takeUntil(this.pretplateSubject)
                 ).subscribe();
@@ -788,6 +790,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                                     localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
                                     //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
                                     this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
+                                    //Resetiram formu
+                                    this.ponistiPovezaniSlucajHandler();
                                 }),
                                 takeUntil(this.pretplateSubject)
                           );

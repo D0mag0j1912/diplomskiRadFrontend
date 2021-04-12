@@ -16,36 +16,37 @@
         [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
     <div class="row">
         <div class="col-xs-12 col-md-12">
-            <h2
-                style="font-family: Verdana, sans-serif;
-                    color:#337ab7;text-align: center;">Uputnice</h2>
-            <button
-                type="button"
-                class="btn btn-warning"
-                style="float:right;"
-                (click)="onNovaUputnica()">Nova uputnica</button>
-            <div
-                class="table-responsive-sm"
-                *ngIf=!nemaUputnica>
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Datum</th>
-                            <th scope="col">Pacijent</th>
-                            <th scope="col">Primarna dijagnoza</th>
-                            <th scope="col">Djelatnost</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let uputnica of uputnice">
-                            <td>{{uputnica.datum}}</td>
-                            <td>{{uputnica.imePacijent + ' ' + uputnica.prezPacijent + ' [' + uputnica.mboPacijent + ']'}}</td>
-                            <td>{{uputnica.nazivPrimarna + ' [' + uputnica.mkbSifraPrimarna + ']'}}</td>
-                            <td>{{uputnica.nazivDjel + ' [' + uputnica.sifDjel + ']'}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+          <h2
+              style="font-family: Verdana, sans-serif;
+                  color:#337ab7;text-align: center;">Uputnice</h2>
+          <button
+              type="button"
+              class="btn btn-warning"
+              style="float:right;"
+              (click)="onNovaUputnica()">Nova uputnica</button>
+          <div
+              class="table-responsive-sm"
+              *ngIf=!nemaUputnica
+              style="margin-top:50px;">
+              <table class="table table-striped table-bordered table-hover">
+                  <thead>
+                      <tr>
+                          <th scope="col">Datum</th>
+                          <th scope="col">Pacijent</th>
+                          <th scope="col">Primarna dijagnoza</th>
+                          <th scope="col">Djelatnost</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let uputnica of uputnice">
+                          <td>{{uputnica.datum}}</td>
+                          <td>{{uputnica.imePacijent + ' ' + uputnica.prezPacijent + ' [' + uputnica.mboPacijent + ']'}}</td>
+                          <td>{{uputnica.nazivPrimarna + ' [' + uputnica.mkbSifraPrimarna + ']'}}</td>
+                          <td>{{uputnica.nazivDjel + ' [' + uputnica.sifDjel + ']'}}</td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
         </div>
     </div>
     <h3

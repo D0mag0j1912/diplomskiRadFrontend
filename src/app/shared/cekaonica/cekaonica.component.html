@@ -1,37 +1,37 @@
 <div class="container">
     <div class="row">
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert 
-            *ngIf="response" 
-            [message]="responsePoruka" 
-            (close)="onClose()" 
-            #childAlert></app-alert> 
+        <app-alert
+            *ngIf="response"
+            [message]="responsePoruka"
+            (close)="onClose()"
+            #childAlert></app-alert>
         <!--Prikaziva se prozor sa tablicom pacijenata-->
-        <app-pretraga-pacijent 
+        <app-pretraga-pacijent
             *ngIf="isPretraga && !response"
-            (close)="onCloseTablica()"  
+            (close)="onCloseTablica()"
             (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
-        <app-brisanje-pacijenta-alert 
+        <app-brisanje-pacijenta-alert
             *ngIf="isBrisanje"
-            (close)="onCloseBrisanje()" 
-            (brisanje)="onBrisanje()" 
+            (close)="onCloseBrisanje()"
+            (brisanje)="onBrisanje()"
             #brisanjeComponent></app-brisanje-pacijenta-alert>
-        <app-detalji-pregleda 
+        <app-detalji-pregleda
             *ngIf="isDetaljiPregleda"
             (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>
     </div>
     <div class="row">
         <div class="col-xs-12 col-md-6 center_div">
-            <h2 
+            <h2
                 style="text-align: center;
-                    font-family:Verdana, sans-serif; 
+                    font-family:Verdana, sans-serif;
                     color:#337ab7;">Popis pacijenata u čekaonici</h2>
-            <form 
-                (ngSubmit)="onSubmit()" 
-                [formGroup]="forma" 
+            <form
+                (ngSubmit)="onSubmit()"
+                [formGroup]="forma"
                 class="form-inline">
                 <div class="form-group">
-                    <input 
+                    <input
                         type="text"
                         name="ime"
                         placeholder="Unesite ime..."
@@ -40,7 +40,7 @@
                         formControlName="ime">
                 </div>
                 <div class="form-group">
-                    <input 
+                    <input
                         type="text"
                         name="prezime"
                         placeholder="Unesite prezime..."
@@ -49,7 +49,7 @@
                         formControlName="prezime">
                 </div>
                 <div class="form-group">
-                    <button 
+                    <button
                         type="submit"
                         class="btn btn-info"
                         style="cursor: pointer;"
@@ -62,18 +62,21 @@
             </form>
         </div>
     </div>
-    <div 
-        class="row" 
+    <div
+        class="row"
         style="margin-top:20px;">
         <div class="col-xs-12 col-md-12" *ngIf="!isPrazna">
             <div class="text-center">
                 <div class="form-check form-check-inline" *ngFor="let control of getControlsStatusi(); let i = index">
                     <input type="checkbox"  class="form-check-input" [formControl]="control" id="inlineCheckBox{{i}}" (change)="getSelectedStatusValues()">
-                    <label class="form-check-label" for="inlineCheckBox{{i}}">{{statusi[i]}}</label>
+                    <label
+                        class="form-check-label"
+                        for="inlineCheckBox{{i}}"
+                        style="font-family: Verdana, sans-serif;">{{statusi[i]}}</label>
                 </div>
             </div>
-            <h4 
-                style="font-family:Verdana, sans-serif; 
+            <h4
+                style="font-family:Verdana, sans-serif;
                     color:#337ab7;">Tablica pacijenata</h4>
             <button type="button" class="btn btn-info" style="float: right;margin-top:-30px;" (click)="prikazi10zadnjih()">Prikaži 10 zadnjih</button>
             <div class="table-responsive-sm">
@@ -100,20 +103,20 @@
                             <td>{{pacijent.datumDodavanja}}</td>
                             <td>{{pacijent.vrijemeDodavanja}}</td>
                             <td>{{pacijent.status}}</td>
-                            <td><button 
-                                    type="button" 
-                                    class="btn btn-primary btn-sm" 
-                                    (click)="onDodajObrada(pacijent.idPacijent)" 
-                                    [disabled]="(pacijent.status != 'Čeka na pregled') || (tipKorisnik !== pacijent.tipKorisnik)" 
+                            <td><button
+                                    type="button"
+                                    class="btn btn-primary btn-sm"
+                                    (click)="onDodajObrada(pacijent.idPacijent)"
+                                    [disabled]="(pacijent.status != 'Čeka na pregled') || (tipKorisnik !== pacijent.tipKorisnik)"
                                     *ngIf="pacijent.status === 'Čeka na pregled' || pacijent.status === 'Na pregledu'">Dodaj u obradu</button>
-                                <button 
-                                    type="button" 
-                                    class="btn btn-primary btn-sm" 
-                                    (click)="onOtvoriDetalje(pacijent.idObrada,pacijent.tipKorisnik)" 
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm"
+                                    (click)="onOtvoriDetalje(pacijent.idObrada,pacijent.tipKorisnik)"
                                     *ngIf="pacijent.status === 'Završen pregled'">Pogledaj detalje pregleda</button>
-                                || <button 
-                                        type="button" 
-                                        class="btn btn-danger btn-sm" 
+                                || <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
                                         [disabled]="tipKorisnik !== pacijent.tipKorisnik"
                                         (click)="onGetTableData(pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,
                                                 pacijent.datumDodavanja,pacijent.vrijemeDodavanja,pacijent.status,pacijent.tipKorisnik)"

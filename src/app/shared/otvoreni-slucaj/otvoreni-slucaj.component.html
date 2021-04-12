@@ -5,14 +5,14 @@
         <div class="col-xs-12 col-md-6 col-md-offset-4" id="promjenaKlase">
             <form [formGroup]="forma" *ngIf="forma && isDijagnoza">
                 <div class="form-group">
-                    <input 
+                    <input
                         type="text"
                         class="form-control"
-                        placeholder="Unesite parametar pretrage..." 
+                        placeholder="Unesite parametar pretrage..."
                         formControlName="parametar"
                         style="width:350px;">
-                    <span 
-                        class="help-block" 
+                    <span
+                        class="help-block"
                         style="font-weight:bold"
                         *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</span>
                 </div>
@@ -27,48 +27,46 @@
                     <th class="col-xs-1"></th>
                     <th class="col-xs-1" style="color:#337ab7">Datum pregleda</th>
                     <th class="col-xs-1" style="color:#337ab7">Vrijeme pregleda</th>
-                    <th class="col-xs-2" style="color:#337ab7">Tip slučaj</th>
-                    <th class="col-xs-1" style="color:#337ab7">MKB šifra</th>
-                    <th class="col-xs-2" style="color:#337ab7">Naziv primarne dijagnoze</th>
+                    <th class="col-xs-2" style="color:#337ab7">Tip slučaja</th>
+                    <th class="col-xs-3" style="color:#337ab7">Primarna dijagnoza</th>
                     <th class="col-xs-4" style="color:#337ab7">Sekundarne dijagnoze</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let slucaj of otvoreniSlucaji">
                     <td>
-                        <button 
+                        <button
                             type="button"
                             class="btn btn-info"
                             style="float:right"
-                            (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.datumPregled, 
-                                                        slucaj.vrijemePregled, slucaj.tipSlucaj)">Poveži</button>    
+                            (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.datumPregled,
+                                                        slucaj.vrijemePregled, slucaj.tipSlucaj)">Poveži</button>
                     </td>
                     <td>{{slucaj.datumPregled}}</td>
                     <td>{{slucaj.vrijemePregled}}</td>
                     <td>{{slucaj.tipSlucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</td>
-                    <td><strong>{{slucaj.mkbSifraPrimarna}}</strong></td>
-                    <td>{{slucaj.nazivPrimarna}}</td>
+                    <td>{{slucaj.nazivPrimarna + ' | '}}<strong>{{slucaj.mkbSifraPrimarna}}</strong></td>
                     <td>
                         <div *ngFor="let dijagnoza of sekDijagnoze">
                             <!--Ispiši sve njene sekundarne dijagnoze-->
-                            <p 
-                                *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna 
+                            <p
+                                *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna
                                 && dijagnoza.mkbSifraSekundarna
-                                && slucaj.datumPregled === dijagnoza.datumPregled 
-                                && slucaj.vrijemePregled === dijagnoza.vrijemePregled 
-                                && slucaj.tipSlucaj === dijagnoza.tipSlucaj" 
+                                && slucaj.datumPregled === dijagnoza.datumPregled
+                                && slucaj.vrijemePregled === dijagnoza.vrijemePregled
+                                && slucaj.tipSlucaj === dijagnoza.tipSlucaj"
                                 style="display:inline;">
                                 <strong>{{dijagnoza.mkbSifraSekundarna}}</strong> | {{dijagnoza.nazivSekundarna}}
                             </p>
                             <!--Ako je primarna dijagnoza iz prvog polja jednaka primarnoj dijagnozi drugog polja te ako ta primarna dijagnoza nema sekundarnih dijagnoza, ispiši poruku-->
-                            <p *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna 
-                                    && !dijagnoza.mkbSifraSekundarna 
-                                    && slucaj.tipSlucaj === dijagnoza.tipSlucaj 
-                                    && slucaj.datumPregled === dijagnoza.datumPregled 
+                            <p *ngIf="slucaj.mkbSifraPrimarna === dijagnoza.mkbSifraPrimarna
+                                    && !dijagnoza.mkbSifraSekundarna
+                                    && slucaj.tipSlucaj === dijagnoza.tipSlucaj
+                                    && slucaj.datumPregled === dijagnoza.datumPregled
                                     && slucaj.vrijemePregled === dijagnoza.vrijemePregled" style="display:inline;">
                                 <strong style="color:#a94442;">Nema sekundarnih dijagnoza!</strong>
                             </p>
-                        </div> 
+                        </div>
                     </td>
                 </tr>
             </tbody>
