@@ -38,11 +38,18 @@
                                 </tr>
                                 <tr>
                                     <td>
+                                        <!--Button je disabled ako se ID trenutnog pregleda nalazi negdje u prošlom pregledu drugog pregleda-->
                                         <button
                                             type="button"
                                             class="btn btn-warning"
-                                            (click)="poveziPovijestBolesti(control.value.datum,control.value.razlogDolaska,
-                                                    control.value.primarnaDijagnoza,control.value.anamneza,control.value.vrijeme,control.value.slucaj)">Poveži</button>
+                                            (click)="poveziPovijestBolesti(
+                                                  control.value.datum,
+                                                  control.value.razlogDolaska,
+                                                  control.value.primarnaDijagnoza,
+                                                  control.value.anamneza,
+                                                  control.value.vrijeme,
+                                                  control.value.slucaj)"
+                                            [disabled]="control.value.prosliPregled !== 0">Poveži</button>
                                         <h4
                                             style="float:right;color:#337ab7;
                                             font-weight: bold;right:10px;position:relative">{{control.value.slucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h4>

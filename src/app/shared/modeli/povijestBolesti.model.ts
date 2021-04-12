@@ -21,6 +21,7 @@ export class PovijestBolesti {
     public nazivPrimarna?: string;
     public _recept?: Recept;
     public _godina?: string;
+    public prosliPregled?: number;
 
     constructor(response: any){
         if(response.idPovijestBolesti){
@@ -76,6 +77,9 @@ export class PovijestBolesti {
         }
         if(response.NazivPrimarna){
             this.nazivPrimarna = response.NazivPrimarna;
+        }
+        if(response.prosliPregled){
+            this.prosliPregled = +response.prosliPregled;
         }
     }
     set sekundarne(sekundarneDijagnoze: string){

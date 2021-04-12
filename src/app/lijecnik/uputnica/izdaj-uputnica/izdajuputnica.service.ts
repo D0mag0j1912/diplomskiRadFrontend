@@ -28,7 +28,10 @@ export class IzdajUputnicaService {
         idLijecnik: number
     ){
         molimTraziSe = encodeURIComponent(molimTraziSe);
-        napomena = encodeURIComponent(napomena);
+        //Kodiram lijek koji je unesen
+        if(napomena){
+            napomena = encodeURIComponent(napomena);
+        }
         return this.http.post<any>(baseUrl + 'uputnica/izdajUputnica/izdajUputnica.php',{
             idZdrUst,
             sifDjel,

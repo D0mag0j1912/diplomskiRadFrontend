@@ -285,7 +285,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                             });
                                         }
                                         //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                        (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str, {emitEvent: false});
+                                        (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                       }
                                     }),
                                     takeUntil(this.pretplateSubject)
@@ -398,7 +398,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                           });
                                       }
                                       //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
-                                      (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str, {emitEvent: false});
+                                      (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                   }
                                 }
                             }),
@@ -438,7 +438,8 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
               'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
               'sekundarneDijagnoze': new FormControl(null),
               'slucaj': new FormControl(povijestBolesti.tipSlucaj),
-              'vrijeme': new FormControl(povijestBolesti.vrijeme)
+              'vrijeme': new FormControl(povijestBolesti.vrijeme),
+              'prosliPregled': new FormControl(povijestBolesti.prosliPregled)
             })
         );
     }
