@@ -8,6 +8,7 @@ export class OtvoreniSlucaj {
     public mkbSifraPrimarna?: string;
     public mkbSifraSekundarna?: string;
     public nazivSekundarna?: string;
+    public prosliPregled?: number;
 
     constructor(response: any){
         if(response.mkbSifraPrimarna){
@@ -30,6 +31,9 @@ export class OtvoreniSlucaj {
         }
         if(response.NazivSekundarna){
             this.nazivSekundarna = response.NazivSekundarna;
+        }
+        if(response.prosliPregled){
+            this.prosliPregled = +response.prosliPregled;
         }
     }
 }

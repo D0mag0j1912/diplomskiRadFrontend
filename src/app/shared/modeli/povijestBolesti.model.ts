@@ -1,5 +1,6 @@
 import { Time } from "@angular/common";
 import { Recept } from "./recept.model";
+import { Uputnica } from "./uputnica.model";
 
 export class PovijestBolesti {
     public idPovijestBolesti: number;
@@ -20,6 +21,7 @@ export class PovijestBolesti {
     public mkbSifraSekundarna?: string;
     public nazivPrimarna?: string;
     public _recept?: Recept;
+    public _uputnica?: Uputnica;
     public _godina?: string;
     public prosliPregled?: number;
 
@@ -88,6 +90,10 @@ export class PovijestBolesti {
 
     set recept(response: any){
         this._recept = new Recept(response);
+    }
+
+    set uputnica(response: any){
+        this._uputnica = new Uputnica(response);
     }
 
     set godina(godina: string){

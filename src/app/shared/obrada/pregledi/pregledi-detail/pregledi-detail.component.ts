@@ -6,6 +6,7 @@ import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { PovijestBolesti } from 'src/app/shared/modeli/povijestBolesti.model';
 import { Pregled } from 'src/app/shared/modeli/pregled.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
+import { Uputnica } from 'src/app/shared/modeli/uputnica.model';
 import { ObradaService } from '../../obrada.service';
 import { PreglediService } from '../pregledi.service';
 import { PreglediDetailService } from './pregledi-detail.service';
@@ -21,14 +22,18 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
     isSekundarna: boolean = false;
     //Oznaka je li prozor izdanih recepata vidljiv ili nije
     isIzdaniRecepti: boolean = false;
+    //Oznaka je li prozor izdanih uputnica vidljiv ili nije
+    isIzdaneUputnice: boolean = false;
     //Spremam pretplate
     pretplate = new Subject<boolean>();
     //Deklariram formu
     forma: FormGroup;
     //Spremam odgovor servera (pregled) u svoj objekt
     pregled: Pregled;
-    //Spremam odgovor servera (recept) u svoj objekt
+    //Spremam odgovor servera (recept) u svoj objekt te ga prosljeđivam child komponenti
     poslaniRecept: Recept;
+    //Spremam odgovor servera (uputnicu) u svoj objekt te ga prosljeđivam child komponenti
+    poslanaUputnica: Uputnica;
     //Spremam odgovor servera (povijest bolesti) u svoj objekt
     povijestBolesti: PovijestBolesti;
     //Oznaka je li odgovor servera pregled (opći podatci) ili povijest bolesti
@@ -55,6 +60,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Pretplaćivam se na podatke Resolvera
         this.route.data.pipe(
             tap(pregledi => {
+                console.log(pregledi);
                 //Prolazim kroz odgovor servera
                 for(const pregled of pregledi.cijeliPregled){
                     //Ako se u odgovoru pregleda nalazi tip korisnika "sestra":
@@ -76,14 +82,17 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         this.povijestBolesti = new PovijestBolesti(pregled);
                         //Kreiram objekt tipa "Recept"
                         this.poslaniRecept = new Recept(pregled);
+                        //Kreiram objekt tipa "Uputnica"
+                        this.poslanaUputnica = new Uputnica(pregled);
                     }
                 }
+                console.log(this.poslanaUputnica);
                 //Kreiram formu
                 this.forma = new FormGroup({
                     'nacinPlacanja': new FormControl(this.isPovijestBolesti ? null : this.pregled.nacinPlacanja),
                     'kategorijaOsiguranja': new FormControl(this.isPovijestBolesti ? null : this.pregled.oznakaOsiguranika),
                     'drzavaOsiguranja': new FormControl(this.isPovijestBolesti ? null : this.pregled.nazivDrzave),
-                    'primarnaDijagnoza': new FormControl(this.isPovijestBolesti ? this.povijestBolesti.primarnaDijagnoza 
+                    'primarnaDijagnoza': new FormControl(this.isPovijestBolesti ? this.povijestBolesti.primarnaDijagnoza
                                                         : this.pregled.primarnaDijagnoza ? this.pregled.primarnaDijagnoza : null),
                     'sekundarneDijagnoze': new FormControl(),
                     'razlogDolaska': new FormControl(this.isPovijestBolesti ? this.povijestBolesti.razlogDolaska : null),
@@ -104,7 +113,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         return this.preglediDetailService.dohvatiSekundarneDijagnoze(this.pregled.datum,this.pregled.vrijeme,
                             this.pregled.mkbSifraPrimarna,this.pregled.tipSlucaj,this.idPacijent,this.pregled.tip).pipe(
                             tap(odgovor => {
-                                //Ako postoje sekundarne dijagnoze 
+                                //Ako postoje sekundarne dijagnoze
                                 if(odgovor[0].sekundarneDijagnoze !== null){
                                     //Označavam da ima sekundarnih dijagnoza
                                     this.isSekundarna = true;
@@ -113,11 +122,11 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                                     //Prolazim kroz svaku sek. dijagnozu
                                     for(const dijagnoza of odgovor){
                                         //Spajam ih u jedan string
-                                        str = str.concat(dijagnoza.sekundarneDijagnoze + "\n"); 
+                                        str = str.concat(dijagnoza.sekundarneDijagnoze + "\n");
                                     }
                                     //Stavljam taj složeni string u formu
-                                    this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});  
-                                } 
+                                    this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});
+                                }
                                 //Ako nema sekundarnih dijagnoza
                                 else{
                                     this.isSekundarna = false;
@@ -140,7 +149,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                     return this.preglediDetailService.dohvatiSekundarneDijagnoze(this.povijestBolesti.datum,this.povijestBolesti.vrijeme,
                         this.povijestBolesti.mkbSifraPrimarna,this.povijestBolesti.tipSlucaj,this.idPacijent,this.povijestBolesti.tip).pipe(
                         tap(odgovor => {
-                            //Ako postoje sekundarne dijagnoze 
+                            //Ako postoje sekundarne dijagnoze
                             if(odgovor[0].sekundarneDijagnoze !== null){
                                 //Označavam da ima sekundarnih dijagnoza
                                 this.isSekundarna = true;
@@ -149,7 +158,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                                 //Prolazim kroz svaku sek. dijagnozu
                                 for(const dijagnoza of odgovor){
                                     //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
-                                    str = str.concat(dijagnoza.sekundarneDijagnoze + "\n"); 
+                                    str = str.concat(dijagnoza.sekundarneDijagnoze + "\n");
                                 }
                                 //Stavljam taj složeni string u formu
                                 this.forma.get('sekundarneDijagnoze').patchValue(str,{emitEvent: false});
@@ -180,13 +189,26 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
 
     //Metoda koja otvara prozor izdanih recepata
     onIzdaniRecepti(){
+        //Otvori prozor izdanih recepata
         this.isIzdaniRecepti = true;
+    }
+
+    //Metoda koja otvara prozor izdanih uputnica
+    onIzdaneUputnice(){
+        //Otvori prozor izdanih uputnica
+        this.isIzdaneUputnice = true;
     }
 
     //Metoda koja se poziva kada se klikne "Izađi" ili negdje izvan prozora
     onCloseIzdaniRecepti(){
         //Zatvori prozor
         this.isIzdaniRecepti = false;
+    }
+
+    //Metoda koja se poziva kada liječnik klikne "Izađi" ili negdje izvan prozora
+    onCloseIzdaneUputnice(){
+        //Zatvori prozor
+        this.isIzdaneUputnice = false;
     }
 
     //Ova metoda se poziva kada se komponenta uništi

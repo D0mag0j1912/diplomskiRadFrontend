@@ -1,0 +1,43 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <div class="row">
+        <div class="col-xs-12">
+            <h5
+                style="font-family: Verdana, sans-serif;">Zdravstvena djelatnost:
+                <strong style="color:#337ab7">
+                    {{uputnica.zdravstvenaDjelatnost}}</strong>
+            </h5>
+            <h5
+                style="font-family: Verdana, sans-serif;"
+                *ngIf="uputnica.zdravstvenaUstanova">Zdravstvena ustanova:
+                <strong style="color:#337ab7">
+                    {{uputnica.zdravstvenaUstanova}}</strong>
+            </h5>
+            <h5
+                style="font-family: Verdana, sans-serif;">Vrsta pregleda:
+                <strong style="color:#337ab7">
+                    {{uputnica.vrstaPregled}}</strong>
+            </h5>
+            <h5
+                style="font-family: Verdana, sans-serif;"
+                *ngIf="uputnica.specijalist">Specijalist koji je preporučio izdavanje uputnice:
+                <strong style="color:#337ab7">
+                    {{uputnica.specijalist}}</strong>
+            </h5>
+            <h5
+                style="font-family: Verdana, sans-serif;">Molim - Traži se:
+                <strong style="color:#337ab7">
+                    {{uputnica.molimTraziSe}}</strong>
+            </h5>
+            <h5
+                style="font-family: Verdana, sans-serif;"
+                *ngIf="uputnica.napomena">Napomena:
+                <strong style="color:#337ab7">
+                    {{uputnica.napomena}}</strong>
+            </h5>
+        </div>
+    </div>
+    <div class="alert-box-actions" #alertBoxActions>
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

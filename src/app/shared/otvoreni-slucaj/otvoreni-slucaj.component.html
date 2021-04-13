@@ -37,10 +37,11 @@
                     <td>
                         <button
                             type="button"
-                            class="btn btn-info"
+                            class="btn btn-success"
                             style="float:right"
                             (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.datumPregled,
-                                                        slucaj.vrijemePregled, slucaj.tipSlucaj)">Poveži</button>
+                                                        slucaj.vrijemePregled, slucaj.tipSlucaj)"
+                            [disabled]="slucaj.prosliPregled !== 0">Poveži</button>
                     </td>
                     <td>{{slucaj.datumPregled}}</td>
                     <td>{{slucaj.vrijemePregled}}</td>

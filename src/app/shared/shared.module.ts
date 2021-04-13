@@ -14,6 +14,7 @@ import { PovezaniPovijestBolestiComponent } from '../lijecnik/povezani-povijest-
 import { IzdaniReceptiComponent } from './izdani-recepti/izdani-recepti.component';
 import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podataka/azuriranje-osobnih-podataka.component';
 import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
+import { IzdaneUputniceComponent } from './izdane-uputnice/izdane-uputnice.component';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozi
         PovezaniPovijestBolestiComponent,
         IzdaniReceptiComponent,
         AzuriranjeOsobnihPodatakaComponent,
-        AzuriranjeLozinkaComponent
+        AzuriranjeLozinkaComponent,
+        IzdaneUputniceComponent
     ],
     imports:[
         CommonModule,
@@ -49,7 +51,8 @@ import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozi
         PovezaniPovijestBolestiComponent,
         IzdaniReceptiComponent,
         AzuriranjeOsobnihPodatakaComponent,
-        AzuriranjeLozinkaComponent
+        AzuriranjeLozinkaComponent,
+        IzdaneUputniceComponent
     ]
 })
 export class SharedModule{

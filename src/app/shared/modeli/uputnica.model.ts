@@ -17,6 +17,9 @@ export class Uputnica {
     public nazivZdrUst?: string;
     public adresaZdrUst?: string;
     public pbrZdrUst?: number;
+    public zdravstvenaUstanova?: string;
+    public zdravstvenaDjelatnost?: string;
+    public specijalist?: string;
 
     constructor(response: any){
         if(response.sifDjel){
@@ -72,6 +75,15 @@ export class Uputnica {
         }
         if(response.pbrZdrUst){
             this.pbrZdrUst = +response.pbrZdrUst;
+        }
+        if(response.zdravstvenaUstanova){
+            this.zdravstvenaUstanova = response.zdravstvenaUstanova;
+        }
+        if(response.zdravstvenaDjelatnost){
+            this.zdravstvenaDjelatnost = response.zdravstvenaDjelatnost;
+        }
+        if(response.specijalistUputnica){
+            this.specijalist = response.specijalistUputnica;
         }
     }
 }

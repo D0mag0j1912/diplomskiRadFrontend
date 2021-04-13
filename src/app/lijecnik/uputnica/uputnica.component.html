@@ -24,13 +24,21 @@
               class="btn btn-warning"
               style="float:right;"
               (click)="onNovaUputnica()">Nova uputnica</button>
+          <form [formGroup]="forma" *ngIf="forma">
+              <input
+                  type="text"
+                  placeholder="Unesite parametar pretrage"
+                  formControlName="pretraga"
+                  style="width:300px;"
+                  class="form-control">
+          </form>
           <div
               class="table-responsive-sm"
               *ngIf=!nemaUputnica
-              style="margin-top:50px;">
+              style="margin-top:20px;">
               <table class="table table-striped table-bordered table-hover">
                   <thead>
-                      <tr>
+                      <tr class="table-success">
                           <th scope="col">Datum</th>
                           <th scope="col">Pacijent</th>
                           <th scope="col">Primarna dijagnoza</th>

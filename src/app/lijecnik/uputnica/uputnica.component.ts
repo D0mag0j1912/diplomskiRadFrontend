@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { of, Subject } from 'rxjs';
-import { map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { Uputnica } from 'src/app/shared/modeli/uputnica.model';
@@ -20,6 +21,8 @@ import { UputnicaService } from './uputnica.service';
 })
 export class UputnicaComponent implements OnInit, OnDestroy{
 
+    //Definiram formu
+    forma: FormGroup;
     //Spremam pretplate
     pretplata = new Subject<boolean>();
     //Oznaka je li prozor izdavanja uputnice otvoren
@@ -66,6 +69,10 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         this.route.data.pipe(
             map(podatci => podatci.importi),
             tap(podatci => {
+                //Kreiram formu
+                this.forma = new FormGroup({
+                    'pretraga': new FormControl(null)
+                });
                 //Ako NEMA dohvaćenih uputnica
                 if(!podatci.uputnice){
                     //Kreiram poruku
@@ -77,7 +84,9 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                     let objektUputnica;
                     //Prolazim kroz sve uputnice koje su dohvaćene sa servera
                     for(const uputnica of podatci.uputnice){
+                        //Kreiram svoj objekt
                         objektUputnica = new Uputnica(uputnica);
+                        //Novostvoreni objekt stavljam u svoje polje
                         this.uputnice.push(objektUputnica);
                     }
                 }
@@ -110,6 +119,41 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                     objektZdrRadnik = new ZdravstveniRadnik(djel);
                     this.zdravstveniRadnici.push(objektZdrRadnik);
                 }
+            }),
+            takeUntil(this.pretplata)
+        ).subscribe();
+
+        //Pretplaćujem se na promjene u pretrazi
+        this.pretraga.valueChanges.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            switchMap(value => {
+                return this.uputnicaService.getUputnicePretraga(value).pipe(
+                    tap(uputnice => {
+                        //Ako ima rezultata pretrage
+                        if(uputnice.success !== "false"){
+                            //Restartam poruku da nema uputnica
+                            this.nemaUputnica = null;
+                            //Restartam polje uputnica
+                            this.uputnice = [];
+                            //Definiram objekt u kojega ću spremati uputnice
+                            let objektUputnica;
+                            //Prolazim kroz sve uputnice koje su dohvaćene sa servera
+                            for(const uputnica of uputnice){
+                                //Kreiram svoj objekt
+                                objektUputnica = new Uputnica(uputnica);
+                                //Novostvoreni objekt stavljam u svoje polje
+                                this.uputnice.push(objektUputnica);
+                            }
+                        }
+                        //Ako nema rezultata pretrage
+                        else{
+                            //Spremam poruku servera
+                            this.nemaUputnica = uputnice.message;
+                        }
+                    }),
+                    takeUntil(this.pretplata)
+                );
             }),
             takeUntil(this.pretplata)
         ).subscribe();
@@ -233,6 +277,10 @@ export class UputnicaComponent implements OnInit, OnDestroy{
     ngOnDestroy(){
         this.pretplata.next(true);
         this.pretplata.complete();
+    }
+
+    get pretraga(){
+        return this.forma.get('pretraga') as FormControl;
     }
 
 }
