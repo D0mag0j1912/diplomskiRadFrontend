@@ -1,4 +1,5 @@
 import { Time } from "@angular/common";
+import { Pacijent } from "./pacijent.model";
 
 export class Pregled {
     public idPregled: number;
@@ -13,6 +14,9 @@ export class Pregled {
     public tip: string;
     public mkbSifraSekundarna?: string;
     public nazivPrimarna?: string;
+    public _pacijent?: Pacijent;
+    public mboAktivniPacijent?: string;
+
     constructor(response: any){
         if(response.idPregled){
             this.idPregled = +response.idPregled;
@@ -38,6 +42,9 @@ export class Pregled {
         if(response.datumPregled){
             this.datum = response.datumPregled;
         }
+        else if(response.Datum){
+            this.datum = response.Datum;
+        }
         if(response.vrijemePregled){
             this.vrijeme = response.vrijemePregled;
         }
@@ -50,6 +57,13 @@ export class Pregled {
         if(response.NazivPrimarna){
             this.nazivPrimarna = response.NazivPrimarna;
         }
+        if(response.mboAktivniPacijent){
+            this.mboAktivniPacijent = response.mboAktivniPacijent;
+        }
+    }
+
+    set pacijent(response: any){
+        this._pacijent = new Pacijent(response);
     }
 
 }

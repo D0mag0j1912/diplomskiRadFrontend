@@ -1,4 +1,5 @@
 import { Time } from "@angular/common";
+import { Pacijent } from "./pacijent.model";
 import { Recept } from "./recept.model";
 import { Uputnica } from "./uputnica.model";
 
@@ -22,6 +23,8 @@ export class PovijestBolesti {
     public nazivPrimarna?: string;
     public _recept?: Recept;
     public _uputnica?: Uputnica;
+    public _pacijent?: Pacijent;
+    public mboAktivniPacijent?: string;
     public _godina?: string;
     public prosliPregled?: number;
 
@@ -83,6 +86,9 @@ export class PovijestBolesti {
         if(response.prosliPregled){
             this.prosliPregled = +response.prosliPregled;
         }
+        if(response.mboAktivniPacijent){
+            this.mboAktivniPacijent = response.mboAktivniPacijent;
+        }
     }
     set sekundarne(sekundarneDijagnoze: string){
         this.sekundarneDijagnoze = sekundarneDijagnoze;
@@ -94,6 +100,10 @@ export class PovijestBolesti {
 
     set uputnica(response: any){
         this._uputnica = new Uputnica(response);
+    }
+
+    set pacijent(response: any){
+        this._pacijent = new Pacijent(response);
     }
 
     set godina(godina: string){

@@ -4,12 +4,13 @@ import { BehaviorSubject, combineLatest, forkJoin } from "rxjs";
 import { catchError, switchMap } from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
 import {baseUrl} from '../../backend-path';
+import { Time } from "@angular/common";
 
 @Injectable({
     providedIn: 'root'
 })
 export class CekaonicaService{
-    
+
     //Kreiram BehaviourSubject da mogu poslati podatke iz čekaonice u detalje pregleda
     podatciPregleda = new BehaviorSubject<{tip:string,idObrada: number}>(null);
     //Pretvaram Subject u Observable
@@ -23,7 +24,7 @@ export class CekaonicaService{
     addToWaitingRoom(tip: string,id: number){
 
         return this.http.post<any>(baseUrl + 'cekaonica/cekaonica.php',
-        {   
+        {
             id: id,
             tip:tip
         }).pipe(catchError(handleError));
@@ -65,7 +66,7 @@ export class CekaonicaService{
                 idCekaonica: idCekaonica
             }
         };
-        //Kreiram i vraćam Observable za brisanje pacijenta 
+        //Kreiram i vraćam Observable za brisanje pacijenta
         return this.http.delete(baseUrl + 'cekaonica/izbrisiPacijentCekaonica.php', options).pipe(
             catchError(handleError)
         );
@@ -88,9 +89,17 @@ export class CekaonicaService{
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze NAZIVI i ŠIFRE sekundarnih dijagnoza na osnovu šifre sek. dijagnoze
-    getNazivSifraSekundarnaDijagnoza(tip: string,mkbSifraSekundarna: string,idObrada: number){
-
-        let params = new HttpParams().append("mkbSifraSekundarna",mkbSifraSekundarna.toString());
+    getNazivSifraSekundarnaDijagnoza(
+        tip: string,
+        datum: Date,
+        vrijeme: Time,
+        tipSlucaj: string,
+        primarnaDijagnoza: string,
+        idObrada: number){
+        let params = new HttpParams().append("datum",datum.toString());
+        params = params.append("vrijeme",vrijeme.toString());
+        params = params.append("tipSlucaj",tipSlucaj);
+        params = params.append("primarnaDijagnoza",primarnaDijagnoza);
         params = params.append("idObrada",idObrada.toString());
         params = params.append("tip",tip);
         return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNazivSifraSekundarnaDijagnoza.php',
@@ -116,7 +125,7 @@ export class CekaonicaService{
                     this.getPodatciPregleda(podatci.tip,podatci.idObrada)
                 ]).pipe(catchError(handleError));
             })
-        );   
+        );
     }
 
 }
