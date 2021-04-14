@@ -1,4 +1,6 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { DetaljiPregledaComponent } from './detalji-pregleda.component';
 
@@ -8,7 +10,8 @@ describe('DetaljiPregledaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DetaljiPregledaComponent ]
+      declarations: [ DetaljiPregledaComponent ],
+      imports: [RouterTestingModule,HttpClientTestingModule]
     })
     .compileComponents();
   });

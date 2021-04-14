@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, merge, Subject } from 'rxjs';
+import { merge, Subject } from 'rxjs';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { DrzavaOsiguranja } from 'src/app/shared/modeli/drzavaOsiguranja.model';
 import { HeaderService } from 'src/app/shared/header/header.service';
@@ -16,6 +16,8 @@ import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../../shared/shared-handler';
 import * as SharedValidations from '../../shared/shared-validations';
+import * as OpciPodatciValidations from './opci-podatci-validations';
+import * as OpciPodatciHandler from './opci-podatci-handler';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -56,8 +58,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     dijagnoze: Dijagnoza[] = [];
     //Spremam sve države osiguranja
     drzave: DrzavaOsiguranja[] = [];
-    //Spremam sve nazive država zbog validacije
-    naziviDrzave: string[] = [];
     //Spremam podatke trenutno aktivnog pacijenta
     trenutnoAktivniPacijent: Obrada;
     //Spremam osobne podatke pacijenta
@@ -146,17 +146,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   //Spremam zdravstvene podatke trenutno aktivnog pacijenta
                   this.zdravstveniPodatci = response.pacijent.podatci;
                 }
-                //Punim polja za validaciju
-                for(let ured of this.podrucniUredi){
-                  this.naziviPodrucnihUreda.push(ured["nazivSluzbe"]);
-                }
-                for(let opis of this.katOsiguranja){
-                  this.opisiOsiguranika.push(opis["opisOsiguranika"]);
-                }
-                for(let drzava of this.drzave){
-                  this.naziviDrzave.push(drzava["nazivDrzave"]);
-                }
-
                 //Kreiram formu
                 this.forma = new FormGroup({
                   'nacinPlacanja': new FormControl(null, this.isAktivan ? [Validators.required] : []),
@@ -169,7 +158,11 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   'oznakaOsiguranika': new FormControl(null),
                   'drzavaOsiguranja': new FormControl(null),
                   //Ako je pacijent aktivan u obradi, POSTAVLJAM MU VALIDATOR NA MBO, inače NE POSTAVLJAM
-                  'mbrPacijent': new FormControl(null, this.isAktivan ? [Validators.required, Validators.pattern("^\\d{9}$"), this.isValidMBO.bind(this)] : []),
+                  'mbrPacijent': new FormControl(null,
+                      this.isAktivan ?
+                      [Validators.required,
+                      Validators.pattern("^\\d{9}$"),
+                      OpciPodatciValidations.isValidMBO(this.pacijent)] : []),
                   'brIskDopunsko': new FormControl(null),
                   'primarnaDijagnoza': new FormControl(null),
                   'mkbPrimarnaDijagnoza': new FormControl(null),
@@ -182,7 +175,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   'tipSlucaj': new FormGroup({
                     'noviSlucaj': new FormControl(null),
                     'povezanSlucaj': new FormControl(null)
-                  }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null}),
+                  }, {validators: this.isAktivan ? OpciPodatciValidations.atLeastOneRequiredTipSlucaj() : null}),
                 }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
             }),
             takeUntil(this.pretplateSubject)
@@ -202,16 +195,17 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             //Prolazim poljem zdravstvenih podataka
             for(let podatci of this.zdravstveniPodatci){
                 //Inicijalno popunjam polja zdravstvenih podataka trenutno aktivnog pacijenta
-                this.forma.get('kategorijaOsiguranja').patchValue(podatci.opisOsiguranika,{emitEvent: false});
+                this.kategorijaOsiguranja.patchValue(podatci.opisOsiguranika,{emitEvent: false});
                 //Pozivam metodu koja će popuniti oznaku osiguranika
-                this.opisOsiguranikaToOznaka(podatci.opisOsiguranika);
-                this.forma.get('drzavaOsiguranja').patchValue(podatci.drzavaOsiguranja,{emitEvent: false});
-                this.forma.get('mbrPacijent').patchValue(podatci.mboPacijent,{emitEvent: false});
+                OpciPodatciHandler.opisOsiguranikaToOznaka(podatci.opisOsiguranika, this.katOsiguranja, this.forma);
+                this.drzavaOsiguranja.patchValue(podatci.drzavaOsiguranja,{emitEvent: false});
+                this.mbrPacijent.patchValue(podatci.mboPacijent,{emitEvent: false});
                 //Ako pacijent ima broj iskaznice dopunskog
                 if(podatci.brojIskazniceDopunsko !== null){
                     //Postavljam validatore na broj iskaznice dopunskog
-                    this.forma.get('brIskDopunsko').setValidators([Validators.required,Validators.pattern("^\\d{8}$"), this.isValidDopunsko.bind(this)])
-                    this.forma.get('brIskDopunsko').patchValue(podatci.brojIskazniceDopunsko,{emitEvent: false});
+                    this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$"), OpciPodatciValidations.isValidDopunsko(this.pacijent)])
+                    this.brIskDopunsko.patchValue(podatci.brojIskazniceDopunsko,{emitEvent: false});
+                    this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
                 }
             }
 
@@ -264,18 +258,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         (value) => {
                             //Ako je pacijent aktivan
                             if(this.isAktivan){
-                                //Ako se unesena vrijednost u formi NALAZI u polju opisa osiguranika
-                                if(this.opisiOsiguranika.indexOf(value) !== -1){
-                                    //Ako je form control ispravan
-                                    if(this.kategorijaOsiguranja.valid){
-                                        //Pozivam metodu
-                                        this.opisOsiguranikaToOznaka(value);
-                                    }
-                                    //Ako nije ispravan
-                                    else{
-                                        //Treba biti prazno
-                                        this.oznakaOsiguranika.patchValue(null,{emitEvent: false});
-                                    }
+                                //Ako je form control ispravan
+                                if(this.kategorijaOsiguranja.valid){
+                                    //Pozivam metodu
+                                    OpciPodatciHandler.opisOsiguranikaToOznaka(value, this.katOsiguranja, this.forma);
+                                }
+                                //Ako nije ispravan
+                                else{
+                                    //Treba biti prazno
+                                    this.oznakaOsiguranika.patchValue(null,{emitEvent: false});
                                 }
                             }
                         }
@@ -287,18 +278,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         (value) => {
                             //Ako je pacijent aktivan
                             if(this.isAktivan){
-                                //Ako se unesena vrijednost u formi NALAZI u nazivima područnih ureda
-                                if(this.naziviPodrucnihUreda.indexOf(value) !== -1){
-                                    //Ako je form control ispravan
-                                    if(this.podrucniUred.valid){
-                                        //Pozivam metodu
-                                        this.nazivSluzbeToSif(value);
-                                    }
-                                    //Ako nije ispravan
-                                    else{
-                                        //Treba biti prazno
-                                        this.sifUred.patchValue(null,{emitEvent: false});
-                                    }
+                                //Ako je form control ispravan
+                                if(this.podrucniUred.valid){
+                                    //Pozivam metodu
+                                    OpciPodatciHandler.nazivSluzbeToSif(value, this.podrucniUredi, this.forma);
+                                }
+                                //Ako nije ispravan
+                                else{
+                                    //Treba biti prazno
+                                    this.sifUred.patchValue(null,{emitEvent: false});
                                 }
                             }
                         }
@@ -313,7 +301,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                                 //Ako je form control ispravan
                                 if(this.ozljeda.valid){
                                   //Pozivam metodu
-                                  this.nazivSluzbeToSifOzljeda(value);
+                                  OpciPodatciHandler.nazivSluzbeToSifOzljeda(value, this.podrucniUredi, this.forma);
                                 }
                                 //Ako nije ispravan
                                 else{
@@ -468,197 +456,111 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
         SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
     }
 
-    //Metoda koja provjerava je li uneseni MBO jednak MBO-u koji ima trenutno aktivni pacijent
-    isValidMBO(control: FormControl): {[key: string]: boolean}{
-      //Ako uneseni MBO pacijenta nije jednak MBO-u pacijenta koji je trenutno aktivan u obradi
-      if(control.value !== this.pacijent.mbo){
-        return {'nePostojiMBO':true};
-      }
-      return null;
-    }
-
-    //Metoda koja provjerava je li uneseni BROJ ISKAZNICE DOPUNSKOG OSIGURANJA jednak BROJU koji ima trenutno aktivni pacijent
-    isValidDopunsko(control: FormControl): {[key: string]: boolean}{
-      //Ako uneseni broj iskaznice  NIJE JEDNAK broju koji ima trenutno aktivni pacijent
-      if(control.value !== this.pacijent.brIskDopunsko){
-          return {'nePostojiBrojDopunsko':true};
-      }
-      return null;
-    }
-
-    //Metoda koja provjerava je li država osiguranja ispravno unesena tj. je li unesena vrijednost koja nije dio polja država osiguranja
-    isValidDrzavaOsiguranja(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost države osiguranja koje je korisnik unio nije dio polja država osiguranja (znači vraća -1 ako nije dio polja)
-      if(this.naziviDrzave.indexOf(control.value) === -1){
-        return {'drzaveIsForbidden': true};
-      }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-    }
-    //Metoda koja provjerava je li kategorija osiguranja ispravno unesena tj. je li unesena vrijednost koja nije dio polja kategorija osiguranja
-    isValidKategorijaOsiguranja(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost kategorije osiguranja koje je korisnik unio nije dio polja kategorija osiguranja (znači vraća -1 ako nije dio polja)
-      if(this.opisiOsiguranika.indexOf(control.value) === -1){
-        return {'opisIsForbidden': true};
-      }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-    }
-    //Metoda koja provjerava je li područni ured ispravno unesen tj. je li unesena vrijednost koja nije dio polja područnih ureda
-    isValidPodrucniUred(control: FormControl): {[key: string]: boolean}{
-      //Ako vrijednost područnog ureda koje je korisnik unio nije dio polja područnih ureda (znači vraća -1 ako nije dio polja)
-      if(this.naziviPodrucnihUreda.indexOf(control.value) === -1){
-        return {'uredIsForbidden': true};
-      }
-      //Ako je vrijednost naziva mjesta ok, vraćam null
-      return null;
-    }
-
     //Metoda koja dinamički postavlja i gasi validatore u formi
     validacijaNacinPlacanja(value: string){
-      //Ako je pacijent aktivan u obradi
-      if(this.isAktivan){
-          //Ako je trenutna vrijednost načina plaćanja "poduzeće"
-          if(value === 'poduzece'){
-            //Omogućavam unos poduzeća
-            this.poduzece.enable({emitEvent: false});
-            //Naziv poduzeća mora biti unesen
-            this.poduzece.setValidators(Validators.required);
-            //Restiram polja područnih ureda
-            this.podrucniUred.reset();
-            this.ozljeda.reset();
-            //Resetiram šifre područnih ureda
-            this.sifUred.reset();
-            this.sifUredOzljeda.reset();
-            //Disablam područne urede
-            this.podrucniUred.disable({emitEvent: false});
-            this.ozljeda.disable({emitEvent: false});
-          }
-          else{
-            //Gasim validatore za poduzeće
-            this.poduzece.clearValidators();
-          }
-          //Ako je trenutna vrijednost načina plaćanja "hzzo"
-          if(value === 'hzzo'){
-            //Resetiram šifre područnih ureda ozljede
-            this.sifUredOzljeda.reset();
-            //Omogućavam unos područnog ureda HZZO
-            this.podrucniUred.enable({emitEvent: false});
-            //Područni ured mora biti unesen
-            this.podrucniUred.setValidators([Validators.required,this.isValidPodrucniUred.bind(this)]);
-            //Broj iskaznice dopunskog mora biti unesen
-            this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$"), this.isValidDopunsko.bind(this)]);
-
-            //Resetiram polja područnog ureda ozljede na radu i poduzeća
-            this.ozljeda.reset();
-            this.poduzece.reset();
-            //Onemogućavam unos područnog ureda ozljede na radu te naziva poduzeća
-            this.ozljeda.disable({emitEvent: false});
-            this.poduzece.disable({emitEvent: false});
-          }
-          else{
-            //Odbaci validatore
-            this.podrucniUred.clearValidators();
-            //Odbaci validatore
-            this.brIskDopunsko.clearValidators();
-          }
-          //Ako je trenutna vrijednost načina plaćanja "ozljeda"
-          if(value === 'ozljeda'){
-            //Resetiram šifre područnih ureda
-            this.sifUred.reset();
-            //Omogućavam unos područnog ureda ozljede na radu
-            this.ozljeda.enable({emitEvent: false});
-            //Područni ured ozljede mora biti unesen
-            this.ozljeda.setValidators([Validators.required, this.isValidPodrucniUred.bind(this)]);
-            //Resetiram polja područnog ureda HZZO-a i poduzeća
-            this.podrucniUred.reset();
-            this.poduzece.reset();
-            //Onemogućavam unos područnog ureda i poduzeća
-            this.podrucniUred.disable({emitEvent: false});
-            this.poduzece.disable({emitEvent: false});
-          }
-          else{
-            //Odbaci validatore
-            this.ozljeda.clearValidators();
-          }
-          //Ako je trenutna vrijednost načina plaćanja "osobno"
-          if(value === "osobno"){
-            //Resetiram šifre područnih ureda
-            this.sifUred.reset();
-            this.sifUredOzljeda.reset();
-            //Resetiram polja područnim uredima i poduzeću
-            this.podrucniUred.reset();
-            this.ozljeda.reset();
-            this.poduzece.reset();
-            //Onemogućavam unos područnim uredima i poduzeću
-            this.podrucniUred.disable({emitEvent: false});
-            this.ozljeda.disable({emitEvent: false});
-            this.poduzece.disable({emitEvent: false});
-          }
-          //Ako je trenutna vrijednost načina plaćanja "ozljeda" ili "hzzo"
-          if(value === 'hzzo' || value === 'ozljeda' || value === 'poduzece'){
-            //Resetiram šifre područnih ureda
-            this.sifUred.reset();
-            this.sifUredOzljeda.reset();
-            //Kategorija osiguranja mora biti unesena
-            this.kategorijaOsiguranja.setValidators([Validators.required, this.isValidKategorijaOsiguranja.bind(this)]);
-            //Država osiguranja mora biti unesena
-            this.drzavaOsiguranja.setValidators([Validators.required, this.isValidDrzavaOsiguranja.bind(this)]);
-          }
-          else{
-            //Odbaci validatore
-            this.kategorijaOsiguranja.clearValidators();
-            //Odbaci validatore
-            this.drzavaOsiguranja.clearValidators();
-          }
-          //Omogućava promjene na poljima tj. stavljanje i dizanje validatora
-          this.poduzece.updateValueAndValidity({emitEvent: false});
-          this.podrucniUred.updateValueAndValidity({emitEvent: false});
-          this.sifUred.updateValueAndValidity({emitEvent: false});
-          this.ozljeda.updateValueAndValidity({emitEvent: false});
-          this.sifUredOzljeda.updateValueAndValidity({emitEvent: false});
-          this.kategorijaOsiguranja.updateValueAndValidity({emitEvent: false});
-          this.drzavaOsiguranja.updateValueAndValidity({emitEvent: false});
-          this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
-      }
-    }
-
-    //Metoda koja automatski upisuje šifru područnog ureda na osnovu upisanog naziva službe
-    nazivSluzbeToSif(value: string){
-      //Prolazim kroz polje područnih ureda
-      for(let ured of this.podrucniUredi){
-        //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
-        if(value === ured["nazivSluzbe"]){
-          //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUred').patchValue(ured["sifUred"],{emitEvent: false});
+        //Ako je pacijent aktivan u obradi
+        if(this.isAktivan){
+            //Ako je trenutna vrijednost načina plaćanja "hzzo"
+            if(value === 'hzzo'){
+                //Resetiram šifre područnih ureda ozljede
+                this.sifUredOzljeda.reset();
+                //Omogućavam unos područnog ureda HZZO
+                this.podrucniUred.enable({emitEvent: false});
+                //Područni ured mora biti unesen
+                this.podrucniUred.setValidators([Validators.required, OpciPodatciValidations.isValidPodrucniUred(this.podrucniUredi)]);
+                //Resetiram polja područnog ureda ozljede na radu i poduzeća
+                this.ozljeda.reset();
+                this.poduzece.reset();
+                //Odbaci validatore
+                this.ozljeda.clearValidators();
+                //Odbaci validatore
+                this.poduzece.clearValidators();
+                //Onemogućavam unos područnog ureda ozljede na radu te naziva poduzeća
+                this.ozljeda.disable({emitEvent: false});
+                this.poduzece.disable({emitEvent: false});
+                //Kategorija osiguranja mora biti unesena
+                this.kategorijaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)]);
+                //Država osiguranja mora biti unesena
+                this.drzavaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)]);
+            }
+            //Ako je trenutna vrijednost načina plaćanja "ozljeda"
+            else if(value === 'ozljeda'){
+                //Resetiram šifre područnih ureda
+                this.sifUred.reset();
+                //Omogućavam unos područnog ureda ozljede na radu
+                this.ozljeda.enable({emitEvent: false});
+                //Područni ured ozljede mora biti unesen
+                this.ozljeda.setValidators([Validators.required, OpciPodatciValidations.isValidPodrucniUred(this.podrucniUredi)]);
+                //Resetiram polja područnog ureda HZZO-a i poduzeća
+                this.podrucniUred.reset();
+                this.poduzece.reset();
+                //Odbaci validatore
+                this.podrucniUred.clearValidators();
+                //Odbaci validatore
+                this.poduzece.clearValidators();
+                //Onemogućavam unos područnog ureda i poduzeća
+                this.podrucniUred.disable({emitEvent: false});
+                this.poduzece.disable({emitEvent: false});
+                //Kategorija osiguranja mora biti unesena
+                this.kategorijaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)]);
+                //Država osiguranja mora biti unesena
+                this.drzavaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)]);
+            }
+            else if(value === 'poduzece'){
+                //Odbaci validatore
+                this.kategorijaOsiguranja.clearValidators();
+                //Odbaci validatore
+                this.drzavaOsiguranja.clearValidators();
+                //Odbaci validatore
+                this.podrucniUred.clearValidators();
+                //Odbaci validatore
+                this.ozljeda.clearValidators();
+                //Omogućavam unos poduzeća
+                this.poduzece.enable({emitEvent: false});
+                //Naziv poduzeća mora biti unesen
+                this.poduzece.setValidators(Validators.required);
+                //Restiram polja područnih ureda
+                this.podrucniUred.reset();
+                this.ozljeda.reset();
+                //Resetiram šifre područnih ureda
+                this.sifUred.reset();
+                this.sifUredOzljeda.reset();
+                //Disablam područne urede
+                this.podrucniUred.disable({emitEvent: false});
+                this.ozljeda.disable({emitEvent: false});
+            }
+            else if(value === 'osobno'){
+                //Odbaci validatore
+                this.kategorijaOsiguranja.clearValidators();
+                //Odbaci validatore
+                this.drzavaOsiguranja.clearValidators();
+                //Odbaci validatore
+                this.podrucniUred.clearValidators();
+                //Odbaci validatore
+                this.ozljeda.clearValidators();
+                //Odbaci validatore
+                this.poduzece.clearValidators();
+                //Resetiram šifre područnih ureda
+                this.sifUred.reset();
+                this.sifUredOzljeda.reset();
+                //Resetiram polja područnim uredima i poduzeću
+                this.podrucniUred.reset();
+                this.ozljeda.reset();
+                this.poduzece.reset();
+                //Onemogućavam unos područnim uredima i poduzeću
+                this.podrucniUred.disable({emitEvent: false});
+                this.ozljeda.disable({emitEvent: false});
+                this.poduzece.disable({emitEvent: false});
+            }
+            //Omogućava promjene na poljima tj. stavljanje i dizanje validatora
+            this.poduzece.updateValueAndValidity({emitEvent: false});
+            this.podrucniUred.updateValueAndValidity({emitEvent: false});
+            this.sifUred.updateValueAndValidity({emitEvent: false});
+            this.ozljeda.updateValueAndValidity({emitEvent: false});
+            this.sifUredOzljeda.updateValueAndValidity({emitEvent: false});
+            this.kategorijaOsiguranja.updateValueAndValidity({emitEvent: false});
+            this.drzavaOsiguranja.updateValueAndValidity({emitEvent: false});
         }
-      }
-      this.forma.get('sifUred').updateValueAndValidity({emitEvent: false});
-    }
-    //Metoda koja automatski upisuje šifru područnog ureda na osnovu upisanog naziva službe
-    nazivSluzbeToSifOzljeda(value: string){
-      //Prolazim kroz polje područnih ureda
-      for(let ured of this.podrucniUredi){
-        //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
-        if(value === ured["nazivSluzbe"]){
-          //Postavi šifru područnog ureda na onu šifru koja odgovara upisanom nazivu službe
-          this.forma.get('sifUredOzljeda').patchValue(ured["sifUred"],{emitEvent: false});
-        }
-      }
-      this.forma.get('sifUredOzljeda').updateValueAndValidity({emitEvent: false});
-    }
-
-    //Metoda koja automatski upisuje oznaku osiguranika na osnovu upisanog opisa osiguranja
-    opisOsiguranikaToOznaka(value: string){
-      //Prolazim kroz polje kategorija osiguranja
-      for(let osiguranje of this.katOsiguranja){
-        //Ako je vrijednost polja naziva službe područnog ureda jednaka vrijednosti naziva službe područnog ureda u polju
-        if(value === osiguranje["opisOsiguranika"]){
-          //Postavi oznaku osiguranika na onu oznaku koja odgovora odabranom opisu osiguranika
-          this.forma.get('oznakaOsiguranika').patchValue(osiguranje["oznakaOsiguranika"],{emitEvent: false});
-        }
-      }
-      this.forma.get('oznakaOsiguranika').updateValueAndValidity({emitEvent: false});
     }
 
     //Metoda koja provjerava je li uneseno više istih sekundarnih dijagnoza
@@ -694,16 +596,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             }
         }
         return null;
-    }
-
-    //Metoda koja INICIJALNO postavlja da bude required jedan od tipova slučaja
-    atLeastOneRequiredTipSlucaj(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        if(group.controls['noviSlucaj'].value || group.controls['povezanSlucaj'].value) {
-          return null;
-        }
-      }
-      return {'baremJedanTipSlucaj': true};
     }
 
     //Kada korisnik klikne "Potvrdi opće podatke"

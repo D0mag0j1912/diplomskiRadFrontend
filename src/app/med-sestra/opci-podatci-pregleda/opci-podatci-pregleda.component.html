@@ -327,20 +327,20 @@
                         </tr>
                         <tr>
                             <!--Sve dok podatci u formi nisu ispravno uneseni, button se neće moći stisnuti-->
-                            <td colspan="2">
+                            <td colspan="5">
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                                     [disabled]="!forma.valid"
-                                    style="left:340px;position:relative">Potvrdi opće podatke</button>
+                                    style="margin:auto;display:block;">Potvrdi opće podatke</button>
                             </td>
-                            <td colspan="3">
+                            <!-- <td colspan="3">
                                 <h4
                                     style="color:#006600;
                                     font-family: Verdana, sans-serif;
                                     font-weight: bold;white-space: nowrap;"
                                     *ngIf="forma.valid && isAktivan">Podatci su spremni za unos!</h4>
-                            </td>
+                            </td> -->
                         </tr>
                     </tbody>
                 </table>

@@ -1,4 +1,6 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { PrikazReceptComponent } from './prikaz-recept.component';
 
@@ -8,7 +10,8 @@ describe('PrikazReceptComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PrikazReceptComponent ]
+      declarations: [ PrikazReceptComponent ],
+      imports: [RouterTestingModule,HttpClientTestingModule]
     })
     .compileComponents();
   });

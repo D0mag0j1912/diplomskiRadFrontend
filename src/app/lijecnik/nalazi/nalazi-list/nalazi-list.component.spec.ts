@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import {RouterTestingModule} from '@angular/router/testing';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 import { NalaziListComponent } from './nalazi-list.component';
 
 describe('NalaziListComponent', () => {
@@ -8,7 +9,8 @@ describe('NalaziListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NalaziListComponent ]
+      declarations: [ NalaziListComponent ],
+      imports: [RouterTestingModule,HttpClientTestingModule]
     })
     .compileComponents();
   });

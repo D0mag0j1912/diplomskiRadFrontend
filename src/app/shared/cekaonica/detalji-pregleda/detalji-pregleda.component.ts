@@ -312,6 +312,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         this.brojacPregleda++;
         (<FormArray>this.forma.get('opciPodatci')).push(
             new FormGroup({
+                'nacinPlacanja': new FormControl(opciPodatci.nacinPlacanja),
                 'primarnaDijagnoza': new FormControl(opciPodatci.mkbSifraPrimarna + " [" + opciPodatci.nazivPrimarna + ']'),
                 'vrijemeZaBazu': new FormControl(opciPodatci.vrijeme),
                 'tipSlucaj': new FormControl(opciPodatci.tipSlucaj),
