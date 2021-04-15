@@ -18,6 +18,7 @@ import * as SharedHandler from '../../shared/shared-handler';
 import * as SharedValidations from '../../shared/shared-validations';
 import * as OpciPodatciValidations from './opci-podatci-validations';
 import * as OpciPodatciHandler from './opci-podatci-handler';
+import { ZdravstveniPodatci } from 'src/app/shared/modeli/zdravstveniPodatci.model';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -70,13 +71,15 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     primarnaDijagnozaOtvoreniSlucaj: string;
     sekundarnaDijagnozaOtvoreniSlucaj: string[] = [];
     //Spremam zdravstvene podatke pacijenta da ih mogu INICIJALNO postaviti u formu
-    zdravstveniPodatci: any;
+    zdravstveniPodatci: ZdravstveniPodatci[] = [];
     //Spremam sve MKB šifre
     mkbSifre: string[] = [];
     //Spremam ID povijesti bolesti pregleda kojega povezujem
     prosliPregled: string = "";
     //Spremam boju prošlog pregleda
     proslaBoja: string = "";
+    //Spremam oznaku je li pacijent ima inicijalno dopunsko osiguranje
+    isDopunskoInicijalno: boolean = false;
 
     constructor(
       //Dohvaćam route da mogu dohvatiti podatke koje je Resolver poslao
@@ -143,8 +146,13 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                   //Spremam ID obrade
                   this.idObrada = this.trenutnoAktivniPacijent.idObrada;
-                  //Spremam zdravstvene podatke trenutno aktivnog pacijenta
-                  this.zdravstveniPodatci = response.pacijent.podatci;
+                  //Definiram objekt zdr. podataka
+                  let objektZdrPodatci;
+                  //Prolazim kroz odgovor servera
+                  for(const podatci of response.pacijent.podatci){
+                      objektZdrPodatci = new ZdravstveniPodatci(podatci);
+                      this.zdravstveniPodatci.push(objektZdrPodatci);
+                  }
                 }
                 //Kreiram formu
                 this.forma = new FormGroup({
@@ -201,9 +209,11 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 this.drzavaOsiguranja.patchValue(podatci.drzavaOsiguranja,{emitEvent: false});
                 this.mbrPacijent.patchValue(podatci.mboPacijent,{emitEvent: false});
                 //Ako pacijent ima broj iskaznice dopunskog
-                if(podatci.brojIskazniceDopunsko !== null){
+                if(podatci.brojIskazniceDopunsko){
+                    //Označavam da pacijent ima dopunsko osiguranje
+                    this.isDopunskoInicijalno = true;
                     //Postavljam validatore na broj iskaznice dopunskog
-                    this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$"), OpciPodatciValidations.isValidDopunsko(this.pacijent)])
+                    this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$"), OpciPodatciValidations.isValidDopunsko(this.pacijent)]);
                     this.brIskDopunsko.patchValue(podatci.brojIskazniceDopunsko,{emitEvent: false});
                     this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
                 }
@@ -238,6 +248,25 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                             this.forma.get(field).updateValueAndValidity({emitEvent: false});
                           }
                       }
+                    }),
+                    takeUntil(this.pretplateSubject)
+                ),
+                this.brIskDopunsko.valueChanges.pipe(
+                    tap(value => {
+                        //Ako nije inicijalno upisano dopunsko
+                        if(!this.isDopunskoInicijalno){
+                            //Ako je upisana vrijednost u polje dopunskog osiguranja
+                            if(this.brIskDopunsko.value){
+                                //Postavljam validatore na broj iskaznice dopunskog
+                                this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$")]);
+                                this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
+                            }
+                            //Ako nije upisana vrijednost u polje dopunskog osiguranja
+                            else{
+                                this.brIskDopunsko.clearValidators();
+                                this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
+                            }
+                        }
                     }),
                     takeUntil(this.pretplateSubject)
                 ),

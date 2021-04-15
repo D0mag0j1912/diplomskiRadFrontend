@@ -8,6 +8,11 @@ export class ZdravstveniPodatci{
     public participacijaDo: Date;
     public trajnoOsnovno: string;
     public trajnoParticipacija: string;
+    public brojIskazniceDopunsko?: string;
+    public drzavaOsiguranja?: string;
+    public mboPacijent?: string;
+    public opisOsiguranika?: string;
+
     constructor(response: any){
         if(response.dopunskoOsiguranjeOd){
             this.dopunskoOd = response.dopunskoOsiguranjeOd;
@@ -35,6 +40,18 @@ export class ZdravstveniPodatci{
         }
         if(response.trajnoParticipacija){
             this.trajnoParticipacija = response.trajnoParticipacija;
+        }
+        if(response.brojIskazniceDopunsko){
+            this.brojIskazniceDopunsko = response.brojIskazniceDopunsko;
+        }
+        if(response.drzavaOsiguranja){
+            this.drzavaOsiguranja = response.drzavaOsiguranja;
+        }
+        if(response.mboPacijent){
+            this.mboPacijent = response.mboPacijent;
+        }
+        if(response.opisOsiguranika){
+            this.opisOsiguranika = response.opisOsiguranika;
         }
     }
 }
