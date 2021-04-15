@@ -17,7 +17,7 @@ Aplikacija je sastavljena na način da se korisnicima omogući pregledno korisni
 * MySQL
 
 ### Glavne funkcionalnosti
-1. Obrada
+1. Obrada pacijenta
 2. Čekaonica
 3. Evidencija osobnih podataka pacijenata
 4. Povezivanje prethodnih pregleda
