@@ -1,13 +1,13 @@
-import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, of, Subject } from 'rxjs';
+import { combineLatest, merge, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from './obrada.service';
+import * as ObradaValidations from './obrada-validations';
 
 @Component({
   selector: 'app-obrada',
@@ -30,6 +30,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
     isAktivan: boolean = false;
     //Kreiram svoju formu
     forma: FormGroup;
+    //Kreiram svoju formu
+    formaBMI: FormGroup;
     //Definiram broj trenutne stranice tablice 1
     stranica: number = 1;
     //Spremam podatke obrade trenutno aktivnog pacijenta
@@ -52,15 +54,18 @@ export class ObradaComponent implements OnInit, OnDestroy {
     isObradenPovijestBolesti: boolean = false;
     //Spremam je li korisnik prijavljen
     prijavljen: boolean = false;
-    //Oznaka je li korisnik liječnik 
+    //Oznaka je li korisnik liječnik
     isLijecnik: boolean = false;
     //Oznaka je li korisnik medicinska sestra
     isMedSestra: boolean = false;
     //Spremam ID trenutno aktivnog pacijenta
     idTrenutnoAktivniPacijent: number;
     //Spremam vrijeme kada je liječnik/med.sestra obradio/la pacijenta
-    vrijemeObradeLijecnik: Time;
-    vrijemeObradeMedSestra: Time;
+    vrijemeObradeLijecnik: string;
+    vrijemeObradeMedSestra: string;
+    //Spremam poruku da sam spremio BMI
+    spremioBMI: string = null;
+
     constructor(
         //Dohvaćam trenutni route da dohvatim podatke
         private route: ActivatedRoute,
@@ -155,6 +160,14 @@ export class ObradaComponent implements OnInit, OnDestroy {
                       else if(this.isMedSestra){
                           //Ako je server vratio da ima pacijenta u obradi
                           if(podatci[3]["pacijent"]["pacijent"]["success"] !== "false"){
+                              //Kreiram BMI formu
+                              this.formaBMI = new FormGroup({
+                                  'visina': new FormControl(null, [Validators.pattern("^[0-9]*$"), ObradaValidations.visinaValidator()]),
+                                  'tezina': new FormControl(null, [Validators.pattern("^[0-9]*$"), ObradaValidations.tezinaValidator()]),
+                                  'bmi': new FormControl(null)
+                              });
+                              //Onemogućavam unos u polje BMI
+                              this.bmi.disable({emitEvent: false});
                               //Označavam da je pacijent aktivan
                               this.isAktivan = true;
                               //Spremam podatke trenutno aktivnog pacijenta
@@ -165,7 +178,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                               localStorage.setItem("idObrada",JSON.stringify(this.trenutnoAktivniPacijent.idObrada));
                               this.pacijent = new Pacijent(podatci[3].pacijent.pacijent[0]);
                               //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
-                              this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;   
+                              this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
                           }
                           //Ako je server vratio da NEMA pacijenta u obradi
                           else if(podatci[3]["pacijent"]["pacijent"]["success"] === "false"){
@@ -178,70 +191,151 @@ export class ObradaComponent implements OnInit, OnDestroy {
                           }
                       }
                   }),
+                  switchMap(() => {
+                      //Ako je logirana medicinska sestra
+                      if(this.isMedSestra){
+                          //Ako je pacijent aktivan
+                          if(this.isAktivan){
+                              //Tražim informaciju je li liječnik obradio pacijenta
+                              return this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent).pipe(
+                                  tap(odgovor => {
+                                      if(odgovor[0].Vrijeme !== null){
+                                          //Označavam da je liječnik potvrdio povijest bolesti ovog pacijenta
+                                          this.isObradenPovijestBolesti = true;
+                                          //Spremam vrijeme obrade
+                                          this.vrijemeObradeLijecnik = odgovor[0].Vrijeme;
+                                      }
+                                      else{
+                                          //Označavam da liječnik nije potvrdio povijest bolesti ovog pacijenta
+                                          this.isObradenPovijestBolesti = false;
+                                      }
+                                  }),
+                                  takeUntil(this.pretplateSubject)
+                              );
+                          }
+                          //Ako pacijent nije aktivan
+                          else{
+                              return of(null).pipe(
+                                takeUntil(this.pretplateSubject)
+                              );
+                          }
+                      }
+                      //Ako je logiran liječnik
+                      else if(this.isLijecnik){
+                          //Ako je pacijent aktivan
+                          if(this.isAktivan){
+                              //Tražim informaciju je li medicinska sestra obradila pacijenta
+                              return this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent).pipe(
+                                  tap(odgovor => {
+                                      if(odgovor[0].Vrijeme !== null){
+                                          //Označavam da je sestra potvrdila opće podatke ovog pacijenta
+                                          this.isObradenOpciPodatci = true;
+                                          //Spremam vrijeme obrade
+                                          this.vrijemeObradeMedSestra = odgovor[0].Vrijeme;
+                                      }
+                                      else{
+                                          //Označavam da sestra NIJE potvrdila opće podatke pacijenta danas
+                                          this.isObradenOpciPodatci = false;
+                                      }
+                                  }),
+                                  takeUntil(this.pretplateSubject)
+                              );
+                          }
+                          //Ako pacijent nije aktivan
+                          else{
+                              return of(null).pipe(
+                                  takeUntil(this.pretplateSubject)
+                              );
+                          }
+                      }
+                  }),
+                  //Pretplaćivam se na promjene u poljima visine i težine
+                  switchMap(() => {
+                      //Ako je pacijent aktivan te ako je korisnik med. sestra
+                      if(this.isAktivan && this.isMedSestra){
+                          return merge(
+                              this.visina.valueChanges.pipe(
+                                  switchMap(() => {
+                                      //Pozivam metodu za računanje BMI
+                                      return this.izracunajBMI(this.visina.value, this.tezina.value);
+                                  }),
+                                  takeUntil(this.pretplateSubject)
+                              ),
+                              this.tezina.valueChanges.pipe(
+                                  switchMap(() => {
+                                      //Pozivam metodu za računanje BMI
+                                      return this.izracunajBMI(this.visina.value, this.tezina.value);
+                                  }),
+                                  takeUntil(this.pretplateSubject)
+                              )
+                          );
+                      }
+                      else{
+                          return of(null).pipe(
+                              takeUntil(this.pretplateSubject)
+                          );
+                      }
+                  }),
                   takeUntil(this.pretplateSubject)
               );
           }),
-          switchMap(() => {
-              //Ako je logirana medicinska sestra
-              if(this.isMedSestra){
-                  //Ako je pacijent aktivan
-                  if(this.isAktivan){
-                      //Tražim informaciju je li liječnik obradio pacijenta
-                      return this.obradaService.getObradenPovijestBolesti(this.idTrenutnoAktivniPacijent).pipe(
-                          tap(odgovor => {
-                              if(odgovor[0].Vrijeme !== null){
-                                  //Označavam da je liječnik potvrdio povijest bolesti ovog pacijenta
-                                  this.isObradenPovijestBolesti = true;
-                                  //Spremam vrijeme obrade
-                                  this.vrijemeObradeLijecnik = odgovor[0].Vrijeme;
-                              }
-                              else{
-                                  //Označavam da liječnik nije potvrdio povijest bolesti ovog pacijenta
-                                  this.isObradenPovijestBolesti = false;
-                              }
-                          }),
-                          takeUntil(this.pretplateSubject)
-                      );
-                  }
-                  //Ako pacijent nije aktivan
-                  else{
-                      return of(null).pipe(
-                        takeUntil(this.pretplateSubject)
-                      );
-                  }
-              }
-              //Ako je logiran liječnik
-              else if(this.isLijecnik){
-                  //Ako je pacijent aktivan
-                  if(this.isAktivan){
-                      //Tražim informaciju je li medicinska sestra obradila pacijenta
-                      return this.obradaService.getObradenOpciPodatci(this.idTrenutnoAktivniPacijent).pipe(
-                          tap(odgovor => {
-                              if(odgovor[0].Vrijeme !== null){
-                                  //Označavam da je sestra potvrdila opće podatke ovog pacijenta
-                                  this.isObradenOpciPodatci = true;
-                                  //Spremam vrijeme obrade
-                                  this.vrijemeObradeMedSestra = odgovor[0].Vrijeme;
-                              }
-                              else{
-                                  //Označavam da sestra NIJE potvrdila opće podatke pacijenta danas 
-                                  this.isObradenOpciPodatci = false;
-                              }
-                          }),
-                          takeUntil(this.pretplateSubject)
-                      );
-                  }
-                  //Ako pacijent nije aktivan
-                  else{
-                      return of(null).pipe(
-                          takeUntil(this.pretplateSubject)
-                      );
-                  }
-              }
-          }),
           takeUntil(this.pretplateSubject)
-      //Pretplaćujem se na informaciju je li pacijenta obrađen od strane liječnika/med.sestre
       ).subscribe();
+    }
+
+    //Izračunaj BMI
+    izracunajBMI(visina: string, tezina: string){
+        //Ako su prazna polja visina ili težine
+        if(!visina || !tezina){
+            //Restart polje BMI-a
+            this.bmi.patchValue(null, {emitEvent: false});
+            return of(null).pipe(
+                tap(() => {
+                    //Restartam BMI
+                    this.spremioBMI = null;
+                }),
+                takeUntil(this.pretplateSubject)
+            );
+        }
+        //Računam BMI samo ako su visina i težina ispravno unesene
+        if(this.visina.valid
+            && this.tezina.valid
+            && visina
+            && tezina){
+              //Računam BMI
+              let bmi = +this.tezina.value/((+visina/100)**2);
+              this.bmi.patchValue(bmi.toFixed(2),{emitEvent: false});
+              //Vraća Observable u kojemu se nalazi odgovor servera na spremanje BMI-a
+              return this.obradaService.spremiBMI(
+                  this.visina.value,
+                  this.tezina.value,
+                  this.bmi.value,
+                  this.idTrenutnoAktivniPacijent).pipe(
+                  tap(odgovor => {
+                      //Ako je odgovor servera true:
+                      if(odgovor === true){
+                          //Prikazivam poruku da sam spremio bmi
+                          this.spremioBMI = 'BMI spremljen!';
+                      }
+                      else{
+                          this.spremioBMI = null;
+                      }
+                  }),
+                  takeUntil(this.pretplateSubject)
+              );
+        }
+        //Ako unosi nisu ispravni
+        else{
+            //Resetiram polje BMI-a
+            this.bmi.patchValue(null, {emitEvent: false});
+            return of(null).pipe(
+                tap(() => {
+                    //Restartam BMI
+                    this.spremioBMI = null;
+                }),
+                takeUntil(this.pretplateSubject)
+            );
+        }
     }
 
     //Metoda koja se pokreće kada korisnik klikne "Dodaj u čekaonicu" u prozoru pretrage pacijenta
@@ -263,7 +357,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                   //Spremam sljedećeg pacijenta
                   this.sljedeciPacijent = odgovor[0].imePacijent + " " + odgovor[0].prezPacijent;
                   console.log(this.sljedeciPacijent);
-              } 
+              }
               else{
                   //Spremam neuspješnu poruku
                   this.porukaSljedeciPacijent = odgovor["message"];
@@ -298,7 +392,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                 //Stavljam vrijednost u Subject da je završen pregled
                 this.obradaService.zavrsenPregled.next(true);
             }
-        );  
+        );
     }
 
     //Dohvaćam ime i prezime pacijenta
@@ -377,10 +471,34 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Getteri za form controlove
     get ime(): FormControl{
-      return this.forma.get('ime') as FormControl;
+        return this.forma.get('ime') as FormControl;
     }
     get prezime(): FormControl{
-      return this.forma.get('prezime') as FormControl;
+        return this.forma.get('prezime') as FormControl;
+    }
+    get visina(): FormControl{
+        if(this.isMedSestra){
+            return this.formaBMI.get('visina') as FormControl;
+        }
+        else{
+            return;
+        }
+    }
+    get tezina(): FormControl{
+        if(this.isMedSestra){
+            return this.formaBMI.get('tezina') as FormControl;
+        }
+        else{
+            return;
+        }
+    }
+    get bmi(): FormControl{
+        if(this.isMedSestra){
+            return this.formaBMI.get('bmi') as FormControl;
+        }
+        else{
+            return;
+        }
     }
 
     //Ova metoda se poziva kada se komponenta uništi

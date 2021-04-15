@@ -19,21 +19,39 @@ export class ObradaService{
     //Kreiram Subject kojim ću prenijeti trenutni ID obrade u komponentu "PrikaziPovijestBolestiComponent"
     podatciObrada = new BehaviorSubject<number>(null);
     podatciObradaObs = this.podatciObrada.asObservable();
-    
+
     constructor(
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Metoda koja vraća Observable sa odgovorom servera na spremanje BMI-a
+    spremiBMI(
+        visina: string,
+        tezina: string,
+        bmi: string,
+        idPacijent: number){
+        return this.http.post<boolean>(baseUrl + 'obrada/spremiBMI.php',
+        {
+            visina,
+            tezina,
+            bmi,
+            idPacijent
+        }).pipe(catchError(handleError));
+    }
+
     //Metoda koja dohvaća ID obrade iz Local Storagea te ga stavlja u Subject
     refreshPodatciObrada(){
         const idObrada = +JSON.parse(localStorage.getItem("idObrada"));
+        //Ako je slučajno generirana obrada, zanemari
         if(!idObrada || idObrada > 999){
             return;
         }
+        //Uzimam samo ID obrade generiran preko baze
         this.podatciObrada.next(idObrada);
     }
 
-    //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalaze traženi pacijenti 
+    //Metoda koja šalje zahtjev serveru i vraća Observable u kojemu se nalaze traženi pacijenti
     getPatients(ime: string, prezime: string, trenutnaStranica: number){
 
         return this.http.post<any>(baseUrl + 'obrada/getObradaPatients.php',
@@ -50,7 +68,7 @@ export class ObradaService{
         return this.http.post(baseUrl + 'obrada/getObradaPatientsDodatno.php',
         {
             ime: ime,
-            prezime: prezime  
+            prezime: prezime
         }).pipe(catchError(handleError));
     }
 
@@ -73,7 +91,7 @@ export class ObradaService{
     }
 
 
-    //Metoda koja šalje zahtjev serveru za ažuriranje statusa pacijenta 
+    //Metoda koja šalje zahtjev serveru za ažuriranje statusa pacijenta
     editPatientStatus(idObrada: number,tip: string,id: number){
 
         return this.http.put<any>(baseUrl + 'obrada/obrada.php',
