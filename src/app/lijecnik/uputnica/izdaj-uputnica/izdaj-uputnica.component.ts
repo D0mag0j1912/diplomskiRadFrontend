@@ -620,6 +620,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 if(odgovor.success === "true"){
                     //Emitiram event prema roditelju da zna da je dodana nova uputnica
                     this.uputnicaIzdana.emit();
+                    //Naplaćujem izdavanje uputnice
+                    this.sharedService.postaviNovuCijenu(30);
                 }
             }),
             mergeMap((odgovor) => {

@@ -2,11 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { merge, of, Subject, Subscription } from 'rxjs';
-import { switchMap,takeUntil, tap } from 'rxjs/operators';
+import { switchMap,take,takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
 import { PreglediDetailService } from '../obrada/pregledi/pregledi-detail/pregledi-detail.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
+import { SharedService } from '../shared.service';
 import { SekundarniHeaderService } from './sekundarni-header.service';
 
 @Component({
@@ -34,6 +35,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     idPregled: number;
     //Definiram formu
     forma: FormGroup;
+    //Spremam broj iskazice dopunskog osiguranja aktivnog pacijenta
+    brojIskazniceDopunsko: string = null;
 
     constructor(
         //Dohvaćam login servis
@@ -47,7 +50,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         //Dohvaćam servis pregleda
         private preglediService: PreglediService,
         //Dohvaćam servis detalja prethodnih pregleda
-        private preglediDetailService: PreglediDetailService
+        private preglediDetailService: PreglediDetailService,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     ngOnInit() {
@@ -88,6 +93,10 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     this.isAktivan = true;
                                     //Dohvaćam ID aktivnog pacijenta
                                     const idPacijent = +odgovor[0].idPacijent;
+                                    //Spremam broj iskaznice dopunskog osiguranja
+                                    if(odgovor[0].brojIskazniceDopunsko){
+                                        this.brojIskazniceDopunsko = odgovor[0].brojIskazniceDopunsko;
+                                    }
                                     return this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
                                         tap(idPregled => {
                                             //Ako pacijent nema evidentiranih pregleda
@@ -187,6 +196,13 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                     }
                 }),
                 takeUntil(this.pretplateSubject)
+            ),
+            //Pretplaćujem se na informaciju koliko pregled košta
+            this.sharedService.cijeneObs.pipe(
+                tap(trenutnaCijena => {
+                    this.cijena.patchValue(trenutnaCijena.toString() + ' kn', {emitEvent: false});
+                }),
+                takeUntil(this.pretplateSubject)
             )
         ).subscribe();
     }
@@ -243,4 +259,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         this.pretplateSubject.complete();
     }
 
+    get cijena(): FormControl{
+        return this.forma.get('cijena') as FormControl;
+    }
 }

@@ -6,7 +6,6 @@ import { catchError,takeUntil,tap } from 'rxjs/operators';
 import { Korisnik } from '../shared/modeli/korisnik.model';
 import {handleError} from '../shared/rxjs-error';
 import {baseUrl} from '../backend-path';
-import { SharedService } from '../shared/shared.service';
 
 @Injectable({
     providedIn: 'root'
@@ -31,9 +30,7 @@ export class LoginService implements OnDestroy{
         //Dohvaćam http da mogu raditi http requestove sa backendom
         private http: HttpClient,
         //Dohvaćam router da se mogu preusmjeravati
-        private router: Router,
-        //Dohvaćam shared servis
-        private sharedService: SharedService
+        private router: Router
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na unos lozinke
@@ -120,7 +117,6 @@ export class LoginService implements OnDestroy{
                         clearTimeout(this.tokenExpirationTimer);
                     }
                     this.tokenExpirationTimer = null;
-                    this.sharedService.resetPacijentiIDs();
                 }),
                 catchError(handleError));
     }

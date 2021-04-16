@@ -32,6 +32,8 @@ export class AppComponent implements OnInit{
       this.preglediService.refreshOnDodanPregled();
       //Pozivam metodu koja će sačuvati ID-ove pacijenata kojima je dodana povijest bolesti kada pacijent NIJE aktivan
       this.sharedService.refreshPacijentiIDs();
+      //Pozivam metodu koja će sačuvati vrijednost cijene pregleda
+      this.sharedService.cuvajCijenuPregleda();
   }
-  
+
 }

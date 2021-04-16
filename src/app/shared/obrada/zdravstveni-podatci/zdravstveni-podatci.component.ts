@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { merge, Subject} from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { merge, of, Subject} from 'rxjs';
+import { mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { DrzavaOsiguranja } from 'src/app/shared/modeli/drzavaOsiguranja.model';
 import { KategorijaOsiguranja } from 'src/app/shared/modeli/kategorijaOsiguranja.model';
 import { Participacija } from 'src/app/shared/modeli/participacija.model';
@@ -15,6 +15,8 @@ import { StatusPacijent } from '../../modeli/statusPacijent.model';
 import { ObradaService } from '../obrada.service';
 import { ZdravstveniPodatciService } from './zdravstveni-podatci.service';
 import * as Handler from './zdravstveni-podatci-handler';
+import { SharedService } from '../../shared.service';
+import { LoginService } from 'src/app/login/login.service';
 
 @Component({
     selector: 'app-zdravstveni-podatci',
@@ -76,7 +78,11 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
       //Dohvaćam servis zdravstvenih podataka
       private zdravstveniPodatciService: ZdravstveniPodatciService,
       //Dohvaćam servis obrade
-      private obradaService: ObradaService
+      private obradaService: ObradaService,
+      //Dohvaćam shared servis
+      private sharedService: SharedService,
+      //Dohvaćam login servis
+      private loginService: LoginService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -186,7 +192,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
         ).subscribe();
 
         //Ako je pacijent aktivan
-        if(this.isPodatciAktivni){ 
+        if(this.isPodatciAktivni){
 
             const combined = merge(
                 this.forma.get('podrucniUred').valueChanges.pipe(
@@ -206,7 +212,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                                 else{
                                   //Treba biti prazno
                                   this.forma.get('sifUred').patchValue(null,{emitEvent: false});
-                                } 
+                                }
                             }
                           }
                       }
@@ -214,8 +220,8 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     takeUntil(this.pretplateSubject)
                 ),
                 this.forma.get('brIskDopunsko').valueChanges.pipe(
-                    tap(//Uzimam vrijednost
-                        (value) => {
+                    //Uzimam vrijednost
+                    tap(() => {
                             //Ako su podatci aktivni
                             if(this.isPodatciAktivni){
                               //Ako je upisana vrijednost u polje broja iskaznice dopunskog osiguranja
@@ -288,13 +294,13 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     takeUntil(this.pretplateSubject)
                 )
             ).subscribe();
-        } 
+        }
 
       }
 
   //Ova metoda se poziva kada se stisne button "Potvrdi zdravstvene podatke"
   onSubmit(){
-    
+
       //Ako forma nije valjanja
       if(!this.forma){
           return;
@@ -309,7 +315,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
               this.oslobodenParticipacije.value ? "oslobodenParticipacije": null,this.clanakParticipacija.value,
               this.trajnoParticipacija.value ? "trajnoParticipacija" : null,this.participacijaDo.value,this.sifUred.value).pipe(
               tap(
-                //Dohvaćam odgovor servera 
+                //Dohvaćam odgovor servera
                 (odgovor) => {
                     //Označavam da ima odgovora servera
                     this.response = true;
@@ -317,15 +323,39 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     this.responsePoruka = odgovor["message"];
                 }
               ),
+              mergeMap(odgovor => {
+                  //Ako je server vratio uspješnu poruku
+                  if(odgovor["success"] === "true"){
+                      //Ako pacijent IMA dopunsko osiguranje
+                      if(this.brIskDopunsko.value){
+                          return this.loginService.user.pipe(
+                              tap(user => {
+                                  this.sharedService.postaviNovuCijenu(0, user.tip);
+                              }),
+                              takeUntil(this.pretplateSubject)
+                          );
+                      }
+                      else{
+                          return of(null).pipe(
+                              takeUntil(this.pretplateSubject)
+                          );
+                      }
+                  }
+                  else{
+                    return of(null).pipe(
+                        takeUntil(this.pretplateSubject)
+                    );
+                  }
+              }),
               takeUntil(this.pretplateSubject)
           ).subscribe();
-      } 
+      }
       //Ako podatci nisu aktivni
       else{
           //Označavam da ima odgovora servera
           this.response = true;
           this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
-      }    
+      }
   }
 
   //Metoda se poziva kada je trajno osiguranje promijeni svoju vrijednost
@@ -389,7 +419,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           this.forma.get('participacija.participacijaDo').clearValidators();
           this.forma.clearValidators();
       }
-      
+
       this.forma.get('participacija.clanakParticipacija').updateValueAndValidity({emitEvent: false});
       this.forma.get('participacija.trajnoParticipacija').updateValueAndValidity({emitEvent: false});
       this.forma.get('participacija.participacijaDo').updateValueAndValidity({emitEvent: false});
@@ -407,7 +437,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           this.forma.get('participacija.participacijaDo').enable({emitEvent: false});
         }
     }
-  } 
+  }
 
   //Metoda koja se poziva kada je "trajnoParticipacija" checked
   onCheckedTrajnaParticipacija(event){

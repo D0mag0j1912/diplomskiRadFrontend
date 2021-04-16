@@ -65,15 +65,19 @@
                     routerLink="/lijecnik/obrada/nalazi">
                     Nalazi</a>
             </li>
-            <li routerLinkActive="active">
-                <a>KKK</a>
-                <!-- <form [formGroup]="forma">
-                  <input
-                      type="text"
-                      class="form-control"
-                      style="width:200px;border: 2px solid #337ab7"
-                      formControlName="cijena">
-                </form> -->
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li *ngIf="isAktivan">
+                <form [formGroup]="forma">
+                    <input
+                        type="text"
+                        class="form-control"
+                        style="width:100px;float:left;
+                            margin-top:7px;background-color:#f8f9fa;
+                            border:0;font-family: Verdana, sans-serif"
+                        formControlName="cijena"
+                        readonly>
+                </form>
             </li>
         </ul>
     </div>

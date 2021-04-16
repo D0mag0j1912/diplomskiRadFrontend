@@ -259,29 +259,35 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
 
       //Ova metoda se poziva kada se liječnik krene upisivati vrijednosti u polja MKB šifri sek. dijagnoze
       onChangeMKB(mkbSifra: string,index:number){
-          //Ako je MKB ispravno unesen (ako je prošao validaciju)
-          if(this.sekundarnaDijagnoza.at(index).valid){
-              //Prolazim kroz sve MKB šifre
-              for(const mkb of this.mkbSifre){
-                  //Ako se upisana vrijednost nalazi u polju MKB šifri
-                  if(mkb.toLowerCase() === mkbSifra.toLowerCase()){
-                      //U polje MKB šifri postavi šifru velikim slovima
-                      (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('mkbSifraSekundarna').patchValue(mkb,{emitEvent: false});
+          //Ako je pacijent aktivan
+          if(this.isAktivan){
+              //Ako je MKB ispravno unesen (ako je prošao validaciju)
+              if(this.sekundarnaDijagnoza.at(index).valid){
+                  //Prolazim kroz sve MKB šifre
+                  for(const mkb of this.mkbSifre){
+                      //Ako se upisana vrijednost nalazi u polju MKB šifri
+                      if(mkb.toLowerCase() === mkbSifra.toLowerCase()){
+                          //U polje MKB šifri postavi šifru velikim slovima
+                          (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('mkbSifraSekundarna').patchValue(mkb,{emitEvent: false});
+                      }
                   }
+                  //Pozivam metodu da popuni polje naziva primarne dijagnoze
+                  SharedHandler.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
               }
-              //Pozivam metodu da popuni polje naziva primarne dijagnoze
-              SharedHandler.MKBtoNazivSekundarna(mkbSifra,this.dijagnoze,this.forma,index);
-          }
-          //Ako je MKB neispravno unesen
-          else{
-              (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(null,{emitEvent: false});
+              //Ako je MKB neispravno unesen
+              else{
+                  (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(null,{emitEvent: false});
+              }
           }
       }
 
       //Ova metoda se poziva kada se promijeni naziv sekundarne dijagnoze
       onChangeNazivSekundarna(nazivSekundarna: string, index: number){
-          //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
-          SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+          //Ako je pacijent aktivan
+          if(this.isAktivan){
+              //Pozivam metodu koja će automatski unijeti MKB šifru sekundarne dijagnoze
+              SharedHandler.nazivToMKBSekundarna(nazivSekundarna,this.dijagnoze,this.forma,index);
+          }
       }
 
       //Metoda koja INICIJALNO postavlja da bude required jedan od tipova slučaja
