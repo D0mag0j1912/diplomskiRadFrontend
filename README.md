@@ -4,7 +4,7 @@
 ### Popis korištenih kratica
 1. OM - Opća/obiteljska medicina
 2. HZZO - Hrvatski zavod za zdravstveno osiguranje
-
+---
 ### Opis
 Aplikacija ordinacije OM je Web aplikacija koja predstavlja uvid u informatički dio posla kojim se bave zdravstveni radnici u ordinacijama OM. Kreirana web aplikacija nije kompletno programsko rješenje koje bih se moglo koristiti u praksi, ali predstavlja jako dobar temelj koji bih se u slučaju nadogradnje, mogao implementirati u poslovnom svijetu.
 Glavne uloge (korisnici) ove aplikacije su liječnik (specijalist obiteljske medicine) te medicinska sestra.
@@ -26,7 +26,7 @@ Aplikacija je sastavljena na način da se korisnicima omogući pregledno korisni
 7. Naručivanje pacijenata
 8. Prikaz prethodnih pregleda
 9. Prikaz detalja završenog pregleda
-
+---
 ### Pregled funkcionalnosti
 * ### Obrada pacijenta
 ![](src/assets/images/cijelaObrada.PNG)
