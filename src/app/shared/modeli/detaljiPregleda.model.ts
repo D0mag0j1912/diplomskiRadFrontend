@@ -3,6 +3,7 @@ export class DetaljiPregleda {
     public idObrada: number;
     public imePacijent: string;
     public prezimePacijent: string;
+    public bmi?: string;
 
     constructor(response: any){
         if(response.Datum){
@@ -16,6 +17,9 @@ export class DetaljiPregleda {
         }
         if(response.prezPacijent){
             this.prezimePacijent = response.prezPacijent;
+        }
+        if(response.bmi){
+            this.bmi = response.bmi;
         }
     }
 }

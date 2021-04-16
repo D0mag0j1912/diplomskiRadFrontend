@@ -38,6 +38,17 @@
                                     readonly>
                             </td>
                         </tr>
+                        <tr *ngIf="isDodanBMI">
+                            <td colspan="3">
+                              <strong style="font-family: Verdana, sans-serif;">BMI: </strong>
+                              <input
+                                  type="text"
+                                  formControlName="bmi"
+                                  style="border:0;width:60%;height:30px;
+                                  font-family: Verdana, sans-serif;"
+                                  readonly>
+                            </td>
+                        </tr>
                         <tr *ngIf="!tip">
                             <td colspan="3">
                                 <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih podataka na pregledu!</strong></h4>

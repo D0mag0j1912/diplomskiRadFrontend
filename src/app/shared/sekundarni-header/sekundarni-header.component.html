@@ -1,69 +1,79 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <button 
+    <button
         class="navbar-toggler ml-auto"
         data-toggle="collapse"
         data-target="#collapse_target1">
-        <span 
+        <span
             class="navbar-toggler-icon"></span>
     </button>
-    <div 
-        class="collapse navbar-collapse" 
+    <div
+        class="collapse navbar-collapse"
         id="collapse_target1">
         <ul class="nav navbar-nav">
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="isMedSestra">
-                <a  
-                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                <a
+                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     routerLink="/med-sestra/obrada/opciPodatci">
                     Opći podatci pregleda</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="isLijecnik">
-                <a  
-                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                <a
+                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     routerLink="/lijecnik/obrada/povijestBolesti">
                     Povijest bolesti</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 class="dropdown">
-                <a 
-                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                <a
+                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     class="dropdown-toggle"
-                    role="button" 
-                    id="navbarDropdown" 
+                    role="button"
+                    id="navbarDropdown"
                     data-toggle="dropdown">Osobni podatci</a>
-                <ul 
-                    class="dropdown-menu" 
+                <ul
+                    class="dropdown-menu"
                     aria-labelledby="navbarDropdown">
                     <li>
-                        <a 
-                            style="cursor: pointer;font-family:Verdana, sans-serif" 
+                        <a
+                            style="cursor: pointer;font-family:Verdana, sans-serif"
                             routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a>
                     </li>
                     <div class="dropdown-divider"></div>
-                    <li><a 
-                            style="cursor: pointer;font-family:Verdana, sans-serif" 
+                    <li><a
+                            style="cursor: pointer;font-family:Verdana, sans-serif"
                             routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a>
                     </li>
                 </ul>
             </li>
-            <li 
+            <li
                 routerLinkActive="active">
-                <a  
-                    style="cursor: pointer;font-family:Verdana, sans-serif" 
+                <a
+                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     (click)="preumjeriNaPregled()">
                     Pregledi</a>
             </li>
-            <li 
-                routerLinkActive="active">
-                <a  
-                    style="cursor: pointer;font-family:Verdana, sans-serif" 
-                    *ngIf="isLijecnik" 
+            <li
+                routerLinkActive="active"
+                *ngIf="isLijecnik">
+                <a
+                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     routerLink="/lijecnik/obrada/nalazi">
                     Nalazi</a>
+            </li>
+            <li routerLinkActive="active">
+                <a>KKK</a>
+                <!-- <form [formGroup]="forma">
+                  <input
+                      type="text"
+                      class="form-control"
+                      style="width:200px;border: 2px solid #337ab7"
+                      formControlName="cijena">
+                </form> -->
             </li>
         </ul>
     </div>

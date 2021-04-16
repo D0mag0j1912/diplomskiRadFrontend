@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { map, takeUntil, tap } from 'rxjs/operators';
+import { ZdravstveniRadnik } from '../shared/modeli/zdravstveniRadnik.model';
 import { SignupService } from './signup.service';
 
 @Component({
@@ -19,24 +21,39 @@ export class SignupComponent implements OnInit, OnDestroy {
     responsePoruka: string = null;
     //Kreiram formu
     forma: FormGroup;
+    //Spremam sve specijalizacije
+    specijalizacije: ZdravstveniRadnik[] = [];
 
     //Kreiram instancu servisa
     constructor(
-      private signupService: SignupService
+      private signupService: SignupService,
+      private route: ActivatedRoute
     ) {}
 
     //Kada se komponenta loada, poziva se ova metoda
     ngOnInit() {
-        this.forma = new FormGroup({
-            'tip': new FormControl('lijecnik',[Validators.required]),
-            'ime': new FormControl(null,[Validators.required]),
-            'prezime': new FormControl(null,[Validators.required]),
-            'adresa': new FormControl(null,[Validators.required]),
-            'specijalizacija': new FormControl(null,[Validators.required]),
-            'email': new FormControl(null, [Validators.required, Validators.email]),
-            'lozinka': new FormControl(null, [Validators.required]),
-            'ponovnoLozinka': new FormControl(null, [Validators.required])
-        });
+        //Pretplaćivam se na specijalizacije
+        this.route.data.pipe(
+            map(podatci => podatci.specijalizacije),
+            tap(podatci => {
+                let obj;
+                for(const spec of podatci){
+                    obj = new ZdravstveniRadnik(spec);
+                    this.specijalizacije.push(obj);
+                }
+                this.forma = new FormGroup({
+                    'tip': new FormControl('lijecnik',[Validators.required]),
+                    'ime': new FormControl(null,[Validators.required]),
+                    'prezime': new FormControl(null,[Validators.required]),
+                    'adresa': new FormControl(null,[Validators.required]),
+                    'specijalizacija': new FormControl(null,[Validators.required]),
+                    'email': new FormControl(null, [Validators.required, Validators.email]),
+                    'lozinka': new FormControl(null, [Validators.required]),
+                    'ponovnoLozinka': new FormControl(null, [Validators.required])
+                });
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Kada ova komponenta čuje event od Alert komponente, vraća response varijablu na false i gasi se prozor
@@ -68,6 +85,11 @@ export class SignupComponent implements OnInit, OnDestroy {
                 this.response = true;
                 //Vrijednost odgovora backenda se sprema u varijablu "responsePoruka"
                 this.responsePoruka = response['message'];
+                //Ako je server vratio uspješnu poruku
+                if(response.success === "true"){
+                    //Resetiram formu
+                    this.forma.reset();
+                }
               }
             ),
             takeUntil(this.pretplateSubject)

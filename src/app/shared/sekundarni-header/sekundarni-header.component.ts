@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { merge, of, Subject, Subscription } from 'rxjs';
 import { switchMap,takeUntil, tap } from 'rxjs/operators';
@@ -31,6 +32,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     imaLiPregleda: boolean = false;
     //Spremam ID pregleda na koji se preusmjeravam klikom na link "Pregledi" AKO pacijent ima evidentiranih pregleda
     idPregled: number;
+    //Definiram formu
+    forma: FormGroup;
 
     constructor(
         //Dohvaćam login servis
@@ -49,11 +52,16 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
 
+        //Kreiram formu
+        this.forma = new FormGroup({
+            'cijena': new FormControl(null)
+        });
+
         const combined = merge(
             //Pretplaćujem se na Subject iz login servisa
             this.loginService.user.pipe(
                 tap((user) => {
-                    //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
+                    //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false
                     this.prijavljen = !user ? false : true;
                     //Ako je korisnik prijavljen
                     if(this.prijavljen){
@@ -78,7 +86,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                 if(odgovor.success !== "false"){
                                     //Označavam da je pacijent aktivan u obradi
                                     this.isAktivan = true;
-                                    //Dohvaćam ID aktivnog pacijenta 
+                                    //Dohvaćam ID aktivnog pacijenta
                                     const idPacijent = +odgovor[0].idPacijent;
                                     return this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
                                         tap(idPregled => {
@@ -115,7 +123,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                             takeUntil(this.pretplateSubject)
                         );
                     }
-                }), 
+                }),
                 takeUntil(this.pretplateSubject)
             ),
             //Pretplaćujem se na Observable da vidim je li novi pregled dodan
@@ -130,7 +138,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                 if(odgovor.success !== "false"){
                                     //Označavam da je pacijent aktivan u obradi
                                     this.isAktivan = true;
-                                    //Dohvaćam ID aktivnog pacijenta 
+                                    //Dohvaćam ID aktivnog pacijenta
                                     const idPacijent = +odgovor[0].idPacijent;
                                     return this.preglediDetailService.getNajnovijiIDPregled(pregledDodan.tipKorisnik,idPacijent).pipe(
                                         tap(idPregled => {

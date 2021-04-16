@@ -310,7 +310,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
                   this.visina.value,
                   this.tezina.value,
                   this.bmi.value,
-                  this.idTrenutnoAktivniPacijent).pipe(
+                  this.idTrenutnoAktivniPacijent,
+                  this.trenutnoAktivniPacijent.idObrada).pipe(
                   tap(odgovor => {
                       //Ako je odgovor servera true:
                       if(odgovor === true){

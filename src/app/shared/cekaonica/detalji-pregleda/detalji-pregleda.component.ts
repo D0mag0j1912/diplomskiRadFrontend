@@ -49,6 +49,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     @ViewChild('detaljiPregleda') alertBox : ElementRef;
     //Inicijaliziram brojač pregleda na 0
     brojacPregleda: number = 0;
+    //Oznaka je li dodan BMI u ovoj sesiji obrade
+    isDodanBMI: boolean = false;
 
     constructor(
         //Dohvaćam servis čekaonice
@@ -77,10 +79,16 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 (odgovor) => {
                     //Spremam osobne podatke pacijenta detalja pregleda
                     this.detaljiPregleda = new DetaljiPregleda(odgovor[0][0]);
+                    //Ako postoji BMI u mom modelu
+                    if(this.detaljiPregleda.bmi){
+                        //Označavam da ima BMI-a
+                        this.isDodanBMI = true;
+                    }
                     //Kreiram formu
                     this.forma = new FormGroup({
                         'imePrezime': new FormControl(this.detaljiPregleda.imePacijent + " " + this.detaljiPregleda.prezimePacijent),
                         'datumPregled': new FormControl(this.detaljiPregleda.datumPregled),
+                        'bmi': new FormControl(this.detaljiPregleda.bmi ? this.detaljiPregleda.bmi : null),
                         'opciPodatci': new FormArray([]),
                         'povijestBolesti': new FormArray([])
                     });
@@ -210,8 +218,14 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     }
                     //Ako nema vraćenih podataka
                     else{
-                        //Smanjivam visinu prozora
-                        this.alertBox.nativeElement.style.height = "15vw";
+                        if(this.isDodanBMI){
+                            //Smanjivam visinu prozora
+                            this.alertBox.nativeElement.style.height = "17.5vw";
+                        }
+                        else{
+                            //Smanjivam visinu prozora
+                            this.alertBox.nativeElement.style.height = "15vw";
+                        }
                         //Smanjivam širinu prozora
                         this.alertBox.nativeElement.style.width = "35vw";
                         //Postavljam ga više lijevo
