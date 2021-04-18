@@ -11,8 +11,8 @@ import {baseUrl} from '../../backend-path';
     providedIn: 'root'
 })
 export class ReceptService{
-    
-    //Subject koji šalje poruku tablici pacijenata 
+
+    //Subject koji šalje poruku tablici pacijenata
     messenger = new Subject<boolean>();
     messengerObs = this.messenger.asObservable();
     constructor(
@@ -20,12 +20,20 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
+    //Metoda koja sprema doplatu na lijek/mag. pripravak u bazu te vraća boolean zavisno je li doplata uspješno spremljena
+    spremiDoplatu(idObrada: string, doplata: number){
+        return this.http.post<boolean>(baseUrl + 'recept/cijene/spremiDoplatu.php',{
+            idObrada,
+            doplata
+        }).pipe(catchError(handleError));
+    }
+
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
     azurirajRecept(idLijecnik: number, mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
         osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
         osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
-        dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
-        ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string, 
+        dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string,
+        ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string,
         idPacijent: string,poslaniDatum: Date, poslanoVrijeme: Time, poslanaMKBSifra: string){
         //Kodiram lijek koji je unesen
         if(osnovnaListaLijekDropdown){
@@ -38,9 +46,9 @@ export class ReceptService{
             dopunskaListaLijekDropdown = encodeURIComponent(dopunskaListaLijekDropdown);
         }
         else if(dopunskaListaLijekText){
-            dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
+            dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText);
         }
-        
+
         return this.http.put<any>(baseUrl + 'recept/handleRecept/azurirajRecept.php',{
             idLijecnik,
             mkbSifraPrimarna,
@@ -72,14 +80,14 @@ export class ReceptService{
         //Kreiram kopiju poslanog objekta recepta te tu kopiju prosljeđujem dalje backendu
         const pom = {...recept};
         //Kodiram proizvod
-        pom.proizvod = encodeURIComponent(pom.proizvod); 
+        pom.proizvod = encodeURIComponent(pom.proizvod);
         let params = new HttpParams().append("dostatnost",pom.dostatnost);
         params = params.append("datumRecept", pom.datumRecept.toString());
         params = params.append("idPacijent",pom.idPacijent.toString());
         params = params.append("mkbSifraPrimarna",pom.mkbSifraPrimarna);
         params = params.append("proizvod", pom.proizvod);
         params = params.append("vrijemeRecept", pom.vrijemeRecept.toString());
-        return this.http.get<any>(baseUrl + 'recept/handleRecept/getRecept.php',{params: params}) 
+        return this.http.get<any>(baseUrl + 'recept/handleRecept/getRecept.php',{params: params})
             .pipe(catchError(handleError));
     }
 
@@ -101,9 +109,9 @@ export class ReceptService{
     dodajRecept(mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
                 osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
                 osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
-                dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string, 
-                ponovljiv: string, brojPonavljanja: string, 
-                sifraSpecijalist: string,idPacijent: string,idLijecnik: number, 
+                dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string,
+                ponovljiv: string, brojPonavljanja: string,
+                sifraSpecijalist: string,idPacijent: string,idLijecnik: number,
                 poslanaPrimarna: string, poslaniIDObrada: string,poslaniTipSlucaj: string,poslanoVrijeme: string){
         //Kodiram lijek koji je unesen
         if(osnovnaListaLijekDropdown){
@@ -116,9 +124,9 @@ export class ReceptService{
             dopunskaListaLijekDropdown = encodeURIComponent(dopunskaListaLijekDropdown);
         }
         else if(dopunskaListaLijekText){
-            dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText); 
+            dopunskaListaLijekText = encodeURIComponent(dopunskaListaLijekText);
         }
-         
+
         return this.http.post<any>(baseUrl + 'recept/handleRecept/dodajRecept.php',{
             mkbSifraPrimarna,
             mkbSifraSekundarna,
@@ -197,7 +205,7 @@ export class ReceptService{
     getOznakaLijek(lijek: string){
         lijek = encodeURIComponent(lijek);
         let params = new HttpParams().append("lijek",lijek);
-        return this.http.get<any>(baseUrl + 'recept/oznake/getOznakaLijek.php', 
+        return this.http.get<any>(baseUrl + 'recept/oznake/getOznakaLijek.php',
         {
             params: params
         }).pipe(catchError(handleError));
@@ -208,7 +216,7 @@ export class ReceptService{
         magPripravak = encodeURIComponent(magPripravak);
         let params = new HttpParams().append("magPripravak",magPripravak);
         return this.http.get<any>(baseUrl + 'recept/cijene/getCijenaMagPripravakDL.php',
-        {   
+        {
             params: params
         }).pipe(catchError(handleError));
     }

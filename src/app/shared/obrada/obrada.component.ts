@@ -321,7 +321,10 @@ export class ObradaComponent implements OnInit, OnDestroy {
                           //Prikazivam poruku da sam spremio bmi
                           this.spremioBMI = 'BMI spremljen!';
                           //Naplaćujem računanje BMI-a
-                          this.sharedService.postaviNovuCijenu(10, this.isMedSestra ? 'sestra' : 'lijecnik');
+                          this.sharedService.postaviNovuCijenu(
+                              this.trenutnoAktivniPacijent.idObrada.toString(),
+                              10,
+                              this.isMedSestra ? 'sestra' : 'lijecnik');
                       }
                       else{
                           this.spremioBMI = null;

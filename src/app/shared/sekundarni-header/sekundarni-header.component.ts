@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { merge, of, Subject, Subscription } from 'rxjs';
+import { forkJoin, merge, of, Subject, Subscription } from 'rxjs';
 import { switchMap,take,takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
@@ -97,10 +97,14 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     if(odgovor[0].brojIskazniceDopunsko){
                                         this.brojIskazniceDopunsko = odgovor[0].brojIskazniceDopunsko;
                                     }
-                                    return this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent).pipe(
-                                        tap(idPregled => {
+                                    return forkJoin([
+                                        this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent),
+                                        this.sekundarniHeaderService.getTrenutnaCijenaPregleda(odgovor[0].idObrada, user.tip)
+                                    ]).pipe(
+                                        tap(podatci => {
+                                            console.log(podatci);
                                             //Ako pacijent nema evidentiranih pregleda
-                                            if(idPregled === null){
+                                            if(podatci[0] === null){
                                                 //Označavam da pacijent NEMA evidentiranih pregleda
                                                 this.imaLiPregleda = false;
                                             }
@@ -108,7 +112,17 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                                 //Označavam da pacijent IMA evidentiranih pregleda
                                                 this.imaLiPregleda = true;
                                                 //Spremam ID najnovijeg pregleda za aktivnog pacijenta
-                                                this.idPregled = +idPregled;
+                                                this.idPregled = +podatci[0];
+                                            }
+                                            //Ako je baza vratila null za iznos pregleda
+                                            if(podatci[1] === null){
+                                                //Emitiram inicijalnu vrijednost iznosa pregleda Subjectom
+                                                this.sharedService.emitirajNoviIznosPregleda(parseFloat('0.00'));
+                                            }
+                                            //Ako je baza vratila neki iznos pregleda
+                                            else{
+                                                //Emitiram inicijalnu vrijednost iznosa pregleda Subjectom
+                                                this.sharedService.emitirajNoviIznosPregleda(parseFloat(podatci[1]));
                                             }
                                         }),
                                         takeUntil(this.pretplateSubject)
@@ -119,7 +133,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     //Označavam da pacijent nije aktivan u obradi
                                     this.isAktivan = false;
                                     return of(null).pipe(
-                                    takeUntil(this.pretplateSubject)
+                                        takeUntil(this.pretplateSubject)
                                     );
                                 }
                             }),
@@ -200,7 +214,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             //Pretplaćujem se na informaciju koliko pregled košta
             this.sharedService.cijeneObs.pipe(
                 tap(trenutnaCijena => {
-                    this.cijena.patchValue(trenutnaCijena.toString() + ' kn', {emitEvent: false});
+                    //Primam naplaćenu cijenu te je stavljam u polje forme
+                    this.cijena.patchValue(trenutnaCijena.toFixed(2) + ' kn', {emitEvent: false});
                 }),
                 takeUntil(this.pretplateSubject)
             )

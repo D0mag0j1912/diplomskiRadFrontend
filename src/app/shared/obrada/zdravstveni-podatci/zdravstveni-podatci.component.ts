@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { merge, of, Subject} from 'rxjs';
-import { mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { merge,Subject} from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { DrzavaOsiguranja } from 'src/app/shared/modeli/drzavaOsiguranja.model';
 import { KategorijaOsiguranja } from 'src/app/shared/modeli/kategorijaOsiguranja.model';
 import { Participacija } from 'src/app/shared/modeli/participacija.model';
@@ -15,8 +15,6 @@ import { StatusPacijent } from '../../modeli/statusPacijent.model';
 import { ObradaService } from '../obrada.service';
 import { ZdravstveniPodatciService } from './zdravstveni-podatci.service';
 import * as Handler from './zdravstveni-podatci-handler';
-import { SharedService } from '../../shared.service';
-import { LoginService } from 'src/app/login/login.service';
 
 @Component({
     selector: 'app-zdravstveni-podatci',
@@ -78,11 +76,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
       //Dohvaćam servis zdravstvenih podataka
       private zdravstveniPodatciService: ZdravstveniPodatciService,
       //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam shared servis
-      private sharedService: SharedService,
-      //Dohvaćam login servis
-      private loginService: LoginService
+      private obradaService: ObradaService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -323,30 +317,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     this.responsePoruka = odgovor["message"];
                 }
               ),
-              mergeMap(odgovor => {
-                  //Ako je server vratio uspješnu poruku
-                  if(odgovor["success"] === "true"){
-                      //Ako pacijent IMA dopunsko osiguranje
-                      if(this.brIskDopunsko.value){
-                          return this.loginService.user.pipe(
-                              tap(user => {
-                                  this.sharedService.postaviNovuCijenu(0, user.tip);
-                              }),
-                              takeUntil(this.pretplateSubject)
-                          );
-                      }
-                      else{
-                          return of(null).pipe(
-                              takeUntil(this.pretplateSubject)
-                          );
-                      }
-                  }
-                  else{
-                    return of(null).pipe(
-                        takeUntil(this.pretplateSubject)
-                    );
-                  }
-              }),
               takeUntil(this.pretplateSubject)
           ).subscribe();
       }

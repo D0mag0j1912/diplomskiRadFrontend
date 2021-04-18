@@ -79,6 +79,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 (odgovor) => {
                     //Spremam osobne podatke pacijenta detalja pregleda
                     this.detaljiPregleda = new DetaljiPregleda(odgovor[0][0]);
+                    console.log(this.detaljiPregleda);
                     //Ako postoji BMI u mom modelu
                     if(this.detaljiPregleda.bmi){
                         //Označavam da ima BMI-a

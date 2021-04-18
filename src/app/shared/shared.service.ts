@@ -33,55 +33,41 @@ export class SharedService {
         private obradaService: ObradaService
     ){}
 
-    //Metoda koja čuva stanje cijena tijekom refresha
-    cuvajCijenuPregleda(){
-        //Dohvaćam vrijednost cijene iz LS
-        const cijena = +JSON.parse(localStorage.getItem('trenutnaCijenaPregleda'));
-        //Ako nema cijene
-        if(!cijena){
-            //Izađi
-            return;
-        }
-        //Vrijednost cijene iz LS stavljam u Subject
-        this.cijeneSubject.next(cijena);
+    //Metoda koja ažurira vrijednost ukupne cijene pregleda u bazi
+    azurirajUkupnuCijenuPregleda(idObrada: string, novaCijena: number, tipKorisnik: string){
+        return this.http.put<number>(baseUrl + 'shared/azurirajUkupnuCijenuPregleda.php',
+        {
+            idObrada,
+            novaCijena,
+            tipKorisnik
+        }).pipe(catchError(handleError));
     }
 
     //Metoda koja stavlja novu vrijednost cijena u BehaviorSubject
-    postaviNovuCijenu(novaCijena: number, tipKorisnik: string){
-        console.log(novaCijena);
-        //Definiram varijable u koje će spremati kasnije cijene
-        let staraCijena: number;
-        let izracunataCijena: number;
+    postaviNovuCijenu(idObrada: string, novaCijena: number, tipKorisnik: string){
+        //Pretplaćujem se na podatke aktivnog pacijenta
         this.obradaService.getPatientProcessing(tipKorisnik).pipe(
             take(1),
-            tap(podatci => {
+            switchMap(podatci => {
                 //Ako je pacijent aktivan
-                if(podatci.success === "true"){
-                    //Ako NE POSJEDUJE dopunsko osiguranje
-                    if(!podatci[0].brojIskazniceDopunsko){
-                        //Ako postoji zapisana cijena u LS
-                        if(JSON.parse(localStorage.getItem("trenutnaCijenaPregleda"))){
-                            //Dohvati je jer je to stara cijena
-                            staraCijena = +JSON.parse(localStorage.getItem("trenutnaCijenaPregleda"));
-                            //Računam novu cijenu
-                            izracunataCijena = staraCijena + novaCijena;
-                        }
-                        //Ako ne postoji zapisana cijena u LS
-                        else{
-                            izracunataCijena = novaCijena;
-                        }
-                    }
-                    //Ako POSJEDUJE dopunsko osiguranje
-                    else{
-                        izracunataCijena = novaCijena;
-                    }
-                    //Postavljam novu vrijednost cijene
-                    this.cijeneSubject.next(izracunataCijena);
-                    //Novu vrijednost cijene postavljam u LocalStorage
-                    localStorage.setItem("trenutnaCijenaPregleda",JSON.stringify(izracunataCijena));
+                if(podatci.success !== "false"){
+                    //Ažuriram ukupnu cijenu pregleda u bazi (ako pacijent POSJEDUJE dopunsko, šaljem novu cijenu,a ako NE POSJEDUJE, šaljem 0)
+                    return this.azurirajUkupnuCijenuPregleda(idObrada, !podatci[0].brojIskazniceDopunsko ? novaCijena : 0, tipKorisnik).pipe(
+                        take(1),
+                        tap(konacnaCijenaPregleda => {
+                            console.log(konacnaCijenaPregleda);
+                            //Postavljam novu vrijednost cijene
+                            this.cijeneSubject.next(konacnaCijenaPregleda);
+                        })
+                    );
                 }
             })
         ).subscribe();
+    }
+
+    //Metoda koja će emitirati novu vrijednost Subjectom
+    emitirajNoviIznosPregleda(noviIznos: number){
+        this.cijeneSubject.next(noviIznos);
     }
 
     //Metoda koja nadodava ID pacijenta u polje
@@ -103,6 +89,8 @@ export class SharedService {
         this.pacijentiIDs = [...filtriranoPolje];
         //Emitiram novo stanje polja Subjectom
         this.pacijentiIDsSubject.next([...this.pacijentiIDs]);
+        //Stavljam novo stanje polja ID-eva pacijenata kojima je dodana povijest bolesti kada pacijent nije aktivan u LS
+        localStorage.setItem("pacijentiIDs",JSON.stringify([...this.pacijentiIDs]));
     }
 
     //Metoda koja dohvaća zadnje dodani ID obrade (random dodani) za pacijenta

@@ -1986,10 +1986,10 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     poslanaMKBSifra = dijagnoza.mkbSifra;
                 }
             }
-            //Tražim izabrani proizvod u dopunskoj listi lijekova
-            const isLijek = this.lijekoviDopunskaListaOJP.find(lijek => lijek === this.izabraniProizvod);
-            //Tražim ga u dopunskoj listi magistralnih pripravaka
-            const isMagPripravak = this.magPripravciDopunskaLista.find(magPripravak => magPripravak === this.izabraniProizvod);
+            //Tražim izabrani proizvod u dopunskoj listi lijekova (vraća element ako ga nađe)
+            const lijekDL = this.lijekoviDopunskaListaOJP.find(lijek => lijek === this.izabraniProizvod);
+            //Tražim ga u dopunskoj listi magistralnih pripravaka (vraća element ako ga nađe)
+            const magPripravakDL = this.magPripravciDopunskaLista.find(magPripravak => magPripravak === this.izabraniProizvod);
 
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje novog recepta
             this.receptService.dodajRecept(
@@ -2029,36 +2029,56 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     if(odgovor.success === "true"){
                         //Pretplaćivam se na informaciju je li pacijent aktivan ili nije
                         return this.obradaService.getPatientProcessing('lijecnik').pipe(
-                            tap(podatci => {
+                            mergeMap(podatci => {
                                 //Ako pacijent NIJE AKTIVAN
                                 if(podatci.success === "false"){
                                     //Filtriram polje ID-eva pacijenata
                                     this.sharedService.filterPacijentiIDs(this.idPacijent);
-                                }
-                                //Ako je pacijent AKTIVAN
-                                else{
-                                    //Naplaćujem dodani recept
-                                    this.sharedService.postaviNovuCijenu(30);
-                                }
-                            }),
-                            switchMap(podatci => {
-                                //Ako pacijent NIJE AKTIVAN
-                                if(podatci.success === "false"){
-                                    //Pretplaćivam se na trenutno stanje polja ID-a pacijenata
-                                    return this.sharedService.pacijentiIDsObs.pipe(
-                                        tap(pacijentiIDs => {
-                                            console.log(pacijentiIDs);
-                                            //Postavljam polje sa jednim elementom manje u Local Storage
-                                            localStorage.setItem("pacijentiIDs",JSON.stringify(pacijentiIDs));
-                                        }),
-                                        takeUntil(this.pretplateSubject)
-                                    );
-                                }
-                                //Ako je pacijent AKTIVAN
-                                else{
                                     return of(null).pipe(
                                         takeUntil(this.pretplateSubject)
                                     );
+                                }
+                                //Ako je pacijent AKTIVAN
+                                else{
+                                    //Ako je izabran lijek iz dopunske liste
+                                    if(lijekDL){
+                                        return this.receptService.getCijenaLijekDL(lijekDL).pipe(
+                                            mergeMap(cijena => {
+                                                //Dohvaćam doplatu sa servera
+                                                let pomCijena = cijena[0].doplataLijek;
+                                                //Mijenjam zarez za točku
+                                                pomCijena = pomCijena.replace(/,/g, '.');
+                                                //Spremam doplatu u tablicu "obrada_lijecnik"
+                                                return this.receptService.spremiDoplatu(this.poslaniIDObrada, parseFloat(pomCijena)).pipe(
+                                                    takeUntil(this.pretplateSubject)
+                                                );
+                                            }),
+                                            takeUntil(this.pretplateSubject)
+                                        );
+                                    }
+                                    //Ako je izabran mag. pripravak iz dopunske liste
+                                    else if(magPripravakDL){
+                                        return this.receptService.getCijenaMagPripravakDL(magPripravakDL).pipe(
+                                            mergeMap(cijena => {
+                                                //Dohvaćam doplatu sa servera
+                                                let pomCijena = cijena[0].doplataMagPripravak;
+                                                //Mijenjam zarez za točku
+                                                pomCijena = pomCijena.replace(/,/g, '.');
+                                                //Spremam doplatu u tablicu "obrada_lijecnik"
+                                                return this.receptService.spremiDoplatu(this.poslaniIDObrada, parseFloat(pomCijena)).pipe(
+                                                    takeUntil(this.pretplateSubject)
+                                                );
+                                            }),
+                                            takeUntil(this.pretplateSubject)
+                                        );
+                                    }
+                                    else{
+                                        //Naplaćujem dodani recept
+                                        this.sharedService.postaviNovuCijenu(this.poslaniIDObrada, 30, 'lijecnik');
+                                        return of(null).pipe(
+                                            takeUntil(this.pretplateSubject)
+                                        );
+                                    }
                                 }
                             }),
                             takeUntil(this.pretplateSubject)

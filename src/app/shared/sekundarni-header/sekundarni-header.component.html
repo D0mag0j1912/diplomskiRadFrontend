@@ -68,12 +68,17 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li *ngIf="isAktivan">
+              <h4
+                  style="font-family: Verdana, sans-serif;
+                        margin-right:5px;">Iznos pregleda:</h4>
+            </li>
+            <li *ngIf="isAktivan">
                 <form [formGroup]="forma">
                     <input
                         type="text"
                         class="form-control"
                         style="width:100px;float:left;
-                            margin-top:7px;background-color:#f8f9fa;
+                            background-color:#f8f9fa;margin-top:5px;
                             border:0;font-family: Verdana, sans-serif"
                         formControlName="cijena"
                         readonly>
