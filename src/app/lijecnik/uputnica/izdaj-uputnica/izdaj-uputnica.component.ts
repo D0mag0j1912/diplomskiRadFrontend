@@ -612,6 +612,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
            this.idLijecnik
         ).pipe(
             tap((odgovor) => {
+                console.log(odgovor);
                 //Označavam da se prikaže odgovor servera
                 this.response = true;
                 //Spremam poruku servera u svoju varijablu i prikazujem je
@@ -620,8 +621,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 if(odgovor.success === "true"){
                     //Emitiram event prema roditelju da zna da je dodana nova uputnica
                     this.uputnicaIzdana.emit();
-                    //Naplaćujem izdavanje uputnice
-                    this.sharedService.postaviNovuCijenu(this.poslaniIDObrada, 30 , 'lijecnik');
                 }
             }),
             mergeMap((odgovor) => {
@@ -652,6 +651,16 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                           //Ako je pacijent AKTIVAN
                           else{
                               return of(null).pipe(
+                                  tap(() => {
+                                      //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
+                                      const usluge = {idRecept: null, idUputnica: +odgovor.idUputnica, idBMI: null};
+                                      //Naplaćujem izdavanje uputnice
+                                      this.sharedService.postaviNovuCijenu(
+                                          this.poslaniIDObrada,
+                                          podatci[0].brojIskazniceDopunsko ? null : 30,
+                                          'lijecnik',
+                                          usluge);
+                                  }),
                                   takeUntil(this.pretplate)
                               );
                           }

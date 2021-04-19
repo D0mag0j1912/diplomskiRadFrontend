@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, merge, of, Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { Pacijent } from '../modeli/pacijent.model';
@@ -315,20 +315,38 @@ export class ObradaComponent implements OnInit, OnDestroy {
                   this.bmi.value,
                   this.idTrenutnoAktivniPacijent,
                   this.trenutnoAktivniPacijent.idObrada).pipe(
-                  tap(odgovor => {
-                      //Ako je odgovor servera true:
-                      if(odgovor === true){
-                          //Prikazivam poruku da sam spremio bmi
-                          this.spremioBMI = 'BMI spremljen!';
-                          //Naplaćujem računanje BMI-a
-                          this.sharedService.postaviNovuCijenu(
-                              this.trenutnoAktivniPacijent.idObrada.toString(),
-                              10,
-                              this.isMedSestra ? 'sestra' : 'lijecnik');
-                      }
-                      else{
-                          this.spremioBMI = null;
-                      }
+                  mergeMap(idBMI => {
+                      return this.obradaService.getPatientProcessing(this.isMedSestra ? 'sestra' : 'lijecnik').pipe(
+                          tap(podatci => {
+                              //Ako je pacijent aktivan
+                              if(podatci.success !== "false"){
+                                  //Ako je vraćen maksimalni BMI
+                                  if(idBMI !== null){
+                                      //Prikazivam poruku da sam spremio bmi
+                                      this.spremioBMI = 'BMI spremljen!';
+                                      //Kreiram novi JS objekt koji sadržava vrstu usluga koje se naplaćuju
+                                      const usluge = {idRecept: null, idUputnica: null, idBMI: +idBMI};
+                                      //Naplaćujem računanje BMI-a
+                                      this.sharedService.postaviNovuCijenu(
+                                          this.trenutnoAktivniPacijent.idObrada.toString(),
+                                          podatci[0].brojIskazniceDopunsko ? null : 10,
+                                          this.isMedSestra ? 'sestra' : 'lijecnik',
+                                          usluge);
+                                  }
+                                  //Ako nije vraćen maksimalni BMI, nastala je greška, te ne prikazuj poruku
+                                  else{
+                                      this.spremioBMI = null;
+                                  }
+                              }
+                              //Ako pacijent nije aktivan
+                              else{
+                                  return of(null).pipe(
+                                      takeUntil(this.pretplateSubject)
+                                  );
+                              }
+                          }),
+                          takeUntil(this.pretplateSubject)
+                      );
                   }),
                   takeUntil(this.pretplateSubject)
               );

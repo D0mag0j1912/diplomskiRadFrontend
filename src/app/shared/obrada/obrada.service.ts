@@ -32,7 +32,7 @@ export class ObradaService{
         bmi: string,
         idPacijent: number,
         idObrada: number){
-        return this.http.post<boolean>(baseUrl + 'obrada/spremiBMI.php',
+        return this.http.post<string>(baseUrl + 'obrada/spremiBMI.php',
         {
             visina,
             tezina,

@@ -2,7 +2,6 @@ import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChi
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { LoginService } from 'src/app/login/login.service';
 import { DetaljiPregleda } from '../../modeli/detaljiPregleda.model';
 import { PovijestBolesti } from '../../modeli/povijestBolesti.model';
 import { Pregled } from '../../modeli/pregled.model';
@@ -29,8 +28,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     isOpciPodatci: boolean = false;
     //Oznaka je li pacijent ima evidentiran povijest bolesti
     isPovijestBolesti: boolean = false;
-    //Spremam tip prijavljenog korisnika
-    tipKorisnik: string;
     //Spremam povijesti bolesti
     povijestiBolesti: PovijestBolesti[] = [];
     //Spremam opće podatke pregleda
@@ -51,26 +48,31 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     brojacPregleda: number = 0;
     //Oznaka je li dodan BMI u ovoj sesiji obrade
     isDodanBMI: boolean = false;
+    //Oznaka je li iznos pregleda veći od 0kn da znam hoću li prikazati button "Pogledaj usluge"
+    pogledajUsluge: boolean = false;
+    //Oznaka je li otvoren prozor sa uslugama
+    isUsluge: boolean = false;
+    //Spremam podatke pregleda kojemu gledam detalje
+    podatciDetaljaPregleda: {tip: string, idObrada: number};
 
     constructor(
         //Dohvaćam servis čekaonice
-        private cekaonicaService: CekaonicaService,
-        //Dohvaćam login servis
-        private loginService: LoginService
+        private cekaonicaService: CekaonicaService
     ) { }
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
     ngOnInit() {
 
         //Pretplaćujem se na Observable u kojemu se nalaze detalji pregleda
-        this.loginService.user.pipe(
+        this.cekaonicaService.obsPodatciPregleda.pipe(
             take(1),
-            switchMap(user => {
-                //Spremam tip prijavljenog korisnika
-                this.tipKorisnik = user.tip;
-                return this.cekaonicaService.prikaziDetaljePregleda().pipe(
-                    takeUntil(this.pretplateSubject)
-                );
+            switchMap(podatci => {
+              //Spremam podatke pregleda čije detalje gledam
+              this.podatciDetaljaPregleda = podatci;
+              return forkJoin([
+                  this.cekaonicaService.getImePrezimeDatum(podatci.tip, +podatci.idObrada),
+                  this.cekaonicaService.getPodatciPregleda(podatci.tip, +podatci.idObrada)
+              ])
             }),
             takeUntil(this.pretplateSubject)
         ).pipe(
@@ -85,10 +87,15 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         //Označavam da ima BMI-a
                         this.isDodanBMI = true;
                     }
+                    //Ako je cijena pregleda veća od 0 kn
+                    if(this.detaljiPregleda.ukupnaCijenaPregled > 0){
+                        this.pogledajUsluge = true;
+                    }
                     //Kreiram formu
                     this.forma = new FormGroup({
                         'imePrezime': new FormControl(this.detaljiPregleda.imePacijent + " " + this.detaljiPregleda.prezimePacijent),
                         'datumPregled': new FormControl(this.detaljiPregleda.datumPregled),
+                        'ukupnaCijenaPregled': new FormControl(this.detaljiPregleda.ukupnaCijenaPregled + ' kn'),
                         'bmi': new FormControl(this.detaljiPregleda.bmi ? this.detaljiPregleda.bmi : null),
                         'opciPodatci': new FormArray([]),
                         'povijestBolesti': new FormArray([])
@@ -132,8 +139,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         let polje = [];
                         //Ako se radi o OPĆIM PODATCIMA PREGLEDA:
                         if(this.isOpciPodatci){
-                            //Spremam tip korisnika kojega šaljem
-                            this.tip = "sestra";
+                            /* //Spremam tip korisnika kojega šaljem
+                            this.tip = "sestra"; */
                             //Prolazim kroz polje općih podataka te za svaki objekt u njemu, dodavam jedan FORM GROUP u FORM ARRAY općih podataka
                             for(const pregled of this.pregledi){
                                 this.addControlsOpciPodatci(pregled);
@@ -175,8 +182,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         }
                         //Ako se radi o PODATCIMA POVIJESTI BOLESTI:
                         if(this.isPovijestBolesti){
-                            //Spremam tip korisnika kojega šaljem
-                            this.tip = "lijecnik";
+                            /* //Spremam tip korisnika kojega šaljem
+                            this.tip = "lijecnik"; */
                             //Prolazim poljem povijesti bolesti te za svaki objekt u njemu, dodavam jedan FORM GROUP U FORM ARRAY povijesti bolesti
                             for(const pregled of this.povijestiBolesti){
                                 this.addControlsPovijestBolesti(pregled);
@@ -221,7 +228,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     else{
                         if(this.isDodanBMI){
                             //Smanjivam visinu prozora
-                            this.alertBox.nativeElement.style.height = "17.5vw";
+                            this.alertBox.nativeElement.style.height = "20vw";
                         }
                         else{
                             //Smanjivam visinu prozora
@@ -269,6 +276,18 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     onCloseIzdanaUputnica(){
         //Zatvori prozor
         this.isIzdanaUputnica = false;
+    }
+
+    //Metoda koja se poziva kada korisnik stisne button "Pogledaj usluge"
+    onPogledajUsluge(){
+        //Otvori prozor prikaza usluga
+        this.isUsluge = true;
+    }
+
+    //Metoda koja se poziva kada korisnik želi izaći iz prozora prikaza naplaćenih usluga
+    onCloseUsluge(){
+        //Zatvori prozor
+        this.isUsluge = false;
     }
 
     //Metoda koja dohvaća sve form groupove form arraya "Povijest bolesti"

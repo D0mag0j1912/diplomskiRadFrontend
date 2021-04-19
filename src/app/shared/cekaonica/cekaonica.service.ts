@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, combineLatest, forkJoin } from "rxjs";
-import { catchError, switchMap } from 'rxjs/operators';
+import { BehaviorSubject } from "rxjs";
+import { catchError} from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
 import {baseUrl} from '../../backend-path';
 import { Time } from "@angular/common";
@@ -19,6 +19,15 @@ export class CekaonicaService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+
+    //Metoda koja vraća Observable sa naplaćenim uslugama koje pripadaju nekoj sesiji obrade
+    getNaplaceneUsluge(tipKorisnik: string, idObrada: number){
+          let params = new HttpParams().append("tipKorisnik",tipKorisnik);
+          params = params.append("idObrada", idObrada.toString());
+          return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNaplaceneUsluge.php', {params: params}).pipe(
+              catchError(handleError)
+          );
+    }
 
     //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u čekaonicu te vraća Observable u kojemu se nalazi odgovor servera
     addToWaitingRoom(tip: string,id: number){
@@ -114,18 +123,6 @@ export class CekaonicaService{
         return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getPodatciPregleda.php',
                                 {params: params})
                                 .pipe(catchError(handleError));
-    }
-
-    //Metoda koja dohvaća odgovore servera više metoda te ih kombinira
-    prikaziDetaljePregleda(){
-        return this.obsPodatciPregleda.pipe(
-            switchMap(podatci => {
-                return forkJoin([
-                    this.getImePrezimeDatum(podatci.tip,podatci.idObrada),
-                    this.getPodatciPregleda(podatci.tip,podatci.idObrada)
-                ]).pipe(catchError(handleError));
-            })
-        );
     }
 
 }

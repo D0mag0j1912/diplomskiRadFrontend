@@ -52,6 +52,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     isMedSestra: boolean = false;
     //Oznaka koji je tip korisnika prijavljen da ga mogu usporediti sa tipom korisnika iz retka
     tipKorisnik: string = null;
+
     brojRetka: number;
     //Spremam podatke izbrisanog retka čekaonice
     idCekaonica: number;
@@ -81,7 +82,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             const newP = document.createElement("h5");
             newP.innerHTML = `Jeste li sigurni da želite izbrisati pacijenta:`;
             newP.style.fontFamily = 'Verdana, sans-serif';
-            div.insertBefore(newP,div.children[1]);  
+            div.insertBefore(newP,div.children[1]);
             const imePrezime = document.createElement("h5");
             imePrezime.innerHTML = "Ime i prezime: ";
             imePrezime.style.fontFamily = 'Verdana, sans-serif';
@@ -118,7 +119,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             boldStatusCekaonica.style.fontFamily = 'Verdana, sans-serif';
             statusCekaonicaH.append(boldStatusCekaonica);
             div.insertBefore(statusCekaonicaH,div.children[5]);
-        }   
+        }
     }
     constructor(
       //Dohvaćam trenutni url
@@ -206,12 +207,12 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
         this.cekaonicaService.podatciPregleda.next({tip,idObrada});
         //Otvori prozor detalja
-        this.isDetaljiPregleda = true; 
+        this.isDetaljiPregleda = true;
     }
 
     //Metoda koja briše pacijenta iz čekaonice
     onDeleteCekaonica(tip: string,idCekaonica: number,index:number){
-        
+
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na brisanje pacijenta iz čekaonice
         this.cekaonicaService.onDeleteCekaonica(tip,idCekaonica).pipe(
             //Dohvaćam odgovor servera
@@ -321,7 +322,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         return this.fb.array(arr);
     }
 
-    //Metoda koja dohvaća 
+    //Metoda koja dohvaća
     getSelectedStatusValues(){
         //Isprazni polje statusa
         this.selectedStatusValues = [];
@@ -331,7 +332,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
               this.selectedStatusValues.push(this.statusi[i]);
             }
         });
-        
+
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti određenog statusa
         this.loginService.user.pipe(
             take(1),
@@ -451,7 +452,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
-      
+
     }
 
     //Metoda se pokreće kada korisnik klikne "Pretraži"
@@ -483,7 +484,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                 }
             }),
             takeUntil(this.pretplateSubject)
-        ).subscribe(); 
+        ).subscribe();
     }
 
     //Metoda se pokreće kada korisnik klikne "Dodaj u čekaonicu"
@@ -590,7 +591,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     get poljeStatusa(): FormArray{
       return this.formaStatus.get('statusi') as FormArray;
     }
-    //Dohvaća pojedine form controlove unutar polja 
+    //Dohvaća pojedine form controlove unutar polja
     getControlsStatusi(){
       return this.poljeStatusa.controls;
     }
@@ -605,7 +606,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     onCloseTablica(){
       //Zatvori prozor
       this.isPretraga = false;
-    } 
+    }
 
     //Metoda koja zatvara prozor brisanja
     onCloseBrisanje(){
@@ -624,7 +625,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       //Postavljam Subject na true
       this.pretplateSubject.next(true);
       this.pretplateSubject.complete();
-      //Praznim Subject 
+      //Praznim Subject
       this.obradaService.imePrezimePacijent.next(null);
     }
 

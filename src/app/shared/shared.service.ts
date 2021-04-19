@@ -34,17 +34,26 @@ export class SharedService {
     ){}
 
     //Metoda koja ažurira vrijednost ukupne cijene pregleda u bazi
-    azurirajUkupnuCijenuPregleda(idObrada: string, novaCijena: number, tipKorisnik: string){
+    azurirajUkupnuCijenuPregleda(
+        idObrada: string,
+        novaCijena: number,
+        tipKorisnik: string,
+        usluge: {idRecept: number, idUputnica: number, idBMI: number}){
         return this.http.put<number>(baseUrl + 'shared/azurirajUkupnuCijenuPregleda.php',
         {
             idObrada,
             novaCijena,
-            tipKorisnik
+            tipKorisnik,
+            usluge
         }).pipe(catchError(handleError));
     }
 
     //Metoda koja stavlja novu vrijednost cijena u BehaviorSubject
-    postaviNovuCijenu(idObrada: string, novaCijena: number, tipKorisnik: string){
+    postaviNovuCijenu(
+        idObrada: string,
+        novaCijena: number,
+        tipKorisnik: string,
+        usluge: {idRecept: number, idUputnica: number, idBMI: number}){
         //Pretplaćujem se na podatke aktivnog pacijenta
         this.obradaService.getPatientProcessing(tipKorisnik).pipe(
             take(1),
@@ -52,7 +61,11 @@ export class SharedService {
                 //Ako je pacijent aktivan
                 if(podatci.success !== "false"){
                     //Ažuriram ukupnu cijenu pregleda u bazi (ako pacijent POSJEDUJE dopunsko, šaljem novu cijenu,a ako NE POSJEDUJE, šaljem 0)
-                    return this.azurirajUkupnuCijenuPregleda(idObrada, !podatci[0].brojIskazniceDopunsko ? novaCijena : 0, tipKorisnik).pipe(
+                    return this.azurirajUkupnuCijenuPregleda(
+                        idObrada,
+                        novaCijena,
+                        tipKorisnik,
+                        usluge).pipe(
                         take(1),
                         tap(konacnaCijenaPregleda => {
                             console.log(konacnaCijenaPregleda);
@@ -60,6 +73,10 @@ export class SharedService {
                             this.cijeneSubject.next(konacnaCijenaPregleda);
                         })
                     );
+                }
+                //Ako pacijent NIJE aktivan
+                else{
+                    return of(null);
                 }
             })
         ).subscribe();

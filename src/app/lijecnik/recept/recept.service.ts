@@ -20,14 +20,6 @@ export class ReceptService{
         private http: HttpClient
     ){}
 
-    //Metoda koja sprema doplatu na lijek/mag. pripravak u bazu te vraća boolean zavisno je li doplata uspješno spremljena
-    spremiDoplatu(idObrada: string, doplata: number){
-        return this.http.post<boolean>(baseUrl + 'recept/cijene/spremiDoplatu.php',{
-            idObrada,
-            doplata
-        }).pipe(catchError(handleError));
-    }
-
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
     azurirajRecept(idLijecnik: number, mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
         osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,

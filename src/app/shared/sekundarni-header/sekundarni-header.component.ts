@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, merge, of, Subject, Subscription } from 'rxjs';
-import { switchMap,take,takeUntil, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { ObradaService } from '../obrada/obrada.service';
 import { PreglediDetailService } from '../obrada/pregledi/pregledi-detail/pregledi-detail.service';
@@ -35,8 +35,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     idPregled: number;
     //Definiram formu
     forma: FormGroup;
-    //Spremam broj iskazice dopunskog osiguranja aktivnog pacijenta
-    brojIskazniceDopunsko: string = null;
 
     constructor(
         //Dohvaćam login servis
@@ -87,16 +85,13 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                         //Dohvaćam podatke aktivnog pacijenta u obradi
                         return this.obradaService.getPatientProcessing(user.tip).pipe(
                             switchMap(odgovor => {
+                                console.log(odgovor);
                                 //Ako je pacijent aktivan u obradi
                                 if(odgovor.success !== "false"){
                                     //Označavam da je pacijent aktivan u obradi
                                     this.isAktivan = true;
                                     //Dohvaćam ID aktivnog pacijenta
                                     const idPacijent = +odgovor[0].idPacijent;
-                                    //Spremam broj iskaznice dopunskog osiguranja
-                                    if(odgovor[0].brojIskazniceDopunsko){
-                                        this.brojIskazniceDopunsko = odgovor[0].brojIskazniceDopunsko;
-                                    }
                                     return forkJoin([
                                         this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent),
                                         this.sekundarniHeaderService.getTrenutnaCijenaPregleda(odgovor[0].idObrada, user.tip)

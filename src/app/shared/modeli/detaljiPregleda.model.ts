@@ -3,6 +3,7 @@ export class DetaljiPregleda {
     public idObrada: number;
     public imePacijent: string;
     public prezimePacijent: string;
+    public ukupnaCijenaPregled: number;
     public bmi?: string;
 
     constructor(response: any){
@@ -17,6 +18,9 @@ export class DetaljiPregleda {
         }
         if(response.prezPacijent){
             this.prezimePacijent = response.prezPacijent;
+        }
+        if(response.ukupnaCijenaPregled){
+            this.ukupnaCijenaPregled = +response.ukupnaCijenaPregled;
         }
         if(response.bmi){
             this.bmi = response.bmi;

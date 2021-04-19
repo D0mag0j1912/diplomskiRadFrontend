@@ -11,6 +11,10 @@
         *ngIf="isIzdanaUputnica"
         [uputnica]="uputnica"
         (close)="onCloseIzdanaUputnica()"></app-izdane-uputnice>
+    <app-usluge
+        *ngIf="isUsluge"
+        (close)="onCloseUsluge()"
+        [podatci]="podatciDetaljaPregleda"></app-usluge>
     <div class="col-xs-12 col-md-12">
         <form [formGroup]="forma" *ngIf="forma">
             <div class="table-responsive-sm">
@@ -38,6 +42,23 @@
                                     readonly>
                             </td>
                         </tr>
+                        <tr>
+                            <td colspan="3">
+                              <strong style="font-family: Verdana, sans-serif;">Ukupni iznos pregleda: </strong>
+                              <input
+                                  type="text"
+                                  formControlName="ukupnaCijenaPregled"
+                                  style="border:0;width:15%;height:30px;
+                                  font-family: Verdana, sans-serif;"
+                                  readonly>
+                              <button
+                                  type="button"
+                                  class="btn btn-info btn-sm"
+                                  *ngIf="pogledajUsluge"
+                                  (click)="onPogledajUsluge()"
+                                  style="float:right;">Pogledaj usluge</button>
+                            </td>
+                        </tr>
                         <tr *ngIf="isDodanBMI">
                             <td colspan="3">
                               <strong style="font-family: Verdana, sans-serif;">BMI: </strong>
@@ -49,12 +70,12 @@
                                   readonly>
                             </td>
                         </tr>
-                        <tr *ngIf="!tip">
+                        <tr *ngIf="!isOpciPodatci && !isPovijestBolesti">
                             <td colspan="3">
                                 <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih podataka na pregledu!</strong></h4>
                             </td>
                         </tr>
-                        <ng-container *ngIf="tip === 'sestra'">
+                        <ng-container *ngIf="podatciDetaljaPregleda.tip === 'sestra' && isOpciPodatci">
                             <tr>
                                 <td colspan="3">
                                     <h4><strong style="font-family: Verdana, sans-serif;">Opći podatci pregleda</strong></h4>
@@ -127,7 +148,7 @@
                                 </ng-container>
                             </ng-container>
                         </ng-container>
-                        <ng-container *ngIf="tip === 'lijecnik'">
+                        <ng-container *ngIf="podatciDetaljaPregleda.tip === 'lijecnik' && isPovijestBolesti">
                             <tr>
                                 <td colspan="3">
                                     <h4>
