@@ -139,8 +139,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         let polje = [];
                         //Ako se radi o OPĆIM PODATCIMA PREGLEDA:
                         if(this.isOpciPodatci){
-                            /* //Spremam tip korisnika kojega šaljem
-                            this.tip = "sestra"; */
+                            //Spremam tip korisnika kojega šaljem
+                            this.tip = "sestra";
                             //Prolazim kroz polje općih podataka te za svaki objekt u njemu, dodavam jedan FORM GROUP u FORM ARRAY općih podataka
                             for(const pregled of this.pregledi){
                                 this.addControlsOpciPodatci(pregled);
@@ -149,7 +149,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             for(let i=0;i<this.getControlsOpciPodatci().length;i++){
                                 //U pomoćno polje ubacivam Observable u kojemu se nalazi naziv i šifra sekundarne dijagnoze
                                 polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(
-                                  this.tip,
+                                  this.podatciDetaljaPregleda.tip,
                                   this.getControlsOpciPodatci()[i].value.datum,
                                   this.getControlsOpciPodatci()[i].value.vrijemeZaBazu,
                                   this.getControlsOpciPodatci()[i].value.tipSlucaj,
@@ -182,8 +182,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         }
                         //Ako se radi o PODATCIMA POVIJESTI BOLESTI:
                         if(this.isPovijestBolesti){
-                            /* //Spremam tip korisnika kojega šaljem
-                            this.tip = "lijecnik"; */
+                            //Spremam tip korisnika kojega šaljem
+                            this.tip = "lijecnik";
                             //Prolazim poljem povijesti bolesti te za svaki objekt u njemu, dodavam jedan FORM GROUP U FORM ARRAY povijesti bolesti
                             for(const pregled of this.povijestiBolesti){
                                 this.addControlsPovijestBolesti(pregled);
@@ -192,7 +192,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             for(let i = 0;i<this.getControlsPovijestBolesti().length;i++){
                                 //U pomoćno polje stavljam Observable u kojemu se nalazi šifra i naziv sekundarnih dijagnoza
                                 polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(
-                                  this.tip,
+                                  this.podatciDetaljaPregleda.tip,
                                   this.getControlsPovijestBolesti()[i].value.datum,
                                   this.getControlsPovijestBolesti()[i].value.vrijemeZaBazu,
                                   this.getControlsPovijestBolesti()[i].value.tipSlucaj,
