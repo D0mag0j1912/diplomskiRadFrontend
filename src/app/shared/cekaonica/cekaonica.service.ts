@@ -22,9 +22,8 @@ export class CekaonicaService{
 
     //Metoda koja vraća Observable sa naplaćenim uslugama koje pripadaju nekoj sesiji obrade
     getNaplaceneUsluge(tipKorisnik: string, idObrada: number){
-          let params = new HttpParams().append("tipKorisnik",tipKorisnik);
-          params = params.append("idObrada", idObrada.toString());
-          return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNaplaceneUsluge.php', {params: params}).pipe(
+          const params = `?tipKorisnik=${tipKorisnik}&idObrada=${idObrada.toString()}`;
+          return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNaplaceneUsluge.php' + params).pipe(
               catchError(handleError)
           );
     }

@@ -54,6 +54,7 @@ export class SharedService {
         novaCijena: number,
         tipKorisnik: string,
         usluge: {idRecept: number, idUputnica: number, idBMI: number}){
+        console.log(usluge);
         //Pretplaćujem se na podatke aktivnog pacijenta
         this.obradaService.getPatientProcessing(tipKorisnik).pipe(
             take(1),

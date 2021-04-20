@@ -1,7 +1,7 @@
 import { Time } from "@angular/common";
 
 export class Recept{
-    //Definiram propertye ovog objekta
+    //Definiram propertye ove klase
     public mkbSifraPrimarna: string;
     public proizvod: string;
     public dostatnost: string;
@@ -21,6 +21,7 @@ export class Recept{
     public imePrezimePacijent?: string;
     public vrijemeRecept?: Time;
     public vrijediDo?: Date;
+    public iznosRecept?: number;
     //U ovoj metodi dohvaćam cijeli objekt koji dolazi sa servera te podatke iz njega spremam u svoje varijable
     constructor(response: any){
         //Spremam datum recepta
@@ -45,7 +46,7 @@ export class Recept{
         if(response.mkbSifraPrimarna){
             this.mkbSifraPrimarna = response.mkbSifraPrimarna;
         }
-        //Spremam naziv primarne dijagnoze 
+        //Spremam naziv primarne dijagnoze
         if(response.nazivPrimarna){
             this.nazivPrimarna = response.nazivPrimarna;
         }
@@ -53,7 +54,7 @@ export class Recept{
         if(response.proizvod){
             this.proizvod = response.proizvod;
         }
-        //Spremam ID pacijenta čiji je recept 
+        //Spremam ID pacijenta čiji je recept
         if(response.idPacijent){
             this.idPacijent = +response.idPacijent;
         }
@@ -77,7 +78,7 @@ export class Recept{
         if(response.ponovljiv){
             this.ponovljivost = response.ponovljiv;
         }
-        //Spremam OJP 
+        //Spremam OJP
         if(response.oblikJacinaPakiranjeLijek){
             this.oblikJacinaPakiranjeLijek = response.oblikJacinaPakiranjeLijek;
         }
@@ -99,6 +100,10 @@ export class Recept{
         //Spremam ID recepta
         if(response.idRecept){
             this.idRecept = +response.idRecept;
+        }
+        //Spremam iznos recepta
+        if(response.iznosRecept){
+            this.iznosRecept = +response.iznosRecept;
         }
     }
 }

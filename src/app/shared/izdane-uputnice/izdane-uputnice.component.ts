@@ -16,6 +16,7 @@ export class IzdaneUputniceComponent implements OnInit {
     constructor() { }
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
+        console.log(this.uputnica);
     }
 
     //Metoda koja pokreće event izlaska iz ove komponente

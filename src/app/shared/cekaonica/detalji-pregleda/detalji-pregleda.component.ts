@@ -46,10 +46,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     brojacPregleda: number = 0;
     //Oznaka je li dodan BMI u ovoj sesiji obrade
     isDodanBMI: boolean = false;
-    //Oznaka je li iznos pregleda veći od 0kn da znam hoću li prikazati button "Pogledaj usluge"
-    pogledajUsluge: boolean = false;
-    //Oznaka je li otvoren prozor sa uslugama
-    isUsluge: boolean = false;
     //Spremam podatke pregleda kojemu gledam detalje
     podatciDetaljaPregleda: {tip: string, idObrada: number};
 
@@ -84,10 +80,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     if(this.detaljiPregleda.bmi){
                         //Označavam da ima BMI-a
                         this.isDodanBMI = true;
-                    }
-                    //Ako je cijena pregleda veća od 0 kn
-                    if(this.detaljiPregleda.ukupnaCijenaPregled > 0){
-                        this.pogledajUsluge = true;
                     }
                     //Kreiram formu
                     this.forma = new FormGroup({
@@ -196,6 +188,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                             //Vraćam polje Observable-a u kojima se nalaze sekundarne dijagnoze podataka povijesti bolesti
                             return forkJoin(polje).pipe(
                                 tap((odgovor:any) => {
+                                    console.log(odgovor);
                                     for(let i = 0;i< this.getControlsPovijestBolesti().length;i++){
                                         //Za svaku iteraciju povijesti bolesti, string se resetira
                                         let str = new String("");
@@ -262,6 +255,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     onIzdanaUputnica(uputnica: Uputnica){
         //Podatke uputnice šaljem komponenti "IzdaneUputniceComponent"
         this.uputnica = {...uputnica};
+        console.log(this.uputnica);
         //Otvaram prozor izdane uputnice
         this.isIzdanaUputnica = true;
     }
@@ -270,18 +264,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     onCloseIzdanaUputnica(){
         //Zatvori prozor
         this.isIzdanaUputnica = false;
-    }
-
-    //Metoda koja se poziva kada korisnik stisne button "Pogledaj usluge"
-    onPogledajUsluge(){
-        //Otvori prozor prikaza usluga
-        this.isUsluge = true;
-    }
-
-    //Metoda koja se poziva kada korisnik želi izaći iz prozora prikaza naplaćenih usluga
-    onCloseUsluge(){
-        //Zatvori prozor
-        this.isUsluge = false;
     }
 
     //Metoda koja dohvaća sve form groupove form arraya "Povijest bolesti"
@@ -294,7 +276,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         this.brojacPregleda++;
         (<FormArray>this.forma.get('povijestBolesti')).push(
             new FormGroup({
-                'primarnaDijagnoza': new FormControl(povijestBolesti.mkbSifraPrimarna + " [" + povijestBolesti.nazivPrimarna + ']'),
+                'primarnaDijagnoza': new FormControl(povijestBolesti.nazivPrimarna + " [" + povijestBolesti.mkbSifraPrimarna + ']'),
                 'anamneza': new FormControl(povijestBolesti.anamneza),
                 'razlogDolaska': new FormControl(povijestBolesti.razlogDolaska),
                 'mkbSifraSekundarna': new FormControl(povijestBolesti.mkbSifraSekundarna),
@@ -311,14 +293,16 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     'hitnost': new FormControl(povijestBolesti._recept.hitnost ? povijestBolesti._recept.hitnost : null),
                     'ponovljivost': new FormControl(povijestBolesti._recept.ponovljivost ? povijestBolesti._recept.ponovljivost : null),
                     'brojPonavljanja': new FormControl(povijestBolesti._recept.brojPonavljanja ? povijestBolesti._recept.brojPonavljanja : null),
-                    'cijeliSpecijalist': new FormControl(povijestBolesti._recept.cijeliSpecijalist ? povijestBolesti._recept.cijeliSpecijalist : null)
+                    'cijeliSpecijalist': new FormControl(povijestBolesti._recept.cijeliSpecijalist ? povijestBolesti._recept.cijeliSpecijalist : null),
+                    'iznosRecept': new FormControl(povijestBolesti._recept.iznosRecept ? povijestBolesti._recept.iznosRecept + ' kn' : null)
                 }),
                 'uputnica': new FormGroup({
                     'zdravstvenaDjelatnost': new FormControl(povijestBolesti._uputnica.zdravstvenaDjelatnost),
                     'zdravstvenaUstanova': new FormControl(povijestBolesti._uputnica.zdravstvenaUstanova),
                     'vrstaPregled': new FormControl(povijestBolesti._uputnica.vrstaPregled),
                     'molimTraziSe': new FormControl(povijestBolesti._uputnica.molimTraziSe),
-                    'napomena': new FormControl(povijestBolesti._uputnica.napomena)
+                    'napomena': new FormControl(povijestBolesti._uputnica.napomena),
+                    'iznosUputnica': new FormControl(povijestBolesti._uputnica.iznosUputnica ? povijestBolesti._uputnica.iznosUputnica + ' kn' : null)
                 }),
                 'pacijent': new FormGroup({
                     'imePacijent': new FormControl(povijestBolesti._pacijent.ime),
@@ -341,7 +325,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         (<FormArray>this.forma.get('opciPodatci')).push(
             new FormGroup({
                 'nacinPlacanja': new FormControl(opciPodatci.nacinPlacanja),
-                'primarnaDijagnoza': new FormControl(opciPodatci.mkbSifraPrimarna + " [" + opciPodatci.nazivPrimarna + ']'),
+                'primarnaDijagnoza': new FormControl(opciPodatci.nazivPrimarna + " [" + opciPodatci.mkbSifraPrimarna + ']'),
                 'vrijemeZaBazu': new FormControl(opciPodatci.vrijeme),
                 'tipSlucaj': new FormControl(opciPodatci.tipSlucaj),
                 'datum': new FormControl(opciPodatci.datum),
