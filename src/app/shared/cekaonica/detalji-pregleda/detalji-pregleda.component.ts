@@ -85,7 +85,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     this.forma = new FormGroup({
                         'imePrezime': new FormControl(this.detaljiPregleda.imePacijent + " " + this.detaljiPregleda.prezimePacijent),
                         'datumPregled': new FormControl(this.detaljiPregleda.datumPregled),
-                        'ukupnaCijenaPregled': new FormControl(this.detaljiPregleda.ukupnaCijenaPregled + ' kn'),
+                        'ukupnaCijenaPregled': new FormControl(this.detaljiPregleda.ukupnaCijenaPregled),
                         'bmi': new FormControl(this.detaljiPregleda.bmi ? this.detaljiPregleda.bmi : null),
                         'opciPodatci': new FormArray([]),
                         'povijestBolesti': new FormArray([])

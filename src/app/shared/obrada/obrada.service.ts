@@ -30,15 +30,13 @@ export class ObradaService{
         visina: string,
         tezina: string,
         bmi: string,
-        idPacijent: number,
-        idObrada: number){
+        idPacijent: number){
         return this.http.post<string>(baseUrl + 'obrada/spremiBMI.php',
         {
             visina,
             tezina,
             bmi,
-            idPacijent,
-            idObrada
+            idPacijent
         }).pipe(catchError(handleError));
     }
 

@@ -313,8 +313,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                   this.visina.value,
                   this.tezina.value,
                   this.bmi.value,
-                  this.idTrenutnoAktivniPacijent,
-                  this.trenutnoAktivniPacijent.idObrada).pipe(
+                  this.idTrenutnoAktivniPacijent).pipe(
                   mergeMap(idBMI => {
                       return this.obradaService.getPatientProcessing(this.isMedSestra ? 'sestra' : 'lijecnik').pipe(
                           tap(podatci => {
