@@ -40,8 +40,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     uputnica: Uputnica;
     //Oznaka je li prozor podataka uputnice otvoren ili nije
     isIzdanaUputnica: boolean = false;
-    //Tip korisnika čiji je redak kliknut (koji je obradio taj redak)
-    tip: string;
     //Dohvaćam alert box da mogu manipulirati dimenzijama prozora
     @ViewChild('detaljiPregleda') alertBox : ElementRef;
     //Inicijaliziram brojač pregleda na 0
@@ -139,8 +137,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         let polje = [];
                         //Ako se radi o OPĆIM PODATCIMA PREGLEDA:
                         if(this.isOpciPodatci){
-                            //Spremam tip korisnika kojega šaljem
-                            this.tip = "sestra";
                             //Prolazim kroz polje općih podataka te za svaki objekt u njemu, dodavam jedan FORM GROUP u FORM ARRAY općih podataka
                             for(const pregled of this.pregledi){
                                 this.addControlsOpciPodatci(pregled);
@@ -182,8 +178,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         }
                         //Ako se radi o PODATCIMA POVIJESTI BOLESTI:
                         if(this.isPovijestBolesti){
-                            //Spremam tip korisnika kojega šaljem
-                            this.tip = "lijecnik";
                             //Prolazim poljem povijesti bolesti te za svaki objekt u njemu, dodavam jedan FORM GROUP U FORM ARRAY povijesti bolesti
                             for(const pregled of this.povijestiBolesti){
                                 this.addControlsPovijestBolesti(pregled);
