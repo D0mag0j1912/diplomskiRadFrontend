@@ -21,7 +21,9 @@ export class Recept{
     public imePrezimePacijent?: string;
     public vrijemeRecept?: Time;
     public vrijediDo?: Date;
-    public iznosRecept?: number;
+    public iznosRecept?: string;
+    public oznaka?: string;
+
     //U ovoj metodi dohvaćam cijeli objekt koji dolazi sa servera te podatke iz njega spremam u svoje varijable
     constructor(response: any){
         //Spremam datum recepta
@@ -103,7 +105,14 @@ export class Recept{
         }
         //Spremam iznos recepta
         if(response.iznosRecept){
-            this.iznosRecept = +response.iznosRecept;
+            this.iznosRecept = response.iznosRecept;
+        }
+        else if(!response.iznosRecept){
+            this.iznosRecept = '0.00';
+        }
+        //Spremam oznaku recepta
+        if(response.oznaka){
+            this.oznaka = response.oznaka;
         }
     }
 }

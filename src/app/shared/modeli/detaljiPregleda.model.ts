@@ -22,6 +22,9 @@ export class DetaljiPregleda {
         if(response.ukupnaCijenaPregled){
             this.ukupnaCijenaPregled = response.ukupnaCijenaPregled;
         }
+        else{
+            this.ukupnaCijenaPregled = '0.00';
+        }
         if(response.bmi){
             this.bmi = response.bmi;
         }

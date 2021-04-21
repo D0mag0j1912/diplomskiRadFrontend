@@ -635,35 +635,22 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                               this.sharedService.filterPacijentiIDs(this.idPacijent.toString());
                           }
                       }),
-                      switchMap(podatci => {
-                          //Ako pacijent NIJE AKTIVAN
-                          if(podatci.success === "false"){
-                              //Pretplaćivam se na trenutno stanje polja ID-a pacijenata
-                              return this.sharedService.pacijentiIDsObs.pipe(
-                                  tap(pacijentiIDs => {
-                                      console.log(pacijentiIDs);
-                                      //Postavljam polje sa jednim elementom manje u Local Storage
-                                      localStorage.setItem("pacijentiIDs",JSON.stringify(pacijentiIDs));
-                                  }),
-                                  takeUntil(this.pretplate)
-                              );
-                          }
-                          //Ako je pacijent AKTIVAN
-                          else{
-                              return of(null).pipe(
-                                  tap(() => {
-                                      //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
-                                      const usluge = {idRecept: null, idUputnica: +odgovor.idUputnica, idBMI: null};
-                                      //Naplaćujem izdavanje uputnice
-                                      this.sharedService.postaviNovuCijenu(
-                                          this.poslaniIDObrada,
-                                          podatci[0].brojIskazniceDopunsko ? null : 30,
-                                          'lijecnik',
-                                          usluge);
-                                  }),
-                                  takeUntil(this.pretplate)
-                              );
-                          }
+                      mergeMap(() => {
+                          //Pretplaćivam se na informaciju je li pacijent kojemu izdavam uputnicu ima dopunsko osiguranje
+                          return this.sharedService.getDopunsko(this.idPacijent).pipe(
+                              tap(dopunsko => {
+                                  //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
+                                  const usluge = {idRecept: null, idUputnica: +odgovor.idUputnica, idBMI: null};
+                                  //Naplaćujem izdavanje uputnice
+                                  this.sharedService.postaviNovuCijenu(
+                                      this.poslaniIDObrada,
+                                      dopunsko ? null : 30,
+                                      'lijecnik',
+                                      usluge,
+                                      this.idPacijent);
+                              }),
+                              takeUntil(this.pretplate)
+                          );
                       }),
                       takeUntil(this.pretplate)
                     );

@@ -85,7 +85,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     this.forma = new FormGroup({
                         'imePrezime': new FormControl(this.detaljiPregleda.imePacijent + " " + this.detaljiPregleda.prezimePacijent),
                         'datumPregled': new FormControl(this.detaljiPregleda.datumPregled),
-                        'ukupnaCijenaPregled': new FormControl(this.detaljiPregleda.ukupnaCijenaPregled),
+                        'ukupnaCijenaPregled': new FormControl(this.detaljiPregleda.bmi ? this.detaljiPregleda.ukupnaCijenaPregled : this.detaljiPregleda.ukupnaCijenaPregled + ' kn'),
                         'bmi': new FormControl(this.detaljiPregleda.bmi ? this.detaljiPregleda.bmi : null),
                         'opciPodatci': new FormArray([]),
                         'povijestBolesti': new FormArray([])
@@ -294,7 +294,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     'ponovljivost': new FormControl(povijestBolesti._recept.ponovljivost ? povijestBolesti._recept.ponovljivost : null),
                     'brojPonavljanja': new FormControl(povijestBolesti._recept.brojPonavljanja ? povijestBolesti._recept.brojPonavljanja : null),
                     'cijeliSpecijalist': new FormControl(povijestBolesti._recept.cijeliSpecijalist ? povijestBolesti._recept.cijeliSpecijalist : null),
-                    'iznosRecept': new FormControl(povijestBolesti._recept.iznosRecept ? povijestBolesti._recept.iznosRecept + ' kn' : null)
+                    'iznosRecept': new FormControl(povijestBolesti._recept.iznosRecept + ' kn')
                 }),
                 'uputnica': new FormGroup({
                     'zdravstvenaDjelatnost': new FormControl(povijestBolesti._uputnica.zdravstvenaDjelatnost),
@@ -302,7 +302,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                     'vrstaPregled': new FormControl(povijestBolesti._uputnica.vrstaPregled),
                     'molimTraziSe': new FormControl(povijestBolesti._uputnica.molimTraziSe),
                     'napomena': new FormControl(povijestBolesti._uputnica.napomena),
-                    'iznosUputnica': new FormControl(povijestBolesti._uputnica.iznosUputnica ? povijestBolesti._uputnica.iznosUputnica + ' kn' : null)
+                    'iznosUputnica': new FormControl(povijestBolesti._uputnica.iznosUputnica + ' kn')
                 }),
                 'pacijent': new FormGroup({
                     'imePacijent': new FormControl(povijestBolesti._pacijent.ime),

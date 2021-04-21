@@ -48,7 +48,7 @@
                 style="font-family: Verdana, sans-serif;"
                 *ngIf="recept.iznosRecept">Iznos recepta:
                 <strong style="color:#337ab7">
-                    {{recept.iznosRecept}}</strong>
+                    {{oznaka ? recept.iznosRecept + ' kn' : recept.iznosRecept}}</strong>
             </h5>
         </div>
     </div>

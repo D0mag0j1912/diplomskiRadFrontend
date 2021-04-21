@@ -13,6 +13,8 @@ export class IzdaniReceptiComponent implements OnInit{
     @Output() close = new EventEmitter<any>();
     //Spremam primljeni recept
     @Input() recept: Recept;
+    //Primam oznaku od roditeljske komponente 'PreglediDetailComponent'
+    @Input() oznaka: string;
 
     constructor() { }
     //Metoda koja se poziva kada se komponenta inicijalizira

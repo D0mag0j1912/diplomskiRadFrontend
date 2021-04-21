@@ -330,7 +330,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
                                           this.trenutnoAktivniPacijent.idObrada.toString(),
                                           podatci[0].brojIskazniceDopunsko ? null : 10,
                                           this.isMedSestra ? 'sestra' : 'lijecnik',
-                                          usluge);
+                                          usluge,
+                                          this.idTrenutnoAktivniPacijent);
                                   }
                                   //Ako nije vraćen maksimalni BMI, nastala je greška, te ne prikazuj poruku
                                   else{

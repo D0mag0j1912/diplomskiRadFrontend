@@ -39,7 +39,7 @@
                 style="font-family: Verdana, sans-serif;"
                 *ngIf="uputnica.iznosUputnica">Iznos uputnice:
                 <strong style="color:#337ab7">
-                    {{uputnica.iznosUputnica}}</strong>
+                    {{oznaka ? uputnica.iznosUputnica + ' kn' : uputnica.iznosUputnica}}</strong>
             </h5>
         </div>
     </div>

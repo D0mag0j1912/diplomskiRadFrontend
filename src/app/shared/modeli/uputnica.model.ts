@@ -20,7 +20,7 @@ export class Uputnica {
     public zdravstvenaUstanova?: string;
     public zdravstvenaDjelatnost?: string;
     public specijalist?: string;
-    public iznosUputnica?: number;
+    public iznosUputnica?: string;
 
     constructor(response: any){
         if(response.sifDjel){
@@ -87,7 +87,10 @@ export class Uputnica {
             this.specijalist = response.specijalistUputnica;
         }
         if(response.iznosUputnica){
-            this.iznosUputnica = +response.iznosUputnica;
+            this.iznosUputnica = response.iznosUputnica;
+        }
+        else if(!response.iznosUputnica){
+            this.iznosUputnica = '0.00';
         }
     }
 }

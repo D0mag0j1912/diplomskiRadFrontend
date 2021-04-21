@@ -12,6 +12,8 @@ export class IzdaneUputniceComponent implements OnInit {
     @Output() close = new EventEmitter<any>();
     //Spremam primljenu uputnicu
     @Input() uputnica: Uputnica;
+    //Spremam oznaku koju primam od roditeljske komponente "PreglediDetailComponent"
+    @Input() oznaka: string;
 
     constructor() { }
     //Metoda koja se poziva kada se komponenta inicijalizira

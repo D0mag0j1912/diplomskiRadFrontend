@@ -21,12 +21,31 @@ export class ReceptService{
     ){}
 
     //Metoda koja vraća Observable u kojemu se nalazi odgovor servera na dodavanje recepta u bazu
-    azurirajRecept(idLijecnik: number, mkbSifraPrimarna: string,mkbSifraSekundarna: string[], osnovnaListaLijekDropdown: string,
-        osnovnaListaLijekText: string, dopunskaListaLijekDropdown: string, dopunskaListaLijekText: string,
-        osnovnaListaMagPripravakDropdown: string, osnovnaListaMagPripravakText: string, dopunskaListaMagPripravakDropdown: string,
-        dopunskaListaMagPripravakText: string, kolicina: string, doziranje: string, dostatnost: string, hitnost: string,
-        ponovljiv: string, brojPonavljanja: string, sifraSpecijalist: string,
-        idPacijent: string,poslaniDatum: Date, poslanoVrijeme: Time, poslanaMKBSifra: string){
+    azurirajRecept(
+        idLijecnik: number,
+        mkbSifraPrimarna: string,
+        mkbSifraSekundarna: string[],
+        osnovnaListaLijekDropdown: string,
+        osnovnaListaLijekText: string,
+        dopunskaListaLijekDropdown: string,
+        dopunskaListaLijekText: string,
+        osnovnaListaMagPripravakDropdown: string,
+        osnovnaListaMagPripravakText: string,
+        dopunskaListaMagPripravakDropdown: string,
+        dopunskaListaMagPripravakText: string,
+        kolicina: string,
+        doziranje: string,
+        dostatnost: string,
+        hitnost: string,
+        ponovljiv: string,
+        brojPonavljanja: string,
+        sifraSpecijalist: string,
+        idPacijent: string,
+        poslaniDatum: Date,
+        poslanoVrijeme: Time,
+        poslanaMKBSifra: string,
+        poslanaOznaka: string,
+        iznosRecept: number){
         //Kodiram lijek koji je unesen
         if(osnovnaListaLijekDropdown){
             osnovnaListaLijekDropdown = encodeURIComponent(osnovnaListaLijekDropdown);
@@ -63,7 +82,9 @@ export class ReceptService{
             idPacijent,
             poslaniDatum,
             poslanoVrijeme,
-            poslanaMKBSifra
+            poslanaMKBSifra,
+            poslanaOznaka,
+            iznosRecept
         }).pipe(catchError(handleError));
     }
 

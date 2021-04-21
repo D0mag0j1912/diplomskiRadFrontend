@@ -53,32 +53,27 @@ export class SharedService {
         idObrada: string,
         novaCijena: number,
         tipKorisnik: string,
-        usluge: {idRecept: number, idUputnica: number, idBMI: number}){
-        console.log(usluge);
+        usluge: {idRecept: number, idUputnica: number, idBMI: number},
+        idPacijent: number){
         //Pretplaćujem se na podatke aktivnog pacijenta
         this.obradaService.getPatientProcessing(tipKorisnik).pipe(
             take(1),
             switchMap(podatci => {
-                //Ako je pacijent aktivan
-                if(podatci.success !== "false"){
-                    //Ažuriram ukupnu cijenu pregleda u bazi (ako pacijent POSJEDUJE dopunsko, šaljem novu cijenu,a ako NE POSJEDUJE, šaljem 0)
-                    return this.azurirajUkupnuCijenuPregleda(
-                        idObrada,
-                        novaCijena,
-                        tipKorisnik,
-                        usluge).pipe(
-                        take(1),
-                        tap(konacnaCijenaPregleda => {
-                            console.log(konacnaCijenaPregleda);
+                return this.azurirajUkupnuCijenuPregleda(
+                    idObrada,
+                    novaCijena,
+                    tipKorisnik,
+                    usluge).pipe(
+                    take(1),
+                    tap(konacnaCijenaPregleda => {
+                        console.log(konacnaCijenaPregleda);
+                        //Ako je pacijent aktivan te se naplaćiva usluga aktivnom pacijentu, emitiram novu vrijednost
+                        if(podatci.success !== "false" && +podatci[0].idPacijent === idPacijent){
                             //Postavljam novu vrijednost cijene
                             this.cijeneSubject.next(konacnaCijenaPregleda);
-                        })
-                    );
-                }
-                //Ako pacijent NIJE aktivan
-                else{
-                    return of(null);
-                }
+                        }
+                    })
+                );
             })
         ).subscribe();
     }
@@ -109,6 +104,12 @@ export class SharedService {
         this.pacijentiIDsSubject.next([...this.pacijentiIDs]);
         //Stavljam novo stanje polja ID-eva pacijenata kojima je dodana povijest bolesti kada pacijent nije aktivan u LS
         localStorage.setItem("pacijentiIDs",JSON.stringify([...this.pacijentiIDs]));
+    }
+
+    //Metoda koja dohvaća dopunsko osiguranje za zadani ID pacijenta
+    getDopunsko(idPacijent: number){
+        const params = `?idPacijent=${idPacijent.toString()}`;
+        return this.http.get<string>(baseUrl + 'getDopunsko.php' + params).pipe(catchError(handleError));
     }
 
     //Metoda koja dohvaća zadnje dodani ID obrade (random dodani) za pacijenta
