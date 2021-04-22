@@ -61,7 +61,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
         this.formaPretraga = new FormGroup({
             'pretraga': new FormControl(null)
         });
-        //Pretplaćujem se na Subject koji šalje ID-ove pacijenata 
+        //Pretplaćujem se na Subject koji šalje ID-ove pacijenata
         this.listaReceptiService.prijenosnikUListuRecepataObs.pipe(
             debounceTime(100),
             switchMap(vrijednost => {
@@ -72,7 +72,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                     return this.listaReceptiService.getReceptiTablica(vrijednost).pipe(
                         tap(odgovor => {
                             console.log(odgovor);
-                            //Ako odgovor servera nije null 
+                            //Ako odgovor servera nije null
                             if(odgovor){
                                 //Ako IMA evidentiranih recepata za poslane pacijente
                                 if(odgovor["success"] !== "false"){
@@ -103,7 +103,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                     });
                                     //Resetiram polje u koje spremam ID-eve i imena/prezimena pacijenata kojima su evidentirani recepti
                                     this.pacijenti = [];
-                                    //Samo jedinstvene pacijente nadodavam u svoje polje 
+                                    //Samo jedinstvene pacijente nadodavam u svoje polje
                                     this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
                                 }
                                 //Ako je poslan samo JEDAN ID pacijenta (zato što je u tablici pacijenata samo jedan redak), te on NEMA evidentiranih recepata
@@ -119,16 +119,16 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                 }
                                 //Ako je poslano više ID-ova pacijenata te nijedan od njih nema evidentiranih recepata
                                 else if(odgovor["success"] === "false" && odgovor["message"] === "Nema evidentiranih recepata!"){
-                                    //Resetiram poruke koje je potrebno resetirati 
+                                    //Resetiram poruke koje je potrebno resetirati
                                     this.inicijalnoAktivniNemaRezultata = null;
                                     this.inicijalnoNemaPacijenata = null;
                                     this.nemaRecepata = null;
                                     //Označavam da nema rezultata pretrage (da se sakriju recepti)
                                     this.isPretraga = false;
                                     //Spremam odgovor servera
-                                    this.nemaNitkoRecept = odgovor.message; 
+                                    this.nemaNitkoRecept = odgovor.message;
                                 }
-                            } 
+                            }
                         }),
                         takeUntil(this.pretplateSubject)
                     );
@@ -172,10 +172,10 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                     });
                     //Resetiram polje u koje spremam ID-eve i imena/prezimena pacijenata kojima su evidentirani recepti
                     this.pacijenti = [];
-                    //Samo jedinstvene pacijente nadodavam u svoje polje 
+                    //Samo jedinstvene pacijente nadodavam u svoje polje
                     this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
                 }
-                //Ako je server inicijalno vratio da nema registriranih pacijenata u bazi 
+                //Ako je server inicijalno vratio da nema registriranih pacijenata u bazi
                 else if(podatci["success"] === "false" && podatci["message"] === "Nema pronađenih pacijenata!"){
                     //Resetiram poruke koje je potrebno resetirati da se prikaže sljedeća poruka
                     this.nemaRecepata = null;
@@ -184,7 +184,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                     //Spremam odgovor servera u svoju varijablu
                     this.inicijalnoNemaPacijenata = podatci.message;
                 }
-                //Ako je server inicijalno vratio da nema evidentiranih recepata za aktivnog pacijenta 
+                //Ako je server inicijalno vratio da nema evidentiranih recepata za aktivnog pacijenta
                 else if(podatci["success"] === "false" && podatci["message"] === "Aktivni pacijent nema evidentiranih recepata!"){
                     //Resetiram poruke koje je potrebno resetirati da se prikaže sljedeća poruka
                     this.nemaRecepata = null;
@@ -242,14 +242,14 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                             });
                             //Praznim polje pacijenata
                             this.pacijenti = [];
-                            //Samo jedinstvene pacijente nadodavam u svoje polje 
+                            //Samo jedinstvene pacijente nadodavam u svoje polje
                             this.pacijenti = pacijent.filter((objekt,index,polje) => polje.findIndex(obj => (obj.id === objekt.id)) === index);
                             //Kreiram svoje novo polje koje će uzeti samo ID-ove iz polja rezultata
                             this.ids = this.pacijenti.map((objekt) => {
                                 return objekt.id.toString();
                             });
                             //Pošalji te ID-eve tablici pacijenata
-                            this.pacijentiService.prijenosnikUTablicuPacijenata.next(this.ids); 
+                            this.pacijentiService.prijenosnikUTablicuPacijenata.next(this.ids);
                         }
                         //Ako je server vratio da nema rezultata
                         else{
@@ -263,7 +263,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                 );
             }),
             takeUntil(this.pretplateSubject)
-        ).subscribe(); 
+        ).subscribe();
     }
 
     //Metoda koja se poziva kada liječnik klikne na button "Prikaži recept"
@@ -278,8 +278,10 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
     azurirajRecept(recept: Recept){
         //Šaljem podatke recepta komponenti "IzdajReceptComponent" da se zna da se radi o AŽURIRANJU RECEPTA
         this.listaReceptiService.editMessenger.next(recept);
+        //Stavljam u LS informaciju je li se radi o ažuriranju recepta ili izdavanju recepta
+        localStorage.setItem("editMessenger", JSON.stringify(recept));
         //Preusmjeri liječnika na prozor ažuriranja recepta
-        this.router.navigate(['./',recept.idPacijent],{relativeTo: this.route}); 
+        this.router.navigate(['./',recept.idPacijent],{relativeTo: this.route});
     }
 
     //Metoda koja se poziva kada se klikne "Izađi" ili negdje izvan prikaza recepta

@@ -60,7 +60,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
         this.formaPretraga = new FormGroup({
             'pretraga': new FormControl(null)
         });
-        //Pretplaćivam se na podatke iz Resolvera 
+        //Pretplaćivam se na podatke iz Resolvera
         this.route.data.pipe(
             tap(podatci => {
                 //Spremam sve dijagnoze
@@ -74,7 +74,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     let pacijent;
                     //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
                     this.nemaPacijenata = null;
-                    //Označavam da ima pacijenata 
+                    //Označavam da ima pacijenata
                     this.isPacijenti = true;
                     //Prolazim kroz polje pacijenata sa servera
                     for(const pac of podatci){
@@ -98,7 +98,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     //Spremam odgovor servera u svoju varijablu
                     this.nemaPacijenata = podatci["message"];
                     console.log(this.nemaPacijenata);
-                } 
+                }
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
@@ -109,7 +109,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                 //Namjerno kašnjenje
                 debounceTime(200),
                 //Ne ponavljam iste zahtjeve
-                distinctUntilChanged(), 
+                distinctUntilChanged(),
                 //Uzimam vrijednost pretrage te ga predavam HTTP zahtjevu
                 switchMap(value => {
                     return this.pacijentiService.getPacijentiPretraga(value).pipe(
@@ -184,7 +184,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                     let pacijent;
                                     //Resetiram poruke koje je potrebno resetirati da se prikaže tablica pacijenata
                                     this.nemaPacijenata = null;
-                                    //Označavam da ima pacijenata 
+                                    //Označavam da ima pacijenata
                                     this.isPacijenti = true;
                                     //Praznim inicijalno polje pacijenata
                                     this.pacijenti = [];
@@ -210,6 +210,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     izdajRecept(id: string){
         //Emitiram null vrijednost Subjectom u "IzdajReceptComponent" da se zna da se radi o DODAVANJU RECEPTA
         this.listaReceptiService.editMessenger.next(null);
+        //Stavljam u LS informaciju je li se radi o izdavanju ili ažuriranju recepta
+        localStorage.setItem("editMessenger", JSON.stringify(null));
         //Ako pacijent NIJE TRENUTNO AKTIVAN u obradi
         if(JSON.parse(localStorage.getItem("idObrada")) === null){
             //Dohvaćam sve ID-ove pacijenata kojima je unesena povijest bolesti kada pacijent nije bio aktivan
@@ -242,7 +244,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             //Pa da se ne upisuje ponovno povijest bolesti
             this.pacijentiService.provjeraPovijestBolesti(+JSON.parse(localStorage.getItem("idObrada")),+id).pipe(
                 tap(brojPovijestiBolesti => {
-                    //Ako je "brojPovijestiBolesti" 0 
+                    //Ako je "brojPovijestiBolesti" 0
                     if(+brojPovijestiBolesti === 0){
                         //Šaljem child komponenti ovaj ID pacijenta
                         this.idPacijent = +id;

@@ -347,6 +347,18 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     this.izabraniProizvod = this.recept.proizvod + " " + this.recept.oblikJacinaPakiranjeLijek;
                                 }
                             }
+                            //Dohvaćam cijene ovog lijeka iz dopunske liste
+                            this.receptService.getCijenaLijekDL(this.izabraniProizvod).pipe(
+                                tap(cijene => {
+                                    //Prikazivam cijene
+                                    this.isCijene = true;
+                                    //Postavljam dohvaćene cijene u formu
+                                    this.cijenaUkupno.patchValue(`${cijene[0].cijenaLijek} kn`,{emitEvent: false});
+                                    this.cijenaZavod.patchValue(`${cijene[0].cijenaZavod} kn`,{emitEvent: false});
+                                    this.cijenaOsiguranik.patchValue(`${cijene[0].doplataLijek} kn`,{emitEvent: false});
+                                }),
+                                takeUntil(this.pretplateSubject)
+                            ).subscribe();
                         }
                     }
                     //Ako NIJE DEFINIRAN OJP u mom modelu recepta, znači da se radi o MAG.PRIPRAVKU
@@ -389,6 +401,18 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     this.izabraniProizvod = this.recept.proizvod;
                                 }
                             }
+                            //Dohvaćam cijene za ovaj izabrani mag.pripravak
+                            this.receptService.getCijenaMagPripravakDL(this.izabraniProizvod).pipe(
+                                tap(cijene => {
+                                    //Prikazivam cijene
+                                    this.isCijene = true;
+                                    //Postavljam cijene magistralnog pripravka u formu
+                                    this.cijenaUkupno.patchValue(`${cijene[0].cijenaMagPripravak} kn`,{emitEvent: false});
+                                    this.cijenaZavod.patchValue(`${cijene[0].cijenaZavod} kn`,{emitEvent: false});
+                                    this.cijenaOsiguranik.patchValue(`${cijene[0].doplataMagPripravak} kn`,{emitEvent: false});
+                                }),
+                                takeUntil(this.pretplateSubject)
+                            ).subscribe();
                         }
                     }
                 }
@@ -2041,7 +2065,7 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.receptService.getCijenaMagPripravakDL(magPripravakDL),
                     this.sharedService.getDopunsko(+this.idPacijent)
                 ]).pipe(
-                    tap(cijenaDopunsko => {
+                    switchMap(cijenaDopunsko => {
                         console.log(cijenaDopunsko);
                         //Dohvaćam doplatu sa servera
                         let doplataServer = cijenaDopunsko[0][0].doplataMagPripravak;
@@ -2059,11 +2083,11 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             else{
                 //Pretplaćivam se na informaciju ima li ovaj pacijent dopunsko osiguranje
                 this.sharedService.getDopunsko(+this.idPacijent).pipe(
-                    tap(dopunsko => {
+                    switchMap(dopunsko => {
                         //Spremam informaciju je li pacijent ima dopunsko osiguranje
                         isDopunsko = dopunsko;
                         //Ako ima dopunsko, pošalji 0kn, ako nema pošalji 30kn
-                        return this.azurirajRecept(mkbPolje, isDopunsko, isDopunsko ? 0 : 30,'OL');
+                        return this.azurirajRecept(mkbPolje, isDopunsko, isDopunsko ? null : 30,'OL');
                     }),
                     takeUntil(this.pretplateSubject)
                 ).subscribe();

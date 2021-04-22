@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ListaReceptiService } from './lijecnik/recept/lista-recepti/lista-recepti.service';
 import { LoginService } from './login/login.service';
 import { ObradaService } from './shared/obrada/obrada.service';
 import { PreglediService } from './shared/obrada/pregledi/pregledi.service';
@@ -19,7 +20,9 @@ export class AppComponent implements OnInit{
         //Dohvaćam servis prethodnih pregleda
         private preglediService: PreglediService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis liste recepata
+        private listaReceptiService: ListaReceptiService
     ){}
 
     //Kada se komponenta loada, poziva se ova metoda
@@ -32,6 +35,8 @@ export class AppComponent implements OnInit{
         this.preglediService.refreshOnDodanPregled();
         //Pozivam metodu koja će sačuvati ID-ove pacijenata kojima je dodana povijest bolesti kada pacijent NIJE aktivan
         this.sharedService.refreshPacijentiIDs();
+        //Pozivam metodu koja će sačuvati informaciju je li se radi o izdavanju ili ažuriranju recepata
+        this.listaReceptiService.refreshEditMessenger();
     }
 
 }

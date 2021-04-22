@@ -31,6 +31,7 @@ export class IzdajReceptResolverService implements Resolve<any>{
         return this.listaReceptiService.editMessengerObs.pipe(
             take(1),
             switchMap(recept => {
+                console.log(recept);
                 //Ako je recept null, to znači da sam došao dodavde iz buttona "Izdaj recept"
                 if(!recept){
                     //Pretplaćivam se podatak JE LI pacijent AKTIVAN ili NIJE
@@ -58,7 +59,7 @@ export class IzdajReceptResolverService implements Resolve<any>{
                                             datum: result[5],
                                             inicijalneDijagnoze: result[6],
                                             zdravstveniRadnici: result[7]
-                                        };    
+                                        };
                                     })
                                 );
                             }
@@ -86,7 +87,7 @@ export class IzdajReceptResolverService implements Resolve<any>{
                                                     datum: result[5],
                                                     inicijalneDijagnoze: result[6],
                                                     zdravstveniRadnici: result[7]
-                                                };    
+                                                };
                                             })
                                         );
                                     })
@@ -117,11 +118,11 @@ export class IzdajReceptResolverService implements Resolve<any>{
                                 datum: result[5],
                                 zdravstveniRadnici: result[6],
                                 recept: result[7]
-                            };    
+                            };
                         })
                     );
                 }
             })
         );
     }
-} 
+}

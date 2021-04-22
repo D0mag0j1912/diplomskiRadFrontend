@@ -10,7 +10,7 @@ import {baseUrl} from '../../../backend-path';
     providedIn: 'root'
 })
 export class ListaReceptiService{
-    
+
     //Definiram Subject pomoću kojega ću prenijeti ID pacijenta s lijeve tablice u desnu tablicu
     prijenosnikUListuRecepata = new Subject<string[]>();
     //Kreiram Observable od njega
@@ -24,11 +24,19 @@ export class ListaReceptiService{
         //Dohvaćam http
         private http: HttpClient
     ){}
+    //Metoda koja čuva state Subjecta koji sadrži informaciju je li se radi o izdavanju ili ažuriranju recepta
+    refreshEditMessenger(){
+        const recept: Recept = JSON.parse(localStorage.getItem('editMessenger'));
+        if(!recept){
+            return;
+        }
+        this.editMessenger.next(recept);
+    }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi recepti koji odgovaraju pacijentima čiji ID mi je poslan Subjectom
     getReceptiTablica(ids: string[]){
         let params = new HttpParams().append("ids",JSON.stringify(ids));
-        return this.http.get<any>(baseUrl + 'recept/listaRecepti/getReceptiTablica.php',{params: params}) 
+        return this.http.get<any>(baseUrl + 'recept/listaRecepti/getReceptiTablica.php',{params: params})
             .pipe(catchError(handleError));
     }
 
@@ -36,7 +44,7 @@ export class ListaReceptiService{
     getReceptiPretraga(pretraga: string){
         pretraga = encodeURIComponent(pretraga);
         let params = new HttpParams().append("pretraga",pretraga);
-        return this.http.get<any>(baseUrl + 'recept/listaRecepti/getReceptiPretraga.php',{params: params}) 
+        return this.http.get<any>(baseUrl + 'recept/listaRecepti/getReceptiPretraga.php',{params: params})
             .pipe(catchError(handleError));
     }
 
