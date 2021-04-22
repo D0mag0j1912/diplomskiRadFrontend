@@ -1,13 +1,17 @@
 //VALIDACIJE
 
 import { FormControl, FormGroup, ValidatorFn } from "@angular/forms";
+import { DrzavaOsiguranja } from "../../modeli/drzavaOsiguranja.model";
+import { KategorijaOsiguranja } from "../../modeli/kategorijaOsiguranja.model";
+import { Participacija } from "../../modeli/participacija.model";
 import { PodrucniUred } from "../../modeli/podrucniUred.model";
 
 //Metoda koja provjerava je li država osiguranja ispravno unesena tj. je li unesena vrijednost koja nije dio polja država osiguranja
-export function isValidDrzavaOsiguranja(naziviDrzava: string[]): ValidatorFn{
+export function isValidDrzavaOsiguranja(drzave: DrzavaOsiguranja[]): ValidatorFn{
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const drzava = drzave.find(element => element.nazivDrzave === control.value);
         //Ako vrijednost države osiguranja koje je korisnik unio nije dio polja država osiguranja (znači vraća -1 ako nije dio polja)
-        if(naziviDrzava.indexOf(control.value) === -1){
+        if(!drzava){
             return {'drzaveIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -15,10 +19,11 @@ export function isValidDrzavaOsiguranja(naziviDrzava: string[]): ValidatorFn{
     }
 }
 //Metoda koja provjerava je li kategorija osiguranja ispravno unesena tj. je li unesena vrijednost koja nije dio polja kategorija osiguranja
-export function isValidKategorijaOsiguranja(oznakeOsiguranika: string[]): ValidatorFn{
+export function isValidKategorijaOsiguranja(katOsiguranja: KategorijaOsiguranja[]): ValidatorFn{
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const kat = katOsiguranja.find(element => element.oznakaOsiguranika === control.value);
         //Ako vrijednost kategorije osiguranja koje je korisnik unio nije dio polja kategorija osiguranja (znači vraća -1 ako nije dio polja)
-        if(oznakeOsiguranika.indexOf(control.value) === -1){
+        if(!kat){
             return {'oznakaIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -26,10 +31,11 @@ export function isValidKategorijaOsiguranja(oznakeOsiguranika: string[]): Valida
     }
 }
 //Metoda koja provjerava je li područni ured ispravno unesen tj. je li unesena vrijednost koja nije dio polja područnih ureda
-export function isValidPodrucniUred(naziviSluzbi: string[]): ValidatorFn{
+export function isValidPodrucniUred(podrucniUredi: PodrucniUred[]): ValidatorFn{
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const ured = podrucniUredi.find(element => element.nazivSluzbe === control.value);
         //Ako vrijednost područnog ureda koje je korisnik unio nije dio polja područnih ureda (znači vraća -1 ako nije dio polja)
-        if(naziviSluzbi.indexOf(control.value) === -1){
+        if(!ured){
             return {'uredIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -37,10 +43,11 @@ export function isValidPodrucniUred(naziviSluzbi: string[]): ValidatorFn{
     }
 }
 //Metoda koja provjerava je li participacija ispravno unesena tj. je li unesena vrijednost koja nije dio polja participacije
-export function isValidParticipacija(razloziParticipacije: string[]): ValidatorFn{
+export function isValidParticipacija(participacije: Participacija[]): ValidatorFn{
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const participacija = participacije.find(element => element.razlogParticipacija === control.value);
         //Ako vrijednost članka participacije koje je korisnik unio nije dio polja članka participacija (znači vraća -1 ako nije dio polja)
-        if(razloziParticipacije.indexOf(control.value) === -1){
+        if(!participacija){
             return {'participacijaIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -68,13 +75,13 @@ export function isValidDatumiDopunsko(): ValidatorFn {
         }
         return {'neValjaDatumDopunsko': true};
     }
-} 
+}
 //Metoda koja provjerava jesu li uneseni ILI trajna participacija ILI datum participacije AKO JE OSLOBOĐEN PARTICIPACIJA CHECKED
 export function atLeastOneRequiredParticipacija(): ValidatorFn {
     return (group: FormGroup): {[key: string]: boolean} | null => {
         if (group) {
             //Ako su trajna participacija ILI datum participacijaDo UPISANI, a oslobođen participacije je CHECKED, NEMOJ PRIKAZATI ERROR
-            if((group.get('participacija.trajnoParticipacija').value || group.get('participacija.participacijaDo').value)  
+            if((group.get('participacija.trajnoParticipacija').value || group.get('participacija.participacijaDo').value)
                 && group.get('oslobodenParticipacije').value) {
                     return null;
             }
@@ -111,7 +118,7 @@ export function mustOslobodenParticipacija(): ValidatorFn {
     return (group: FormGroup): {[key: string]: boolean} | null => {
         if(group){
             //Ako je unesen jedan od dijelova participacije, a oslobođen participacije nije checked
-            if((group.get("participacija.clanakParticipacija").value || group.get("participacija.trajnoParticipacija").value 
+            if((group.get("participacija.clanakParticipacija").value || group.get("participacija.trajnoParticipacija").value
                 || group.get("participacija.participacijaDo").value) && group.get("oslobodenParticipacije").value === null){
                     return {"mustBeCheckedParticipacija":true};
             }
@@ -123,8 +130,8 @@ export function mustOslobodenParticipacija(): ValidatorFn {
 export function atLeastOneRequiredOsnovno(): ValidatorFn {
     return (group: FormGroup): {[key: string]: boolean} | null => {
         if (group) {
-            if(group.controls['trajnoOsnovno'].value || 
-                (group.get('datumiOsnovno.osnovnoOd').value && 
+            if(group.controls['trajnoOsnovno'].value ||
+                (group.get('datumiOsnovno.osnovnoOd').value &&
                 group.get('datumiOsnovno.osnovnoDo').value)) {
                 return null;
             }
@@ -142,5 +149,5 @@ export function nazivSluzbeToSif(value: string, forma: FormGroup, podrucniUredi:
             forma.get('sifUred').patchValue(ured["sifUred"], {emitEvent: false});
       }
     }
-    forma.get('sifUred').updateValueAndValidity({emitEvent: false}); 
+    forma.get('sifUred').updateValueAndValidity({emitEvent: false});
 }

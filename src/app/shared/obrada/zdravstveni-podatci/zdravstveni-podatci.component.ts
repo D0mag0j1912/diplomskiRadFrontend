@@ -35,20 +35,12 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
     forma: FormGroup;
     //Spremam države osiguranja
     drzave: DrzavaOsiguranja[] = [];
-    //Spremam nazive države zbog validacije
-    naziviDrzava: string[] = [];
     //Spremam kategorije osiguranja
     katOsiguranja: KategorijaOsiguranja[] = [];
-    //Spremam oznake osiguranika zbog validacije
-    oznakeOsiguranika: string[] = [];
     //Spremam područne urede
     podrucniUredi: PodrucniUred[] = [];
-    //Spremam nazive službi zbog validacije
-    naziviSluzbi: string[] = [];
     //Spremam participacije
     participacije: Participacija[] = [];
-    //Spremam članke participacije zbog validacije
-    razloziParticipacije: string[] = [];
     //Spremam ZDRAVSTVENE podatke pacijenta
     zdrPodatci: ZdravstveniPodatci;
     //Spremam osobne podatke pacijenta
@@ -136,29 +128,13 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     //Spremam ID pacijenta
                     this.idPacijent = this.pacijent.id;
                 }
-                //Sve nazive država osiguranja stavljam u posebno polje zbog validacije
-                for(let drzava of this.drzave){
-                  this.naziviDrzava.push(drzava["nazivDrzave"]);
-                }
-                //Sve oznake osiguranika stavljam u posebno polje zbog validacije
-                for(let oznaka of this.katOsiguranja){
-                  this.oznakeOsiguranika.push(oznaka["oznakaOsiguranika"]);
-                }
-                //Sve nazive službi stavljam u posebno polje zbog validacije
-                for(let sluzba of this.podrucniUredi){
-                  this.naziviSluzbi.push(sluzba["nazivSluzbe"]);
-                }
-                //Sve razloge oslobađanja od participacije stavljam u posebno polje zbog validacije
-                for(let razlog of this.participacije){
-                  this.razloziParticipacije.push(razlog["razlogParticipacija"]);
-                }
 
                 //Kreiram svoju formu
                 this.forma = new FormGroup({
                   'nositeljOsiguranja': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.nositeljOsiguranja : null, this.isPodatciAktivni ? [Validators.required] : []),
-                  'drzavaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektDrzavaOsiguranja.nazivDrzave : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidDrzavaOsiguranja(this.naziviDrzava)] : []),
-                  'kategorijaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektKategorijaOsiguranja.oznakaOsiguranika : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidKategorijaOsiguranja(this.oznakeOsiguranika)] : []),
-                  'podrucniUred': new FormControl(this.isPodatciAktivni ? this.objektPodrucniUred.nazivSluzbe : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPodrucniUred(this.naziviSluzbi)] : []),
+                  'drzavaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektDrzavaOsiguranja.nazivDrzave : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidDrzavaOsiguranja(this.drzave)] : []),
+                  'kategorijaOsiguranja': new FormControl(this.isPodatciAktivni ? this.objektKategorijaOsiguranja.oznakaOsiguranika : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidKategorijaOsiguranja(this.katOsiguranja)] : []),
+                  'podrucniUred': new FormControl(this.isPodatciAktivni ? this.objektPodrucniUred.nazivSluzbe : null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPodrucniUred(this.podrucniUredi)] : []),
                   'sifUred': new FormControl(this.isPodatciAktivni ? this.objektPodrucniUred.sifUred : null),
                   'mbo': new FormControl(this.isPodatciAktivni ? this.pacijent.mbo : null, this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{9}$")] : []),
                   'trajnoOsnovno': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.trajnoOsnovno : null),
@@ -195,19 +171,16 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                       (value: string) => {
                           //Ako su podatci aktivni
                           if(this.isPodatciAktivni){
-                            //Ako korisnik mijenja nazive službi područnih ureda
-                            if(this.naziviSluzbi.indexOf(value) !== -1){
-                                //Ako je form control ispravan
-                                if(this.forma.get('podrucniUred').valid){
-                                  //Pozivam metodu
-                                  Handler.nazivSluzbeToSif(value, this.forma, this.podrucniUredi);
-                                }
-                                //Ako nije ispravan
-                                else{
-                                  //Treba biti prazno
-                                  this.forma.get('sifUred').patchValue(null,{emitEvent: false});
-                                }
-                            }
+                              //Ako je form control ispravan
+                              if(this.podrucniUred.valid){
+                                //Pozivam metodu
+                                Handler.nazivSluzbeToSif(value, this.forma, this.podrucniUredi);
+                              }
+                              //Ako nije ispravan
+                              else{
+                                //Treba biti prazno
+                                this.sifUred.patchValue(null,{emitEvent: false});
+                              }
                           }
                       }
                     ),
@@ -371,7 +344,7 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           //Omogućavam unos članka participacije i postavljam mu validatore
           this.forma.get('participacija.clanakParticipacija').enable({emitEvent: false});
           //Postavljam članku validatore
-          this.forma.get('participacija.clanakParticipacija').setValidators([Validators.required, Handler.isValidParticipacija(this.razloziParticipacije)]);
+          this.forma.get('participacija.clanakParticipacija').setValidators([Validators.required, Handler.isValidParticipacija(this.participacije)]);
       }
       //Ako "Oslobođen participacije" nije checked":
       else{

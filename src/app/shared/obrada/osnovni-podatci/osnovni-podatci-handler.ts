@@ -1,5 +1,8 @@
 import { FormControl, FormGroup, ValidatorFn } from "@angular/forms";
+import { BracnoStanje } from "../../modeli/bracnoStanje.model";
 import { Mjesto } from "../../modeli/mjesto.model";
+import { RadniStatus } from "../../modeli/radniStatus.model";
+import { StatusPacijent } from "../../modeli/statusPacijent.model";
 
 //Metoda koja automatski upisuje pbr na osnovu naziva mjesta
 export function nazivMjestoToPbr(forma: FormGroup, mjesta: Mjesto[], value: string){
@@ -25,10 +28,11 @@ export function pbrToNazivMjesto(value: number, mjesta: Mjesto[], forma: FormGro
   }
 
 //Metoda koja provjerava je li mjesto ispravno uneseno tj. je li unesena vrijednost koja nije dio polja mjesta
-export function isValidMjesto(naziviMjesta: string[]): ValidatorFn {
-    return (control: FormControl): {[key: string]: boolean} | null => { 
+export function isValidMjesto(mjesta: Mjesto[]): ValidatorFn {
+    return (control: FormControl): {[key: string]: boolean} | null => {
+        const mjesto = mjesta.find(element => element.nazivMjesto === control.value);
         //Ako vrijednost mjesta koje je korisnik unio nije dio polja naziva mjesta (znači vraća -1 ako nije dio polja)
-        if(naziviMjesta.indexOf(control.value) === -1){
+        if(!mjesto){
             return {'mjestaIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -36,10 +40,11 @@ export function isValidMjesto(naziviMjesta: string[]): ValidatorFn {
   }
 }
 //Metoda koja provjerava je li bračno stanje ispravno uneseno tj. je li unesena vrijednost koja nije dio polja bračnog stanja
-export function isValidBracnoStanje(naziviBracnihStanja: string[]): ValidatorFn {
+export function isValidBracnoStanje(bracnaStanja: BracnoStanje[]): ValidatorFn {
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const bracnoStanje = bracnaStanja.find(element => element.nazivBracnoStanje === control.value);
         //Ako vrijednost bračnog stanja koje je korisnik unio nije dio polja naziva bračnih stanja (znači vraća -1 ako nije dio polja)
-        if(naziviBracnihStanja.indexOf(control.value) === -1){
+        if(!bracnoStanje){
             return {'bracnaStanjaIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -47,10 +52,11 @@ export function isValidBracnoStanje(naziviBracnihStanja: string[]): ValidatorFn 
     }
 }
 //Metoda koja provjerava je li radni status ispravno unesen tj. je li unesena vrijednost koja nije dio polja radnih statusa
-export function isValidRadniStatus(naziviRadniStatusi: string[]): ValidatorFn {
+export function isValidRadniStatus(radniStatusi: RadniStatus[]): ValidatorFn {
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const radniStatus = radniStatusi.find(element => element.nazivRadniStatus === control.value);
         //Ako vrijednost radnog statusa koje je korisnik unio nije dio polja naziva radnih statusa (znači vraća -1 ako nije dio polja)
-        if(naziviRadniStatusi.indexOf(control.value) === -1){
+        if(!radniStatus){
             return {'radniStatusIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -58,10 +64,11 @@ export function isValidRadniStatus(naziviRadniStatusi: string[]): ValidatorFn {
     }
 }
 //Metoda koja provjerava je li status pacijenta ispravno unesen tj. je li unesena vrijednost koja nije dio polja statusa pacijenata
-export function isValidStatusPacijent(naziviStatusaPacijenata: string[]): ValidatorFn{
+export function isValidStatusPacijent(statusiPacijenta: StatusPacijent[]): ValidatorFn{
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const statusPacijent = statusiPacijenta.find(element => element.nazivStatusPacijent === control.value);
         //Ako vrijednost statusa pacijenta koje je korisnik unio nije dio polja naziva statusa pacijenata (znači vraća -1 ako nije dio polja)
-        if(naziviStatusaPacijenata.indexOf(control.value) === -1){
+        if(!statusPacijent){
             return {'statusPacijentIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null
@@ -69,10 +76,11 @@ export function isValidStatusPacijent(naziviStatusaPacijenata: string[]): Valida
     }
 }
 //Metoda koja provjerava je li poštanski broj mjesta ispravno unesen tj. je li unesena vrijednost koja nije dio polja poštanskih brojeva
-export function isValidPostanskiBroj(pbrMjesta: number[]): ValidatorFn{
+export function isValidPostanskiBroj(mjesta: Mjesto[]): ValidatorFn{
     return (control: FormControl): {[key: string]: boolean} | null => {
+        const pbr = mjesta.find(element => element.pbrMjesto === control.value);
         //Ako vrijednost poštanskog broja koje je korisnik unio nije dio polja poštanskih brojeva (znači vraća -1 ako nije dio polja)
-        if(pbrMjesta.indexOf(control.value) === -1){
+        if(!pbr){
             return {'pbrIsForbidden': true};
         }
         //Ako je vrijednost naziva mjesta ok, vraćam null

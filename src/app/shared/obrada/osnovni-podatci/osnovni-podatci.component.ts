@@ -34,17 +34,12 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
     forma: FormGroup;
     //Polje za mjesta
     mjesta: Mjesto[] = [];
-    naziviMjesta: string[] = [];
-    pbrMjesta: number[] = [];
     //Polje za bračna stanja
     bracnaStanja: BracnoStanje[] = [];
-    naziviBracnihStanja: string[] = [];
     //Polje za radne statuse
     radniStatusi: RadniStatus[] = [];
-    naziviRadniStatusi: string[] = [];
     //Polje za statuse pacijenta
     statusiPacijenta: StatusPacijent[] = [];
-    naziviStatusaPacijenata: string[] = [];
     //Objekt tipa Pacijent u kojega ću spremati osnovne podatke pacijenta
     pacijent: Pacijent;
     //Spremam pbr i naziv mjesta u objekt tipa "Mjesto"
@@ -71,7 +66,7 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
             (response : {podatci: any, pacijenti: Pacijent | any}) => {
               //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Bracno stanje"
               let brStanje;
-              //Prolazim JS objektom bračnih stanja 
+              //Prolazim JS objektom bračnih stanja
               for(const stanje of response.podatci.bracnaStanja){
                   //Kreiram objekte tipa "BracnoStanje"
                   brStanje = new BracnoStanje(stanje);
@@ -114,23 +109,6 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                   //Spremam ID pacijenta
                   this.idPacijent = this.pacijent.id;
               }
-              //Sve nazive mjesta stavljam u posebno polje zbog validacije
-              for(let mjesto of this.mjesta){
-                  this.naziviMjesta.push(mjesto["nazivMjesto"]);
-                  this.pbrMjesta.push(mjesto["pbrMjesto"]);
-              }
-              //Sve nazive bračnih stanja stavljam u posebno polje zbog validacije
-              for(let stanje of this.bracnaStanja){
-                this.naziviBracnihStanja.push(stanje["nazivBracnoStanje"]);
-              }
-              //Sve nazive radnih statusa stavljam u posebno polje zbog validacije
-              for(let status of this.radniStatusi){
-                this.naziviRadniStatusi.push(status["nazivRadniStatus"]);
-              }
-              //Sve nazive statusa pacijenata stavljam u posebno polje zbog validacije
-              for(let status of this.statusiPacijenta){
-                this.naziviStatusaPacijenata.push(status["nazivStatusPacijent"]);
-              }
               //Kreiram svoju formu:
               this.forma = new FormGroup({
                 'ime': new FormControl(this.isPodatciAktivni ? this.pacijent.ime : null, this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
@@ -140,20 +118,20 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                 'oib': new FormControl(this.isPodatciAktivni ? this.pacijent.oib: null, this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
                 'email': new FormControl(this.isPodatciAktivni ? this.pacijent.email: null, this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
                 'spol': new FormControl(this.isPodatciAktivni ? this.pacijent.spol: null,this.isPodatciAktivni ? [Validators.required] : []),
-                'pbr': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.pbrMjesta)] : []),
-                'mjesto': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null, this.isPodatciAktivni ? [Handler.isValidMjesto(this.naziviMjesta)] : []),
+                'pbr': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.mjesta)] : []),
+                'mjesto': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null, this.isPodatciAktivni ? [Handler.isValidMjesto(this.mjesta)] : []),
                 'mobitel': new FormControl(this.isPodatciAktivni ? this.pacijent.mobitel: null, this.isPodatciAktivni ? [Validators.pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/)] : []),
-                'bracnoStanje': new FormControl(this.isPodatciAktivni ? this.pacijent.bracnoStanje: null, this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.naziviBracnihStanja) : null),
-                'radniStatus': new FormControl(this.isPodatciAktivni ? this.pacijent.radniStatus: null,this.isPodatciAktivni ? Handler.isValidRadniStatus(this.naziviRadniStatusi) : null),
-                'status': new FormControl(this.isPodatciAktivni ? this.pacijent.status: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.naziviStatusaPacijenata)] : null)
+                'bracnoStanje': new FormControl(this.isPodatciAktivni ? this.pacijent.bracnoStanje: null, this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.bracnaStanja) : null),
+                'radniStatus': new FormControl(this.isPodatciAktivni ? this.pacijent.radniStatus: null,this.isPodatciAktivni ? Handler.isValidRadniStatus(this.radniStatusi) : null),
+                'status': new FormControl(this.isPodatciAktivni ? this.pacijent.status: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.statusiPacijenta)] : null)
               }, {validators: this.isPodatciAktivni ? Handler.isValidKombinacija(this.mjesta) : null});
           }),
           takeUntil(this.pretplateSubject)
-      ).subscribe(); 
+      ).subscribe();
 
 
       //Ako je pacijent aktivan
-      if(this.isPodatciAktivni){ 
+      if(this.isPodatciAktivni){
 
           const combined = merge(
               //Pretplaćivam se na promjene u poštanskom broju
@@ -209,25 +187,25 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                   takeUntil(this.pretplateSubject)
               )
           ).subscribe();
-        } 
-      
+        }
+
     }
 
 
     //Metoda koja se poziva kada korisnik klikne "Potvrdi osnovne podatke"
     onSubmit(){
-      
+
         //Ako forma nije valjana
         if(!this.forma.valid){
           return;
         }
         //Ako su podatci aktivni
         if(this.isPodatciAktivni){
-            //Pretplaćujem se na odgovor servera 
+            //Pretplaćujem se na odgovor servera
             this.osnovniPodatciService.potvrdiOsnovnePodatke(this.idPacijent,this.ime.value,this.prezime.value,
               this.datRod.value,this.adresa.value,this.oib.value,
               this.email.value,this.spol.value,this.pbr.value,
-              this.mobitel.value, this.bracnoStanje.value, 
+              this.mobitel.value, this.bracnoStanje.value,
               this.radniStatus.value,this.status.value).pipe(
                   tap(
                     //Dohvaćam odgovor servera
@@ -236,9 +214,9 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                         this.response = true;
                         //Spremam odgovor servera
                         this.responsePoruka = odgovor["message"];
-                    }    
+                    }
                   ),
-                  takeUntil(this.pretplateSubject)                                                                                
+                  takeUntil(this.pretplateSubject)
           ).subscribe();
         }
         //Ako podatci nisu aktivni
@@ -257,7 +235,7 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
       this.response = false;
     }
 
-    
+
     //Metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
       this.pretplateSubject.next(true);

@@ -8,12 +8,12 @@
                     <tbody>
                         <tr>
                             <td>
-                                <label 
-                                    for="ime" 
+                                <label
+                                    for="ime"
                                     style="font-family: Verdana, sans-serif;">Ime</label>
                                 <input
                                     type="text"
-                                    class="form-control" 
+                                    class="form-control"
                                     formControlName="ime"
                                     style="width:270px;"
                                     placeholder="Unesite ime...">
@@ -23,12 +23,12 @@
                                 </span>
                             </td>
                             <td>
-                                <label 
-                                    for="mobitel" 
+                                <label
+                                    for="mobitel"
                                     style="font-family: Verdana, sans-serif;">Mobitel</label>
                                 <input
                                     type="text"
-                                    class="form-control" 
+                                    class="form-control"
                                     formControlName="mobitel"
                                     style="width:300px;"
                                     placeholder="Unesite broj mobitela (+385...)">
@@ -36,10 +36,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <label 
-                                    for="prezime" 
+                                <label
+                                    for="prezime"
                                     style="font-family: Verdana, sans-serif;">Prezime</label>
-                                <input  
+                                <input
                                     type="text"
                                     class="form-control"
                                     formControlName="prezime"
@@ -51,15 +51,15 @@
                                 </span>
                             </td>
                             <td>
-                                <label 
-                                    for="bracnoStanje" 
+                                <label
+                                    for="bracnoStanje"
                                     style="font-family: Verdana, sans-serif;">Bračno stanje</label>
                                 <select
                                     type="text"
-                                    class="form-control" 
+                                    class="form-control"
                                     formControlName="bracnoStanje"
                                     style="width:256px;height:35px;">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite bračno stanje</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite bračno stanje</option>
                                     <option *ngFor="let stanje of bracnaStanja" value="{{stanje.nazivBracnoStanje}}">{{stanje.nazivBracnoStanje}}</option>
                                 </select>
                                 <span class="help-block" *ngIf="(bracnoStanje.touched || bracnoStanje.dirty) && !bracnoStanje.valid" style="margin-left:110px;">
@@ -69,10 +69,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <label 
-                                    for="datRod" 
+                                <label
+                                    for="datRod"
                                     style="font-family: Verdana, sans-serif;">Datum rođenja</label>
-                                <input  
+                                <input
                                     type="date"
                                     class="form-control"
                                     formControlName="datRod"
@@ -83,15 +83,15 @@
                                 </span>
                             </td>
                             <td>
-                                <label 
-                                    for="radniStatus" 
+                                <label
+                                    for="radniStatus"
                                     style="font-family: Verdana, sans-serif;">Radni status</label>
                                 <select
                                     type="text"
-                                    class="form-control" 
+                                    class="form-control"
                                     formControlName="radniStatus"
                                     style="width:265px;height:35px;">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite radni status</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite radni status</option>
                                     <option *ngFor="let status of radniStatusi" value="{{status.nazivRadniStatus}}">{{status.nazivRadniStatus}}</option>
                                 </select>
                                 <span class="help-block" *ngIf="(radniStatus.touched || radniStatus.dirty) && !radniStatus.valid" style="margin-left:110px;">
@@ -101,10 +101,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <label 
-                                    for="adresa" 
+                                <label
+                                    for="adresa"
                                     style="font-family: Verdana, sans-serif;">Adresa</label>
-                                <input  
+                                <input
                                     type="text"
                                     class="form-control"
                                     formControlName="adresa"
@@ -115,15 +115,15 @@
                                 </span>
                             </td>
                             <td>
-                                <label 
-                                    for="status" 
+                                <label
+                                    for="status"
                                     style="font-family: Verdana, sans-serif;">Status pacijenta</label>
                                 <select
                                     type="text"
-                                    class="form-control" 
+                                    class="form-control"
                                     formControlName="status"
                                     style="width:245px;height:35px;">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite status pacijenta</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite status pacijenta</option>
                                     <option *ngFor="let status of statusiPacijenta" value="{{status.nazivStatusPacijent}}">{{status.nazivStatusPacijent}}</option>
                                 </select>
                                 <span class="help-block" *ngIf="(status.touched || status.dirty) && !status.valid" style="margin-left:120px;">
@@ -134,10 +134,10 @@
                         </tr>
                         <tr>
                             <td>
-                                <label 
-                                    for="pbr" 
+                                <label
+                                    for="pbr"
                                     style="font-family: Verdana, sans-serif;">Poštanski broj</label>
-                                <input  
+                                <input
                                     type="text"
                                     class="form-control"
                                     formControlName="pbr"
@@ -149,10 +149,10 @@
                                 </span>
                             </td>
                             <td>
-                                <label 
-                                    for="oib" 
+                                <label
+                                    for="oib"
                                     style="font-family: Verdana, sans-serif;">OIB</label>
-                                <input  
+                                <input
                                     type="text"
                                     class="form-control"
                                     formControlName="oib"
@@ -166,15 +166,15 @@
                         </tr>
                         <tr>
                             <td>
-                                <label 
-                                    for="mjesto" 
+                                <label
+                                    for="mjesto"
                                     style="font-family: Verdana, sans-serif;">Mjesto</label>
-                                <select  
+                                <select
                                     type="text"
                                     class="form-control"
                                     formControlName="mjesto"
                                     style="width:250px;height:35px;">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite mjesto stanovanja</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite mjesto stanovanja</option>
                                     <option *ngFor="let mjesto of mjesta" value="{{mjesto.nazivMjesto}}">{{mjesto.nazivMjesto}}</option>
                                 </select>
                                 <span class="help-block" *ngIf="forma.errors?.krivaKombinacija">Kriva kombinacija poštanskog broja i naziva mjesta!</span>
@@ -183,10 +183,10 @@
                                 </span>
                             </td>
                             <td>
-                                <label 
-                                    for="email" 
+                                <label
+                                    for="email"
                                     style="font-family: Verdana, sans-serif;">Email</label>
-                                <input  
+                                <input
                                     type="email"
                                     class="form-control"
                                     formControlName="email"
@@ -200,19 +200,19 @@
                         </tr>
                         <tr>
                             <td>
-                                <label 
-                                    for="spol" 
+                                <label
+                                    for="spol"
                                     style="font-family: Verdana, sans-serif;">Spol</label><br>
                                 <label>
-                                    <input 
-                                        type="radio" 
+                                    <input
+                                        type="radio"
                                         value="male"
-                                        formControlName="spol" 
+                                        formControlName="spol"
                                         style="font-family: Verdana, sans-serif;">Muško
-                                    <input 
-                                        type="radio" 
+                                    <input
+                                        type="radio"
                                         value="female"
-                                        formControlName="spol" 
+                                        formControlName="spol"
                                         style="font-family: Verdana, sans-serif;">Žensko
                                 </label>
                             </td>
@@ -220,7 +220,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <button 
+                                <button
                                 type="submit"
                                 class="btn btn-primary"
                                 [disabled]="!forma.valid">Potvrdi podatke pacijenta</button>
