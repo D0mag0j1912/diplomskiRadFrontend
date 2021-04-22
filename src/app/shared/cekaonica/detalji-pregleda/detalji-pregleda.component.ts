@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChi
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { DetaljiPregleda } from '../../modeli/detaljiPregleda.model';
+import { DetaljiPregleda } from './detaljiPregleda.model';
 import { PovijestBolesti } from '../../modeli/povijestBolesti.model';
 import { Pregled } from '../../modeli/pregled.model';
 import { Recept } from '../../modeli/recept.model';

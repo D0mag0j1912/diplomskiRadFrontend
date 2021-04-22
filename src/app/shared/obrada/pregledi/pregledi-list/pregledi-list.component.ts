@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
-import { PregledList } from 'src/app/shared/modeli/pregledList.model';
+import { PregledList } from '../pregledList.model';
 import { PreglediListService } from './pregledi-list.service';
 
 @Component({
@@ -13,7 +13,7 @@ import { PreglediListService } from './pregledi-list.service';
   styleUrls: ['./pregledi-list.component.css']
 })
 export class PreglediListComponent implements OnInit, OnDestroy{
-    
+
     //Kreiram Subject pomoću kojega izlazim iz pretplata
     pretplate = new Subject<boolean>();
     //Primam pregleda za listu od roditelja
@@ -65,8 +65,8 @@ export class PreglediListComponent implements OnInit, OnDestroy{
         $event.stopPropagation();
         //Preusmjeravam se na sljedeći pregled
         this.router.navigate(['./',sljedeciPregled.toString()],{relativeTo: this.route});
-    } 
-    
+    }
+
     //Metoda koja se aktivira kada korisnik stisne button "Novi pregled"
     idiNaPrethodniNoviPregled(prethodniNoviSlucaj: number,$event: any){
         //Inicijaliziram da nije pronađen pregled inicijalno
@@ -89,7 +89,7 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                 }
             );
         }
-        //Blokiram klikam roditeljskog taga (LI-a) i omogućujem klik buttona 
+        //Blokiram klikam roditeljskog taga (LI-a) i omogućujem klik buttona
         $event.stopPropagation();
         //Preusmjeravam se na novi slučaj
         this.router.navigate(['./',prethodniNoviSlucaj.toString()],{relativeTo: this.route});
@@ -117,7 +117,7 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                 }
             );
         }
-        //Blokiram klikam roditeljskog taga (LI-a) i omogućujem klik buttona 
+        //Blokiram klikam roditeljskog taga (LI-a) i omogućujem klik buttona
         $event.stopPropagation();
         //Preusmjeravam se na prethodni povezan slučaj
         this.router.navigate(['./',prethodniPovezanSlucaj],{relativeTo: this.route});

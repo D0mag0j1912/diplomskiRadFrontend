@@ -6,7 +6,7 @@ import { tap, takeUntil, switchMap, take, mergeMap } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
-import { InicijalneDijagnoze } from 'src/app/shared/modeli/inicijalneDijagnoze.model';
+import { InicijalneDijagnoze } from './inicijalneDijagnoze.model';
 import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatnost.model';
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
 import { SharedService } from 'src/app/shared/shared.service';

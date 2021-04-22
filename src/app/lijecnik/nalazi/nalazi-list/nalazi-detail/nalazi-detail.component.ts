@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
-import { Nalaz } from 'src/app/shared/modeli/nalaz.model';
+import { Nalaz } from './nalaz.model';
 
 @Component({
   selector: 'app-nalazi-detail',
@@ -39,7 +39,7 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
                 for(const n of nalaz.nalaz[0]){
                     //Spremam podatke u svoj objekt
                     this.nalaz = new Nalaz(n);
-                } 
+                }
                 //Ako ima dohvaćenih sek. dijagnoza
                 if(nalaz.nalaz[1] !== null){
                     //Prolazim kroz sve dohvaćene sekundarne dijagnoze te ih spremam u svoj model

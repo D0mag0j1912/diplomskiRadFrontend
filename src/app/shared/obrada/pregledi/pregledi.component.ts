@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, merge, of, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
-import { PregledList } from '../../modeli/pregledList.model';
+import { PregledList } from './pregledList.model';
 import { SekundarniHeaderService } from '../../sekundarni-header/sekundarni-header.service';
 import { ObradaService } from '../obrada.service';
 import { PreglediDetailService } from './pregledi-detail/pregledi-detail.service';
@@ -194,7 +194,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                     if(pregledi !== null){
                                                         //Označavam da ima pregleda
                                                         this.imaLiPregleda = true;
-                                                        //Praznim polje pregleda 
+                                                        //Praznim polje pregleda
                                                         this.pregledi = [];
                                                         let objektPregled;
                                                         //Prolazim kroz sve preglede u odgovoru servera
@@ -212,7 +212,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                                     this.router.navigate(['./',idPregled],{relativeTo: this.route});
                                                                 }
                                                             }),
-                                                            takeUntil(this.pretplate) 
+                                                            takeUntil(this.pretplate)
                                                         );
                                                     }
                                                     //Ako aktivni pacijent NEMA evidentiranih pregleda za taj datum

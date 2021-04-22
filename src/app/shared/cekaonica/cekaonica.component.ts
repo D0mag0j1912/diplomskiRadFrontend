@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
-import { Cekaonica } from 'src/app/shared/modeli/cekaonica.model';
+import { Cekaonica } from './cekaonica.model';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
 import { ObradaService } from '../obrada/obrada.service';
 import { CekaonicaService } from './cekaonica.service';

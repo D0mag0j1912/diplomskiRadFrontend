@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { merge, of, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
-import { NalazList } from 'src/app/shared/modeli/nalazList.model';
+import { NalazList } from './nalazList.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { NalaziService } from './nalazi.service';
 
@@ -20,7 +20,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
     forma: FormGroup;
     //Oznaka je li se pretraživa po datumu
     isDatum: boolean = true;
-    //Spremam sve dohvaćene nalaze 
+    //Spremam sve dohvaćene nalaze
     nalazi: NalazList[] = [];
     //Spremam ID aktivnog pacijenta
     idPacijent: number;
@@ -75,7 +75,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
                         );
                     }
                 }),
-                takeUntil(this.pretplata)   
+                takeUntil(this.pretplata)
             ),
             //Pretplaćujem se na promjene u polju tekstualne pretrage
             this.pretraga.valueChanges.pipe(
@@ -132,7 +132,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
                                 this.filter.enable({emitEvent: false});
                                 this.datum.enable({emitEvent: false});
                                 //Resetiram datum
-                                this.datum.reset(); 
+                                this.datum.reset();
                                 this.pretraga.reset();
                             }),
                             takeUntil(this.pretplata)

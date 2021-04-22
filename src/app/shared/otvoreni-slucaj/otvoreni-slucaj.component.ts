@@ -5,7 +5,7 @@ import { forkJoin, of, Subject} from 'rxjs';
 import { switchMap,distinctUntilChanged, takeUntil, debounceTime, tap, take } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Obrada } from '../modeli/obrada.model';
-import { OtvoreniSlucaj } from '../modeli/otvoreniSlucaj.model';
+import { OtvoreniSlucaj } from './otvoreniSlucaj.model';
 import { ObradaService } from '../obrada/obrada.service';
 import { OtvoreniSlucajService } from './otvoreni-slucaj.service';
 
@@ -23,7 +23,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     //Oznaka je li ima dijagnoza za trenutno aktivnog pacijenta
     isDijagnoza: boolean = false;
     isDijagnozaPretraga: boolean = false;
-    //Poruka 
+    //Poruka
     porukaAktivan: string = null;
     porukaDijagnoza: string = null;
     porukaDijagnozaPretraga: string = null;
@@ -48,7 +48,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
       private obradaService: ObradaService,
       //Dohvaćam login servis
       private loginService: LoginService
-    ) { } 
+    ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
@@ -142,13 +142,13 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
                     return of(this.porukaAktivan).pipe(
                         takeUntil(this.pretplateSubject)
-                    );  
+                    );
                 }
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
 
-        //Pretplaćujem se na promjene u formi pretrage 
+        //Pretplaćujem se na promjene u formi pretrage
         this.forma.get('parametar').valueChanges.pipe(
             debounceTime(100),
             distinctUntilChanged(),

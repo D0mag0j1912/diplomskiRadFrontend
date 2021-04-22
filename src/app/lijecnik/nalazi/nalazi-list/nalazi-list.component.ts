@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { NalazList } from 'src/app/shared/modeli/nalazList.model';
+import { NalazList } from '../nalazList.model';
 
 @Component({
   selector: 'app-nalazi-list',
