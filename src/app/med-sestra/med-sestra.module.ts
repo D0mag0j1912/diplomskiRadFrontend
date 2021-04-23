@@ -7,12 +7,17 @@ import { MedSestraRoutingModule } from './med-sestra-routing.module';
 import { MedSestraComponent } from './med-sestra.component';
 import { NarucivanjeComponent } from './narucivanje/narucivanje.component';
 import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podatci-pregleda.component';
+import { UzorciComponent } from './uzorci/uzorci.component';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
 @NgModule({
     declarations: [
         MedSestraComponent,
         NarucivanjeComponent,
-        OpciPodatciPregledaComponent
+        OpciPodatciPregledaComponent,
+        UzorciComponent
     ],
     imports: [
         CommonModule,
@@ -20,7 +25,10 @@ import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podat
         RouterModule,
         SharedModule,
         MedSestraRoutingModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule
     ],
     exports: [
         MedSestraComponent,

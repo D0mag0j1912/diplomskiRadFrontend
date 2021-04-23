@@ -209,6 +209,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             //Pretplaćujem se na informaciju koliko pregled košta
             this.sharedService.cijeneObs.pipe(
                 tap(trenutnaCijena => {
+                    console.log(trenutnaCijena);
                     //Primam naplaćenu cijenu te je stavljam u polje forme
                     this.cijena.patchValue(trenutnaCijena.toFixed(2) + ' kn', {emitEvent: false});
                 }),

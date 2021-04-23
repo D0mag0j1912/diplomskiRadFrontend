@@ -68,7 +68,7 @@ export class SharedService {
                     tap(konacnaCijenaPregleda => {
                         console.log(konacnaCijenaPregleda);
                         //Ako je pacijent aktivan te se naplaćiva usluga aktivnom pacijentu, emitiram novu vrijednost
-                        if(podatci.success !== "false" && +podatci[0].idPacijent === idPacijent){
+                        if(podatci.success !== "false" && +podatci[0].idPacijent === +idPacijent){
                             //Postavljam novu vrijednost cijene
                             this.cijeneSubject.next(konacnaCijenaPregleda);
                         }

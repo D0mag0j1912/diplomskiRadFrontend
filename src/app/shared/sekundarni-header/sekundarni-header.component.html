@@ -65,6 +65,14 @@
                     routerLink="/lijecnik/obrada/nalazi">
                     Nalazi</a>
             </li>
+            <li
+                routerLinkActive="active"
+                *ngIf="isMedSestra">
+                <a
+                    style="cursor: pointer;font-family:Verdana, sans-serif"
+                    routerLink="/med-sestra/obrada/uzorci">
+                    Uzorci</a>
+            </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li *ngIf="isAktivan">
