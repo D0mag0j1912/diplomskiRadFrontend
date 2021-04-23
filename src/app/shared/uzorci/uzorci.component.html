@@ -1,0 +1,17 @@
+<div class="backdrop" (click)="onClose()"></div>
+<div class="alert-box">
+    <mat-card>
+        <form [formGroup]="forma">
+            <mat-form-field>
+                <input
+                  matInput
+                  type="text"
+                    formControlName="eritrociti"
+                    placeholder="Eritrociti">
+            </mat-form-field>
+        </form>
+    </mat-card>
+    <div class="alert-box-actions" #alertBoxActions>
+        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    </div>
+</div>

@@ -4,7 +4,6 @@ import { NalaziDetailResolverService } from 'src/app/lijecnik/nalazi/nalazi-list
 import { NalaziDetailComponent } from 'src/app/lijecnik/nalazi/nalazi-list/nalazi-detail/nalazi-detail.component';
 import { NalaziComponent } from 'src/app/lijecnik/nalazi/nalazi.component';
 import { PovijestBolestiComponent } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.component';
-import { UzorciComponent } from 'src/app/med-sestra/uzorci/uzorci.component';
 import { ImportiResolverService } from '../../med-sestra/importi-resolver.service';
 import { OpciPodatciPregledaComponent } from '../../med-sestra/opci-podatci-pregleda/opci-podatci-pregleda.component';
 import { ObradaResolverService } from './obrada-resolver.service';
@@ -30,8 +29,7 @@ const routes = [
         ]},
         {path: 'nalazi', component: NalaziComponent, children: [
             {path: ':id', component: NalaziDetailComponent, resolve: {nalaz: NalaziDetailResolverService}}
-        ]},
-        {path: 'uzorci', component: UzorciComponent}
+        ]}
     ]},
 ];
 

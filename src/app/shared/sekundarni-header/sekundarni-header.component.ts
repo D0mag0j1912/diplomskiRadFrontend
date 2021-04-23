@@ -17,6 +17,7 @@ import { SekundarniHeaderService } from './sekundarni-header.service';
 })
 export class SekundarniHeaderComponent implements OnInit, OnDestroy {
 
+    isUzorci: boolean = false;
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
     //Spremam pretplatu
@@ -262,6 +263,14 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/med-sestra/obrada/pregledi']);
             }
         }
+    }
+
+    onPosaljiUzorke(){
+        this.isUzorci = true;
+    }
+
+    onCloseUzorci(){
+        this.isUzorci = false;
     }
 
     //Metoda se poziva kada se komponenta uništi

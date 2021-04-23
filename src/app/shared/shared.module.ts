@@ -15,6 +15,10 @@ import { IzdaniReceptiComponent } from './izdani-recepti/izdani-recepti.componen
 import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podataka/azuriranje-osobnih-podataka.component';
 import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
 import { IzdaneUputniceComponent } from './izdane-uputnice/izdane-uputnice.component';
+import { UzorciComponent } from './uzorci/uzorci.component';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
 @NgModule({
     declarations: [
@@ -31,12 +35,16 @@ import { IzdaneUputniceComponent } from './izdane-uputnice/izdane-uputnice.compo
         IzdaniReceptiComponent,
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
-        IzdaneUputniceComponent
+        IzdaneUputniceComponent,
+        UzorciComponent
     ],
     imports:[
         CommonModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule
     ],
     exports: [
         AlertComponent,
@@ -52,7 +60,8 @@ import { IzdaneUputniceComponent } from './izdane-uputnice/izdane-uputnice.compo
         IzdaniReceptiComponent,
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
-        IzdaneUputniceComponent
+        IzdaneUputniceComponent,
+        UzorciComponent
     ]
 })
 export class SharedModule{

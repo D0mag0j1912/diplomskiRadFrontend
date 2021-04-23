@@ -11,7 +11,7 @@ import { ZdravstveniPodatciComponent } from './zdravstveni-podatci/zdravstveni-p
 import { PreglediComponent } from './pregledi/pregledi.component';
 import { PreglediListComponent } from './pregledi/pregledi-list/pregledi-list.component';
 import { PreglediDetailComponent } from './pregledi/pregledi-detail/pregledi-detail.component';
-
+import {MatButtonModule} from '@angular/material/button';
 @NgModule({
     declarations: [
         OsnovniPodatciComponent,
@@ -28,7 +28,8 @@ import { PreglediDetailComponent } from './pregledi/pregledi-detail/pregledi-det
         RouterModule,
         SharedModule,
         ReactiveFormsModule,
-        ObradaRoutingModule
+        ObradaRoutingModule,
+        MatButtonModule
     ],
     exports: [
         OsnovniPodatciComponent,

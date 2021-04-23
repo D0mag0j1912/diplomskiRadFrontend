@@ -1,3 +1,6 @@
+<app-uzorci
+    *ngIf="isUzorci"
+    (close)="onCloseUzorci()"></app-uzorci>
 <nav class="navbar navbar-expand-md navbar-light bg-light">
     <button
         class="navbar-toggler ml-auto"
@@ -65,16 +68,16 @@
                     routerLink="/lijecnik/obrada/nalazi">
                     Nalazi</a>
             </li>
-            <li
-                routerLinkActive="active"
-                *ngIf="isMedSestra">
-                <a
-                    style="cursor: pointer;font-family:Verdana, sans-serif"
-                    routerLink="/med-sestra/obrada/uzorci">
-                    Uzorci</a>
-            </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
+            <li *ngIf="isAktivan && isMedSestra">
+              <button
+                  type="button"
+                  mat-raised-button
+                  color="primary"
+                  style="right:10px;position: relative;margin-top:5px;"
+                  (click)="onPosaljiUzorke()">Pošalji uzorke</button>
+            </li>
             <li *ngIf="isAktivan">
               <h4
                   style="font-family: Verdana, sans-serif;
