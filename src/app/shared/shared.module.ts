@@ -19,6 +19,7 @@ import { UzorciComponent } from './uzorci/uzorci.component';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
     declarations: [
@@ -44,7 +45,8 @@ import {MatInputModule} from '@angular/material/input';
         ReactiveFormsModule,
         MatCardModule,
         MatFormFieldModule,
-        MatInputModule
+        MatInputModule,
+        MatButtonModule
     ],
     exports: [
         AlertComponent,

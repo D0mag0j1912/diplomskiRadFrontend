@@ -1,17 +1,59 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
+    <h3
+        style="font-family: Verdana, sans-serif;
+              text-align: center;color:#337ab7">Kompletna krvna slika</h3>
     <mat-card>
         <form [formGroup]="forma">
-            <mat-form-field>
+            <mat-form-field
+                *ngFor="let naziv of nazivi; let i = index"
+                [ngStyle]="{'margin-left' : (i%2 !== 0) ? '20px' : '0px'}">
                 <input
-                  matInput
-                  type="text"
-                    formControlName="eritrociti"
-                    placeholder="Eritrociti">
+                    matInput
+                    type="text"
+                    [formControlName]="naziv"
+                    [placeholder]="naziv">
             </mat-form-field>
+            <mat-error *ngIf="(eritrociti.touched || eritrociti.dirty) && eritrociti.invalid">
+                <mat-error *ngIf="eritrociti.errors?.required">Morate unijeti vrijednost eritrocita!</mat-error>
+                <mat-error
+                    *ngIf="eritrociti.errors?.errorEritrociti &&
+                          !eritrociti.errors?.required &&
+                          !eritrociti.errors?.samoBrojevi">Neispravan unos eritrocita!</mat-error>
+                <mat-error
+                    *ngIf="eritrociti.errors?.samoBrojevi &&
+                          !eritrociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+            </mat-error>
+            <mat-error *ngIf="(hemoglobin.touched || hemoglobin.dirty) && hemoglobin.invalid">Neispravan unos hemoglobina!</mat-error>
+            <mat-error *ngIf="(hematokrit.touched || hematokrit.dirty) && hematokrit.invalid">Neispravan unos hematokrita!</mat-error>
+            <mat-error *ngIf="(mcv.touched || mcv.dirty) && mcv.invalid">Neispravan unos MCV-a!</mat-error>
+            <mat-error *ngIf="(mch.touched || mch.dirty) && mch.invalid">Neispravan unos MCH-a!</mat-error>
+            <mat-error *ngIf="(mchc.touched || mchc.dirty) && mchc.invalid">Neispravan unos MCHC-a!</mat-error>
+            <mat-error *ngIf="(rdw.touched || rdw.dirty) && rdw.invalid">Neispravan unos RDW-a!</mat-error>
+            <mat-error *ngIf="(leukociti.touched || leukociti.dirty) && leukociti.invalid">Neispravan unos leukocita!</mat-error>
+            <mat-error *ngIf="(trombociti.touched || trombociti.dirty) && trombociti.invalid">Neispravan unos trombocita!</mat-error>
+            <mat-error *ngIf="(mpv.touched || mpv.dirty) && mpv.invalid">Neispravan unos MPV-a!</mat-error>
+            <mat-error *ngIf="(trombokrit.touched || trombokrit.dirty) && trombokrit.invalid">Neispravan unos trombokrita!</mat-error>
+            <mat-error *ngIf="(pdw.touched || pdw.dirty) && pdw.invalid">Neispravan unos PDW-a!</mat-error>
+            <mat-error *ngIf="(neutrofilniGranulociti.touched || neutrofilniGranulociti.dirty) && neutrofilniGranulociti.invalid">Neispravan unos neutrofilnih granulocita!</mat-error>
+            <mat-error *ngIf="(monociti.touched || monociti.dirty) && monociti.invalid">Neispravan unos monocita!</mat-error>
+            <mat-error *ngIf="(limfociti.touched || limfociti.dirty) && limfociti.invalid">Neispravan unos limfocita!</mat-error>
+            <mat-error *ngIf="(eozinofilniGranulociti.touched || eozinofilniGranulociti.dirty) && eozinofilniGranulociti.invalid">Neispravan unos eozinofilnih granulocita!</mat-error>
+            <mat-error *ngIf="(bazofilniGranulociti.touched || bazofilniGranulociti.dirty) && bazofilniGranulociti.invalid">Neispravan unos bazofilnih granulocita!</mat-error>
+            <mat-error *ngIf="(retikulociti.touched || retikulociti.dirty) && retikulociti.invalid">Neispravan unos retikulocita!</mat-error>
         </form>
     </mat-card>
-    <div class="alert-box-actions" #alertBoxActions>
-        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+    <br>
+    <div class="alert-box-actions">
+        <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            style="float:left;">Spremi</button>
+        <button
+            type="button"
+            mat-raised-button
+            color="primary"
+            (click)="onClose()">Izađi</button>
     </div>
 </div>
