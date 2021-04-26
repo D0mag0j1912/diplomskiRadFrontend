@@ -33,30 +33,80 @@ export class UzorciComponent implements OnInit, OnDestroy{
                   Validators.required,
                   UzorciValidations.provjeriEritrocite(),
                   UzorciValidations.isBroj()]),
-            'hemoglobin': new FormControl(null, [Validators.required,UzorciValidations.provjeriHemoglobin()]),
-            'hematokrit': new FormControl(null, [Validators.required,UzorciValidations.provjeriHematokrit()]),
-            'mcv': new FormControl(null, [Validators.required,UzorciValidations.provjeriMCV()]),
-            'mch': new FormControl(null, [Validators.required,UzorciValidations.provjeriMCH()]),
-            'mchc': new FormControl(null, [Validators.required,UzorciValidations.provjeriMCHC()]),
-            'rdw': new FormControl(null, [Validators.required,UzorciValidations.provjeriRDW()]),
-            'leukociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriLeukociti()]),
-            'trombociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriTrombociti()]),
-            'mpv': new FormControl(null, [Validators.required,UzorciValidations.provjeriMPV()]),
-            'trombokrit': new FormControl(null, [Validators.required,UzorciValidations.provjeriTrombokrit()]),
-            'pdw': new FormControl(null, [Validators.required,UzorciValidations.provjeriPDW()]),
-            'neutrofilniGranulociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriNeutrofilniGranulociti()]),
-            'monociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriMonociti()]),
-            'limfociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriLimfociti()]),
-            'eozinofilniGranulociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriEozinofilniGranulociti()]),
-            'bazofilniGranulociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriBazofilniGranulociti()]),
-            'retikulociti': new FormControl(null, [Validators.required,UzorciValidations.provjeriRetikulociti()])
+            'hemoglobin': new FormControl(null, [
+                  Validators.required,
+                  UzorciValidations.provjeriHemoglobin(),
+                  UzorciValidations.isBroj()]),
+            'hematokrit': new FormControl(null, [
+                  Validators.required,
+                  UzorciValidations.provjeriHematokrit(),
+                  UzorciValidations.isBroj()]),
+            'mcv': new FormControl(null, [
+                  Validators.required,
+                  UzorciValidations.provjeriMCV(),
+                  UzorciValidations.isBroj()]),
+            'mch': new FormControl(null, [
+                  Validators.required,
+                  UzorciValidations.provjeriMCH(),
+                  UzorciValidations.isBroj()]),
+            'mchc': new FormControl(null, [
+                  Validators.required,
+                  UzorciValidations.provjeriMCHC(),
+                  UzorciValidations.isBroj()]),
+            'rdw': new FormControl(null, [
+                  Validators.required,
+                  UzorciValidations.provjeriRDW(),
+                  UzorciValidations.isBroj()]),
+            'leukociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriLeukociti(),
+                UzorciValidations.isBroj()]),
+            'trombociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriTrombociti(),
+                UzorciValidations.isBroj()]),
+            'mpv': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriMPV(),
+                UzorciValidations.isBroj()]),
+            'trombokrit': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriTrombokrit(),
+                UzorciValidations.isBroj()]),
+            'pdw': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriPDW(),
+                UzorciValidations.isBroj()]),
+            'neutrofilniGranulociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriNeutrofilniGranulociti(),
+                UzorciValidations.isBroj()]),
+            'monociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriMonociti(),
+                UzorciValidations.isBroj()]),
+            'limfociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriLimfociti(),
+                UzorciValidations.isBroj()]),
+            'eozinofilniGranulociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriEozinofilniGranulociti(),
+                UzorciValidations.isBroj()]),
+            'bazofilniGranulociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriBazofilniGranulociti(),
+                UzorciValidations.isBroj()]),
+            'retikulociti': new FormControl(null, [
+                Validators.required,
+                UzorciValidations.provjeriRetikulociti(),
+                UzorciValidations.isBroj()])
         });
         //Prolazim kroz sve form controlove u formi
         for(const key in this.forma.controls){
             //Spremam im nazive
             this.nazivi.push(key);
         }
-        console.log(!isNaN(parseFloat('6.7')));
         //Pretplaćivam se na slučajno generirane vrijednosti uzoraka
         this.uzorciService.getUzorci().pipe(
             tap(uzorci => {
@@ -74,6 +124,10 @@ export class UzorciComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplata)
         ).subscribe();
+    }
+
+    onSubmit(){
+        console.log(this.forma.getRawValue());
     }
 
     //Metoda koja se pokreće kada korisnik želi izaći iz ovog prozora

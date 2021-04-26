@@ -16,10 +16,7 @@ import { AzuriranjeOsobnihPodatakaComponent } from './azuriranje-osobnih-podatak
 import { AzuriranjeLozinkaComponent } from './azuriranje-lozinka/azuriranje-lozinka.component';
 import { IzdaneUputniceComponent } from './izdane-uputnice/izdane-uputnice.component';
 import { UzorciComponent } from './uzorci/uzorci.component';
-import {MatCardModule} from '@angular/material/card';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
-import {MatButtonModule} from '@angular/material/button';
+import { AngularMaterialModule } from '../angular-material.module';
 
 @NgModule({
     declarations: [
@@ -43,10 +40,7 @@ import {MatButtonModule} from '@angular/material/button';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule
+        AngularMaterialModule
     ],
     exports: [
         AlertComponent,
