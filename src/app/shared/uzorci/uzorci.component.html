@@ -1,213 +1,246 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
+    <app-alert
+        [message]="responsePoruka"
+        (close)="onCloseAlert()"
+        *ngIf="response"></app-alert>
     <h3
         style="font-family: Verdana, sans-serif;
               text-align: center;color:#337ab7">Kompletna krvna slika</h3>
-    <mat-card>
-        <form [formGroup]="forma" (ngSubmit)="onSubmit()">
-            <mat-form-field
-                *ngFor="let naziv of nazivi; let i = index"
-                [ngStyle]="{'margin-left' : (i%2 !== 0) ? '20px' : '0px'}">
-                <input
-                    matInput
-                    type="text"
-                    [formControlName]="naziv"
-                    [placeholder]="naziv">
-            </mat-form-field>
-            <mat-error *ngIf="(eritrociti.touched || eritrociti.dirty) && eritrociti.invalid">
-                <mat-error *ngIf="eritrociti.errors?.required">Morate unijeti vrijednost eritrocita!</mat-error>
-                <mat-error
-                    *ngIf="eritrociti.errors?.errorEritrociti &&
-                          !eritrociti.errors?.required &&
-                          !eritrociti.errors?.samoBrojevi">Neispravan unos eritrocita!</mat-error>
-                <mat-error
-                    *ngIf="eritrociti.errors?.samoBrojevi &&
-                          !eritrociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(hemoglobin.touched || hemoglobin.dirty) && hemoglobin.invalid">
-                <mat-error *ngIf="hemoglobin.errors?.required">Morate unijeti vrijednost hemoglobina!</mat-error>
-                <mat-error
-                    *ngIf="hemoglobin.errors?.errorHemoglobin &&
-                          !hemoglobin.errors?.required &&
-                          !hemoglobin.errors?.samoBrojevi">Neispravan unos hemoglobina!</mat-error>
-                <mat-error
-                    *ngIf="hemoglobin.errors?.samoBrojevi &&
-                        !hemoglobin.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(hematokrit.touched || hematokrit.dirty) && hematokrit.invalid">
-                <mat-error *ngIf="hematokrit.errors?.required">Morate unijeti vrijednost hematokrita!</mat-error>
-                <mat-error
-                    *ngIf="hematokrit.errors?.errorHematokrit &&
-                          !hematokrit.errors?.required &&
-                          !hematokrit.errors?.samoBrojevi">Neispravan unos hematokrita!</mat-error>
-                <mat-error
-                    *ngIf="hematokrit.errors?.samoBrojevi &&
-                        !hematokrit.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(mcv.touched || mcv.dirty) && mcv.invalid">
-                <mat-error *ngIf="mcv.errors?.required">Morate unijeti vrijednost MCV-a!</mat-error>
-                <mat-error
-                    *ngIf="mcv.errors?.errorMCV &&
-                          !mcv.errors?.required &&
-                          !mcv.errors?.samoBrojevi">Neispravan unos MCV-a!</mat-error>
-                <mat-error
-                    *ngIf="mcv.errors?.samoBrojevi &&
-                      !mcv.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(mch.touched || mch.dirty) && mch.invalid">
-                <mat-error *ngIf="mch.errors?.required">Morate unijeti vrijednost MCH-a!</mat-error>
-                <mat-error
-                    *ngIf="mch.errors?.errorMCH &&
-                          !mch.errors?.required &&
-                          !mch.errors?.samoBrojevi">Neispravan unos MCH-a!</mat-error>
-                <mat-error
-                    *ngIf="mch.errors?.samoBrojevi &&
-                      !mch.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(mchc.touched || mchc.dirty) && mchc.invalid">
-                <mat-error *ngIf="mchc.errors?.required">Morate unijeti vrijednost MCHC-a!</mat-error>
-                <mat-error
-                    *ngIf="mchc.errors?.errorMCHC &&
-                          !mchc.errors?.required &&
-                          !mchc.errors?.samoBrojevi">Neispravan unos MCHC-a!</mat-error>
-                <mat-error
-                    *ngIf="mchc.errors?.samoBrojevi &&
-                      !mchc.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(rdw.touched || rdw.dirty) && rdw.invalid">
-                <mat-error *ngIf="rdw.errors?.required">Morate unijeti vrijednost RDW-a!</mat-error>
-                <mat-error
-                    *ngIf="rdw.errors?.errorRDW &&
-                          !rdw.errors?.required &&
-                          !rdw.errors?.samoBrojevi">Neispravan unos RDW-a!</mat-error>
-                <mat-error
-                    *ngIf="rdw.errors?.samoBrojevi &&
-                      !rdw.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(leukociti.touched || leukociti.dirty) && leukociti.invalid">
-                <mat-error *ngIf="leukociti.errors?.required">Morate unijeti vrijednost leukocita!</mat-error>
-                <mat-error
-                    *ngIf="leukociti.errors?.errorLeukociti &&
-                          !leukociti.errors?.required &&
-                          !leukociti.errors?.samoBrojevi">Neispravan unos leukocita!</mat-error>
-                <mat-error
-                    *ngIf="leukociti.errors?.samoBrojevi &&
-                      !leukociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(trombociti.touched || trombociti.dirty) && trombociti.invalid">
-                <mat-error *ngIf="trombociti.errors?.required">Morate unijeti vrijednost trombocita!</mat-error>
-                <mat-error
-                    *ngIf="trombociti.errors?.errorTrombociti &&
-                          !trombociti.errors?.required &&
-                          !trombociti.errors?.samoBrojevi">Neispravan unos trombocita!</mat-error>
-                <mat-error
-                    *ngIf="trombociti.errors?.samoBrojevi &&
-                      !trombociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(mpv.touched || mpv.dirty) && mpv.invalid">
-                <mat-error *ngIf="mpv.errors?.required">Morate unijeti vrijednost MPV-a!</mat-error>
-                <mat-error
-                    *ngIf="mpv.errors?.errorMPV &&
-                          !mpv.errors?.required &&
-                          !mpv.errors?.samoBrojevi">Neispravan unos MPV-a!</mat-error>
-                <mat-error
-                    *ngIf="mpv.errors?.samoBrojevi &&
-                      !mpv.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(trombokrit.touched || trombokrit.dirty) && trombokrit.invalid">
-                <mat-error *ngIf="trombokrit.errors?.required">Morate unijeti vrijednost trombokrita!</mat-error>
-                <mat-error
-                    *ngIf="trombokrit.errors?.errorTrombokrit &&
-                          !trombokrit.errors?.required &&
-                          !trombokrit.errors?.samoBrojevi">Neispravan unos trombokrita!</mat-error>
-                <mat-error
-                    *ngIf="trombokrit.errors?.samoBrojevi &&
-                      !trombokrit.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(pdw.touched || pdw.dirty) && pdw.invalid">
-                <mat-error *ngIf="pdw.errors?.required">Morate unijeti vrijednost PDW-a!</mat-error>
-                <mat-error
-                    *ngIf="pdw.errors?.errorPDW &&
-                          !pdw.errors?.required &&
-                          !pdw.errors?.samoBrojevi">Neispravan unos PDW-a!</mat-error>
-                <mat-error
-                    *ngIf="pdw.errors?.samoBrojevi &&
-                      !pdw.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(neutrofilniGranulociti.touched || neutrofilniGranulociti.dirty) && neutrofilniGranulociti.invalid">
-                <mat-error *ngIf="neutrofilniGranulociti.errors?.required">Morate unijeti vrijednost neutrofilnih granulocita!</mat-error>
-                <mat-error
-                    *ngIf="neutrofilniGranulociti.errors?.errorNeutrofilniGranulociti &&
-                          !neutrofilniGranulociti.errors?.required &&
-                          !neutrofilniGranulociti.errors?.samoBrojevi">Neispravan unos neutrofilnih granulocita!</mat-error>
-                <mat-error
-                    *ngIf="neutrofilniGranulociti.errors?.samoBrojevi &&
-                      !neutrofilniGranulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(monociti.touched || monociti.dirty) && monociti.invalid">
-                <mat-error *ngIf="monociti.errors?.required">Morate unijeti vrijednost monocita!</mat-error>
-                <mat-error
-                    *ngIf="monociti.errors?.errorMonociti &&
-                          !monociti.errors?.required &&
-                          !monociti.errors?.samoBrojevi">Neispravan unos monocita!</mat-error>
-                <mat-error
-                    *ngIf="monociti.errors?.samoBrojevi &&
-                      !monociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(limfociti.touched || limfociti.dirty) && limfociti.invalid">
-                <mat-error *ngIf="limfociti.errors?.required">Morate unijeti vrijednost limfocita!</mat-error>
-                <mat-error
-                    *ngIf="limfociti.errors?.errorLimfociti &&
-                          !limfociti.errors?.required &&
-                          !limfociti.errors?.samoBrojevi">Neispravan unos limfocita!</mat-error>
-                <mat-error
-                    *ngIf="limfociti.errors?.samoBrojevi &&
-                      !limfociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(eozinofilniGranulociti.touched || eozinofilniGranulociti.dirty) && eozinofilniGranulociti.invalid">
-                <mat-error *ngIf="eozinofilniGranulociti.errors?.required">Morate unijeti vrijednost eozinofilnih granulocita!</mat-error>
-                <mat-error
-                    *ngIf="eozinofilniGranulociti.errors?.errorEozinofilniGranulociti &&
-                          !eozinofilniGranulociti.errors?.required &&
-                          !eozinofilniGranulociti.errors?.samoBrojevi">Neispravan unos eozinofilnih granulocita!</mat-error>
-                <mat-error
-                    *ngIf="eozinofilniGranulociti.errors?.samoBrojevi &&
-                      !eozinofilniGranulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(bazofilniGranulociti.touched || bazofilniGranulociti.dirty) && bazofilniGranulociti.invalid">
-                <mat-error *ngIf="bazofilniGranulociti.errors?.required">Morate unijeti vrijednost bazofilnih granulocita!</mat-error>
-                <mat-error
-                    *ngIf="bazofilniGranulociti.errors?.errorBazofilniGranulociti &&
-                          !bazofilniGranulociti.errors?.required &&
-                          !bazofilniGranulociti.errors?.samoBrojevi">Neispravan unos bazofilnih granulocita!</mat-error>
-                <mat-error
-                    *ngIf="bazofilniGranulociti.errors?.samoBrojevi &&
-                      !bazofilniGranulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-            <mat-error *ngIf="(retikulociti.touched || retikulociti.dirty) && retikulociti.invalid">
-                <mat-error *ngIf="retikulociti.errors?.required">Morate unijeti vrijednost retikulocita!</mat-error>
-                <mat-error
-                    *ngIf="retikulociti.errors?.errorRetikulociti &&
-                          !retikulociti.errors?.required &&
-                          !retikulociti.errors?.samoBrojevi">Neispravan unos bazofilnih retikulocita!</mat-error>
-                <mat-error
-                    *ngIf="retikulociti.errors?.samoBrojevi &&
-                      !retikulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
-            </mat-error>
-        </form>
-    </mat-card>
-    <br>
-    <div class="alert-box-actions">
-        <button
-            type="submit"
-            mat-raised-button
-            color="primary"
-            style="float:left;"
-            [disabled]="!forma.valid">Spremi</button>
-        <button
-            type="button"
-            mat-raised-button
-            color="primary"
-            (click)="onClose()">Izađi</button>
-    </div>
+    <form [formGroup]="forma" (ngSubmit)="onSubmit()">
+        <div style="display:flex;">
+            <mat-card style="flex: 1 1 auto;max-width:50%;">
+                <mat-form-field class="ustanovaField">
+                    <mat-label>Odaberite ustanovu</mat-label>
+                    <mat-select
+                        formControlName="ustanova">
+                        <mat-option
+                            *ngFor="let ustanova of zdravstveneUstanove"
+                            [value]="ustanova.naziv">{{ustanova.naziv}}</mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="(ustanova.touched || ustanova.dirty) && ustanova.invalid">
+                        <mat-error *ngIf="ustanova.errors?.required">Naziv zdr. ustanove mora biti naveden!</mat-error>
+                    </mat-error>
+                </mat-form-field>
+                <br><br>
+                <ng-container *ngFor="let naziv of nazivi; let i = index">
+                    <mat-form-field
+                        [ngStyle]="{'margin-left' : (i%2 === 0 && i !== 0) ? '20px' : '0px'}"
+                        *ngIf="i > 0">
+                        <input
+                            matInput
+                            type="text"
+                            [formControlName]="naziv"
+                            [placeholder]="naziv">
+                    </mat-form-field>
+                </ng-container>
+                <mat-error *ngIf="(eritrociti.touched || eritrociti.dirty) && eritrociti.invalid">
+                    <mat-error *ngIf="eritrociti.errors?.required">Morate unijeti vrijednost eritrocita!</mat-error>
+                    <mat-error
+                        *ngIf="eritrociti.errors?.errorEritrociti &&
+                              !eritrociti.errors?.required &&
+                              !eritrociti.errors?.samoBrojevi">Neispravan unos eritrocita!</mat-error>
+                    <mat-error
+                        *ngIf="eritrociti.errors?.samoBrojevi &&
+                              !eritrociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(hemoglobin.touched || hemoglobin.dirty) && hemoglobin.invalid">
+                    <mat-error *ngIf="hemoglobin.errors?.required">Morate unijeti vrijednost hemoglobina!</mat-error>
+                    <mat-error
+                        *ngIf="hemoglobin.errors?.errorHemoglobin &&
+                              !hemoglobin.errors?.required &&
+                              !hemoglobin.errors?.samoBrojevi">Neispravan unos hemoglobina!</mat-error>
+                    <mat-error
+                        *ngIf="hemoglobin.errors?.samoBrojevi &&
+                            !hemoglobin.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(hematokrit.touched || hematokrit.dirty) && hematokrit.invalid">
+                    <mat-error *ngIf="hematokrit.errors?.required">Morate unijeti vrijednost hematokrita!</mat-error>
+                    <mat-error
+                        *ngIf="hematokrit.errors?.errorHematokrit &&
+                              !hematokrit.errors?.required &&
+                              !hematokrit.errors?.samoBrojevi">Neispravan unos hematokrita!</mat-error>
+                    <mat-error
+                        *ngIf="hematokrit.errors?.samoBrojevi &&
+                            !hematokrit.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(mcv.touched || mcv.dirty) && mcv.invalid">
+                    <mat-error *ngIf="mcv.errors?.required">Morate unijeti vrijednost MCV-a!</mat-error>
+                    <mat-error
+                        *ngIf="mcv.errors?.errorMCV &&
+                              !mcv.errors?.required &&
+                              !mcv.errors?.samoBrojevi">Neispravan unos MCV-a!</mat-error>
+                    <mat-error
+                        *ngIf="mcv.errors?.samoBrojevi &&
+                          !mcv.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(mch.touched || mch.dirty) && mch.invalid">
+                    <mat-error *ngIf="mch.errors?.required">Morate unijeti vrijednost MCH-a!</mat-error>
+                    <mat-error
+                        *ngIf="mch.errors?.errorMCH &&
+                              !mch.errors?.required &&
+                              !mch.errors?.samoBrojevi">Neispravan unos MCH-a!</mat-error>
+                    <mat-error
+                        *ngIf="mch.errors?.samoBrojevi &&
+                          !mch.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(mchc.touched || mchc.dirty) && mchc.invalid">
+                    <mat-error *ngIf="mchc.errors?.required">Morate unijeti vrijednost MCHC-a!</mat-error>
+                    <mat-error
+                        *ngIf="mchc.errors?.errorMCHC &&
+                              !mchc.errors?.required &&
+                              !mchc.errors?.samoBrojevi">Neispravan unos MCHC-a!</mat-error>
+                    <mat-error
+                        *ngIf="mchc.errors?.samoBrojevi &&
+                          !mchc.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(rdw.touched || rdw.dirty) && rdw.invalid">
+                    <mat-error *ngIf="rdw.errors?.required">Morate unijeti vrijednost RDW-a!</mat-error>
+                    <mat-error
+                        *ngIf="rdw.errors?.errorRDW &&
+                              !rdw.errors?.required &&
+                              !rdw.errors?.samoBrojevi">Neispravan unos RDW-a!</mat-error>
+                    <mat-error
+                        *ngIf="rdw.errors?.samoBrojevi &&
+                          !rdw.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(leukociti.touched || leukociti.dirty) && leukociti.invalid">
+                    <mat-error *ngIf="leukociti.errors?.required">Morate unijeti vrijednost leukocita!</mat-error>
+                    <mat-error
+                        *ngIf="leukociti.errors?.errorLeukociti &&
+                              !leukociti.errors?.required &&
+                              !leukociti.errors?.samoBrojevi">Neispravan unos leukocita!</mat-error>
+                    <mat-error
+                        *ngIf="leukociti.errors?.samoBrojevi &&
+                          !leukociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(trombociti.touched || trombociti.dirty) && trombociti.invalid">
+                    <mat-error *ngIf="trombociti.errors?.required">Morate unijeti vrijednost trombocita!</mat-error>
+                    <mat-error
+                        *ngIf="trombociti.errors?.errorTrombociti &&
+                              !trombociti.errors?.required &&
+                              !trombociti.errors?.samoBrojevi">Neispravan unos trombocita!</mat-error>
+                    <mat-error
+                        *ngIf="trombociti.errors?.samoBrojevi &&
+                          !trombociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(mpv.touched || mpv.dirty) && mpv.invalid">
+                    <mat-error *ngIf="mpv.errors?.required">Morate unijeti vrijednost MPV-a!</mat-error>
+                    <mat-error
+                        *ngIf="mpv.errors?.errorMPV &&
+                              !mpv.errors?.required &&
+                              !mpv.errors?.samoBrojevi">Neispravan unos MPV-a!</mat-error>
+                    <mat-error
+                        *ngIf="mpv.errors?.samoBrojevi &&
+                          !mpv.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(trombokrit.touched || trombokrit.dirty) && trombokrit.invalid">
+                    <mat-error *ngIf="trombokrit.errors?.required">Morate unijeti vrijednost trombokrita!</mat-error>
+                    <mat-error
+                        *ngIf="trombokrit.errors?.errorTrombokrit &&
+                              !trombokrit.errors?.required &&
+                              !trombokrit.errors?.samoBrojevi">Neispravan unos trombokrita!</mat-error>
+                    <mat-error
+                        *ngIf="trombokrit.errors?.samoBrojevi &&
+                          !trombokrit.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(pdw.touched || pdw.dirty) && pdw.invalid">
+                    <mat-error *ngIf="pdw.errors?.required">Morate unijeti vrijednost PDW-a!</mat-error>
+                    <mat-error
+                        *ngIf="pdw.errors?.errorPDW &&
+                              !pdw.errors?.required &&
+                              !pdw.errors?.samoBrojevi">Neispravan unos PDW-a!</mat-error>
+                    <mat-error
+                        *ngIf="pdw.errors?.samoBrojevi &&
+                          !pdw.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(neutrofilniGranulociti.touched || neutrofilniGranulociti.dirty) && neutrofilniGranulociti.invalid">
+                    <mat-error *ngIf="neutrofilniGranulociti.errors?.required">Morate unijeti vrijednost neutrofilnih granulocita!</mat-error>
+                    <mat-error
+                        *ngIf="neutrofilniGranulociti.errors?.errorNeutrofilniGranulociti &&
+                              !neutrofilniGranulociti.errors?.required &&
+                              !neutrofilniGranulociti.errors?.samoBrojevi">Neispravan unos neutrofilnih granulocita!</mat-error>
+                    <mat-error
+                        *ngIf="neutrofilniGranulociti.errors?.samoBrojevi &&
+                          !neutrofilniGranulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(monociti.touched || monociti.dirty) && monociti.invalid">
+                    <mat-error *ngIf="monociti.errors?.required">Morate unijeti vrijednost monocita!</mat-error>
+                    <mat-error
+                        *ngIf="monociti.errors?.errorMonociti &&
+                              !monociti.errors?.required &&
+                              !monociti.errors?.samoBrojevi">Neispravan unos monocita!</mat-error>
+                    <mat-error
+                        *ngIf="monociti.errors?.samoBrojevi &&
+                          !monociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(limfociti.touched || limfociti.dirty) && limfociti.invalid">
+                    <mat-error *ngIf="limfociti.errors?.required">Morate unijeti vrijednost limfocita!</mat-error>
+                    <mat-error
+                        *ngIf="limfociti.errors?.errorLimfociti &&
+                              !limfociti.errors?.required &&
+                              !limfociti.errors?.samoBrojevi">Neispravan unos limfocita!</mat-error>
+                    <mat-error
+                        *ngIf="limfociti.errors?.samoBrojevi &&
+                          !limfociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(eozinofilniGranulociti.touched || eozinofilniGranulociti.dirty) && eozinofilniGranulociti.invalid">
+                    <mat-error *ngIf="eozinofilniGranulociti.errors?.required">Morate unijeti vrijednost eozinofilnih granulocita!</mat-error>
+                    <mat-error
+                        *ngIf="eozinofilniGranulociti.errors?.errorEozinofilniGranulociti &&
+                              !eozinofilniGranulociti.errors?.required &&
+                              !eozinofilniGranulociti.errors?.samoBrojevi">Neispravan unos eozinofilnih granulocita!</mat-error>
+                    <mat-error
+                        *ngIf="eozinofilniGranulociti.errors?.samoBrojevi &&
+                          !eozinofilniGranulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(bazofilniGranulociti.touched || bazofilniGranulociti.dirty) && bazofilniGranulociti.invalid">
+                    <mat-error *ngIf="bazofilniGranulociti.errors?.required">Morate unijeti vrijednost bazofilnih granulocita!</mat-error>
+                    <mat-error
+                        *ngIf="bazofilniGranulociti.errors?.errorBazofilniGranulociti &&
+                              !bazofilniGranulociti.errors?.required &&
+                              !bazofilniGranulociti.errors?.samoBrojevi">Neispravan unos bazofilnih granulocita!</mat-error>
+                    <mat-error
+                        *ngIf="bazofilniGranulociti.errors?.samoBrojevi &&
+                          !bazofilniGranulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+                <mat-error *ngIf="(retikulociti.touched || retikulociti.dirty) && retikulociti.invalid">
+                    <mat-error *ngIf="retikulociti.errors?.required">Morate unijeti vrijednost retikulocita!</mat-error>
+                    <mat-error
+                        *ngIf="retikulociti.errors?.errorRetikulociti &&
+                              !retikulociti.errors?.required &&
+                              !retikulociti.errors?.samoBrojevi">Neispravan unos bazofilnih retikulocita!</mat-error>
+                    <mat-error
+                        *ngIf="retikulociti.errors?.samoBrojevi &&
+                          !retikulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
+                </mat-error>
+            </mat-card>
+            <mat-card style="flex: 1 1 auto;">
+                <h3
+                    class="mat-title"
+                    style="text-align: center;">Podatci uputnice</h3>
+                <mat-divider></mat-divider>
+                <mat-list>
+                    <mat-list-item>Zdravstvena djelatnost: {{podatciUputnice.nazivDjel}}</mat-list-item>
+                    <mat-list-item>Primarna dijagnoza: {{podatciUputnice.nazivPrimarna + ' [' + podatciUputnice.mkbSifraPrimarna + ']'}}</mat-list-item>
+                    <mat-list-item>Vrsta pregleda: {{podatciUputnice.vrstaPregled}}</mat-list-item>
+                    <mat-list-item *ngIf="podatciUputnice.specijalist">Šifra specijalista: {{podatciUputnice.specijalist}}</mat-list-item>
+                </mat-list>
+            </mat-card>
+        </div>
+        <br>
+        <div class="alert-box-actions">
+            <button
+                type="submit"
+                mat-raised-button
+                color="primary"
+                style="float:left;"
+                [disabled]="!forma.valid">Spremi</button>
+            <button
+                type="button"
+                mat-raised-button
+                color="primary"
+                (click)="onClose()">Izađi</button>
+        </div>
+    </form>
 </div>

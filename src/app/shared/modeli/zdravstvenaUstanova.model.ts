@@ -4,7 +4,8 @@ export class ZdravstvenaUstanova {
     public telefon: string;
     public id: string;
     public naziv: string;
-    
+    public idUputnica?: number;
+
     constructor(response: any){
         if(response.Lijecnik){
             this.lijecnik = response.Lijecnik;
@@ -20,6 +21,9 @@ export class ZdravstvenaUstanova {
         }
         if(response.nazivZdrUst){
             this.naziv = response.nazivZdrUst;
+        }
+        if(response.idUputnica){
+            this.idUputnica = +response.idUputnica;
         }
     }
 }

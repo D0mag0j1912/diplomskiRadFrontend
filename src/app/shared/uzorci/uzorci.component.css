@@ -9,9 +9,9 @@
 }
 .alert-box{
   position:fixed;
-  top:10vh;
-  left: 37.5vw;
-  width: 25vw;
+  top:5vh;
+  left: 25vw;
+  width: 50vw;
   padding: 16px;
   z-index: 100;
   background: white;
@@ -24,3 +24,8 @@
 .alert-box-actions{
   text-align:right;
 }
+
+.ustanovaField{
+    width:100%;
+}
+

@@ -1,6 +1,14 @@
 <app-uzorci
     *ngIf="isUzorci"
-    (close)="onCloseUzorci()"></app-uzorci>
+    (close)="onCloseUzorci()"
+    [zdravstveneUstanove]="zdrUstanove"
+    [nazivZdrUst]="poslaniNazivZdrUst"
+    [idUputnica]="poslaniIDUputnica"
+    [podatciUputnice]="uputnica"></app-uzorci>
+<app-alert
+    *ngIf="isAlert"
+    (close)="onCloseAlert()"
+    [message]="alertPoruka"></app-alert>
 <nav class="navbar navbar-expand-md navbar-light bg-light">
     <button
         class="navbar-toggler ml-auto"

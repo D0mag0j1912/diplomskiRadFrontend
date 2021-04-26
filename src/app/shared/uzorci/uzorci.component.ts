@@ -1,9 +1,12 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UzorciService } from './uzorci.service';
-import {Subject} from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { of, Subject} from 'rxjs';
+import { mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as UzorciValidations from './uzorci.validations';
+import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
+import { Uputnica } from '../modeli/uputnica.model';
+import { ObradaService } from '../obrada/obrada.service';
 
 @Component({
   selector: 'app-uzorci',
@@ -12,23 +15,39 @@ import * as UzorciValidations from './uzorci.validations';
 })
 export class UzorciComponent implements OnInit, OnDestroy{
 
+    //Spremam oznaku koja označava hoće li prozor odgovora servera biti otvoren ili ne
+    response: boolean = false;
+    //Spremam poruku servera
+    responsePoruka: string = null;
     //Spremam pretplatu
     pretplata = new Subject<boolean>();
     //Definiram formu
     forma: FormGroup;
     //Emitiram event prema roditeljskoj komponenti da se izađe iz ovog prozora
     @Output() close = new EventEmitter<any>();
+    //Primam polje zdr. ustanova od roditelja "SekundarniHeaderComponent"
+    @Input() zdravstveneUstanove: ZdravstvenaUstanova[];
+    //Primam naziv zdr. ustanove koja ima najveći ID uputnice
+    @Input() nazivZdrUst: string;
+    //Primam max ID uputnice (ID uputnice koji pripada inicijalno postavljenom nazivu u dropdownu)
+    @Input() idUputnica: number;
+    //Primam sve podatke uputnice koja ima najveći ID
+    @Input() podatciUputnice: Uputnica;
     //Spremam sve ključeve nazive form controlova
     nazivi: string[] = [];
 
     constructor(
         //Dohvaćam servis uzoraka
-        private uzorciService: UzorciService
+        private uzorciService: UzorciService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
+        console.log(this.idUputnica);
         this.forma = new FormGroup({
+            'ustanova': new FormControl(this.nazivZdrUst, [Validators.required]),
             'eritrociti': new FormControl(null, [
                   Validators.required,
                   UzorciValidations.provjeriEritrocite(),
@@ -124,10 +143,108 @@ export class UzorciComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplata)
         ).subscribe();
+
+        //Pretplaćivam se na promjene u dropdownu zdr. ustanove
+        this.ustanova.valueChanges.pipe(
+            switchMap(value => {
+                //Prolazim kroz sve zdr. ustanove koje mi je poslao "SekundarniHeaderComponent"
+                for(const ustanova of this.zdravstveneUstanove){
+                    //Ako je naziv zdr. ustanove iz polja === vrijendnosti iz dropdowna
+                    if(ustanova.naziv === value){
+                        this.idUputnica = ustanova.idUputnica;
+                    }
+                }
+                //Pretplaćivam se na podatke uputnice u kojima se nalazi naziv zdr. ustanove iz dropdowna
+                return this.uzorciService.getPodatciUputnica(this.idUputnica).pipe(
+                    tap(uputnica => {
+                        for(const u of uputnica){
+                            this.podatciUputnice = new Uputnica(u);
+                        }
+                        console.log(this.podatciUputnice);
+                    }),
+                    takeUntil(this.pretplata)
+                );
+            }),
+            takeUntil(this.pretplata)
+        ).subscribe();
     }
 
+    //Metoda koja se poziva kada med.sestra stisne button "Pošalji"
     onSubmit(){
-        console.log(this.forma.getRawValue());
+        if(this.forma.invalid){
+            return;
+        }
+        this.uzorciService.spremiUzorke(
+            this.idUputnica,
+            +this.eritrociti.value,
+            +this.hemoglobin.value,
+            +this.hematokrit.value,
+            +this.mcv.value,
+            +this.mch.value,
+            +this.mchc.value,
+            +this.rdw.value,
+            +this.leukociti.value,
+            +this.trombociti.value,
+            +this.mpv.value,
+            +this.trombokrit.value,
+            +this.pdw.value,
+            +this.neutrofilniGranulociti.value,
+            +this.monociti.value,
+            +this.limfociti.value,
+            +this.eozinofilniGranulociti.value,
+            +this.bazofilniGranulociti.value,
+            +this.retikulociti.value
+        ).pipe(
+            tap(odgovor => {
+                //Ako odgovor servera nije null
+                if(odgovor !== null){
+                    //Označavam da se otvori prozor koji prikaziva poruku servera
+                    this.response = true;
+                    //Spremam poruku servera
+                    this.responsePoruka = odgovor.message;
+                }
+            }),
+            /* mergeMap(odgovor => {
+                //Ako je odgovor servera uspješan
+                if(odgovor !== null){
+                    return this.obradaService.getPatientProcessing('sestra').pipe(
+                        switchMap(podatci => {
+                            //Ako je pacijent aktivan
+                            if(podatci.success !== "false"){
+                                return this.uzorciService.getUstanoveUzorci(+podatci[0].idPacijent).pipe(
+                                    tap(ustanove => {
+                                        //Restartam polje zdr. ustanova
+                                        this.zdravstveneUstanove = [];
+                                        //Definiram objekt
+                                        let obj;
+                                        //Prolazim kroz odg. servera
+                                        for(const ustanova of ustanove){
+                                            obj = new ZdravstvenaUstanova(ustanova);
+                                            this.zdravstveneUstanove.push(obj);
+                                        }
+                                        console.log(this.zdravstveneUstanove);
+                                    }),
+                                    takeUntil(this.pretplata)
+                                );
+                            }
+                            //Ako pacijent nije aktivan
+                            else{
+                              return of(null).pipe(
+                                  takeUntil(this.pretplata)
+                              );
+                            }
+                        }),
+                        takeUntil(this.pretplata)
+                    );
+                }
+                else{
+                    return of(null).pipe(
+                        takeUntil(this.pretplata)
+                    );
+                }
+            }), */
+            takeUntil(this.pretplata)
+        ).subscribe();
     }
 
     //Metoda koja se pokreće kada korisnik želi izaći iz ovog prozora
@@ -135,6 +252,17 @@ export class UzorciComponent implements OnInit, OnDestroy{
         this.close.emit();
     }
 
+    //Metoda koja zatvara alert
+    onCloseAlert(){
+        //Zatvori alert
+        this.response = false;
+        //Emitiram event prema roditeljskoj komponenti "SekundarniHeaderComponent"
+        this.onClose();
+    }
+
+    get ustanova(): FormControl{
+        return this.forma.get('ustanova') as FormControl;
+    }
     get eritrociti(): FormControl{
         return this.forma.get('eritrociti') as FormControl;
     }

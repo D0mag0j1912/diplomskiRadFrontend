@@ -4,10 +4,13 @@ import { Router } from '@angular/router';
 import { forkJoin, merge, of, Subject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
+import { Uputnica } from '../modeli/uputnica.model';
+import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { ObradaService } from '../obrada/obrada.service';
 import { PreglediDetailService } from '../obrada/pregledi/pregledi-detail/pregledi-detail.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import { SharedService } from '../shared.service';
+import { UzorciService } from '../uzorci/uzorci.service';
 import { SekundarniHeaderService } from './sekundarni-header.service';
 
 @Component({
@@ -17,6 +20,11 @@ import { SekundarniHeaderService } from './sekundarni-header.service';
 })
 export class SekundarniHeaderComponent implements OnInit, OnDestroy {
 
+    //Oznaka je li otvoren prozor alerta ili nije
+    isAlert: boolean = false;
+    //Spremam alert poruku
+    alertPoruka: string = null;
+    //Oznaka je li otvoren prozor uzoraka ili nije
     isUzorci: boolean = false;
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
@@ -36,6 +44,14 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     idPregled: number;
     //Definiram formu
     forma: FormGroup;
+    //Spremam zdr. ustanove koje trebam proslijediti child komponenti "UzorciComponent"
+    zdrUstanove: ZdravstvenaUstanova[] = [];
+    //Spremam naziv zdr. ustanove koja ima najveći ID uputnice da je pošaljem komponenti uzoraka
+    poslaniNazivZdrUst: string = null;
+    //Šaljem komponenti "UzorciComponent" ID uputnice koja ima max ID
+    poslaniIDUputnica: number;
+    //Spremam sve podatke uputnice koja ima najveći ID da ih pošaljem child komponenti "UzorciComponent"
+    uputnica: Uputnica;
 
     constructor(
         //Dohvaćam login servis
@@ -51,7 +67,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         //Dohvaćam servis detalja prethodnih pregleda
         private preglediDetailService: PreglediDetailService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis uzoraka
+        private uzorciService: UzorciService
     ) { }
 
     ngOnInit() {
@@ -95,7 +113,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                     const idPacijent = +odgovor[0].idPacijent;
                                     return forkJoin([
                                         this.preglediDetailService.getNajnovijiIDPregled(user.tip,idPacijent),
-                                        this.sekundarniHeaderService.getTrenutnaCijenaPregleda(odgovor[0].idObrada, user.tip)
+                                        this.sekundarniHeaderService.getTrenutnaCijenaPregleda(odgovor[0].idObrada, user.tip),
+                                        this.uzorciService.getUstanoveUzorci(+odgovor[0].idPacijent)
                                     ]).pipe(
                                         tap(podatci => {
                                             console.log(podatci);
@@ -119,6 +138,46 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                             else{
                                                 //Emitiram inicijalnu vrijednost iznosa pregleda Subjectom
                                                 this.sharedService.emitirajNoviIznosPregleda(parseFloat(podatci[1]));
+                                            }
+                                            //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
+                                            if(podatci[2] !== null){
+                                                let obj;
+                                                for(const ustanova of podatci[2]){
+                                                    obj = new ZdravstvenaUstanova(ustanova);
+                                                    this.zdrUstanove.push(obj);
+                                                }
+                                            }
+                                        }),
+                                        switchMap(podatci => {
+                                            //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
+                                            if(podatci[2] !== null){
+                                                //Inicijaliziram na početku max = 0
+                                                let max: number = 0;
+                                                //Prolazim kroz sve zdr. ustanove za koje još nisu poslani uzorci
+                                                for(const ustanova of this.zdrUstanove){
+                                                    if(ustanova.idUputnica > max){
+                                                        max = ustanova.idUputnica;
+                                                        this.poslaniNazivZdrUst = ustanova.naziv;
+                                                    }
+                                                }
+                                                //Spremam max ID uputnice
+                                                this.poslaniIDUputnica = max;
+                                                //Pretplaćivam se na podatke uputnice u kojoj se za zdr. ustanova nalazi
+                                                return this.uzorciService.getPodatciUputnica(this.poslaniIDUputnica).pipe(
+                                                    tap(uputnica => {
+                                                        //Prolazim kroz odg. servera
+                                                        for(const u of uputnica){
+                                                            this.uputnica = new Uputnica(u);
+                                                        }
+                                                        console.log(this.uputnica);
+                                                    }),
+                                                    takeUntil(this.pretplateSubject)
+                                                );
+                                            }
+                                            else{
+                                                return of(null).pipe(
+                                                    takeUntil(this.pretplateSubject)
+                                                );
                                             }
                                         }),
                                         takeUntil(this.pretplateSubject)
@@ -264,13 +323,30 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             }
         }
     }
-
+    //Metoda koja se aktivira kada med. sestra klikne na "Pošalji uzorke"
     onPosaljiUzorke(){
-        this.isUzorci = true;
+        //Ako je liječnik izdao uputnicu za trenutno aktivnog pacijenta te sestra NIJE poslala uzorak za tu uputnicu (AKO IMA zdr. ustanova)
+        if(this.zdrUstanove.length > 0){
+            //Otvori prozor uzoraka
+            this.isUzorci = true;
+        }
+        //Ako NEMA evidentiranih izdanih uputnica gdje NIJE poslan uzorak
+        else{
+            //Otvori alert
+            this.isAlert = true;
+            //Spremam poruku za njega
+            this.alertPoruka = 'Nema evidentiranih uputnica!';
+        }
     }
-
+    //Metoda koja zatvara prozor uzoraka
     onCloseUzorci(){
         this.isUzorci = false;
+    }
+
+    //Metoda koja zatvara prozor alerta
+    onCloseAlert(){
+        //Zatvori alert
+        this.isAlert = false;
     }
 
     //Metoda se poziva kada se komponenta uništi
