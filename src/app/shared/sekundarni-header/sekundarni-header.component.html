@@ -1,6 +1,7 @@
 <app-uzorci
     *ngIf="isUzorci"
     (close)="onCloseUzorci()"
+    (uzorakSpremljen)="onUzorakSpremljen()"
     [zdravstveneUstanove]="zdrUstanove"
     [nazivZdrUst]="poslaniNazivZdrUst"
     [idUputnica]="poslaniIDUputnica"

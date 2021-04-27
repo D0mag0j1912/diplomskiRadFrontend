@@ -240,7 +240,7 @@
                                     formControlName="clanakParticipacija"
                                     style="width:250px;height:35px;"
                                     (change)="onSelected($event)">
-                                    <option >Odaberite članak participacije</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite članak participacije</option>
                                     <option *ngFor="let participacija of participacije" value="{{participacija.razlogParticipacija}}">{{participacija.razlogParticipacija}}</option>
                                 </select>
                                 <span class="help-block" *ngIf="(clanakParticipacija.touched || clanakParticipacija.dirty) && !clanakParticipacija.valid">

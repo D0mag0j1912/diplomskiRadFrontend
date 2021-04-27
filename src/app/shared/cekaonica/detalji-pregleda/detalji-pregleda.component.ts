@@ -219,7 +219,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         }
                         else{
                             //Smanjivam visinu prozora
-                            this.alertBox.nativeElement.style.height = "15vw";
+                            this.alertBox.nativeElement.style.height = "17vw";
                         }
                         //Smanjivam širinu prozora
                         this.alertBox.nativeElement.style.width = "35vw";

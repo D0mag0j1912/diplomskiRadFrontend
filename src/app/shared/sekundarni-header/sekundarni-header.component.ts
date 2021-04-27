@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, merge, of, Subject, Subscription } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Uputnica } from '../modeli/uputnica.model';
 import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
@@ -322,6 +322,83 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/med-sestra/obrada/pregledi']);
             }
         }
+    }
+
+    //Metoda koja se pokreće kada child komponenta "UzorciComponent" spremi uzorak
+    onUzorakSpremljen(){
+        //Pretplaćivam se na tip prijavljenog korisnika
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                if(user){
+                    return this.obradaService.getPatientProcessing(user.tip).pipe(
+                      switchMap(podatci => {
+                          //Ako je pacijent aktivan
+                          if(podatci.success !== "false"){
+                              //Pretplaćivam se na nazive zdr. ustanova KOJIMA JOŠ NISU poslani uzorci
+                              return this.uzorciService.getUstanoveUzorci(+podatci[0].idPacijent).pipe(
+                                  tap(ustanove => {
+                                      //Restartam polje zdr. ustanova
+                                      this.zdrUstanove = [];
+                                      //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
+                                      if(ustanove !== null){
+                                          //Definiram objekt
+                                          let obj;
+                                          //Prolazim kroz odgovor servera
+                                          for(const ustanova of ustanove){
+                                              obj = new ZdravstvenaUstanova(ustanova);
+                                              this.zdrUstanove.push(obj);
+                                          }
+                                      }
+                                      console.log(this.zdrUstanove);
+                                  }),
+                                  switchMap(ustanove => {
+                                      //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
+                                      if(ustanove !== null){
+                                          //Inicijaliziram na početku max = 0
+                                          let max: number = 0;
+                                          //Prolazim kroz sve zdr. ustanove za koje još nisu poslani uzorci
+                                          for(const ustanova of this.zdrUstanove){
+                                              if(ustanova.idUputnica > max){
+                                                  max = ustanova.idUputnica;
+                                                  this.poslaniNazivZdrUst = ustanova.naziv;
+                                              }
+                                          }
+                                          //Spremam max ID uputnice
+                                          this.poslaniIDUputnica = max;
+                                          console.log(this.poslaniNazivZdrUst);
+                                          console.log(this.poslaniIDUputnica);
+                                          //Pretplaćivam se na podatke uputnice u kojoj se za zdr. ustanova nalazi
+                                          return this.uzorciService.getPodatciUputnica(this.poslaniIDUputnica).pipe(
+                                              tap(uputnica => {
+                                                  //Prolazim kroz odg. servera
+                                                  for(const u of uputnica){
+                                                      this.uputnica = new Uputnica(u);
+                                                  }
+                                                  console.log(this.uputnica);
+                                              }),
+                                              takeUntil(this.pretplateSubject)
+                                          );
+                                      }
+                                      else{
+                                          return of(null).pipe(
+                                              takeUntil(this.pretplateSubject)
+                                          );
+                                      }
+                                  }),
+                                  takeUntil(this.pretplateSubject)
+                              )
+                          }
+                      }),
+                      takeUntil(this.pretplateSubject)
+                    );
+                }
+                else{
+                    return of(null);
+                }
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
     //Metoda koja se aktivira kada med. sestra klikne na "Pošalji uzorke"
     onPosaljiUzorke(){

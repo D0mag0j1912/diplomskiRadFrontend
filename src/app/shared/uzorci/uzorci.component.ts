@@ -1,12 +1,11 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UzorciService } from './uzorci.service';
-import { of, Subject} from 'rxjs';
-import { mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Subject} from 'rxjs';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as UzorciValidations from './uzorci.validations';
 import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { Uputnica } from '../modeli/uputnica.model';
-import { ObradaService } from '../obrada/obrada.service';
 
 @Component({
   selector: 'app-uzorci',
@@ -25,6 +24,8 @@ export class UzorciComponent implements OnInit, OnDestroy{
     forma: FormGroup;
     //Emitiram event prema roditeljskoj komponenti da se izađe iz ovog prozora
     @Output() close = new EventEmitter<any>();
+    //Kreiram event prema roditeljskoj komponenti da se spremio uzorak
+    @Output() uzorakSpremljen = new EventEmitter<any>();
     //Primam polje zdr. ustanova od roditelja "SekundarniHeaderComponent"
     @Input() zdravstveneUstanove: ZdravstvenaUstanova[];
     //Primam naziv zdr. ustanove koja ima najveći ID uputnice
@@ -38,13 +39,12 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     constructor(
         //Dohvaćam servis uzoraka
-        private uzorciService: UzorciService,
-        //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private uzorciService: UzorciService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
+        console.log(this.podatciUputnice);
         console.log(this.idUputnica);
         this.forma = new FormGroup({
             'ustanova': new FormControl(this.nazivZdrUst, [Validators.required]),
@@ -157,6 +157,7 @@ export class UzorciComponent implements OnInit, OnDestroy{
                 //Pretplaćivam se na podatke uputnice u kojima se nalazi naziv zdr. ustanove iz dropdowna
                 return this.uzorciService.getPodatciUputnica(this.idUputnica).pipe(
                     tap(uputnica => {
+                        console.log(uputnica);
                         for(const u of uputnica){
                             this.podatciUputnice = new Uputnica(u);
                         }
@@ -202,47 +203,10 @@ export class UzorciComponent implements OnInit, OnDestroy{
                     this.response = true;
                     //Spremam poruku servera
                     this.responsePoruka = odgovor.message;
+                    //Emitiram event prema roditelju da je uzorak spremljen
+                    this.uzorakSpremljen.emit();
                 }
             }),
-            /* mergeMap(odgovor => {
-                //Ako je odgovor servera uspješan
-                if(odgovor !== null){
-                    return this.obradaService.getPatientProcessing('sestra').pipe(
-                        switchMap(podatci => {
-                            //Ako je pacijent aktivan
-                            if(podatci.success !== "false"){
-                                return this.uzorciService.getUstanoveUzorci(+podatci[0].idPacijent).pipe(
-                                    tap(ustanove => {
-                                        //Restartam polje zdr. ustanova
-                                        this.zdravstveneUstanove = [];
-                                        //Definiram objekt
-                                        let obj;
-                                        //Prolazim kroz odg. servera
-                                        for(const ustanova of ustanove){
-                                            obj = new ZdravstvenaUstanova(ustanova);
-                                            this.zdravstveneUstanove.push(obj);
-                                        }
-                                        console.log(this.zdravstveneUstanove);
-                                    }),
-                                    takeUntil(this.pretplata)
-                                );
-                            }
-                            //Ako pacijent nije aktivan
-                            else{
-                              return of(null).pipe(
-                                  takeUntil(this.pretplata)
-                              );
-                            }
-                        }),
-                        takeUntil(this.pretplata)
-                    );
-                }
-                else{
-                    return of(null).pipe(
-                        takeUntil(this.pretplata)
-                    );
-                }
-            }), */
             takeUntil(this.pretplata)
         ).subscribe();
     }

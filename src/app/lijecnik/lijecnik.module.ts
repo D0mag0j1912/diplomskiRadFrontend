@@ -9,6 +9,7 @@ import { PovijestBolestiComponent } from './povijest-bolesti/povijest-bolesti.co
 import { NalaziComponent } from './nalazi/nalazi.component';
 import { NalaziListComponent } from './nalazi/nalazi-list/nalazi-list.component';
 import { NalaziDetailComponent } from './nalazi/nalazi-list/nalazi-detail/nalazi-detail.component';
+import { AngularMaterialModule } from '../angular-material.module';
 @NgModule({
     declarations: [
         LijecnikComponent,
@@ -23,7 +24,8 @@ import { NalaziDetailComponent } from './nalazi/nalazi-list/nalazi-detail/nalazi
         SharedModule,
         LijecnikRoutingModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        AngularMaterialModule
     ],
     exports: [
         LijecnikComponent,

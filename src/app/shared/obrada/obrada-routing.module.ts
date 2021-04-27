@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NalaziDetailResolverService } from 'src/app/lijecnik/nalazi/nalazi-list/nalazi-detail/nalazi-detail-resolver.service';
 import { NalaziDetailComponent } from 'src/app/lijecnik/nalazi/nalazi-list/nalazi-detail/nalazi-detail.component';
+import { NalaziResolverService } from 'src/app/lijecnik/nalazi/nalazi-resolver.service';
 import { NalaziComponent } from 'src/app/lijecnik/nalazi/nalazi.component';
 import { PovijestBolestiComponent } from 'src/app/lijecnik/povijest-bolesti/povijest-bolesti.component';
 import { ImportiResolverService } from '../../med-sestra/importi-resolver.service';
@@ -27,7 +28,7 @@ const routes = [
         {path: 'pregledi', component: PreglediComponent, resolve: {pregledi: PreglediResolverService}, children: [
             {path: ':id', component: PreglediDetailComponent,resolve: {cijeliPregled: PreglediDetailResolverService, obrada: ObradaResolverService}}
         ]},
-        {path: 'nalazi', component: NalaziComponent, children: [
+        {path: 'nalazi', component: NalaziComponent, resolve: {aktivan: NalaziResolverService}, children: [
             {path: ':id', component: NalaziDetailComponent, resolve: {nalaz: NalaziDetailResolverService}}
         ]}
     ]},

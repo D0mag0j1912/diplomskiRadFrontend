@@ -1,69 +1,69 @@
 <div class="row">
     <div class="col-xs-12">
-        <h4 
-            *ngIf="!isAktivan" 
+        <h4
+            *ngIf="!isAktivan"
             style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nije aktivan u obradi!</h4>
-        <form [formGroup]="forma" *ngIf="isAktivan">
+        <form [formGroup]="forma" *ngIf="isAktivan && forma">
             <div class="row">
                 <div class="col-xs-4">
-                    <label 
-                        for="filter" 
+                    <label
+                        for="filter"
                         style="font-family: Verdana, sans-serif;">Filtriraj po:</label>
-                    <select 
-                        formControlName="filter" 
-                        class="form-control" 
-                        style="width:200px;display:inline;margin-left:5px;" 
+                    <select
+                        formControlName="filter"
+                        class="form-control"
+                        style="width:200px;display:inline;margin-left:5px;"
                         (change)="onChangeFilter($event)">
                         <option value="datum">Datum</option>
                         <option value="pretraga">Pretraga</option>
-                    </select> 
+                    </select>
                 </div>
                 <div class="col-xs-8">
                     <ng-container *ngIf="isDatum">
-                        <label 
+                        <label
                             for="datum"
                             style="font-family: Verdana, sans-serif;">Datum:</label>
-                        <input 
-                            type="date" 
-                            class="form-control" 
+                        <input
+                            type="date"
+                            class="form-control"
                             formControlName="datum"
                             style="width:200px;display: inline;margin-left:5px;">
                     </ng-container>
                     <ng-container *ngIf="!isDatum">
-                        <label 
+                        <label
                             for="pretraga"
                             style="font-family: Verdana, sans-serif;">Pretraga:</label>
-                        <input 
-                            type="text" 
-                            class="form-control" 
+                        <input
+                            type="text"
+                            class="form-control"
                             formControlName="pretraga"
-                            style="width:300px;display: inline;margin-left:5px;" 
+                            style="width:300px;display: inline;margin-left:5px;"
                             placeholder="Unesite parametar pretrage...">
-                        <span 
-                            class="help-block" 
-                            *ngIf="isAktivan && !imaLiPregleda && porukaNemaRezultata" 
+                        <span
+                            class="help-block"
+                            *ngIf="isAktivan && !imaLiPregleda && porukaNemaRezultata"
                             style="color:#a94442;font-weight: bold;font-family: Verdana, sans-serif;">{{porukaNemaRezultata}}</span>
                     </ng-container>
                 </div>
-            </div>  
+            </div>
         </form>
-        <h4 
-            *ngIf="isAktivan && !imaLiPregleda && !porukaNemaRezultata" 
+        <h4
+            *ngIf="isAktivan && !imaLiPregleda && !porukaNemaRezultata"
             style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nema evidentiranih pregleda!</h4>
     </div>
 </div>
 <ng-container *ngIf="isAktivan && imaLiPregleda && !porukaNemaRezultata">
-    <div 
-        class="row" 
+    <div
+        class="row"
         style="margin-top:20px;">
         <div class="col-xs-4">
-            <app-pregledi-list 
-                [pregledi]="pregledi" 
-                (datum)="onClickListItem($event)" 
+            <app-pregledi-list
+                [pregledi]="pregledi"
+                (datum)="onClickListItem($event)"
                 (poljePregleda)="onAzurirajPoljePregleda($event)"></app-pregledi-list>
         </div>
         <div class="col-xs-8">
-            <router-outlet></router-outlet> 
+            <router-outlet></router-outlet>
         </div>
     </div>
 </ng-container>

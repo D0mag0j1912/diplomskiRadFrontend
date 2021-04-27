@@ -221,10 +221,31 @@
                     style="text-align: center;">Podatci uputnice</h3>
                 <mat-divider></mat-divider>
                 <mat-list>
-                    <mat-list-item>Zdravstvena djelatnost: {{podatciUputnice.nazivDjel}}</mat-list-item>
-                    <mat-list-item>Primarna dijagnoza: {{podatciUputnice.nazivPrimarna + ' [' + podatciUputnice.mkbSifraPrimarna + ']'}}</mat-list-item>
-                    <mat-list-item>Vrsta pregleda: {{podatciUputnice.vrstaPregled}}</mat-list-item>
-                    <mat-list-item *ngIf="podatciUputnice.specijalist">Šifra specijalista: {{podatciUputnice.specijalist}}</mat-list-item>
+                    <mat-list-item>
+                        <h3
+                            class="mat-title"
+                            style="color:black;">Zdravstvena djelatnost: <span class="mat-subheading-1">{{podatciUputnice.nazivDjel}}</span></h3>
+                    </mat-list-item>
+                    <mat-list-item>
+                        <h3
+                            class="mat-title"
+                            style="color:black;">Primarna dijagnoza: <span class="mat-subheading-1">{{podatciUputnice.nazivPrimarna + ' [' + podatciUputnice.mkbSifraPrimarna + ']'}}</span></h3>
+                    </mat-list-item>
+                    <mat-list-item>
+                        <h3
+                            class="mat-title"
+                            style="color:black;">Vrsta pregleda: <span class="mat-subheading-1">{{podatciUputnice.vrstaPregled}}</span></h3>
+                    </mat-list-item>
+                    <mat-list-item *ngIf="podatciUputnice.specijalist">
+                        <h3
+                            class="mat-title"
+                            style="color:black;">Specijalist koji je preporučio: <span class="mat-subheading-1">{{podatciUputnice.specijalist}}</span></h3>
+                    </mat-list-item>
+                    <mat-list-item>
+                        <h3
+                            class="mat-title"
+                            style="color:black;">Molim - Traži se: <span class="mat-body-1">{{podatciUputnice.molimTraziSe}}</span></h3>
+                    </mat-list-item>
                 </mat-list>
             </mat-card>
         </div>

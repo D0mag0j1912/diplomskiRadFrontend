@@ -29,7 +29,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     porukaDijagnozaPretraga: string = null;
     //Kreiram event tako da ga druge komponente mogu slušati
     @Output() close = new EventEmitter<any>();
-    @Output() podatciRetka = new EventEmitter<{mkbSifraPrimarna: string,datumPregled: Date, vrijemePregled: Time, tipSlucaj: string}>();
+    @Output() podatciRetka = new EventEmitter<{mkbSifraPrimarna: string, datumPregled: Date, vrijemePregled: Time, tipSlucaj: string}>();
     //Spremam ID trenutno aktivnog pacijenta
     idPacijent: number;
     //Spremam podatke otvorenog slučaja
