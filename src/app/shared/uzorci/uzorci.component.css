@@ -29,3 +29,7 @@
     width:100%;
 }
 
+mat-card-header{
+    margin-top:5px;
+}
+

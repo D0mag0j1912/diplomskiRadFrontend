@@ -86,6 +86,9 @@ export class Uputnica {
         if(response.specijalistUputnica){
             this.specijalist = response.specijalistUputnica;
         }
+        else if(response.specijalist){
+            this.specijalist = response.specijalist;
+        }
         if(response.iznosUputnica){
             this.iznosUputnica = response.iznosUputnica;
         }

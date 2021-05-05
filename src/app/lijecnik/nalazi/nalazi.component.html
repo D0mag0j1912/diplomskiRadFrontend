@@ -44,6 +44,11 @@
                         style="width:300px;display: inline;margin-left:5px;"
                         placeholder="Unesite parametar pretrage...">
                 </ng-container>
+                <mat-error
+                    *ngIf="(datum.touched || datum.dirty) && datum.invalid"
+                    style="display:block;font-weight: bold;">
+                    <mat-error *ngIf="datum.errors?.pattern">Neispravan format datuma!</mat-error>
+                </mat-error>
             </div>
             <div class="col-xs-2">
                 <button

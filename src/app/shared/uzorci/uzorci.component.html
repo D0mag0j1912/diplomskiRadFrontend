@@ -16,7 +16,7 @@
                         formControlName="ustanova">
                         <mat-option
                             *ngFor="let ustanova of zdravstveneUstanove"
-                            [value]="ustanova.naziv">{{ustanova.naziv}}</mat-option>
+                            [value]="ustanova.naziv">{{ustanova.naziv.substring(0, ustanova.naziv.lastIndexOf(' '))}}</mat-option>
                     </mat-select>
                     <mat-error *ngIf="(ustanova.touched || ustanova.dirty) && ustanova.invalid">
                         <mat-error *ngIf="ustanova.errors?.required">Naziv zdr. ustanove mora biti naveden!</mat-error>
@@ -219,34 +219,35 @@
                 <h3
                     class="mat-title"
                     style="text-align: center;">Podatci uputnice</h3>
+                <mat-card-header>
+                    <mat-card-title>Zdravstvena djelatnost</mat-card-title>
+                    <mat-card-subtitle>{{podatciUputnice.nazivDjel}}</mat-card-subtitle>
+                </mat-card-header>
                 <mat-divider></mat-divider>
-                <mat-list>
-                    <mat-list-item>
-                        <h3
-                            class="mat-title"
-                            style="color:black;">Zdravstvena djelatnost: <span class="mat-subheading-1">{{podatciUputnice.nazivDjel}}</span></h3>
-                    </mat-list-item>
-                    <mat-list-item>
-                        <h3
-                            class="mat-title"
-                            style="color:black;">Primarna dijagnoza: <span class="mat-subheading-1">{{podatciUputnice.nazivPrimarna + ' [' + podatciUputnice.mkbSifraPrimarna + ']'}}</span></h3>
-                    </mat-list-item>
-                    <mat-list-item>
-                        <h3
-                            class="mat-title"
-                            style="color:black;">Vrsta pregleda: <span class="mat-subheading-1">{{podatciUputnice.vrstaPregled}}</span></h3>
-                    </mat-list-item>
-                    <mat-list-item *ngIf="podatciUputnice.specijalist">
-                        <h3
-                            class="mat-title"
-                            style="color:black;">Specijalist koji je preporučio: <span class="mat-subheading-1">{{podatciUputnice.specijalist}}</span></h3>
-                    </mat-list-item>
-                    <mat-list-item>
-                        <h3
-                            class="mat-title"
-                            style="color:black;">Molim - Traži se: <span class="mat-body-1">{{podatciUputnice.molimTraziSe}}</span></h3>
-                    </mat-list-item>
-                </mat-list>
+                <mat-card-header>
+                    <mat-card-title>Primarna dijagnoza</mat-card-title>
+                    <mat-card-subtitle>{{podatciUputnice.nazivPrimarna + ' [' + podatciUputnice.mkbSifraPrimarna + ']'}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider></mat-divider>
+                <mat-card-header>
+                    <mat-card-title>Vrsta pregleda</mat-card-title>
+                    <mat-card-subtitle>{{podatciUputnice.vrstaPregled}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider *ngIf="podatciUputnice.specijalist"></mat-divider>
+                <mat-card-header *ngIf="podatciUputnice.specijalist">
+                    <mat-card-title>Specijalist koji je preporučio</mat-card-title>
+                    <mat-card-subtitle>{{podatciUputnice.specijalist}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider></mat-divider>
+                <mat-card-header>
+                    <mat-card-title>Molim - Traži se</mat-card-title>
+                    <mat-card-subtitle>{{podatciUputnice.molimTraziSe}}</mat-card-subtitle>
+                </mat-card-header>
+                <mat-divider *ngIf="podatciUputnice.napomena"></mat-divider>
+                <mat-card-header *ngIf="podatciUputnice.napomena">
+                    <mat-card-title>Napomena</mat-card-title>
+                    <mat-card-subtitle>{{podatciUputnice.napomena}}</mat-card-subtitle>
+                </mat-card-header>
             </mat-card>
         </div>
         <br>

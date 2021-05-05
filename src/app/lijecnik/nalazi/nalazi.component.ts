@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { merge, of, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { NalazList } from './nalazList.model';
@@ -61,7 +61,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
                     //Kreiram formu
                     this.forma = new FormGroup({
                         'filter': new FormControl("datum"),
-                        'datum': new FormControl(null),
+                        'datum': new FormControl(null, [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
                         'pretraga': new FormControl(null)
                     });
                     //Na početku onemogućavam filtriranje dok ne povučem podatke
@@ -171,7 +171,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
                         //Otvaram alert
                         this.response = true;
                         //Ovu poruku prikazujem u alertu
-                        this.responsePoruka = 'Aktivni pacijent nema evidentiranih nalaza!';
+                        this.responsePoruka = 'Aktivni pacijent nema primljenih nalaza!';
                     }
                 }),
                 takeUntil(this.pretplata)

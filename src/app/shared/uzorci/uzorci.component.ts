@@ -44,10 +44,8 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.podatciUputnice);
-        console.log(this.idUputnica);
         this.forma = new FormGroup({
-            'ustanova': new FormControl(this.nazivZdrUst, [Validators.required]),
+            'ustanova': new FormControl(this.nazivZdrUst),
             'eritrociti': new FormControl(null, [
                   Validators.required,
                   UzorciValidations.provjeriEritrocite(),
@@ -140,30 +138,25 @@ export class UzorciComponent implements OnInit, OnDestroy{
                         }
                     }
                 }
-            }),
-            takeUntil(this.pretplata)
+            })
         ).subscribe();
 
         //Pretplaćivam se na promjene u dropdownu zdr. ustanove
         this.ustanova.valueChanges.pipe(
-            switchMap(value => {
-                //Prolazim kroz sve zdr. ustanove koje mi je poslao "SekundarniHeaderComponent"
-                for(const ustanova of this.zdravstveneUstanove){
-                    //Ako je naziv zdr. ustanove iz polja === vrijendnosti iz dropdowna
-                    if(ustanova.naziv === value){
-                        this.idUputnica = ustanova.idUputnica;
-                    }
-                }
+            tap((value: string) => {
+                let polje = [];
+                polje = value.split(" ");
+                //Spremam ID uputnice
+                this.idUputnica = polje[polje.length - 1];
+            }),
+            switchMap(() => {
                 //Pretplaćivam se na podatke uputnice u kojima se nalazi naziv zdr. ustanove iz dropdowna
                 return this.uzorciService.getPodatciUputnica(this.idUputnica).pipe(
                     tap(uputnica => {
-                        console.log(uputnica);
                         for(const u of uputnica){
                             this.podatciUputnice = new Uputnica(u);
                         }
-                        console.log(this.podatciUputnice);
-                    }),
-                    takeUntil(this.pretplata)
+                    })
                 );
             }),
             takeUntil(this.pretplata)
@@ -206,8 +199,7 @@ export class UzorciComponent implements OnInit, OnDestroy{
                     //Emitiram event prema roditelju da je uzorak spremljen
                     this.uzorakSpremljen.emit();
                 }
-            }),
-            takeUntil(this.pretplata)
+            })
         ).subscribe();
     }
 

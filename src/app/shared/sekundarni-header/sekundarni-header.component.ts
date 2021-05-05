@@ -153,10 +153,12 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                             if(podatci[2] !== null){
                                                 //Inicijaliziram na početku max = 0
                                                 let max: number = 0;
-                                                //Prolazim kroz sve zdr. ustanove za koje još nisu poslani uzorci
+                                                //Prolazim kroz sve zdr. ustanove za koje još NISU POSLANI UZORCI
                                                 for(const ustanova of this.zdrUstanove){
-                                                    if(ustanova.idUputnica > max){
-                                                        max = ustanova.idUputnica;
+                                                    //Splitam elemente [naziv_zdr_ust_idUputnica]
+                                                    const ustanovaSplit: string[] = ustanova.naziv.split(" ");
+                                                    if(+ustanovaSplit[ustanovaSplit.length - 1] > max){
+                                                        max = +ustanovaSplit[ustanovaSplit.length - 1];
                                                         this.poslaniNazivZdrUst = ustanova.naziv;
                                                     }
                                                 }
@@ -170,36 +172,27 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                                             this.uputnica = new Uputnica(u);
                                                         }
                                                         console.log(this.uputnica);
-                                                    }),
-                                                    takeUntil(this.pretplateSubject)
+                                                    })
                                                 );
                                             }
                                             else{
-                                                return of(null).pipe(
-                                                    takeUntil(this.pretplateSubject)
-                                                );
+                                                return of(null);
                                             }
-                                        }),
-                                        takeUntil(this.pretplateSubject)
+                                        })
                                     );
                                 }
                                 //Ako pacijent NIJE aktivan u obradi
                                 else{
                                     //Označavam da pacijent nije aktivan u obradi
                                     this.isAktivan = false;
-                                    return of(null).pipe(
-                                        takeUntil(this.pretplateSubject)
-                                    );
+                                    return of(null);
                                 }
-                            }),
-                            takeUntil(this.pretplateSubject)
+                            })
                         );
                     }
                     //Ako korisnik nije prijavljen:
                     else{
-                        return of(null).pipe(
-                            takeUntil(this.pretplateSubject)
-                        );
+                        return of(null);
                     }
                 }),
                 takeUntil(this.pretplateSubject)
@@ -231,26 +224,20 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                                 //Spremam ID najnovijeg pregleda za aktivnog pacijenta
                                                 this.idPregled = +idPregled;
                                             }
-                                        }),
-                                        takeUntil(this.pretplateSubject)
+                                        })
                                     );
                                 }
                                 //Ako pacijent NIJE aktivan u obradi
                                 else{
                                     //Označavam da pacijent nije aktivan u obradi
                                     this.isAktivan = false;
-                                    return of(null).pipe(
-                                        takeUntil(this.pretplateSubject)
-                                    );
+                                    return of(null);
                                 }
-                            }),
-                            takeUntil(this.pretplateSubject)
+                            })
                         );
                     }
                     else{
-                        return of(null).pipe(
-                            takeUntil(this.pretplateSubject)
-                        );
+                        return of(null);
                     }
                 }),
                 takeUntil(this.pretplateSubject)
@@ -325,6 +312,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     }
 
     //Metoda koja se pokreće kada child komponenta "UzorciComponent" spremi uzorak
+    //Ovo radim da provjerim je li ostalo još nekih ustanova kojima nisu poslani uzorci te ako jest da dohvatim zadnju i predam je childu opet
     onUzorakSpremljen(){
         //Pretplaćivam se na tip prijavljenog korisnika
         this.loginService.user.pipe(
@@ -332,72 +320,66 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             switchMap(user => {
                 if(user){
                     return this.obradaService.getPatientProcessing(user.tip).pipe(
-                      switchMap(podatci => {
-                          //Ako je pacijent aktivan
-                          if(podatci.success !== "false"){
-                              //Pretplaćivam se na nazive zdr. ustanova KOJIMA JOŠ NISU poslani uzorci
-                              return this.uzorciService.getUstanoveUzorci(+podatci[0].idPacijent).pipe(
-                                  tap(ustanove => {
-                                      //Restartam polje zdr. ustanova
-                                      this.zdrUstanove = [];
-                                      //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
-                                      if(ustanove !== null){
-                                          //Definiram objekt
-                                          let obj;
-                                          //Prolazim kroz odgovor servera
-                                          for(const ustanova of ustanove){
-                                              obj = new ZdravstvenaUstanova(ustanova);
-                                              this.zdrUstanove.push(obj);
-                                          }
-                                      }
-                                      console.log(this.zdrUstanove);
-                                  }),
-                                  switchMap(ustanove => {
-                                      //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
-                                      if(ustanove !== null){
-                                          //Inicijaliziram na početku max = 0
-                                          let max: number = 0;
-                                          //Prolazim kroz sve zdr. ustanove za koje još nisu poslani uzorci
-                                          for(const ustanova of this.zdrUstanove){
-                                              if(ustanova.idUputnica > max){
-                                                  max = ustanova.idUputnica;
-                                                  this.poslaniNazivZdrUst = ustanova.naziv;
-                                              }
-                                          }
-                                          //Spremam max ID uputnice
-                                          this.poslaniIDUputnica = max;
-                                          console.log(this.poslaniNazivZdrUst);
-                                          console.log(this.poslaniIDUputnica);
-                                          //Pretplaćivam se na podatke uputnice u kojoj se za zdr. ustanova nalazi
-                                          return this.uzorciService.getPodatciUputnica(this.poslaniIDUputnica).pipe(
-                                              tap(uputnica => {
-                                                  //Prolazim kroz odg. servera
-                                                  for(const u of uputnica){
-                                                      this.uputnica = new Uputnica(u);
-                                                  }
-                                                  console.log(this.uputnica);
-                                              }),
-                                              takeUntil(this.pretplateSubject)
-                                          );
-                                      }
-                                      else{
-                                          return of(null).pipe(
-                                              takeUntil(this.pretplateSubject)
-                                          );
-                                      }
-                                  }),
-                                  takeUntil(this.pretplateSubject)
-                              )
-                          }
-                      }),
-                      takeUntil(this.pretplateSubject)
+                        switchMap(podatci => {
+                            //Ako je pacijent aktivan
+                            if(podatci.success !== "false"){
+                                //Pretplaćivam se na nazive zdr. ustanova KOJIMA JOŠ NISU poslani uzorci
+                                return this.uzorciService.getUstanoveUzorci(+podatci[0].idPacijent).pipe(
+                                    tap(ustanove => {
+                                        //Restartam polje zdr. ustanova
+                                        this.zdrUstanove = [];
+                                        //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
+                                        if(ustanove !== null){
+                                            //Definiram objekt
+                                            let obj;
+                                            //Prolazim kroz odgovor servera
+                                            for(const ustanova of ustanove){
+                                                obj = new ZdravstvenaUstanova(ustanova);
+                                                this.zdrUstanove.push(obj);
+                                            }
+                                        }
+                                        console.log(this.zdrUstanove);
+                                    }),
+                                    switchMap(ustanove => {
+                                        //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
+                                        if(ustanove !== null){
+                                            //Inicijaliziram na početku max = 0
+                                            let max: number = 0;
+                                            //Prolazim kroz sve zdr. ustanove za koje još nisu poslani uzorci
+                                            for(const ustanova of this.zdrUstanove){
+                                                //Splitam elemente [naziv_zdr_ust_idUputnica]
+                                                const ustanovaSplit: string[]  = ustanova.naziv.split(" ");
+                                                if(+ustanovaSplit[ustanovaSplit.length - 1] > max){
+                                                    max = +ustanovaSplit[ustanovaSplit.length - 1];
+                                                    this.poslaniNazivZdrUst = ustanova.naziv;
+                                                }
+                                            }
+                                            //Spremam max ID uputnice
+                                            this.poslaniIDUputnica = max;
+                                            //Pretplaćivam se na podatke uputnice u kojoj se za zdr. ustanova nalazi
+                                            return this.uzorciService.getPodatciUputnica(this.poslaniIDUputnica).pipe(
+                                                tap(uputnica => {
+                                                    //Prolazim kroz odg. servera
+                                                    for(const u of uputnica){
+                                                        this.uputnica = new Uputnica(u);
+                                                    }
+                                                    console.log(this.uputnica);
+                                                })
+                                            );
+                                        }
+                                        else{
+                                            return of(null);
+                                        }
+                                    })
+                                )
+                            }
+                        })
                     );
                 }
                 else{
                     return of(null);
                 }
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
     }
     //Metoda koja se aktivira kada med. sestra klikne na "Pošalji uzorke"
