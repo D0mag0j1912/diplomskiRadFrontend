@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { catchError, switchMap, take, tap } from "rxjs/operators";
 import {baseUrl} from '../backend-path';
 import {handleError} from '../shared/rxjs-error';
@@ -27,6 +27,11 @@ export class SharedService {
     private cijeneSubject = new BehaviorSubject<number>(0);
     //Kreiram Observable od njega
     cijeneObs = this.cijeneSubject.asObservable();
+
+    //Kreiram Subject koji će obavjestiti komponentu uzoraka je li joj roditelj "SekundarniHeaderComponent" ili "NalaziListComponent"
+    sekundarniIliNalazi = new BehaviorSubject<string>(null);
+    //Kreiram Observable od njega
+    sekundarniIliNalaziObs = this.sekundarniIliNalazi.asObservable();
 
     constructor(
         private http: HttpClient,

@@ -69,11 +69,11 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
                         'nazivID': new FormControl(this.nalaz.nazivZdrUst + ' [' + this.nalaz.idZdrUst + ']'),
                         'adresaPbr': new FormControl(this.nalaz.adresaZdrUst + ' [' + this.nalaz.pbrZdrUst + ']')
                     }),
-                    'specijalist': new FormGroup({
+                    'zdravstvenaOsoba': new FormGroup({
                         'datumNalaz': new FormControl(this.nalaz.datumNalaz),
                         'imePrezime': new FormControl(this.nalaz.imePrezimeSpecijalist),
                         'zdravstvenaDjelatnost': new FormControl(this.nalaz.zdravstvenaDjelatnost),
-                        'misljenje': new FormControl(this.nalaz.misljenjeSpecijalist)
+                        'misljenjeKomentar': new FormControl(this.nalaz.misljenjeSpecijalist ? this.nalaz.misljenjeSpecijalist : this.nalaz.komentarUzNalaz)
                     })
                 });
             }),

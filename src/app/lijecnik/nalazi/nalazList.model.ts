@@ -5,6 +5,7 @@ export class NalazList {
     public nazivZdrUst: string;
     public mkbSifraPrimarna: string;
     public nazivPrimarna: string;
+    public misljenjeSpecijalist?: string;
 
     constructor(response: any){
         if(response.idNalaz){
@@ -24,6 +25,9 @@ export class NalazList {
         }
         if(response.imeDijagnoza){
             this.nazivPrimarna = response.imeDijagnoza;
+        }
+        if(response.misljenjeSpecijalist){
+            this.misljenjeSpecijalist = response.misljenjeSpecijalist;
         }
     }
 }

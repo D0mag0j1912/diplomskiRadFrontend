@@ -10,6 +10,7 @@ import { ObradaService } from '../obrada/obrada.service';
 import { PreglediDetailService } from '../obrada/pregledi/pregledi-detail/pregledi-detail.service';
 import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import { SharedService } from '../shared.service';
+import { Uzorak } from '../uzorci/uzorci.model';
 import { UzorciService } from '../uzorci/uzorci.service';
 import { SekundarniHeaderService } from './sekundarni-header.service';
 
@@ -52,6 +53,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     poslaniIDUputnica: number;
     //Spremam sve podatke uputnice koja ima najveći ID da ih pošaljem child komponenti "UzorciComponent"
     uputnica: Uputnica;
+    //Spremam slučajno generirane uzorke te ih šaljem child komponenti "UzorciComponent"
+    poslaniUzorci: Uzorak;
 
     constructor(
         //Dohvaćam login servis
@@ -386,8 +389,19 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     onPosaljiUzorke(){
         //Ako je liječnik izdao uputnicu za trenutno aktivnog pacijenta te sestra NIJE poslala uzorak za tu uputnicu (AKO IMA zdr. ustanova)
         if(this.zdrUstanove.length > 0){
-            //Otvori prozor uzoraka
-            this.isUzorci = true;
+            //Pretplaćujem se na Observable koji vraća slučajno generirane uzorke
+            this.uzorciService.getUzorci().subscribe(
+                (uzorci) => {
+                    console.log(uzorci);
+                    //Formiram uzorke te ih šaljem "UzorciComponent"
+                    this.poslaniUzorci = new Uzorak(uzorci);
+                    console.log(this.poslaniUzorci);
+                    //Otvori prozor uzoraka
+                    this.isUzorci = true;
+                    //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "SekundarniHeaderComponent"
+                    this.sharedService.sekundarniIliNalazi.next("sekundarni");
+                }
+            );
         }
         //Ako NEMA evidentiranih izdanih uputnica gdje NIJE poslan uzorak
         else{

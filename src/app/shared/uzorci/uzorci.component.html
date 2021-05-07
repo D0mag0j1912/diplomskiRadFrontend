@@ -10,7 +10,9 @@
     <form [formGroup]="forma" (ngSubmit)="onSubmit()">
         <div style="display:flex;">
             <mat-card style="flex: 1 1 auto;max-width:50%;">
-                <mat-form-field class="ustanovaField">
+                <mat-form-field
+                    class="ustanovaField"
+                    *ngIf="sekundarniIliNalazi === 'sekundarni'">
                     <mat-label>Odaberite ustanovu</mat-label>
                     <mat-select
                         formControlName="ustanova">
@@ -215,7 +217,9 @@
                           !retikulociti.errors?.required">Samo decimalne i cjelobrojne pozitivne vrijednosti su dozvoljene!</mat-error>
                 </mat-error>
             </mat-card>
-            <mat-card style="flex: 1 1 auto;">
+            <mat-card
+                style="flex: 1 1 auto;"
+                *ngIf="sekundarniIliNalazi === 'sekundarni'">
                 <h3
                     class="mat-title"
                     style="text-align: center;">Podatci uputnice</h3>
@@ -257,7 +261,8 @@
                 mat-raised-button
                 color="primary"
                 style="float:left;"
-                [disabled]="!forma.valid">Spremi</button>
+                [disabled]="!forma.valid"
+                *ngIf="sekundarniIliNalazi === 'sekundarni'">Spremi</button>
             <button
                 type="button"
                 mat-raised-button

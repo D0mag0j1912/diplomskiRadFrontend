@@ -10,6 +10,12 @@ import { catchError } from "rxjs/operators";
 export class UzorciService {
     constructor(private http: HttpClient){}
 
+    //Metoda koja dohvaća sve uzorke kada dolazim u uzorke iz nalaza
+    getUzorciNalazi(idNalaz: number){
+        const params = `?idNalaz=${idNalaz.toString()}`;
+        return this.http.get<any>(baseUrl + 'uzorci/getUzorciNalazi.php' + params).pipe(catchError(handleError));
+    }
+
     //Metoda koja dohvaća podatke uputnice na osnovu njezinog ID-a da ih prikažem ispod dropdowna
     getPodatciUputnica(idUputnica: number){
         const params = `?idUputnica=${idUputnica.toString()}`;

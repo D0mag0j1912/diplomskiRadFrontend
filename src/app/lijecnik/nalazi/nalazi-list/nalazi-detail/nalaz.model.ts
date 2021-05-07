@@ -6,9 +6,10 @@ export class Nalaz {
     public pbrZdrUst: number;
     public zdravstvenaDjelatnost: string;
     public primarnaDijagnoza: string;
-    public misljenjeSpecijalist: string;
     public datumNalaz: Date;
     public _sekundarneDijagnoze: string[] = [];
+    public misljenjeSpecijalist?: string;
+    public komentarUzNalaz?: string;
 
     constructor(response: any){
         if(response.specijalist){
@@ -34,6 +35,9 @@ export class Nalaz {
         }
         if(response.misljenjeSpecijalist){
             this.misljenjeSpecijalist = response.misljenjeSpecijalist;
+        }
+        if(response.komentarUzNalaz){
+            this.komentarUzNalaz = response.komentarUzNalaz;
         }
         if(response.datumNalaz){
             this.datumNalaz = response.datumNalaz;

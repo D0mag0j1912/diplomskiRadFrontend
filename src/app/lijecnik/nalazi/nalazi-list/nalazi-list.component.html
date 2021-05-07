@@ -1,3 +1,11 @@
+<app-uzorci
+    (close)="onCloseUzorci()"
+    *ngIf="isUzorci"
+    [primljeniUzorci]="poslaniUzorci"></app-uzorci>
+<app-alert
+    [message]="porukaAlert"
+    *ngIf="response"
+    (close)="onCloseAlert()"></app-alert>
 <div class="row">
     <div class="col-xs-12">
         <mat-card *ngIf="nalazi.length > 0">
@@ -9,18 +17,17 @@
                 [ngStyle]="{'margin-top': (i > 3) ? '7px' : '0px'}">
                 <mat-card-subtitle
                     style="height:30px;">{{nalaz.datumNalaz}}</mat-card-subtitle>
+                <button
+                    mat-raised-button
+                    class="pogledajUzorke"
+                    (click)="onPogledajUzorke(nalaz.idNalaz,$event)"
+                    style="float:right;top:-5px;left:30px;position:relative;"
+                    *ngIf="!nalaz.misljenjeSpecijalist">Pogledaj uzorke</button>
                 <mat-card-title
                     [ngStyle]="{'margin-top': (i > 3) ? '-40px' : '0px'}">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</mat-card-title>
                 <h3
                     class="mat-body-strong"
                     [ngStyle]="{'margin-top' : (i > 3) ? '-30px' : '0px'}">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
-                <mat-card-actions>
-                    <button
-                        mat-raised-button
-                        class="pogledajUzorke"
-                        (click)="onPogledajUzorke(nalaz.idNalaz,$event)"
-                        [ngStyle]="{'margin-right' : (i > 3) ? '100px' : '0px'}">Pogledaj uzorke</button>
-                </mat-card-actions>
             </mat-card>
         </mat-card>
     </div>

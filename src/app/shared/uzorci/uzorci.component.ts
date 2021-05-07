@@ -1,11 +1,13 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UzorciService } from './uzorci.service';
-import { Subject} from 'rxjs';
+import { merge, Subject} from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as UzorciValidations from './uzorci.validations';
 import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { Uputnica } from '../modeli/uputnica.model';
+import { SharedService } from '../shared.service';
+import { Uzorak } from './uzorci.model';
 
 @Component({
   selector: 'app-uzorci',
@@ -34,87 +36,112 @@ export class UzorciComponent implements OnInit, OnDestroy{
     @Input() idUputnica: number;
     //Primam sve podatke uputnice koja ima najveći ID
     @Input() podatciUputnice: Uputnica;
+    //Primam sve uzorke od roditelja "NalaziListComponent"
+    @Input() primljeniUzorci: Uzorak;
     //Spremam sve ključeve nazive form controlova
     nazivi: string[] = [];
+    //Spremam informaciju je li roditelj ove komponente "NalaziListComponent" ili "SekundarniHeaderComponent"
+    sekundarniIliNalazi: string = null;
 
     constructor(
         //Dohvaćam servis uzoraka
-        private uzorciService: UzorciService
+        private uzorciService: UzorciService,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
+        console.log(this.primljeniUzorci.bazofilniGranulociti);
+        console.log(this.primljeniUzorci.eozinofilniGranulociti);
         this.forma = new FormGroup({
-            'ustanova': new FormControl(this.nazivZdrUst),
-            'eritrociti': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriEritrocite(),
-                  UzorciValidations.isBroj()]),
-            'hemoglobin': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriHemoglobin(),
-                  UzorciValidations.isBroj()]),
-            'hematokrit': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriHematokrit(),
-                  UzorciValidations.isBroj()]),
-            'mcv': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriMCV(),
-                  UzorciValidations.isBroj()]),
-            'mch': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriMCH(),
-                  UzorciValidations.isBroj()]),
-            'mchc': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriMCHC(),
-                  UzorciValidations.isBroj()]),
-            'rdw': new FormControl(null, [
-                  Validators.required,
-                  UzorciValidations.provjeriRDW(),
-                  UzorciValidations.isBroj()]),
-            'leukociti': new FormControl(null, [
+            'ustanova': new FormControl(this.primljeniUzorci.idUputnica ? null : this.nazivZdrUst),
+            'eritrociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.eritrociti + ' *10^12/L' : this.primljeniUzorci.eritrociti, [
+                Validators.required,
+                UzorciValidations.provjeriEritrocite(),
+                UzorciValidations.isBroj()]),
+            'hemoglobin': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.hemoglobin + ' g/L' : this.primljeniUzorci.hemoglobin, [
+                Validators.required,
+                UzorciValidations.provjeriHemoglobin(),
+                UzorciValidations.isBroj()]),
+            'hematokrit': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.hematokrit + ' L/L' : this.primljeniUzorci.hematokrit, [
+                Validators.required,
+                UzorciValidations.provjeriHematokrit(),
+                UzorciValidations.isBroj()]),
+            'mcv': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mcv + ' fL' : this.primljeniUzorci.mcv, [
+                Validators.required,
+                UzorciValidations.provjeriMCV(),
+                UzorciValidations.isBroj()]),
+            'mch': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mch + ' pg' : this.primljeniUzorci.mch, [
+                Validators.required,
+                UzorciValidations.provjeriMCH(),
+                UzorciValidations.isBroj()]),
+            'mchc': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mchc + ' g/L' : this.primljeniUzorci.mchc, [
+                Validators.required,
+                UzorciValidations.provjeriMCHC(),
+                UzorciValidations.isBroj()]),
+            'rdw': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.rdw + ' %' : this.primljeniUzorci.rdw, [
+                Validators.required,
+                UzorciValidations.provjeriRDW(),
+                UzorciValidations.isBroj()]),
+            'leukociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.leukociti + ' *10^9/L' : this.primljeniUzorci.leukociti, [
                 Validators.required,
                 UzorciValidations.provjeriLeukociti(),
                 UzorciValidations.isBroj()]),
-            'trombociti': new FormControl(null, [
+            'trombociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.trombociti + ' *10^9/L' : this.primljeniUzorci.trombociti, [
                 Validators.required,
                 UzorciValidations.provjeriTrombociti(),
                 UzorciValidations.isBroj()]),
-            'mpv': new FormControl(null, [
+            'mpv': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mpv + ' fL' : this.primljeniUzorci.mpv, [
                 Validators.required,
                 UzorciValidations.provjeriMPV(),
                 UzorciValidations.isBroj()]),
-            'trombokrit': new FormControl(null, [
+            'trombokrit': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.trombokrit + ' %' : this.primljeniUzorci.trombokrit, [
                 Validators.required,
                 UzorciValidations.provjeriTrombokrit(),
                 UzorciValidations.isBroj()]),
-            'pdw': new FormControl(null, [
+            'pdw': new FormControl(this.primljeniUzorci.pdw, [
                 Validators.required,
                 UzorciValidations.provjeriPDW(),
                 UzorciValidations.isBroj()]),
-            'neutrofilniGranulociti': new FormControl(null, [
+            'neutrofilniGranulociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.neutrofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.neutrofilniGranulociti, [
                 Validators.required,
                 UzorciValidations.provjeriNeutrofilniGranulociti(),
                 UzorciValidations.isBroj()]),
-            'monociti': new FormControl(null, [
+            'monociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.monociti + ' *10^9/L' : this.primljeniUzorci.monociti, [
                 Validators.required,
                 UzorciValidations.provjeriMonociti(),
                 UzorciValidations.isBroj()]),
-            'limfociti': new FormControl(null, [
+            'limfociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.limfociti + ' *10^9/L' : this.primljeniUzorci.limfociti, [
                 Validators.required,
                 UzorciValidations.provjeriLimfociti(),
                 UzorciValidations.isBroj()]),
-            'eozinofilniGranulociti': new FormControl(null, [
+            'eozinofilniGranulociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.eozinofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.eozinofilniGranulociti, [
                 Validators.required,
                 UzorciValidations.provjeriEozinofilniGranulociti(),
                 UzorciValidations.isBroj()]),
-            'bazofilniGranulociti': new FormControl(null, [
+            'bazofilniGranulociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.bazofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.bazofilniGranulociti, [
                 Validators.required,
                 UzorciValidations.provjeriBazofilniGranulociti(),
                 UzorciValidations.isBroj()]),
-            'retikulociti': new FormControl(null, [
+            'retikulociti': new FormControl(
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.retikulociti + ' *10^9/L' : this.primljeniUzorci.retikulociti, [
                 Validators.required,
                 UzorciValidations.provjeriRetikulociti(),
                 UzorciValidations.isBroj()])
@@ -124,42 +151,35 @@ export class UzorciComponent implements OnInit, OnDestroy{
             //Spremam im nazive
             this.nazivi.push(key);
         }
-        //Pretplaćivam se na slučajno generirane vrijednosti uzoraka
-        this.uzorciService.getUzorci().pipe(
-            tap(uzorci => {
-                //Prolazim kroz sve form controlove
-                for(const keyForma in this.forma.controls){
-                    //Prolazim kroz sve ključeve i vrijednost objekta uzoraka
-                    for(const [key,value] of Object.entries(uzorci)){
-                        //Ako je naziv formcontrola jednak nazivu ključa u objektu uzoraka
-                        if(keyForma === key){
-                            //Na taj form control postavi vrijednost objekta
-                            this.forma.get(key).patchValue(value, {emitEvent: false});
-                        }
-                    }
-                }
-            })
-        ).subscribe();
 
-        //Pretplaćivam se na promjene u dropdownu zdr. ustanove
-        this.ustanova.valueChanges.pipe(
-            tap((value: string) => {
-                let polje = [];
-                polje = value.split(" ");
-                //Spremam ID uputnice
-                this.idUputnica = polje[polje.length - 1];
-            }),
-            switchMap(() => {
-                //Pretplaćivam se na podatke uputnice u kojima se nalazi naziv zdr. ustanove iz dropdowna
-                return this.uzorciService.getPodatciUputnica(this.idUputnica).pipe(
-                    tap(uputnica => {
-                        for(const u of uputnica){
-                            this.podatciUputnice = new Uputnica(u);
-                        }
-                    })
-                );
-            }),
-            takeUntil(this.pretplata)
+        const combined = merge(
+            //Pretplaćivam se na informaciju jesam li ovdje došao iz NALAZA ili SEKUNDARNOG HEADERA
+            this.sharedService.sekundarniIliNalaziObs.pipe(
+                tap(sekundarniIliNalazi => {
+                    this.sekundarniIliNalazi = sekundarniIliNalazi;
+                }),
+                takeUntil(this.pretplata)
+            ),
+            //Pretplaćivam se na promjene u dropdownu zdr. ustanove
+            this.ustanova.valueChanges.pipe(
+                tap((value: string) => {
+                    let polje = [];
+                    polje = value.split(" ");
+                    //Spremam ID uputnice
+                    this.idUputnica = polje[polje.length - 1];
+                }),
+                switchMap(() => {
+                    //Pretplaćivam se na podatke uputnice u kojima se nalazi naziv zdr. ustanove iz dropdowna
+                    return this.uzorciService.getPodatciUputnica(this.idUputnica).pipe(
+                        tap(uputnica => {
+                            for(const u of uputnica){
+                                this.podatciUputnice = new Uputnica(u);
+                            }
+                        })
+                    );
+                }),
+                takeUntil(this.pretplata)
+            )
         ).subscribe();
     }
 
