@@ -1,33 +1,28 @@
 <div class="row">
     <div class="col-xs-12">
-        <!-- <ul class="list-group flex-md-row">
-            <li
-                class="list-group-item clearfix"
-                *ngFor="let nalaz of nalazi"
-                routerLinkActive="active"
-                [routerLink]="[nalaz.idNalaz]">
-                <div class="pull-left">
-                    <h5
-                        style="font-family: Verdana, sans-serif;">{{nalaz.datumNalaz}}</h5>
-                    <h5
-                        style="font-family: Verdana, sans-serif;">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h5>
-                    <h5
-                        style="font-family: Verdana, sans-serif;">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h5>
-                </div>
-            </li>
-        </ul> -->
         <mat-card *ngIf="nalazi.length > 0">
             <mat-card
                 *ngFor="let nalaz of nalazi;let i = index"
                 routerLinkActive="active"
                 [routerLink]="[nalaz.idNalaz]"
                 class="unutarnji"
-                [ngStyle]="{'margin-top': (i>3) ? '7px' : '0px'}">
+                [ngStyle]="{'margin-top': (i > 3) ? '7px' : '0px'}">
+                <mat-card-subtitle
+                    style="height:30px;">{{nalaz.datumNalaz}}</mat-card-subtitle>
+                <mat-card-title
+                    [ngStyle]="{'margin-top': (i > 3) ? '-40px' : '0px'}">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</mat-card-title>
                 <h3
-                    class="mat-subheading-2">{{nalaz.datumNalaz}}</h3>
-                <h2 class="mat-title">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h2>
-                <h3 class="mat-body-strong">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
+                    class="mat-body-strong"
+                    [ngStyle]="{'margin-top' : (i > 3) ? '-30px' : '0px'}">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
+                <mat-card-actions>
+                    <button
+                        mat-raised-button
+                        class="pogledajUzorke"
+                        (click)="onPogledajUzorke(nalaz.idNalaz,$event)"
+                        [ngStyle]="{'margin-right' : (i > 3) ? '100px' : '0px'}">Pogledaj uzorke</button>
+                </mat-card-actions>
             </mat-card>
         </mat-card>
     </div>
 </div>
+<br *ngFor="let broj of pom">

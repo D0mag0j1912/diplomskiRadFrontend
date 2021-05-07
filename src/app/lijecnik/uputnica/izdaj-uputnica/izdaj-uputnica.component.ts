@@ -69,7 +69,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     poslanoVrijeme: string = "";
 
     //Vrste pregleda
-    vrstePregleda: string[] = ['Specijalistički pregled','Bolničko liječenje','Konzilijarni pregled','Ambulantno liječenje'];
+    vrstePregleda: string[] = ['Dijagnostička pretraga'];
 
     constructor(
         //Dohvaćam header servis
@@ -104,6 +104,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 },{validators: [SharedValidations.requiredMKBSifraSekundarna(), SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)]})
             ],{validators: this.isValidSekundarnaDijagnoza.bind(this)}),
             'pacijent': new FormControl(this.aktivniPacijent ? this.aktivniPacijent : null,[Validators.required]),
+            'tip': new FormControl('laboratorijskaDijagnostika'),
             'zdravstvenaDjelatnost': new FormGroup({
                 'nazivZdrDjel': new FormControl(null,
                     [Validators.required,
@@ -117,7 +118,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 'nazivZdrUst': new FormControl(null),
                 'sifZdrUst': new FormControl(null)
             }),
-            'vrstaPregled': new FormControl('Specijalistički pregled', [Validators.required]),
+            'vrstaPregled': new FormControl('Dijagnostička pretraga', [Validators.required]),
             'specijalist': new FormGroup({
                 'isPreporukaSpecijalist': new FormControl(false),
                 'sifraSpecijalist': new FormControl(null),
@@ -126,11 +127,32 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             'molimTraziSe': new FormControl(null, [Validators.required]),
             'napomena': new FormControl(null)
         }, {validators: [this.isValidDijagnoze.bind(this)]});
+        /**************************/
         //Onemogućavam inicijalno unos primarne dijagnoze dok se ne unese pacijent
         this.primarnaDijagnoza.disable({emitEvent: false});
         this.mkbPrimarnaDijagnoza.disable({emitEvent: false});
         //Onemogućavam inicijalno unos sekundarnih dijagnoza
         this.sekundarnaDijagnoza.disable({emitEvent: false});
+        //Inicijalno postavljam naziv i šifru zdr. djelatnosti na LABORATORIJSKU DIJAGNOSTIKU
+        this.nazivZdrDjel.patchValue('Laboratorijska dijagnostika', {emitEvent: false});
+        this.nazivZdrDjel.disable({emitEvent: false});
+        //Tražim šifru lab. dijagnostike
+        const sifDjel = this.zdravstveneDjelatnosti.filter(element => {
+            if(element.nazivDjelatnosti === 'Laboratorijska dijagnostika'){
+                return element.sifDjelatnosti;
+            }
+        });
+        //Postavljam šifru lab. dijagnostike u polje
+        this.sifZdrDjel.patchValue(sifDjel[0].sifDjelatnosti, {emitEvent: false});
+        //Onemogućavam mijenjanje
+        this.sifZdrDjel.disable({emitEvent: false});
+        //Postavljam validator na naziv zdr. ustanove
+        this.zdravstvenaUstanova.setValidators([UputnicaValidators.requiredZdrUstanova(this.tip.value)]);
+        this.zdravstvenaUstanova.updateValueAndValidity({emitEvent: false});
+        //Onemogućavam promjenu vrste pregleda sve dok je "LABORATORIJSKA DIJAGNOSTIKA" tip uputnice
+        this.vrstaPregled.disable({emitEvent: false});
+
+        /*****************************/
         //Ako je PACIJENT AKTIVAN
         if(this.aktivniPacijent){
             //Dohvaćam MBO aktivnog pacijenta
@@ -355,6 +377,55 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplate)
             )
         ).subscribe();
+    }
+    //Metoda koja se poziva kada liječnik promijeni tip uputnice
+    onChangeTip($event: any){
+        //Ako je tip uputnice "Laboratorijska dijagnostika"
+        if($event.target.value === 'laboratorijskaDijagnostika'){
+            //Postavi laboratorijsku dijagnostiku kao naziv djelatnosti
+            this.nazivZdrDjel.patchValue('Laboratorijska dijagnostika', {emitEvent: false});
+            //Onemogućavam mijenjanje
+            this.nazivZdrDjel.disable({emitEvent: false});
+            //Tražim šifru lab. dijagnostike
+            const sifDjel = this.zdravstveneDjelatnosti.filter(element => {
+                if(element.nazivDjelatnosti === 'Laboratorijska dijagnostika'){
+                    return element.sifDjelatnosti;
+                }
+            });
+            //Postavljam šifru lab. dijagnostike u polje
+            this.sifZdrDjel.patchValue(sifDjel[0].sifDjelatnosti, {emitEvent: false});
+            //Onemogućavam mijenjanje
+            this.sifZdrDjel.disable({emitEvent: false});
+            //Postavljam validator na naziv zdr. ustanove
+            this.zdravstvenaUstanova.setValidators([UputnicaValidators.requiredZdrUstanova(this.tip.value)]);
+            this.zdravstvenaUstanova.updateValueAndValidity({emitEvent: false});
+            //Skraćivam polje da samo sadrži dijagnostičku pretragu
+            this.vrstePregleda = [];
+            this.vrstePregleda.push('Dijagnostička pretraga');
+            //Postavljam vrstu pregleda na "DIJAGNOSTIČKA PRETRAGA" te onemogućavam promjene
+            this.vrstaPregled.patchValue('Dijagnostička pretraga', {emitEvent: false});
+            this.vrstaPregled.disable({emitEvent: false});
+        }
+        //Ako je tip uputnice "Specijalistička djelatnost"
+        else{
+            //Ako je polje naziva i šifre zdr. djel onemogućeno za unos
+            if(this.nazivZdrDjel.disabled && this.sifZdrDjel.disabled){
+                //Resetiram naziv i šifru zdr. djelatnosti te im OMOGUĆAVAM unos
+                this.nazivZdrDjel.patchValue(null, {emitEvent: false});
+                this.nazivZdrDjel.enable({emitEvent: false});
+                this.sifZdrDjel.patchValue(null, {emitEvent: false});
+                this.sifZdrDjel.enable({emitEvent: false});
+            }
+            //Postavljam validator na naziv zdr. ustanove
+            this.zdravstvenaUstanova.clearValidators();
+            this.zdravstvenaUstanova.updateValueAndValidity({emitEvent: false});
+            //U vrste pregleda ubacivam "Specijalistički pregled", "Bolničko liječenje" te "Ambulantno liječenje"
+            this.vrstePregleda.splice(0,1);
+            this.vrstePregleda.push('Specijalistički pregled','Bolničko liječenje', 'Ambulantno liječenje');
+            //Omogućavam unos vrste pregleda
+            this.vrstaPregled.patchValue('Specijalistički pregled', {emitEvent: false});
+            this.vrstaPregled.enable({emitEvent: false});
+        }
     }
 
     //Metoda koja se poziva kada liječnik klikne checkbox "Preporučio specijalist"
@@ -860,6 +931,9 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     }
     get pacijent(): FormControl{
         return this.forma.get('pacijent') as FormControl;
+    }
+    get tip(): FormControl{
+        return this.forma.get('tip') as FormControl;
     }
     get zdravstvenaDjelatnost(): FormGroup{
         return this.forma.get('zdravstvenaDjelatnost') as FormGroup;

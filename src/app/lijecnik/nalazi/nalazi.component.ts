@@ -198,6 +198,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
             //Jednog po jednog spremam u polje
             this.nalazi.push(objektNalazList);
         }
+        console.log(this.nalazi);
     }
 
     //Metoda koja se pokreće kada se promijeni vrijednost filtera

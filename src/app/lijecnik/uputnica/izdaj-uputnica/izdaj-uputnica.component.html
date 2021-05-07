@@ -146,6 +146,28 @@
                                             forma.errors?.primarnaJeIstaKaoSekundarna ||
                                             !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button></td>
                         </tr>
+                        <tr>
+                            <td colspan="2">
+                                <label
+                                    for="laboratorijskaDijagnostika"
+                                    style="margin-left:4px;font-family: Verdana, sans-serif">Laboratorij</label>
+                                <input
+                                    type="radio"
+                                    formControlName="tip"
+                                    style="margin-left:5px;"
+                                    value="laboratorijskaDijagnostika"
+                                    (change)="onChangeTip($event)">
+                                <label
+                                    for="specijalistickaDjelatnost"
+                                    style="margin-left:20px;font-family: Verdana, sans-serif">Specijalistička djelatnost</label>
+                                <input
+                                    type="radio"
+                                    formControlName="tip"
+                                    style="margin-left:5px;"
+                                    value="specijalistickaDjelatnost"
+                                    (change)="onChangeTip($event)">
+                            </td>
+                        </tr>
                         <tr formGroupName="zdravstvenaDjelatnost">
                             <td>
                                 <label for="zdravstvenaDjelatnost"
@@ -168,10 +190,10 @@
                                     style="width:250px;display:inline;margin-left:30px;">
                                 <span
                                     class="help-block"
-                                    *ngIf="(nazivZdrDjel.touched || nazivZdrDjel.dirty) && !nazivZdrDjel.valid"
+                                    *ngIf="tip.value === 'specijalistickaDjelatnost'"
                                     style="font-weight: bold;font-family: Verdana, sans-serif;">
                                     <span
-                                        *ngIf="nazivZdrDjel.errors?.required">Naziv zdravstvene djelatnosti je obvezan za unos!</span>
+                                        *ngIf="nazivZdrDjel.errors?.required">Zdravstvena djelatnost je obvezna za unos!</span>
                                     <span
                                         *ngIf="nazivZdrDjel.errors?.neispravanNazivZdrDjelatnosti &&
                                               !nazivZdrDjel.errors?.required">Neispravan unos naziva zdr. djelatnosti!</span>
@@ -211,39 +233,49 @@
                                   class="form-control"
                                   placeholder="Šifra zdravstvene ustanove"
                                   style="width:250px;display:inline;margin-left:30px;">
-                              <span
-                                  class="help-block"
-                                  *ngIf="(nazivZdrUst.touched || nazivZdrUst.dirty) && !nazivZdrUst.valid"
-                                  style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                  <span
-                                      *ngIf="nazivZdrUst.errors?.neispravanNazivZdrUstanova">Neispravan unos naziva zdr. ustanove!</span>
-                              </span>
-                              <span
-                                  class="help-block"
-                                  *ngIf="sifZdrUst.value"
-                                  style="font-weight: bold;font-family: Verdana, sans-serif;display:block;">
-                                  <span
-                                      *ngIf="sifZdrUst.errors?.pattern">Samo pozitivne cjelobrojne vrijednosti su dozvoljene!</span>
-                                  <span
-                                      *ngIf="sifZdrUst.errors?.neispravnaSifraZdrUstanova &&
-                                            !sifZdrUst.errors?.pattern">Neispravan unos šifre zdr. ustanove!</span>
-                              </span>
+                                <span
+                                    class="help-block"
+                                    *ngIf="tip.value === 'laboratorijskaDijagnostika'
+                                        && nazivZdrDjel.value && sifZdrDjel.value">
+                                    <span *ngIf="zdravstvenaUstanova.errors?.requiredZdrUstanova">
+                                        Morate unijeti zdravstvenu ustanovu!
+                                    </span>
+                                </span>
+                                <span
+                                    class="help-block"
+                                    *ngIf="(nazivZdrUst.touched || nazivZdrUst.dirty) && !nazivZdrUst.valid"
+                                    style="display: block;">
+                                    <span
+                                        *ngIf="nazivZdrUst.errors?.neispravanNazivZdrUstanova">Neispravan unos naziva zdr. ustanove!</span>
+                                </span>
+                                <span
+                                    class="help-block"
+                                    *ngIf="sifZdrUst.value"
+                                    style="font-weight: bold;font-family: Verdana, sans-serif;display:block;">
+                                    <span
+                                        *ngIf="sifZdrUst.errors?.pattern">Samo pozitivne cjelobrojne vrijednosti su dozvoljene!</span>
+                                    <span
+                                        *ngIf="sifZdrUst.errors?.neispravnaSifraZdrUstanova &&
+                                                !sifZdrUst.errors?.pattern">Neispravan unos šifre zdr. ustanove!</span>
+                                </span>
                           </td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <label for="vrstaPregled"
-                                  style="margin-top:8px;
-                                      font-family: Verdana, sans-serif;
-                                      float:right;margin-right:50px;">Vrsta pregleda:</label>
-                          </td>
-                          <td colspan="3">
-                              <select
-                                  class="form-control"
-                                  style="width:350px;height:35px"
-                                  formControlName="vrstaPregled">
-                                  <option [ngValue]="null" [disabled]="true">Odaberite vrstu pregleda</option>
-                                  <option *ngFor="let pregled of vrstePregleda" value="{{pregled}}">{{pregled}}</option>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="vrstaPregled"
+                                    style="margin-top:8px;
+                                        font-family: Verdana, sans-serif;
+                                        float:right;margin-right:50px;">Vrsta pregleda:</label>
+                            </td>
+                            <td colspan="3">
+                                <select
+                                    class="form-control"
+                                    style="width:350px;height:35px"
+                                    formControlName="vrstaPregled">
+                                    <option [ngValue]="null" [disabled]="true">Odaberite vrstu pregleda</option>
+                                    <option
+                                        *ngFor="let pregled of vrstePregleda"
+                                        value="{{pregled}}">{{pregled}}</option>
                               </select>
                           </td>
                       </tr>
@@ -300,7 +332,7 @@
                               <label for="molimTraziSe"
                                   style="margin-top:8px;
                                       font-family: Verdana, sans-serif;
-                                      float:right;margin-right:50px;">Molim traži se:</label>
+                                      float:right;margin-right:50px;">Molim, traži se:</label>
                           </td>
                           <td colspan="3">
                               <textarea
@@ -309,10 +341,10 @@
                                   formControlName="molimTraziSe"></textarea>
                               <span
                                   class="help-block"
-                                  *ngIf="(molimTraziSe.touched || molimTraziSe.dirty) && !molimTraziSe.valid"
+                                  *ngIf="tip.value"
                                   style="font-weight: bold;font-family: Verdana, sans-serif;">
                                   <span
-                                      *ngIf="molimTraziSe.errors?.required">"Molim - Traži se" je obvezno za unos!</span>
+                                      *ngIf="molimTraziSe.errors?.required">"Molim, Traži se" je obvezno za unos!</span>
                               </span>
                           </td>
                       </tr>
