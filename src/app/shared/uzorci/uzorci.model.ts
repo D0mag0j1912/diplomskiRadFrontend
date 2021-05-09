@@ -68,10 +68,10 @@ export class Uzorak {
         if(response.limfociti){
             this.limfociti = +response.limfociti;
         }
-        if(response.eozinofilniGranulociti){
+        if(+response.eozinofilniGranulociti >= 0){
             this.eozinofilniGranulociti = +response.eozinofilniGranulociti;
         }
-        if(response.bazofilniGranulociti){
+        if(+response.bazofilniGranulociti >= 0){
             this.bazofilniGranulociti = +response.bazofilniGranulociti;
         }
         if(response.retikulociti){

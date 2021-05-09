@@ -1,10 +1,12 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { SharedService } from 'src/app/shared/shared.service';
 import { UzorciService } from 'src/app/shared/uzorci/uzorci.service';
 import { NalazList } from '../nalazList.model';
 import {Uzorak} from '../../../shared/uzorci/uzorci.model';
+import { ImportService } from 'src/app/shared/import.service';
+import {ReferentnaVrijednost} from '../../../shared/uzorci/referentna-vrijednost.model';
 
 @Component({
   selector: 'app-nalazi-list',
@@ -27,12 +29,16 @@ export class NalaziListComponent implements OnInit, OnDestroy{
     response: boolean = false;
     //Spremam poruku da uzorci još nisu dodani
     porukaAlert: string = null;
+    //Spremam sve ref. vrijednosti
+    referentneVrijednosti: ReferentnaVrijednost[] = [];
 
     constructor(
         //Dohvaćam shared servis
         private sharedService: SharedService,
         //Dohvaćam servis uzoraka
-        private uzorciService: UzorciService
+        private uzorciService: UzorciService,
+        //Dohvaćam import servis
+        private importService: ImportService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -44,12 +50,15 @@ export class NalaziListComponent implements OnInit, OnDestroy{
     onPogledajUzorke(idNalaz: number, $event){
         $event.stopPropagation();
         //Pretplaćujem se na dohvat uzoraka za ovaj nalaz
-        this.uzorciService.getUzorciNalazi(idNalaz).pipe(
-            tap(uzorci => {
+        const combined = forkJoin([
+            this.uzorciService.getUzorciNalazi(idNalaz),
+            this.importService.getReferentneVrijednosti()
+        ]).pipe(
+            tap(podatci => {
                 //Ako IMA uzoraka
-                if(uzorci.length > 0){
+                if(podatci[0].length > 0){
                     //Formiram uzorak koji šaljem childu "UzorciComponent"
-                    this.poslaniUzorci = new Uzorak(uzorci[0]);
+                    this.poslaniUzorci = new Uzorak(podatci[0][0]);
                     //Otvaram prozor uzoraka
                     this.isUzorci = true;
                     //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "NalaziListComponent"
@@ -61,6 +70,12 @@ export class NalaziListComponent implements OnInit, OnDestroy{
                     this.response = true;
                     //Spremam poruku
                     this.porukaAlert = 'Uzorci još nisu poslani!';
+                }
+                this.referentneVrijednosti = [];
+                let obj;
+                for(const vrijednost of podatci[1]){
+                    obj = new ReferentnaVrijednost(vrijednost);
+                    this.referentneVrijednosti.push(obj);
                 }
             })
         ).subscribe();

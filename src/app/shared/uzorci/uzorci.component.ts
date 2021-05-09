@@ -8,6 +8,7 @@ import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { Uputnica } from '../modeli/uputnica.model';
 import { SharedService } from '../shared.service';
 import { Uzorak } from './uzorci.model';
+import { ReferentnaVrijednost } from './referentna-vrijednost.model';
 
 @Component({
   selector: 'app-uzorci',
@@ -16,6 +17,8 @@ import { Uzorak } from './uzorci.model';
 })
 export class UzorciComponent implements OnInit, OnDestroy{
 
+    //Pomoćno polje
+    pom: number[] = [0,1,2,3];
     //Spremam oznaku koja označava hoće li prozor odgovora servera biti otvoren ili ne
     response: boolean = false;
     //Spremam poruku servera
@@ -38,6 +41,8 @@ export class UzorciComponent implements OnInit, OnDestroy{
     @Input() podatciUputnice: Uputnica;
     //Primam sve uzorke od roditelja "NalaziListComponent"
     @Input() primljeniUzorci: Uzorak;
+    //Primam sve referentne vrijednosti
+    @Input() referentneVrijednosti: ReferentnaVrijednost[];
     //Spremam sve ključeve nazive form controlova
     nazivi: string[] = [];
     //Spremam informaciju je li roditelj ove komponente "NalaziListComponent" ili "SekundarniHeaderComponent"
@@ -52,99 +57,98 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.primljeniUzorci.bazofilniGranulociti);
-        console.log(this.primljeniUzorci.eozinofilniGranulociti);
+        console.log(this.referentneVrijednosti);
         this.forma = new FormGroup({
             'ustanova': new FormControl(this.primljeniUzorci.idUputnica ? null : this.nazivZdrUst),
             'eritrociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.eritrociti + ' *10^12/L' : this.primljeniUzorci.eritrociti, [
-                Validators.required,
-                UzorciValidations.provjeriEritrocite(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.eritrociti + ' *10^12/L' : this.primljeniUzorci.eritrociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'hemoglobin': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.hemoglobin + ' g/L' : this.primljeniUzorci.hemoglobin, [
-                Validators.required,
-                UzorciValidations.provjeriHemoglobin(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.hemoglobin + ' g/L' : this.primljeniUzorci.hemoglobin,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()]: []),
             'hematokrit': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.hematokrit + ' L/L' : this.primljeniUzorci.hematokrit, [
-                Validators.required,
-                UzorciValidations.provjeriHematokrit(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.hematokrit + ' L/L' : this.primljeniUzorci.hematokrit,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()]: []),
             'mcv': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mcv + ' fL' : this.primljeniUzorci.mcv, [
-                Validators.required,
-                UzorciValidations.provjeriMCV(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mcv + ' fL' : this.primljeniUzorci.mcv,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()]: []),
             'mch': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mch + ' pg' : this.primljeniUzorci.mch, [
-                Validators.required,
-                UzorciValidations.provjeriMCH(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mch + ' pg' : this.primljeniUzorci.mch,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()]: []),
             'mchc': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mchc + ' g/L' : this.primljeniUzorci.mchc, [
-                Validators.required,
-                UzorciValidations.provjeriMCHC(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mchc + ' g/L' : this.primljeniUzorci.mchc,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'rdw': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.rdw + ' %' : this.primljeniUzorci.rdw, [
-                Validators.required,
-                UzorciValidations.provjeriRDW(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.rdw + ' %' : this.primljeniUzorci.rdw,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'leukociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.leukociti + ' *10^9/L' : this.primljeniUzorci.leukociti, [
-                Validators.required,
-                UzorciValidations.provjeriLeukociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.leukociti + ' *10^9/L' : this.primljeniUzorci.leukociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'trombociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.trombociti + ' *10^9/L' : this.primljeniUzorci.trombociti, [
-                Validators.required,
-                UzorciValidations.provjeriTrombociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.trombociti + ' *10^9/L' : this.primljeniUzorci.trombociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'mpv': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mpv + ' fL' : this.primljeniUzorci.mpv, [
-                Validators.required,
-                UzorciValidations.provjeriMPV(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.mpv + ' fL' : this.primljeniUzorci.mpv,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'trombokrit': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.trombokrit + ' %' : this.primljeniUzorci.trombokrit, [
-                Validators.required,
-                UzorciValidations.provjeriTrombokrit(),
-                UzorciValidations.isBroj()]),
-            'pdw': new FormControl(this.primljeniUzorci.pdw, [
-                Validators.required,
-                UzorciValidations.provjeriPDW(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.trombokrit + ' %' : this.primljeniUzorci.trombokrit,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
+            'pdw': new FormControl(this.primljeniUzorci.pdw + " ",
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'neutrofilniGranulociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.neutrofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.neutrofilniGranulociti, [
-                Validators.required,
-                UzorciValidations.provjeriNeutrofilniGranulociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.neutrofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.neutrofilniGranulociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'monociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.monociti + ' *10^9/L' : this.primljeniUzorci.monociti, [
-                Validators.required,
-                UzorciValidations.provjeriMonociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.monociti + ' *10^9/L' : this.primljeniUzorci.monociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'limfociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.limfociti + ' *10^9/L' : this.primljeniUzorci.limfociti, [
-                Validators.required,
-                UzorciValidations.provjeriLimfociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.limfociti + ' *10^9/L' : this.primljeniUzorci.limfociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'eozinofilniGranulociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.eozinofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.eozinofilniGranulociti, [
-                Validators.required,
-                UzorciValidations.provjeriEozinofilniGranulociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.eozinofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.eozinofilniGranulociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'bazofilniGranulociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.bazofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.bazofilniGranulociti, [
-                Validators.required,
-                UzorciValidations.provjeriBazofilniGranulociti(),
-                UzorciValidations.isBroj()]),
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.bazofilniGranulociti + ' *10^9/L' : this.primljeniUzorci.bazofilniGranulociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : []),
             'retikulociti': new FormControl(
-                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.retikulociti + ' *10^9/L' : this.primljeniUzorci.retikulociti, [
-                Validators.required,
-                UzorciValidations.provjeriRetikulociti(),
-                UzorciValidations.isBroj()])
+                this.primljeniUzorci.idUputnica ? this.primljeniUzorci.retikulociti + ' *10^9/L' : this.primljeniUzorci.retikulociti,
+                !this.primljeniUzorci.idUputnica ?
+                [Validators.required,
+                UzorciValidations.isBroj()] : [])
         });
         //Prolazim kroz sve form controlove u formi
         for(const key in this.forma.controls){
@@ -181,6 +185,7 @@ export class UzorciComponent implements OnInit, OnDestroy{
                 takeUntil(this.pretplata)
             )
         ).subscribe();
+
     }
 
     //Metoda koja se poziva kada med.sestra stisne button "Pošalji"

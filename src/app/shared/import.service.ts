@@ -14,6 +14,11 @@ export class ImportService{
         private http: HttpClient
     ){}
 
+    //Metoda koja dohvaća sve referentne vrijednosti
+    getReferentneVrijednosti(){
+        return this.http.get<any>(baseUrl + 'uzorci/nalazi/getReferentneVrijednosti.php').pipe(catchError(handleError));
+    }
+
     //Dohvaćam MBO pacijent na osnovu njegovog ID-a
     getMBOPacijent(idPacijent: number){
         let params = new HttpParams().append("idPacijent",idPacijent.toString());
@@ -96,7 +101,7 @@ export class ImportService{
 
     //Metoda koja šalje zahtjev serveru te od njega traži dohvat svih država osiguranja
     getDrzavaOsiguranja(){
-      
+
         //Dohvaća i vraća Observable sa svim dijagnozama
         return this.http.get<any>(baseUrl + 'zdravstveniPodatciPacijent/getDrzavaOsiguranja.php').pipe(
             catchError(handleError)
@@ -135,7 +140,7 @@ export class ImportService{
         );
     }
 
-    //Metoda koja šalje zahtjev serveru te od njega traži dohvat svih participacija 
+    //Metoda koja šalje zahtjev serveru te od njega traži dohvat svih participacija
     getParticipacija(){
 
         return this.http.get<any>(baseUrl + 'zdravstveniPodatciPacijent/getParticipacija.php').pipe(

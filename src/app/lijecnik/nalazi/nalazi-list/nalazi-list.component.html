@@ -1,7 +1,8 @@
 <app-uzorci
     (close)="onCloseUzorci()"
     *ngIf="isUzorci"
-    [primljeniUzorci]="poslaniUzorci"></app-uzorci>
+    [primljeniUzorci]="poslaniUzorci"
+    [referentneVrijednosti]="referentneVrijednosti"></app-uzorci>
 <app-alert
     [message]="porukaAlert"
     *ngIf="response"
