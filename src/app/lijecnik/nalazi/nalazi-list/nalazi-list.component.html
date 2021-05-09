@@ -24,11 +24,11 @@
                     (click)="onPogledajUzorke(nalaz.idNalaz,$event)"
                     style="float:right;top:-5px;left:30px;position:relative;"
                     *ngIf="!nalaz.misljenjeSpecijalist">Pogledaj uzorke</button>
-                <mat-card-title
-                    [ngStyle]="{'margin-top': (i > 3) ? '-40px' : '0px'}">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</mat-card-title>
+                <h4
+                    [ngStyle]="{'margin-top': (i > 3) ? '-10px' : '0px'}">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h4>
                 <h3
                     class="mat-body-strong"
-                    [ngStyle]="{'margin-top' : (i > 3) ? '-30px' : '0px'}">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
+                    [ngStyle]="{'margin-top' : (i > 3) ? '-20px' : '0px'}">{{nalaz.nazivPrimarna + ' [' + nalaz.mkbSifraPrimarna + ']'}}</h3>
             </mat-card>
         </mat-card>
     </div>

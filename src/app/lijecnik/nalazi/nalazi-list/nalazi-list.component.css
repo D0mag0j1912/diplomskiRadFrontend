@@ -8,8 +8,8 @@ mat-card {
     flex: 0 0 24%;
     margin-left:7px;
     cursor:pointer;
-    height:350px;
-    max-height: 350px;
+    height:300px;
+    max-width: 260px;
     background-color: #F1F1F1;
 }
 .unutarnji:hover{
