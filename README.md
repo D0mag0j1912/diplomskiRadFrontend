@@ -26,6 +26,7 @@ Aplikacija je sastavljena na način da se korisnicima omogući pregledno korisni
 7. Naručivanje pacijenata
 8. Prikaz prethodnih pregleda
 9. Prikaz detalja završenog pregleda
+10. Prikaz rezultata laboratorijskih pretraga
 ---
 ### Pregled funkcionalnosti
 * ### Obrada pacijenta
@@ -50,3 +51,5 @@ Aplikacija je sastavljena na način da se korisnicima omogući pregledno korisni
 ![](src/assets/images/prethodniPreglediAktivan.PNG)
 * ### Prikaz detalja završenog pregleda
 ![](src/assets/images/detaljiPregleda.PNG)
+* ### Prikaz rezultata laboratorijskih pretraga
+![](src/assets/images/rezultatiPretraga.PNG)
