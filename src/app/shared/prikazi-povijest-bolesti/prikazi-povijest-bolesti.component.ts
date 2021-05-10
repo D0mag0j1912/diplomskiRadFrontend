@@ -80,7 +80,6 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.idPacijent);
         //Inicijaliziram varijablu u koju spremam objekte tipa "Dijagnoza"
         let objektDijagnoza;
         //Prolazim poljem dijagnoza sa servera
@@ -122,7 +121,6 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
             //Pretplaćivam se na informaciju odakle je otvoren ovaj prozor (ili iz izdavanja recepta ili iz izdavanja uputnice)
             this.sharedService.receptIliUputnicaObs.pipe(
                 tap(receptIliUputnica => {
-                    console.log(receptIliUputnica);
                     this.receptIliUputnica = receptIliUputnica;
                 }),
                 takeUntil(this.pretplateSubject)
@@ -214,8 +212,7 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                         //Spremam ID liječnika
                         this.idLijecnik = idLijecnik[0].idLijecnik;
                     }
-                ),
-                takeUntil(this.pretplateSubject)
+                )
             )
         ).subscribe();
     }
@@ -411,16 +408,12 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                             }
                             //Ako je pacijent AKTIVAN
                             else{
-                                return of(null).pipe(
-                                    takeUntil(this.pretplateSubject)
-                                );
+                                return of(null);
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }),
                 tap(() => {
-                    console.log(this.receptIliUputnica);
                     //Ako sam došao ovdje iz izdavanja recepta
                     if(this.receptIliUputnica === 'recept'){
                       //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
@@ -430,12 +423,10 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                     }
                     //Ako sam došao ovdje iz izdavanja uputnice
                     else if(this.receptIliUputnica === 'uputnica'){
-                        console.log("Emitiram...");
                         //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
                         this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
                     }
-                }),
-                takeUntil(this.pretplateSubject)
+                })
             ).subscribe();
         }
         //Ako je slučaj povezan
@@ -505,16 +496,12 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                                     }
                                     //Ako je pacijent AKTIVAN
                                     else{
-                                        return of(null).pipe(
-                                            takeUntil(this.pretplateSubject)
-                                        );
+                                        return of(null);
                                     }
-                                }),
-                                takeUntil(this.pretplateSubject)
+                                })
                             );
                         }),
                         tap(() => {
-                            console.log(this.receptIliUputnica);
                             //Ako sam došao ovdje iz izdavanja recepta
                             if(this.receptIliUputnica === 'recept'){
                                 //Aktiviraj event prema roditeljskoj komponenti recepta da se izgasi ovaj prozor
@@ -524,15 +511,12 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                             }
                             //Ako sam došao ovdje iz izdavanja uputnice
                             else if(this.receptIliUputnica === 'uputnica'){
-                                console.log("Emitiram...");
                                 //Emitiraj prema komponenti uputnice (IzdajUputnicaComponent) da se izgasi ovaj prozor
                                 this.closeUputnica.emit({idPacijent: this.idPacijent, potvrden: true});
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
-                }),
-                takeUntil(this.pretplateSubject)
+                })
             ).subscribe();
         }
     }
@@ -556,73 +540,71 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         this.povezanSlucaj.reset();
     }
 
-      //Metoda koja se izvodi kada se event aktivirao (Kada je komponenta "PovezaniPovijestBolesti" poslala podatke retka)
-      onPoveziPodatciRetka($event){
-          this.povezaniPovijestBolestiService.getPovijestBolestiPovezanSlucaj($event,this.idPacijent).pipe(
+    //Metoda koja se izvodi kada se event aktivirao (Kada je komponenta "PovezaniPovijestBolesti" poslala podatke retka)
+    onPoveziPodatciRetka($event){
+        this.povezaniPovijestBolestiService.getPovijestBolestiPovezanSlucaj($event,this.idPacijent).pipe(
             tap(
-              //Dohvaćam odgovor
-              (odgovor) => {
-                  //Spremam ID povijesti bolesti prošlog pregleda
-                  this.prosliPregled = odgovor[0].idPovijestBolesti;
-                  this.proslaBoja = odgovor[0].bojaPregled;
-                  //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                  const podatciProslogPregleda = {
+            //Dohvaćam odgovor
+            (odgovor) => {
+                //Spremam ID povijesti bolesti prošlog pregleda
+                this.prosliPregled = odgovor[0].idPovijestBolesti;
+                this.proslaBoja = odgovor[0].bojaPregled;
+                //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                const podatciProslogPregleda = {
                     idObrada: odgovor[0].idObradaLijecnik,
                     mkbPrimarnaDijagnoza: odgovor[0].mkbSifraPrimarna
-                  };
-                  //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                  localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                  //Popuni polja povijesti bolesti sa rezultatima sa servera
-                  this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{emitEvent: false});
-                  this.anamneza.patchValue(odgovor[0].anamneza,{emitEvent: false});
-                  this.status.patchValue(odgovor[0].statusPacijent,{emitEvent: false});
-                  this.nalaz.patchValue(odgovor[0].nalaz,{emitEvent: false});
-                  this.terapija.patchValue(odgovor[0].terapija,{emitEvent: false});
-                  this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik,{emitEvent: false});
-                  this.napomena.patchValue(odgovor[0].napomena,{emitEvent: false});
-                  //Resetiram formu sekundarnih dijagnoza
-                  this.sekundarnaDijagnoza.clear();
-                  //Resetiram svoje polje sekundarnih dijagnoza
-                  this.sekundarnaDijagnozaPovijestBolesti = [];
-                  //Dodaj jedan form control da inicijalno bude 1
-                  this.onAddDiagnosis();
-                  //Prolazim poljem odgovora servera
-                  for(let dijagnoza of odgovor){
-                      //Spremam naziv primarne dijagnoze povezane povijesti bolesti
-                      this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
-                      //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
-                      this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
-                      //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
-                      this.onAddDiagnosis();
-                  }
-                  //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                  this.onDeleteDiagnosis(-1);
-                  //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                  this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
-                  //Popunjavam polje MKB šifre primarne dijagnoze
-                  SharedHandler.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
-                  //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
-                  this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
-                      //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
-                      (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
-                      //Postavljam MKB šifre sek.dijagnoza
-                      SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
-                  });
-                  //Zatvaram prozor povijesti bolesti
-                  this.otvorenPovijestBolesti = false;
-                  //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
-                  this.ponistiPovezaniSlucaj = true;
-                  //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                  this.povezanSlucaj.patchValue(true,{emitEvent: false});
-                  //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                  this.povezanSlucaj.disable({emitEvent: false});
-                  //Resetiram checkbox novog slučaja da ne ostane da su oba true
-                  this.noviSlucaj.reset();
-              }
-            ),
-            takeUntil(this.pretplateSubject)
+                };
+                //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                //Popuni polja povijesti bolesti sa rezultatima sa servera
+                this.razlogDolaska.patchValue(odgovor[0].razlogDolaska,{emitEvent: false});
+                this.anamneza.patchValue(odgovor[0].anamneza,{emitEvent: false});
+                this.status.patchValue(odgovor[0].statusPacijent,{emitEvent: false});
+                this.nalaz.patchValue(odgovor[0].nalaz,{emitEvent: false});
+                this.terapija.patchValue(odgovor[0].terapija,{emitEvent: false});
+                this.preporukaLijecnik.patchValue(odgovor[0].preporukaLijecnik,{emitEvent: false});
+                this.napomena.patchValue(odgovor[0].napomena,{emitEvent: false});
+                //Resetiram formu sekundarnih dijagnoza
+                this.sekundarnaDijagnoza.clear();
+                //Resetiram svoje polje sekundarnih dijagnoza
+                this.sekundarnaDijagnozaPovijestBolesti = [];
+                //Dodaj jedan form control da inicijalno bude 1
+                this.onAddDiagnosis();
+                //Prolazim poljem odgovora servera
+                for(let dijagnoza of odgovor){
+                    //Spremam naziv primarne dijagnoze povezane povijesti bolesti
+                    this.primarnaDijagnozaPovijestBolesti = dijagnoza.NazivPrimarna;
+                    //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze povezane povijesti bolesti
+                    this.sekundarnaDijagnozaPovijestBolesti.push(dijagnoza.NazivSekundarna);
+                    //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
+                    this.onAddDiagnosis();
+                }
+                //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
+                this.onDeleteDiagnosis(-1);
+                //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
+                this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaPovijestBolesti,{emitEvent: false});
+                //Popunjavam polje MKB šifre primarne dijagnoze
+                SharedHandler.nazivToMKB(this.primarnaDijagnozaPovijestBolesti,this.dijagnoze,this.forma);
+                //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
+                this.sekundarnaDijagnozaPovijestBolesti.forEach((element,index) => {
+                    //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
+                    (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
+                    //Postavljam MKB šifre sek.dijagnoza
+                    SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                });
+                //Zatvaram prozor povijesti bolesti
+                this.otvorenPovijestBolesti = false;
+                //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
+                this.ponistiPovezaniSlucaj = true;
+                //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
+                this.povezanSlucaj.patchValue(true,{emitEvent: false});
+                //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
+                this.povezanSlucaj.disable({emitEvent: false});
+                //Resetiram checkbox novog slučaja da ne ostane da su oba true
+                this.noviSlucaj.reset();
+            })
         ).subscribe();
-      }
+    }
 
     //Metoda koja se poziva kada korisnik klikne button "Poveži povijest bolesti"
     onPoveziPovijestBolesti(){

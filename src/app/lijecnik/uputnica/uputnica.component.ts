@@ -151,8 +151,7 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                             //Spremam poruku servera
                             this.nemaUputnica = uputnice.message;
                         }
-                    }),
-                    takeUntil(this.pretplata)
+                    })
                 );
             }),
             takeUntil(this.pretplata)
@@ -182,8 +181,7 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                 else{
                     this.nemaUputnica = 'Nema evidentiranih uputnica';
                 }
-            }),
-            takeUntil(this.pretplata)
+            })
         ).subscribe();
     }
 
@@ -205,7 +203,7 @@ export class UputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se pokreće kada se klikne button "Nova uputnica"
     onNovaUputnica(){
-        return this.obradaService.getPatientProcessing('lijecnik').pipe(
+        this.obradaService.getPatientProcessing('lijecnik').pipe(
             switchMap(podatci => {
                 //Ako JE PACIJENT AKTIVAN
                 if(podatci.success !== "false"){
@@ -222,15 +220,13 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                     //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
                     return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), podatci[0].mboPacijent).pipe(
                         switchMap(dijagnoze => {
-                            console.log(dijagnoze);
                             //Ako pacijent ima zapisanu povijest bolesti u ovoj sesiji obrade
                             if(dijagnoze){
                                 return of(null).pipe(
                                     tap(() => {
                                         //Otvaram prozor izdavanja uputnice
                                         this.isIzdavanjeUputnice = true;
-                                    }),
-                                    takeUntil(this.pretplata)
+                                    })
                                 );
                             }
                             //Ako pacijent NEMA zapisanu povijest bolesti
@@ -244,12 +240,10 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                                         this.isPovijestBolesti = true;
                                         //Emitiram informaciju Subjectom komponenti povijesti bolesti da dolazim iz uputnice
                                         this.sharedService.receptIliUputnica.next("uputnica");
-                                    }),
-                                    takeUntil(this.pretplata)
+                                    })
                                 );
                             }
-                        }),
-                        takeUntil(this.pretplata)
+                        })
                     );
                 }
                 //Ako pacijent NIJE aktivan
@@ -258,13 +252,11 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                         tap(() => {
                             //Otvaram prozor izdavanja uputnice
                             this.isIzdavanjeUputnice = true;
-                        }),
-                        takeUntil(this.pretplata)
+                        })
                     );
                 }
-            }),
-            takeUntil(this.pretplata)
-      ).subscribe();
+            })
+        ).subscribe();
     }
 
     //Metoda koja se poziva kada liječnik želi izaći iz prozora izdavanja uputnice

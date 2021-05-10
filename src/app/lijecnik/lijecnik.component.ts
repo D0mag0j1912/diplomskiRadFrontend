@@ -22,13 +22,13 @@ export class LijecnikComponent implements OnInit, OnDestroy {
     //Ova metoda se poziva kada se komponenta inicijalizira
     ngOnInit(){
         this.route.data.pipe(
-            takeUntil(this.pretplateSubject),
             tap(
               (data: {podatci: any}) => {
                   this.osobniPodatci = new Korisnik(data.podatci[0]);
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe();
-    } 
+    }
 
     //Ova metoda se poziva kada se komponenta uništi
     ngOnDestroy(){

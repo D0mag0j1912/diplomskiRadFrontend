@@ -39,9 +39,9 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
       private route: ActivatedRoute
     ) {}
 
-    //Ova metoda se poziva kada se ova komponenta pokrene 
+    //Ova metoda se poziva kada se ova komponenta pokrene
     ngOnInit() {
-      //Pretplaćujem se na podatke koji su poslani preko Resolvera 
+      //Pretplaćujem se na podatke koji su poslani preko Resolvera
       this.route.data.pipe(
           tap(
             (data : {podatci: any}) => {
@@ -72,7 +72,7 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
         //Ako je definiran ID liječnika u modelu:
         if(this.osobniPodatci.idLijecnik){
             //Pretplaćujem se na Observable koji je vratio odgovor servera za ažuriranje osobnih podataka
-            this.lijecnikService.editPersonalData(this.osobniPodatci.idLijecnik,this.email.value, 
+            this.lijecnikService.editPersonalData(this.osobniPodatci.idLijecnik,this.email.value,
                 this.ime.value,this.prezime.value,this.adresa.value,this.specijalizacija.value).pipe(
                 tap(
                   (response) => {
@@ -82,16 +82,15 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
                           this.response = true;
                           //Spremam odgovor servera
                           this.responsePoruka = response["message"];
-                      }    
+                      }
                   }
-                ),
-                takeUntil(this.pretplateSubject)
+                )
             ).subscribe();
         }
         //Ako NIJE definiran ID liječnika u modelu:
         else{
             //Pretplaćujem se na Observable koji je vratio odgovor servera za ažuriranje osobnih podataka
-            this.medSestraService.editPersonalData(this.osobniPodatci.idMedSestra, this.email.value, 
+            this.medSestraService.editPersonalData(this.osobniPodatci.idMedSestra, this.email.value,
                 this.ime.value, this.prezime.value, this.adresa.value, this.specijalizacija.value).pipe(
                 tap(response => {
                     //Ako postoji odgovor
@@ -100,9 +99,8 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
                       this.response = true;
                       //Spremam odgovor servera
                       this.responsePoruka = response["message"];
-                    } 
-                }),
-                takeUntil(this.pretplateSubject)
+                    }
+                })
             ).subscribe();
         }
     }

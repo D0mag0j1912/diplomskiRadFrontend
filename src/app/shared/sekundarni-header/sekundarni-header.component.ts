@@ -107,7 +107,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                         //Dohvaćam podatke aktivnog pacijenta u obradi
                         return this.obradaService.getPatientProcessing(user.tip).pipe(
                             switchMap(odgovor => {
-                                console.log(odgovor);
                                 //Ako je pacijent aktivan u obradi
                                 if(odgovor.success !== "false"){
                                     //Označavam da je pacijent aktivan u obradi
@@ -120,7 +119,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                         this.uzorciService.getUstanoveUzorci(+odgovor[0].idPacijent)
                                     ]).pipe(
                                         tap(podatci => {
-                                            console.log(podatci);
                                             //Ako pacijent nema evidentiranih pregleda
                                             if(podatci[0] === null){
                                                 //Označavam da pacijent NEMA evidentiranih pregleda
@@ -174,7 +172,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                                         for(const u of uputnica){
                                                             this.uputnica = new Uputnica(u);
                                                         }
-                                                        console.log(this.uputnica);
                                                     })
                                                 );
                                             }
@@ -259,7 +256,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             //Pretplaćujem se na informaciju koliko pregled košta
             this.sharedService.cijeneObs.pipe(
                 tap(trenutnaCijena => {
-                    console.log(trenutnaCijena);
                     //Primam naplaćenu cijenu te je stavljam u polje forme
                     this.cijena.patchValue(trenutnaCijena.toFixed(2) + ' kn', {emitEvent: false});
                 }),
@@ -341,7 +337,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                                 this.zdrUstanove.push(obj);
                                             }
                                         }
-                                        console.log(this.zdrUstanove);
                                     }),
                                     switchMap(ustanove => {
                                         //Ako je server vratio barem jednu zdr. ustanovu za komponentu uzoraka
@@ -366,7 +361,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                                                     for(const u of uputnica){
                                                         this.uputnica = new Uputnica(u);
                                                     }
-                                                    console.log(this.uputnica);
                                                 })
                                             );
                                         }
@@ -392,10 +386,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             //Pretplaćujem se na Observable koji vraća slučajno generirane uzorke
             this.uzorciService.getUzorci().subscribe(
                 (uzorci) => {
-                    console.log(uzorci);
                     //Formiram uzorke te ih šaljem "UzorciComponent"
                     this.poslaniUzorci = new Uzorak(uzorci);
-                    console.log(this.poslaniUzorci);
                     //Otvori prozor uzoraka
                     this.isUzorci = true;
                     //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "SekundarniHeaderComponent"

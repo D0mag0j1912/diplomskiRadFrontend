@@ -61,21 +61,19 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         this.cekaonicaService.obsPodatciPregleda.pipe(
             take(1),
             switchMap(podatci => {
-              //Spremam podatke pregleda čije detalje gledam
-              this.podatciDetaljaPregleda = podatci;
-              return forkJoin([
-                  this.cekaonicaService.getImePrezimeDatum(podatci.tip, +podatci.idObrada),
-                  this.cekaonicaService.getPodatciPregleda(podatci.tip, +podatci.idObrada)
-              ])
-            }),
-            takeUntil(this.pretplateSubject)
+                //Spremam podatke pregleda čije detalje gledam
+                this.podatciDetaljaPregleda = podatci;
+                return forkJoin([
+                    this.cekaonicaService.getImePrezimeDatum(podatci.tip, +podatci.idObrada),
+                    this.cekaonicaService.getPodatciPregleda(podatci.tip, +podatci.idObrada)
+                ]);
+            })
         ).pipe(
             switchMap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
                     //Spremam osobne podatke pacijenta detalja pregleda
                     this.detaljiPregleda = new DetaljiPregleda(odgovor[0][0]);
-                    console.log(this.detaljiPregleda);
                     //Ako postoji BMI u mom modelu
                     if(this.detaljiPregleda.bmi){
                         //Označavam da ima BMI-a
@@ -124,7 +122,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                                 this.isPovijestBolesti = true;
                             }
                         }
-                        console.log(this.povijestiBolesti);
                         //Inicijaliziram pomoćno polje
                         let polje = [];
                         //Ako se radi o OPĆIM PODATCIMA PREGLEDA:
@@ -164,8 +161,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                                         //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
                                         (<FormArray>(this.forma.get('opciPodatci'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                     }
-                                }),
-                                takeUntil(this.pretplateSubject)
+                                })
                             );
                         }
                         //Ako se radi o PODATCIMA POVIJESTI BOLESTI:
@@ -206,8 +202,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                                         //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
                                         (<FormArray>(this.forma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                     }
-                                }),
-                                takeUntil(this.pretplateSubject)
+                                })
                             );
                         }
                     }
@@ -231,8 +226,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                         return of(null);
                     }
                 }
-            ),
-            takeUntil(this.pretplateSubject)
+            )
         //Pretplaćujem se na nazive i šifre sekundarnih dijagnoza
         ).subscribe();
     }

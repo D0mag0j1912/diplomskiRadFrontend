@@ -60,7 +60,6 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Pretplaćivam se na podatke Resolvera
         this.route.data.pipe(
             tap(pregledi => {
-                console.log(pregledi);
                 //Prolazim kroz odgovor servera
                 for(const pregled of pregledi.cijeliPregled){
                     //Ako se u odgovoru pregleda nalazi tip korisnika "sestra":
@@ -86,7 +85,6 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                         this.poslanaUputnica = new Uputnica(pregled);
                     }
                 }
-                console.log(this.poslanaUputnica);
                 //Kreiram formu
                 this.forma = new FormGroup({
                     'nacinPlacanja': new FormControl(this.isPovijestBolesti ? null : this.pregled.nacinPlacanja),
@@ -131,17 +129,14 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                                 else{
                                     this.isSekundarna = false;
                                 }
-                            }),
-                            takeUntil(this.pretplate)
+                            })
                         );
                     }
                     //Ako nije upisana primarna dijagnoza
                     else{
                         //Označavam da nema sek. dijagnoza
                         this.isSekundarna = false;
-                        return of(null).pipe(
-                            takeUntil(this.pretplate)
-                        );
+                        return of(null);
                     }
                 }
                 //Ako je logiran liječnik:
@@ -167,8 +162,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                             else{
                                 this.isSekundarna = false;
                             }
-                        }),
-                        takeUntil(this.pretplate)
+                        })
                     );
                 }
             }),

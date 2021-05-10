@@ -78,8 +78,7 @@ export class SignupComponent implements OnInit, OnDestroy {
             this.lozinka.value,
             this.ponovnoLozinka.value
         ).pipe(
-            tap(
-              (response) => {
+            tap((response) => {
                 console.log(response);
                 //Odgovor backenda => true
                 this.response = true;
@@ -90,9 +89,7 @@ export class SignupComponent implements OnInit, OnDestroy {
                     //Resetiram formu
                     this.forma.reset();
                 }
-              }
-            ),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
     }
 

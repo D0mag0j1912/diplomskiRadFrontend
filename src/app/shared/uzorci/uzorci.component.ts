@@ -57,7 +57,6 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.referentneVrijednosti);
         this.forma = new FormGroup({
             'ustanova': new FormControl(this.primljeniUzorci.idUputnica ? null : this.nazivZdrUst),
             'eritrociti': new FormControl(

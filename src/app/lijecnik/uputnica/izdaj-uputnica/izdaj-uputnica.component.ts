@@ -193,8 +193,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                         //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
                         this.sharedService.receptIliUputnica.next("uputnica");
                     }
-                }),
-                takeUntil(this.pretplate)
+                })
             ).subscribe();
         }
         const combined = merge(
@@ -528,11 +527,9 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                                     //Spremam ID pacijenta
                                                     this.idPacijent = +idPacijent;
                                                 }
-                                            }),
-                                            takeUntil(this.pretplate)
+                                            })
                                         );
-                                    }),
-                                    takeUntil(this.pretplate)
+                                    })
                                 );
                             }
                             //Ako se ID pacijenta kojemu je kliknut redak NE NALAZI u polju ID-ova (tj. njemu NIJE dodana povijest bolesti)
@@ -557,12 +554,10 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                         this.idPacijent = +idPacijent;
                                         //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
                                         this.sharedService.receptIliUputnica.next("uputnica");
-                                    }),
-                                    takeUntil(this.pretplate)
+                                    })
                                 );
                             }
-                        }),
-                        takeUntil(this.pretplate)
+                        })
                     );
                 })
             ).subscribe();
@@ -590,9 +585,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             this.isPovijestBolesti = true;
                             //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
                             this.sharedService.receptIliUputnica.next("uputnica");
-                            return of(null).pipe(
-                                takeUntil(this.pretplate)
-                            );
+                            return of(null);
                         }
                         //Ako ovaj pacijent IMA upisanu povijest bolesti za ovu sesiju
                         else{
@@ -617,24 +610,19 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                     this.primarnaDijagnoza.enable({emitEvent: false});
                                     this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
                                     this.sekundarnaDijagnoza.enable({emitEvent: false});
-                                }),
-                                takeUntil(this.pretplate)
+                                })
                             );
                         }
-                    }),
-                    takeUntil(this.pretplate)
+                    })
                 ),
                 //Pretplaćivam se na dohvat ID-a pacijenta kojega je liječnik izabrao u dropdownu
                 this.importService.getIDPacijent(polje[2]).pipe(
                     tap(idPacijent => {
                         //Spremam ID pacijenta
                         this.idPacijent = +idPacijent;
-                    }),
-                    takeUntil(this.pretplate)
+                    })
                 )
-            ]).pipe(
-                takeUntil(this.pretplate)
-            ).subscribe();
+            ]).subscribe();
         }
     }
 
@@ -699,41 +687,36 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                 if(odgovor.success  === "true"){
                     //Pretplaćivam se na informaciju je li pacijent aktivan ili nije
                     return this.obradaService.getPatientProcessing('lijecnik').pipe(
-                      tap(podatci => {
-                          //Ako pacijent NIJE AKTIVAN
-                          if(podatci.success === "false"){
-                              //Filtriram polje ID-eva pacijenata
-                              this.sharedService.filterPacijentiIDs(this.idPacijent.toString());
-                          }
-                      }),
-                      mergeMap(() => {
-                          //Pretplaćivam se na informaciju je li pacijent kojemu izdavam uputnicu ima dopunsko osiguranje
-                          return this.sharedService.getDopunsko(this.idPacijent).pipe(
-                              tap(dopunsko => {
-                                  //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
-                                  const usluge = {idRecept: null, idUputnica: +odgovor.idUputnica, idBMI: null};
-                                  //Naplaćujem izdavanje uputnice
-                                  this.sharedService.postaviNovuCijenu(
-                                      this.poslaniIDObrada,
-                                      dopunsko ? null : 30,
-                                      'lijecnik',
-                                      usluge,
-                                      this.idPacijent);
-                              }),
-                              takeUntil(this.pretplate)
-                          );
-                      }),
-                      takeUntil(this.pretplate)
+                        tap(podatci => {
+                            //Ako pacijent NIJE AKTIVAN
+                            if(podatci.success === "false"){
+                                //Filtriram polje ID-eva pacijenata
+                                this.sharedService.filterPacijentiIDs(this.idPacijent.toString());
+                            }
+                        }),
+                        mergeMap(() => {
+                            //Pretplaćivam se na informaciju je li pacijent kojemu izdavam uputnicu ima dopunsko osiguranje
+                            return this.sharedService.getDopunsko(this.idPacijent).pipe(
+                                tap(dopunsko => {
+                                        //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
+                                        const usluge = {idRecept: null, idUputnica: +odgovor.idUputnica, idBMI: null};
+                                        //Naplaćujem izdavanje uputnice
+                                        this.sharedService.postaviNovuCijenu(
+                                            this.poslaniIDObrada,
+                                            dopunsko ? null : 30,
+                                            'lijecnik',
+                                            usluge,
+                                            this.idPacijent);
+                                })
+                            );
+                        })
                     );
                 }
                 //Ako je server vratio negativni odgovor
                 else{
-                    return of(null).pipe(
-                        takeUntil(this.pretplate)
-                    );
+                    return of(null);
                 }
-            }),
-            takeUntil(this.pretplate)
+            })
         ).subscribe();
     }
 
@@ -839,14 +822,11 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                     this.primarnaDijagnoza.enable({emitEvent: false});
                                     this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
                                     this.sekundarnaDijagnoza.enable({emitEvent: false});
-                                }),
-                                takeUntil(this.pretplate)
+                                })
                             );
-                        }),
-                        takeUntil(this.pretplate)
+                        })
                     );
-                }),
-                takeUntil(this.pretplate)
+                })
             ).subscribe();
         }
         //Ako liječnik NIJE POTVRDIO povijest bolesti

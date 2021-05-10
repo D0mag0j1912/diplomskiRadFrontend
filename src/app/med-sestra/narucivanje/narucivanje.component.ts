@@ -30,6 +30,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     formaTablica: FormGroup;
     //Današnji datum
     danasnjiDatum: Date;
+
     constructor(
         //Dohvaćam trenutni route zbog podataka iz Resolvera
         private route: ActivatedRoute,
@@ -56,7 +57,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 this.forma = new FormGroup({
                     'datum': new FormControl(this.danasnjiDatum)
                 });
-                
+
                 //Kreiram reactive formu koja sadržava sve retke i stupce tablice narudžbi
                 this.formaTablica = new FormGroup({
                     //FormArray koji sadrži sve datume i nazive dana u tjednu u prvom retku (formcontrolove)
@@ -70,12 +71,12 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                     //Kao vrijednost form controla inicijalno postavi DATUM + NAZIV DANA U TJEDNU
                     this.dodajDatumINazivDana(datumNaziv.NazivDana+" "+datumNaziv.Datum);
                 }
-                //Za svaki podataka u polju narudzbe, DODAJ JEDAN FORM CONTROL U FORM ARRAY 
+                //Za svaki podataka u polju narudzbe, DODAJ JEDAN FORM CONTROL U FORM ARRAY
                 for(let narudzba of this.narudzbe){
                     //Kao vrijednost form controla inicijalno postavi VREMENA I NARUDŽBE
                     this.dodajTbody(narudzba);
                 }
-        });        
+        });
 
         //Pretplaćujem se na promjene u datumu
         this.forma.get('datum').valueChanges.pipe(
@@ -87,7 +88,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 this.dohvatiNovoStanje(datum);
             }
         );
-        
+
     }
 
     //Metoda koja dohvaća novo stanje tablice kada se promjeni datum
@@ -96,9 +97,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.dohvatiNovoStanje(datum),
             this.narucivanjeService.dohvatiNovoStanjeDatumiNazivi(datum)
-        ]).pipe(
-            takeUntil(this.pretplateSubject)
-        ).subscribe(
+        ]).subscribe(
             //Dohvaćam odgovor
             (odgovor) => {
                 //Spremam narudžbe i vremena
@@ -114,7 +113,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 //Prolazim kroz polje datuma i naziva dana u tjednu
                 this.datumiNazivi.forEach((element,index) => {
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
-                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);    
+                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
             }
         );
@@ -126,8 +125,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
             'vrijeme': element.Vrijeme,
             'ponedjeljak': {
                 'imePrezimeMBO': element.Ponedjeljak !== null ? this.splitajPodatkeNarudzbe(element.Ponedjeljak).ime
-                                + " " + this.splitajPodatkeNarudzbe(element.Ponedjeljak).prezime 
-                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Ponedjeljak).mbo 
+                                + " " + this.splitajPodatkeNarudzbe(element.Ponedjeljak).prezime
+                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Ponedjeljak).mbo
                                 : null,
                 'vrijeme': element.Vrijeme,
                 'danUTjednu': 'Ponedjeljak',
@@ -139,8 +138,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
             },
             'utorak': {
                 'imePrezimeMBO': element.Utorak !== null ? this.splitajPodatkeNarudzbe(element.Utorak).ime
-                                + " " + this.splitajPodatkeNarudzbe(element.Utorak).prezime 
-                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Utorak).mbo 
+                                + " " + this.splitajPodatkeNarudzbe(element.Utorak).prezime
+                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Utorak).mbo
                                 : null,
                 'vrijeme': element.Vrijeme,
                 'danUTjednu': 'Utorak',
@@ -152,8 +151,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
             },
             'srijeda': {
                 'imePrezimeMBO': element.Srijeda !== null ? this.splitajPodatkeNarudzbe(element.Srijeda).ime
-                                + " " + this.splitajPodatkeNarudzbe(element.Srijeda).prezime 
-                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Srijeda).mbo 
+                                + " " + this.splitajPodatkeNarudzbe(element.Srijeda).prezime
+                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Srijeda).mbo
                                 : null,
                 'vrijeme': element.Vrijeme,
                 'danUTjednu': 'Srijeda',
@@ -165,8 +164,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
             },
             'cetvrtak': {
                 'imePrezimeMBO': element.Četvrtak !== null ? this.splitajPodatkeNarudzbe(element.Četvrtak).ime
-                                + " " + this.splitajPodatkeNarudzbe(element.Četvrtak).prezime 
-                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Četvrtak).mbo 
+                                + " " + this.splitajPodatkeNarudzbe(element.Četvrtak).prezime
+                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Četvrtak).mbo
                                 : null,
                 'vrijeme': element.Vrijeme,
                 'danUTjednu': 'Četvrtak',
@@ -178,8 +177,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
             },
             'petak': {
                 'imePrezimeMBO': element.Petak !== null ? this.splitajPodatkeNarudzbe(element.Petak).ime
-                                + " " + this.splitajPodatkeNarudzbe(element.Petak).prezime 
-                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Petak).mbo 
+                                + " " + this.splitajPodatkeNarudzbe(element.Petak).prezime
+                                + "\n MBO: " + this.splitajPodatkeNarudzbe(element.Petak).mbo
                                 : null,
                 'vrijeme': element.Vrijeme,
                 'danUTjednu': 'Petak',
@@ -198,9 +197,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.getVremena(),
             this.narucivanjeService.getDatumiNazivi()
-        ]).pipe(
-            takeUntil(this.pretplateSubject)
-        ).subscribe(
+        ]).subscribe(
             (odgovor) => {
                 //Dohvaćam narudžbe i vremena
                 this.narudzbe = odgovor[0];
@@ -215,21 +212,19 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 //Prolazim kroz polje datuma i naziva dana u tjednu
                 this.datumiNazivi.forEach((element,index) => {
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
-                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);    
+                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
             }
         );
     }
 
-    //Metoda koja se izvršava kada se narudžba ažurira 
+    //Metoda koja se izvršava kada se narudžba ažurira
     onAzuriranjeNarudzba(){
 
         const combined = forkJoin([
             this.narucivanjeService.getVremena(),
             this.narucivanjeService.getDatumiNazivi()
-        ]).pipe(
-            takeUntil(this.pretplateSubject)
-        ).subscribe(
+        ]).subscribe(
             (odgovor) => {
                 //Dohvaćam narudžbe i vremena
                 this.narudzbe = odgovor[0];
@@ -244,7 +239,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 //Prolazim kroz polje datuma i naziva dana u tjednu
                 this.datumiNazivi.forEach((element,index) => {
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
-                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);    
+                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
             }
         );
@@ -256,9 +251,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         const combined = forkJoin([
             this.narucivanjeService.getVremena(),
             this.narucivanjeService.getDatumiNazivi()
-        ]).pipe(
-            takeUntil(this.pretplateSubject)
-        ).subscribe(
+        ]).subscribe(
             //Dohvaćam odgovor servera
             (odgovor) => {
                 //Spremam narudžbe i vremena
@@ -266,7 +259,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 //Prolazim kroz polje vremena i narudžbi
                 this.narudzbe.forEach((element,index) => {
                     this.azurirajFormu(element,index);
-                }); 
+                });
                 //Thead sa servera spremam u svoje polje
                 this.datumiNazivi = odgovor[1];
                 //Postavljam hard-codiranu vrijednost 'Vrijeme' prvo na nultu poziciju
@@ -274,7 +267,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 //Prolazim kroz polje datuma i naziva dana u tjednu
                 this.datumiNazivi.forEach((element,index) => {
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
-                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);  
+                    (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
             }
         );
@@ -302,20 +295,13 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     dodajTbody(narudzba: any){
         //U FormArray "vrijeme" dodavam formControl
         (<FormArray>this.formaTablica.get('tbody')).push(
-            /* new FormGroup({
-                'vrijeme': new FormControl(narudzba.Vrijeme),
-                'imePrezPacijent': new FormControl(narudzba.imePacijent && narudzba.prezPacijent !== null 
-                                                ? narudzba.imePacijent+" "+narudzba.prezPacijent+"\n MBO: "+narudzba.mboPacijent 
-                                                : ""),
-                'danUTjednu': new FormControl(narudzba.nazivDana) 
-            }) */ 
             new FormGroup({
                 'vrijeme': new FormControl(narudzba.Vrijeme),
                 'ponedjeljak': new FormGroup({
                     //Ako nema rezerviranih pacijenata za Ponedjeljak, stavi null u ćeliju tablice, a ako ima postavi podatke naručenog pacijenta
                     'imePrezimeMBO': new FormControl(narudzba.Ponedjeljak !== null ? this.splitajPodatkeNarudzbe(narudzba.Ponedjeljak).ime
-                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Ponedjeljak).prezime 
-                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Ponedjeljak).mbo 
+                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Ponedjeljak).prezime
+                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Ponedjeljak).mbo
                                                     : null),
                     'vrijeme': new FormControl(narudzba.Vrijeme),
                     'danUTjednu': new FormControl('Ponedjeljak'),
@@ -329,8 +315,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 'utorak': new FormGroup({
                     //Ako nema rezerviranih pacijenata za Utorak, stavi null u ćeliju tablice, a ako ima postavi podatke naručenog pacijenta
                     'imePrezimeMBO': new FormControl(narudzba.Utorak !== null ? this.splitajPodatkeNarudzbe(narudzba.Utorak).ime
-                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Utorak).prezime 
-                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Utorak).mbo 
+                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Utorak).prezime
+                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Utorak).mbo
                                                     : null),
                     'vrijeme': new FormControl(narudzba.Vrijeme),
                     'danUTjednu': new FormControl('Utorak'),
@@ -339,13 +325,13 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                     'prezime': new FormControl(narudzba.Utorak !== null ? this.splitajPodatkeNarudzbe(narudzba.Utorak).prezime : null),
                     'mbo': new FormControl(narudzba.Utorak !== null ? this.splitajPodatkeNarudzbe(narudzba.Utorak).mbo : null),
                     'idNarudzba': new FormControl(narudzba.Utorak !== null ? this.splitajPodatkeNarudzbe(narudzba.Utorak).idNarudzba : null),
-                    'bojaPregled': new FormControl(narudzba.Utorak !== null ? this.splitajPodatkeNarudzbe(narudzba.Utorak).bojaPregled : null)  
+                    'bojaPregled': new FormControl(narudzba.Utorak !== null ? this.splitajPodatkeNarudzbe(narudzba.Utorak).bojaPregled : null)
                 }),
                 'srijeda': new FormGroup({
                     //Ako nema rezerviranih pacijenata za Srijedu, stavi null u ćeliju tablice, a ako ima postavi podatke naručenog pacijenta
                     'imePrezimeMBO': new FormControl(narudzba.Srijeda !== null ? this.splitajPodatkeNarudzbe(narudzba.Srijeda).ime
-                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Srijeda).prezime 
-                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Srijeda).mbo 
+                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Srijeda).prezime
+                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Srijeda).mbo
                                                     : null),
                     'vrijeme': new FormControl(narudzba.Vrijeme),
                     'danUTjednu': new FormControl('Srijeda'),
@@ -359,8 +345,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 'cetvrtak': new FormGroup({
                     //Ako nema rezerviranih pacijenata za Četvrtak, stavi null u ćeliju tablice, a ako ima postavi podatke naručenog pacijenta
                     'imePrezimeMBO': new FormControl(narudzba.Četvrtak !== null ? this.splitajPodatkeNarudzbe(narudzba.Četvrtak).ime
-                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Četvrtak).prezime 
-                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Četvrtak).mbo 
+                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Četvrtak).prezime
+                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Četvrtak).mbo
                                                     : null),
                     'vrijeme': new FormControl(narudzba.Vrijeme),
                     'danUTjednu': new FormControl('Četvrtak'),
@@ -374,8 +360,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 'petak': new FormGroup({
                     //Ako nema rezerviranih pacijenata za Petak, stavi null u ćeliju tablice, a ako ima postavi podatke naručenog pacijenta
                     'imePrezimeMBO': new FormControl(narudzba.Petak !== null ? this.splitajPodatkeNarudzbe(narudzba.Petak).ime
-                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Petak).prezime 
-                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Petak).mbo 
+                                                    + " " + this.splitajPodatkeNarudzbe(narudzba.Petak).prezime
+                                                    + "\n MBO: " + this.splitajPodatkeNarudzbe(narudzba.Petak).mbo
                                                     : null),
                     'vrijeme': new FormControl(narudzba.Vrijeme),
                     'danUTjednu': new FormControl('Petak'),
@@ -388,9 +374,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                 }),
             })
         );
-    } 
-    
-    //Dohvaća pojedine form controlove unutar polja 
+    }
+
+    //Dohvaća pojedine form controlove unutar polja
     getControlsDatumINazivDana(){
         return (this.formaTablica.get('datumiNaziviDana') as FormArray).controls;
     }
@@ -398,9 +384,9 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     //Metoda za dodavanje novog stupca u redak tablice
     dodajDatumINazivDana(datumNaziv: any){
         (<FormArray>this.formaTablica.get('datumiNaziviDana')).push(
-          new FormControl(datumNaziv) 
+          new FormControl(datumNaziv)
         );
-    }  
+    }
 
     //Metoda se pokreće kada korisnik izađe iz prozora poruke
     onClose(){

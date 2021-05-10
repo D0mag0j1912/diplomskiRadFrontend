@@ -20,7 +20,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     responsePoruka: string = null;
     //Oznaka je li korisnik kliknuo na praznu ćeliju ili na ćeliju s podatcima pacijenta
     isPacijent: boolean = false;
-    //Kreiram event emitter za izlaz 
+    //Kreiram event emitter za izlaz
     @Output() close = new EventEmitter<any>();
     //Kreiram event emitter da mogu obavijestiti roditeljsku komponentu o promjeni narudžbe
     @Output() azuriranje = new EventEmitter<any>();
@@ -56,6 +56,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     razliciteVrstePregleda: any[];
     //Spremam NAZIVE različitih vrsta pregleda ZBOG VALIDACIJE
     naziviRazlicitihVrstaPregleda: string[] = [];
+
     constructor(
         //Dohvaćam servis naručivanja
         private narucivanjeService: NarucivanjeService,
@@ -105,14 +106,14 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                     this.narudzba = podatci[1];
                     //Ako je Objekt prazan (ako nema ključeva) tj. ako je korisnik kliknuo na praznu ćeliju
                     if(Object.keys(this.narudzba).length === 0){
-                        //Označavam da nema pacijenta 
+                        //Označavam da nema pacijenta
                         this.isPacijent = false;
                     }
                     //Ako je korisnik kliknuo na punu ćeliju (s imenom, prezimenom i MBO pacijenta)
                     else{
                         //Označavam da ima pacijenta
                         this.isPacijent = true;
-                        //Prolazim kroz svaki element polja SVIH PACIJENATA 
+                        //Prolazim kroz svaki element polja SVIH PACIJENATA
                         this.pacijenti.forEach((element) => {
                             //Pitam ima li neki pacijent u tom polju koji ima ISTO ime i prezime i MBO kao i pacijent stisnute ćelije
                             if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent){
@@ -124,7 +125,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                         //Prolazim kroz svaki element polja SVIH VRSTA PREGLEDA
                         this.vrstePregleda.forEach(element => {
                             //Pitam ima li neki pacijent u tom polju koji ima ISTO ime i prezime i MBO kao pacijent stisnute ćelije
-                            if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent 
+                            if((this.narudzba[0].imePacijent + ' ' + this.narudzba[0].prezPacijent + ' ' + this.narudzba[0].mboPacijent) === element.Pacijent
                                 && this.narudzba[0].datumNarucivanje === element.datumNarucivanje && this.narudzba[0].vrijemeNarucivanje === element.vrijemeNarucivanje){
                                 //Postavljam inicijalnu vrijednost dropdowna VRSTA PREGLEDA na vrstu pregleda koju taj pacijent ima
                                 this.selectedVrstaPregled = element.nazivVrstaPregled;
@@ -144,7 +145,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                     //Postavljam inicijalnu vrijednost dropdowna na vrijednost PACIJENTA koji je kliknut u ćeliji tablice
                     this.forma.get('pacijenti').patchValue(this.selectedPacijent,{emitEvent: false});
                     //Postavljam inicijalnu vrijednost dropdowna na vrijednost VRSTU PREGLEDA koju kliknuti pacijent ima
-                    this.forma.get('vrstaPregleda').patchValue(this.selectedVrstaPregled,{emitEvent: false}); 
+                    this.forma.get('vrstaPregleda').patchValue(this.selectedVrstaPregled,{emitEvent: false});
                 }
             ),
             takeUntil(this.pretplateSubject)
@@ -176,7 +177,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
 
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na ažuriranje narudžbe
         this.narucivanjeService.onAzurirajNarudzbu(this.vrijeme.value,this.vrstaPregleda.value,
-                                                                        this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
+            this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
             tap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
@@ -194,7 +195,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
 
     //Metoda koja naručuje pacijenta na neki termin
     onNaruciPacijenta(){
-        
+
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na naručivanje pacijenta
         this.narucivanjeService.naruciPacijenta(this.vrijeme.value,this.vrstaPregleda.value,
                                                                     this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
@@ -205,11 +206,10 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                     this.narucivanje.emit();
                     //Označavam da ima odgovora servera
                     this.response = true;
-                    //Spremam poruku servera 
+                    //Spremam poruku servera
                     this.responsePoruka = odgovor["message"];
                 }
-            ),
-            takeUntil(this.pretplateSubject)
+            )
         ).subscribe();
     }
 
@@ -225,12 +225,12 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                     this.otkazivanje.emit();
                     //Označavam da ima odgovora servera
                     this.response = true;
-                    //Spremam poruku servera 
+                    //Spremam poruku servera
                     this.responsePoruka = odgovor["message"];
                 }
             ),
             takeUntil(this.pretplateSubject)
-        ).subscribe();   
+        ).subscribe();
     }
 
     //Metoda koja se pokreće kada korisnik klikne "Izađi"
@@ -250,7 +250,7 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     //Ova metoda se pokreće kada se komponenta uništi
     ngOnDestroy(){
         this.pretplateSubject.next(true);
-        this.pretplateSubject.complete(); 
+        this.pretplateSubject.complete();
     }
 
     //Kreiram gettere za dijelove forme

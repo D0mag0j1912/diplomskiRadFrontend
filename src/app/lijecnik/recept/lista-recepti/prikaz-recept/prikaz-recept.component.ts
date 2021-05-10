@@ -60,14 +60,11 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
             this.prikazService.getZdrUst()
         ]).pipe(
             tap(podatci => {
-                console.log(podatci);
                 //Spremam podatke sa servera u svoje objekte
                 this.zdrUstanova = new ZdravstvenaUstanova(podatci[1][0]);
                 this.mjesto = new Mjesto(podatci[1][0]);
                 this.objektRecept = new Recept(podatci[0][0]);
                 this.pacijent = new Pacijent(podatci[0][0]);
-                console.log(this.objektRecept);
-                console.log(this.pacijent);
                 //Ako je server vratio da je recept običan i da je broj ponavljanja null (tj. 0)
                 if(this.objektRecept.ponovljivost === "obican" && !this.objektRecept.brojPonavljanja){
                     //Označavam da je recept običan
@@ -108,13 +105,12 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                         tap(datum => {
                             //Spremam datum "Vrijedi do" u svoj model
                             this.objektRecept.vrijediDo = datum;
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
-                //Ako je server VRATIO sekundarne dijagnoze 
+                //Ako je server VRATIO sekundarne dijagnoze
                 else{
-                    //Označavam da IMA sekundarnih dijagnoza 
+                    //Označavam da IMA sekundarnih dijagnoza
                     this.isSekundarna = true;
                     //Predavam šifre sek. dijagnoza metodi koja dohvaća sve nazive sek. dijagnoza na osnovu tih šifri
                     return forkJoin([
@@ -126,11 +122,10 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                             for(const dijagnoza of podatci[0]){
                                 //Spajam šifru sekundarne dijagnoze i naziv sekundarne dijagnoze u jedan string te se svaka dijagnoza nalazi u svom redu
                                 this.str = this.str.concat(dijagnoza.mkbSifra + " | " + dijagnoza.imeDijagnoza + "\n");
-                            } 
+                            }
                             //Spremam datum "Vrijedi do" u svoj model
                             this.objektRecept.vrijediDo = podatci[1];
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
             }),
@@ -142,15 +137,12 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                         tap(tipSpecijalist => {
                             //Spremam tip specijalista
                             this.tipSpecijalistBaza = tipSpecijalist;
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
                 //Ako server nije vratio šifru specijalista
                 else if(!this.isSpecijalist){
-                    return of(null).pipe(
-                        takeUntil(this.pretplateSubject)
-                    );
+                    return of(null);
                 }
             }),
             tap(() => {
@@ -193,9 +185,8 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
                         'tipSpecijalist': new FormControl(this.isSpecijalist ? this.tipSpecijalistBaza : null)
                     })
                 });
-            }),
-            takeUntil(this.pretplateSubject)
-        ).subscribe(); 
+            })
+        ).subscribe();
     }
 
     //Ova metoda se poziva kada korisnik klikne "Izađi" ili negdje izvan prozora

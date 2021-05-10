@@ -149,56 +149,55 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       });
       //Pretplaćujem se na odgovor Resolvera tj. inicijalnih pacijenata u čekaonici
       this.loginService.user.pipe(
-          take(1),
-          switchMap(user => {
-              //Ako je tip prijavljenog korisnika "lijecnik":
-              if(user.tip == "lijecnik"){
-                  //Označavam da se liječnik prijavio
-                  this.isLijecnik = true;
-              } else if(user.tip== "sestra"){
-                  //Označavam da se medicinska sestra prijavila
-                  this.isMedSestra = true;
-              }
-              //Spremam tip prijavljenog korisnika
-              this.tipKorisnik = user.tip;
-              return this.route.data;
-          }),
-          takeUntil(this.pretplateSubject)
-      ).subscribe(
-          //Dohvaćam odgovor tj. pacijente iz čekaonice
-          (odgovor)=>{
-              //Ako je odgovor servera da je cekaonica NIJE prazna:
-              if(odgovor.pacijenti["success"] !== "false"){
-                //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
-                let cekaonica;
-                //Prolazim odgovorom servera (JS objektima)
-                for(const cek of odgovor.pacijenti){
-                    //Kreiram nove objekte tipa "Cekaonica"
-                    cekaonica = new Cekaonica(cek);
-                    //Nadodavam ih u polje
-                    this.pacijenti.push(cekaonica);
+            take(1),
+            switchMap(user => {
+                //Ako je tip prijavljenog korisnika "lijecnik":
+                if(user.tip == "lijecnik"){
+                    //Označavam da se liječnik prijavio
+                    this.isLijecnik = true;
+                } else if(user.tip== "sestra"){
+                    //Označavam da se medicinska sestra prijavila
+                    this.isMedSestra = true;
                 }
-                console.log(this.pacijenti);
-                //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
-                let pom: string;
-                //Inicijaliziram brojač na 0 na početku
-                let brojac = 0;
-                //Prolazim kroz sve pacijente
-                for(const pacijent of this.pacijenti){
-                    //Povećavam brojač za 1
-                    brojac++;
-                    //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
-                    if(pom !== pacijent.odgovornaOsoba){
-                        this.brojRetka = brojac;
+                //Spremam tip prijavljenog korisnika
+                this.tipKorisnik = user.tip;
+                return this.route.data;
+            })
+        ).subscribe(
+            //Dohvaćam odgovor tj. pacijente iz čekaonice
+            (odgovor)=>{
+                //Ako je odgovor servera da je cekaonica NIJE prazna:
+                if(odgovor.pacijenti["success"] !== "false"){
+                    //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                    let cekaonica;
+                    //Prolazim odgovorom servera (JS objektima)
+                    for(const cek of odgovor.pacijenti){
+                        //Kreiram nove objekte tipa "Cekaonica"
+                        cekaonica = new Cekaonica(cek);
+                        //Nadodavam ih u polje
+                        this.pacijenti.push(cekaonica);
                     }
-                    //U pomoćnu varijablu stavljam odgovorne osobe
-                    pom = pacijent.odgovornaOsoba;
+                    console.log(this.pacijenti);
+                    //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                    let pom: string;
+                    //Inicijaliziram brojač na 0 na početku
+                    let brojac = 0;
+                    //Prolazim kroz sve pacijente
+                    for(const pacijent of this.pacijenti){
+                        //Povećavam brojač za 1
+                        brojac++;
+                        //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                        if(pom !== pacijent.odgovornaOsoba){
+                            this.brojRetka = brojac;
+                        }
+                        //U pomoćnu varijablu stavljam odgovorne osobe
+                        pom = pacijent.odgovornaOsoba;
+                    }
+                    //Označavam da čekaonica nije prazna
+                    this.isPrazna = false;
                 }
-                //Označavam da čekaonica nije prazna
-                this.isPrazna = false;
-              }
-          }
-      );
+            }
+        );
 
     }
 
@@ -241,53 +240,48 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                 return this.cekaonicaService.checkCountCekaonica().pipe(
                     //Dohvaćam broj pacijenata u čekaonici
                     switchMap((brojPacijenata) => {
-                          //Ako više nema pacijenata u čekaonici
-                          if(brojPacijenata == 0){
-                              //Označavam da je čekaonica prazna
-                              this.isPrazna = true;
-                              return of(null).pipe(
-                                  takeUntil(this.pretplateSubject)
-                              );
-                          }
-                          //Ako ima pacijenata u čekaonici, dohvaćam ih ponovno da ažuriram tablicu
-                          else{
-                                return this.cekaonicaService.getPatientsWaitingRoom(this.tipKorisnik).pipe(
-                                    tap(odgovor => {
-                                        //Praznim polje pacijenata
-                                        this.pacijenti = [];
-                                        //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
-                                        let cekaonica;
-                                        //Prolazim odgovorom servera (JS objektima)
-                                        for(const cek of odgovor){
-                                            //Kreiram nove objekte tipa "Cekaonica"
-                                            cekaonica = new Cekaonica(cek);
-                                            //Nadodavam ih u polje
-                                            this.pacijenti.push(cekaonica);
+                        //Ako više nema pacijenata u čekaonici
+                        if(brojPacijenata == 0){
+                            //Označavam da je čekaonica prazna
+                            this.isPrazna = true;
+                            return of(null);
+                        }
+                        //Ako ima pacijenata u čekaonici, dohvaćam ih ponovno da ažuriram tablicu
+                        else{
+                            return this.cekaonicaService.getPatientsWaitingRoom(this.tipKorisnik).pipe(
+                                tap(odgovor => {
+                                    //Praznim polje pacijenata
+                                    this.pacijenti = [];
+                                    //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                                    let cekaonica;
+                                    //Prolazim odgovorom servera (JS objektima)
+                                    for(const cek of odgovor){
+                                        //Kreiram nove objekte tipa "Cekaonica"
+                                        cekaonica = new Cekaonica(cek);
+                                        //Nadodavam ih u polje
+                                        this.pacijenti.push(cekaonica);
+                                    }
+                                    //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                                    let pom: string;
+                                    //Inicijaliziram brojač na 0 na početku
+                                    let brojac = 0;
+                                    //Prolazim kroz sve pacijente
+                                    for(const pacijent of this.pacijenti){
+                                        //Povećavam brojač za 1
+                                        brojac++;
+                                        //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                                        if(pom !== pacijent.odgovornaOsoba){
+                                            this.brojRetka = brojac;
                                         }
-                                        //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
-                                        let pom: string;
-                                        //Inicijaliziram brojač na 0 na početku
-                                        let brojac = 0;
-                                        //Prolazim kroz sve pacijente
-                                        for(const pacijent of this.pacijenti){
-                                            //Povećavam brojač za 1
-                                            brojac++;
-                                            //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
-                                            if(pom !== pacijent.odgovornaOsoba){
-                                                this.brojRetka = brojac;
-                                            }
-                                            //U pomoćnu varijablu stavljam odgovorne osobe
-                                            pom = pacijent.odgovornaOsoba;
-                                        }
-                                    }),
-                                    takeUntil(this.pretplateSubject)
-                                );
-                          }
-                    }),
-                    takeUntil(this.pretplateSubject)
+                                        //U pomoćnu varijablu stavljam odgovorne osobe
+                                        pom = pacijent.odgovornaOsoba;
+                                    }
+                                })
+                            );
+                        }
+                    })
                 );
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
     }
 
@@ -338,8 +332,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             take(1),
             switchMap(user => {
                 return this.cekaonicaService.getPatientByStatus(user.tip,this.selectedStatusValues);
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe(
             //Dohvaćam odgovor servera (pacijente)
             (odgovor) => {
@@ -402,9 +395,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                     //Prikaži poruku
                     this.response = true;
                     this.responsePoruka = response.message;
-                    return of(null).pipe(
-                        takeUntil(this.pretplateSubject)
-                    );
+                    return of(null);
                 }
                 //Ako ne postoji pacijent u obradi trenutno
                 else{
@@ -445,12 +436,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                                 //U pomoćnu varijablu stavljam odgovorne osobe
                                 pom = pacijent.odgovornaOsoba;
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
 
     }
@@ -482,8 +471,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                   //Restiraj formu
                   this.forma.reset();
                 }
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
     }
 
@@ -494,91 +482,85 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         this.loginService.user.pipe(
             take(1),
             switchMap(user => {
-                return this.cekaonicaService.getPatientsWaitingRoom(user.tip).pipe(
-                    takeUntil(this.pretplateSubject)
-                );
-            }),
-            takeUntil(this.pretplateSubject)
+                return this.cekaonicaService.getPatientsWaitingRoom(user.tip);
+            })
         ).subscribe(
-          //Uzimam pacijente
-          (odgovor) => {
-              //Označavam da čekaonica više nije prazna
-              this.isPrazna = false;
-              //Praznim polje pacijenata
-              this.pacijenti = [];
-              //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
-              let cekaonica;
-              //Prolazim odgovorom servera (JS objektima)
-              for(const cek of odgovor){
-                  //Kreiram nove objekte tipa "Cekaonica"
-                  cekaonica = new Cekaonica(cek);
-                  //Nadodavam ih u polje
-                  this.pacijenti.push(cekaonica);
-              }
-              //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
-              let pom: string;
-              //Inicijaliziram brojač na 0 na početku
-              let brojac = 0;
-              //Prolazim kroz sve pacijente
-              for(const pacijent of this.pacijenti){
-                  //Povećavam brojač za 1
-                  brojac++;
-                  //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
-                  if(pom !== pacijent.odgovornaOsoba){
-                      this.brojRetka = brojac;
-                  }
-                  //U pomoćnu varijablu stavljam odgovorne osobe
-                  pom = pacijent.odgovornaOsoba;
-              }
-          }
+            //Uzimam pacijente
+            (odgovor) => {
+                //Označavam da čekaonica više nije prazna
+                this.isPrazna = false;
+                //Praznim polje pacijenata
+                this.pacijenti = [];
+                //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                let cekaonica;
+                //Prolazim odgovorom servera (JS objektima)
+                for(const cek of odgovor){
+                    //Kreiram nove objekte tipa "Cekaonica"
+                    cekaonica = new Cekaonica(cek);
+                    //Nadodavam ih u polje
+                    this.pacijenti.push(cekaonica);
+                }
+                //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                let pom: string;
+                //Inicijaliziram brojač na 0 na početku
+                let brojac = 0;
+                //Prolazim kroz sve pacijente
+                for(const pacijent of this.pacijenti){
+                    //Povećavam brojač za 1
+                    brojac++;
+                    //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                    if(pom !== pacijent.odgovornaOsoba){
+                        this.brojRetka = brojac;
+                    }
+                    //U pomoćnu varijablu stavljam odgovorne osobe
+                    pom = pacijent.odgovornaOsoba;
+                }
+            }
         );
     }
 
     //Metoda koja se pokreće kada se stisne button "Prikaži 10 zadnjih"
     prikazi10zadnjih(){
 
-      //Pretplaćujem se na Observable u kojemu se nalaze pacijenti
-      this.loginService.user.pipe(
-          take(1),
-          switchMap(user => {
-              return this.cekaonicaService.getTenLast(user.tip).pipe(
-                  takeUntil(this.pretplateSubject)
-              );
-          }),
-          takeUntil(this.pretplateSubject)
-      ).subscribe(
-          //Uzimam odgovor
-          (odgovor) => {
-            //Praznim polje pacijenata
-            this.pacijenti = [];
-            //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
-            let cekaonica;
-            //Prolazim odgovorom servera (JS objektima)
-            for(const cek of odgovor){
-                //Kreiram nove objekte tipa "Cekaonica"
-                cekaonica = new Cekaonica(cek);
-                //Nadodavam ih u polje
-                this.pacijenti.push(cekaonica);
-            }
-            //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
-            let pom: string;
-            //Inicijaliziram brojač na 0 na početku
-            let brojac = 0;
-            //Prolazim kroz sve pacijente
-            for(const pacijent of this.pacijenti){
-                //Povećavam brojač za 1
-                brojac++;
-                //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
-                if(pom !== pacijent.odgovornaOsoba){
-                    this.brojRetka = brojac;
+        //Pretplaćujem se na Observable u kojemu se nalaze pacijenti
+        this.loginService.user.pipe(
+            take(1),
+            switchMap(user => {
+                return this.cekaonicaService.getTenLast(user.tip);
+            })
+        ).subscribe(
+            //Uzimam odgovor
+            (odgovor) => {
+                //Praznim polje pacijenata
+                this.pacijenti = [];
+                //Inicijaliziram praznu varijablu u kojoj ću pohraniti objekte tipa "Cekaonica"
+                let cekaonica;
+                //Prolazim odgovorom servera (JS objektima)
+                for(const cek of odgovor){
+                    //Kreiram nove objekte tipa "Cekaonica"
+                    cekaonica = new Cekaonica(cek);
+                    //Nadodavam ih u polje
+                    this.pacijenti.push(cekaonica);
                 }
-                //U pomoćnu varijablu stavljam odgovorne osobe
-                pom = pacijent.odgovornaOsoba;
+                //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
+                let pom: string;
+                //Inicijaliziram brojač na 0 na početku
+                let brojac = 0;
+                //Prolazim kroz sve pacijente
+                for(const pacijent of this.pacijenti){
+                    //Povećavam brojač za 1
+                    brojac++;
+                    //Ako je odgovorna osoba u pomoćnoj varijabli različita od odgovorne osobe u polju (tu treba staviti obojani border)
+                    if(pom !== pacijent.odgovornaOsoba){
+                        this.brojRetka = brojac;
+                    }
+                    //U pomoćnu varijablu stavljam odgovorne osobe
+                    pom = pacijent.odgovornaOsoba;
+                }
+                //Označi checkboxove neaktivnima
+                this.formaStatus.reset();
             }
-            //Označi checkboxove neaktivnima
-            this.formaStatus.reset();
-          }
-      );
+        );
     }
 
     //Getteri za form controlove i polja

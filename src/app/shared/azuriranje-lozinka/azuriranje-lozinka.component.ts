@@ -63,8 +63,7 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
                       }
                   })
               );
-          }),
-          takeUntil(this.pretplateSubject)
+          })
       ).subscribe();
 
     }
@@ -78,19 +77,18 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
         //Ako je definiran ID liječnika:
         if(this.idLijecnik){
             //Pretplaćujem se na Observable koji vraća odgovor servera
-            this.lijecnikService.editPassword(this.idLijecnik,this.trenutnaLozinka.value, 
+            this.lijecnikService.editPassword(this.idLijecnik,this.trenutnaLozinka.value,
                 this.novaLozinka.value, this.ponovnoNovaLozinka.value).pipe(
                 tap(
-                  (response) => {
-                      //Označavam da postoji odgovor servera
-                      this.response = true;
-                      //Spremam odgovor servera
-                      this.responsePoruka = response["message"];
-                      //Resetiraj formu
-                      this.forma.reset();
-                  }
-                ),
-                takeUntil(this.pretplateSubject)
+                    (response) => {
+                        //Označavam da postoji odgovor servera
+                        this.response = true;
+                        //Spremam odgovor servera
+                        this.responsePoruka = response["message"];
+                        //Resetiraj formu
+                        this.forma.reset();
+                    }
+                )
             ).subscribe();
         }
         //Ako je definiran ID med. sestre
@@ -105,8 +103,7 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
                     this.responsePoruka = response["message"];
                     //Resetiraj formu
                     this.forma.reset();
-                }),
-                takeUntil(this.pretplateSubject)
+                })
             ).subscribe();
         }
     }

@@ -22,8 +22,8 @@
                     mat-raised-button
                     class="pogledajUzorke"
                     (click)="onPogledajUzorke(nalaz.idNalaz,$event)"
-                    style="float:right;top:-5px;left:30px;position:relative;"
-                    *ngIf="!nalaz.misljenjeSpecijalist">Pogledaj uzorke</button>
+                    style="float:right;top:-5px;left:20px;position:relative;"
+                    *ngIf="!nalaz.misljenjeSpecijalist">Pogledaj rezultate</button>
                 <h4
                     [ngStyle]="{'margin-top': (i > 3) ? '-10px' : '0px'}">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h4>
                 <h3

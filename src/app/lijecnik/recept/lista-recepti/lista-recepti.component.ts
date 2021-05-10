@@ -129,8 +129,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                                     this.nemaNitkoRecept = odgovor.message;
                                 }
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
             }),
@@ -258,8 +257,7 @@ export class ListaReceptiComponent implements OnInit,OnDestroy{
                             //Spremam poruku servera
                             this.porukaPretraga = odgovor.message;
                         }
-                    }),
-                    takeUntil(this.pretplateSubject)
+                    })
                 );
             }),
             takeUntil(this.pretplateSubject)

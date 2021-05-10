@@ -29,7 +29,11 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     porukaDijagnozaPretraga: string = null;
     //Kreiram event tako da ga druge komponente mogu slušati
     @Output() close = new EventEmitter<any>();
-    @Output() podatciRetka = new EventEmitter<{mkbSifraPrimarna: string, datumPregled: Date, vrijemePregled: Time, tipSlucaj: string}>();
+    @Output() podatciRetka = new EventEmitter<{
+        mkbSifraPrimarna: string,
+        datumPregled: Date,
+        vrijemePregled: Time,
+        tipSlucaj: string}>();
     //Spremam ID trenutno aktivnog pacijenta
     idPacijent: number;
     //Spremam podatke otvorenog slučaja
@@ -42,13 +46,13 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
     pacijent: Obrada;
 
     constructor(
-      //Dohvaćam servis otvorenog slučaja
-      private otvoreniSlucajService: OtvoreniSlucajService,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam login servis
-      private loginService: LoginService
-    ) { }
+        //Dohvaćam servis otvorenog slučaja
+        private otvoreniSlucajService: OtvoreniSlucajService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam login servis
+        private loginService: LoginService
+    ) {}
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
@@ -60,11 +64,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
         this.loginService.user.pipe(
             take(1),
             switchMap(user => {
-                return this.obradaService.getPatientProcessing(user.tip).pipe(
-                    takeUntil(this.pretplateSubject)
-                );
-            }),
-            takeUntil(this.pretplateSubject)
+                return this.obradaService.getPatientProcessing(user.tip);
+            })
         ).pipe(
             //Pomoću switchMapa uzimam podatke trenutno aktivnog pacijenta te njegov ID prosljeđujem dvjema metodama
             switchMap((response) => {
@@ -81,7 +82,6 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                         this.otvoreniSlucajService.getSekundarneDijagnoze(this.idPacijent)
                     ]).pipe(
                         tap(podatci => {
-                            console.log(podatci);
                             //Ako je server vratio uspješni odgovor tj. ako je pacijent AKTIVAN i ako ima AKTIVNIH PRIMARNIH DIJAGNOZA za pacijenta
                             if(podatci[0] !== "Nema aktivnih pacijenata!" && podatci[0]["success"] !== "false"){
                                 //Definiram objekt tipa "OtvoreniSlucaj"
@@ -93,7 +93,6 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                                   //Dodavam novostvoreni objekt u svoje polje otvorenih slučaja
                                   this.otvoreniSlucaji.push(objektOtvoreniSlucaj);
                                 }
-                                console.log(this.otvoreniSlucaji);
                                 //Označavam da ima dijagnoza
                                 this.isDijagnoza = true;
                                 //Definiram objekt tipa "OtvoreniSlucaj"
@@ -105,7 +104,6 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                                     //Dodavam novostvoreni objekt u svoje polje otvorenih slučaja
                                     this.sekDijagnoze.push(objektSekDijagnoza);
                                 }
-                                console.log(this.sekDijagnoze);
                             }
                             //Ako je pacijent AKTIVAN te ako NEMA AKTIVNIH primarnih dijagnoza
                             else if(podatci[0] !== "Nema aktivnih pacijenata!" && podatci[0]["success"] === "false"){
@@ -125,8 +123,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                                 //Spremam neuspješnu poruku (da nema aktivnih dijagnoza) u svoju varijablu
                                 this.porukaDijagnoza = podatci[0]["message"];
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
                 //Ako Observable nije vratio aktivnog pacijenta
@@ -140,12 +137,9 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                     this.porukaAktivan = response["message"];
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta
-                    return of(this.porukaAktivan).pipe(
-                        takeUntil(this.pretplateSubject)
-                    );
+                    return of(this.porukaAktivan);
                 }
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
 
         //Pretplaćujem se na promjene u formi pretrage
@@ -162,11 +156,9 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                                 switchMap(podatci => {
                                     this.idPacijent = +podatci[0].idPacijent;
                                     return this.pretraga(value, this.idPacijent);
-                                }),
-                                takeUntil(this.pretplateSubject)
+                                })
                             );
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
                 //Ako je ID pacijent već definiran
@@ -185,7 +177,6 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
             this.otvoreniSlucajService.getSekundarneDijagnoze(idPacijent)
         ]).pipe(
             tap((odgovor) => {
-                console.log(odgovor);
                 //Ako je server vratio uspješni odgovor tj. ako ima aktivnih primarnih dijagnoza za pacijenta ZA NAVEDENU PRETRAGU
                 if(odgovor[0]["success"] !== "false"){
                     //Označavam da ima pronađenih dijagnoza
@@ -221,8 +212,7 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     //Spremam odgovor servera kao poruku koju ću prikazati na ekranu
                     this.porukaDijagnozaPretraga = odgovor[0]["message"];
                 }
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         )
     }
 

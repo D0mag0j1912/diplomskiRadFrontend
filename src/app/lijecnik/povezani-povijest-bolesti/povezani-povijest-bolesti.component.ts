@@ -83,11 +83,8 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                     return this.loginService.user.pipe(
                         take(1),
                         switchMap(user => {
-                            return this.obradaService.getPatientProcessing(user.tip).pipe(
-                                takeUntil(this.pretplateSubject)
-                            );
-                        }),
-                        takeUntil(this.pretplateSubject)
+                            return this.obradaService.getPatientProcessing(user.tip);
+                        })
                     ).pipe(
                         switchMap(response => {
                             //Ako je Observable vratio aktivnog pacijenta
@@ -104,9 +101,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                 this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                                 return forkJoin([
                                     this.povezaniPovijestBolestiService.getPovijestBolesti(this.idPacijent)
-                                ]).pipe(
-                                    takeUntil(this.pretplateSubject)
-                                );
+                                ]);
                             }
                             //Ako Observable nije vratio aktivnog pacijenta
                             else{
@@ -186,8 +181,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                                 //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
                                                 (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                             }
-                                        }),
-                                        takeUntil(this.pretplateSubject)
+                                        })
                                     );
                                 }
                                 //Ako je pacijent AKTIVAN te NEMA evidentiranih povijesti bolesti
@@ -287,8 +281,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                         //Taj spojeni string dodavam u form control polja sekundarnih dijagnoza
                                         (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                       }
-                                    }),
-                                    takeUntil(this.pretplateSubject)
+                                    })
                                 );
                             }
                             //Ako pacijent NEMA evidentiranih povijesti bolesti
@@ -301,8 +294,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                 this.porukaPovijestBolesti = odgovor["message"];
                                 return of(this.porukaPovijestBolesti);
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }
             }),
@@ -314,9 +306,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
             debounceTime(300),
             distinctUntilChanged(),
             switchMap(value => {
-                return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.isObrada ? this.idPacijent : this.primljeniIDPacijent,value).pipe(
-                    takeUntil(this.pretplateSubject)
-                );
+                return this.povezaniPovijestBolestiService.getPovijestBolestiPretraga(this.isObrada ? this.idPacijent : this.primljeniIDPacijent,value);
             }),
             takeUntil(this.pretplateSubject)
         ).pipe(
@@ -401,8 +391,7 @@ export class PovezaniPovijestBolestiComponent implements OnInit,OnDestroy {
                                       (<FormArray>(this.glavnaForma.get('povijestBolesti'))).at(i).get('sekundarneDijagnoze').patchValue(str === 'null\n' ? null : str, {emitEvent: false});
                                   }
                                 }
-                            }),
-                            takeUntil(this.pretplateSubject)
+                            })
                         );
                     }
                     //Ako je server vratio poruku da nema rezultata za navedenu pretragu

@@ -215,8 +215,7 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                         //Spremam odgovor servera
                         this.responsePoruka = odgovor["message"];
                     }
-                  ),
-                  takeUntil(this.pretplateSubject)
+                  )
           ).subscribe();
         }
         //Ako podatci nisu aktivni

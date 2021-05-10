@@ -48,48 +48,46 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
 
-      //Pretplaćujem se na odgovor servera
-      this.obradaService.imePrezimePacijent.pipe(
-          //Dohvaćam vrijednosti koje se nalaze u Subjectu
-          switchMap(pacijenti => {
-              console.log(pacijenti);
-              return combineLatest([
-                  //Vrijednosti iz Subjecta davam ovim dvaju metodama
-                  this.obradaService.getPatients(pacijenti.ime,pacijenti.prezime,pacijenti.stranica),
-                  this.obradaService.getData(pacijenti.ime,pacijenti.prezime)
-              ]).pipe(
-                  tap(odgovor => {
-                      //Inicijaliziram praznu varijablu
-                      let pacijent;
-                      //Prolazim kroz sve JS objekte (pacijente) sa servera
-                      for(const pac of odgovor[0]){
-                          //Kreiram novi objekt tipa "Pacijent"
-                          pacijent = new Pacijent(pac);
-                          //Novo kreirani objekt nadodavam u polje pacijenata
-                          this.pacijenti.push(pacijent);
-                      }
-                      this.imePacijent = pacijenti.ime;
-                      this.prezimePacijent = pacijenti.prezime;
-                      this.stranica = pacijenti.stranica;
-                      this.brojStranica = odgovor[1]["brojStranica"];
-                      this.fakeArray = new Array(this.brojStranica);
-                  }),
-                  takeUntil(this.pretplateSubject)    
-              );    
-          }),
-          takeUntil(this.pretplateSubject)
-      ).subscribe();
+        //Pretplaćujem se na odgovor servera
+        this.obradaService.imePrezimePacijent.pipe(
+            //Dohvaćam vrijednosti koje se nalaze u Subjectu
+            switchMap(pacijenti => {
+                return combineLatest([
+                    //Vrijednosti iz Subjecta davam ovim dvaju metodama
+                    this.obradaService.getPatients(pacijenti.ime,pacijenti.prezime,pacijenti.stranica),
+                    this.obradaService.getData(pacijenti.ime,pacijenti.prezime)
+                ]).pipe(
+                    tap(odgovor => {
+                        //Inicijaliziram praznu varijablu
+                        let pacijent;
+                        //Prolazim kroz sve JS objekte (pacijente) sa servera
+                        for(const pac of odgovor[0]){
+                            //Kreiram novi objekt tipa "Pacijent"
+                            pacijent = new Pacijent(pac);
+                            //Novo kreirani objekt nadodavam u polje pacijenata
+                            this.pacijenti.push(pacijent);
+                        }
+                        this.imePacijent = pacijenti.ime;
+                        this.prezimePacijent = pacijenti.prezime;
+                        this.stranica = pacijenti.stranica;
+                        this.brojStranica = odgovor[1]["brojStranica"];
+                        this.fakeArray = new Array(this.brojStranica);
+                    })
+                );
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
 
     }
 
     //Metoda koja šalje backendu broj trenutne stranice
     setPage(brojTrenutneStranice: number){
-          
+
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti koji odgovaraju trenutnoj stranici (1.stranica = prvih 5 pacijenata, 2.stranica = od 5. do 10. itd..)
         this.obradaService.getPatients(this.imePacijent,this.prezimePacijent,brojTrenutneStranice).pipe(
             tap((pacijenti)=> {
                   //Praznim inicijalno polje pacijenata
-                  this.pacijenti = [];    
+                  this.pacijenti = [];
                   //Inicijaliziram praznu varijablu
                   let pacijent;
                   //Prolazim kroz sve JS objekte (pacijente) sa servera
@@ -103,8 +101,7 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
                   this.stranica = brojTrenutneStranice;
                   console.log(this.stranica);
                 }
-            ),
-            takeUntil(this.pretplateSubject)
+            )
         ).subscribe();
     }
 
@@ -114,11 +111,8 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
         this.loginService.user.pipe(
             take(1),
             switchMap(user => {
-                return this.cekaonicaService.addToWaitingRoom(user.tip,id).pipe(
-                    takeUntil(this.pretplateSubject)
-                );
-            }),
-            takeUntil(this.pretplateSubject)
+                return this.cekaonicaService.addToWaitingRoom(user.tip,id);
+            })
         ).subscribe(
             //Uzimam odgovor
             (odgovor) => {

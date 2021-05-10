@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { forkJoin, Subject} from 'rxjs';
 import { LoginService } from 'src/app/login/login.service';
-import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
+import { takeUntil, tap} from 'rxjs/operators';
 import { HeaderService } from './header.service';
 import { Router } from '@angular/router';
 
@@ -34,52 +34,51 @@ export class HeaderComponent implements OnInit, OnDestroy {
         private headerService: HeaderService,
         //Dohvaćam router
         private router: Router
-    ) 
+    )
     {}
     //Kada se komponenta loada
     ngOnInit(){
-      
-      //Pretplaćujem se na Subject iz login servisa
-      this.loginService.user.pipe(
-          tap((user) => {
-              //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false 
-              this.prijavljen = !user ? false : true;
-              //Ako je korisnik prijavljen
-              if(this.prijavljen){
-                  //Ako je tip prijavljenog korisnika "lijecnik":
-                  if(user["tip"] == "lijecnik"){
-                      //Označavam da se liječnik prijavio
-                      this.isLijecnik = true;
-                  } else if(user["tip"] == "sestra"){
-                      //Označavam da se medicinska sestra prijavila
-                      this.isMedSestra = true;
-                  }
-              }
-          }),
-          takeUntil(this.pretplateSubject)
-      ).subscribe();
-      
-      //Kombiniram dva Observable-a te dohvaćam odgovor servera
-      const combined = forkJoin([
-          this.headerService.getIDLijecnik(),
-          this.headerService.getIDMedSestra()
-      ]).pipe(
-          tap(
-            //Dohvaćam odgovor servera
-            (response) => {
-                //Ako ima evidentiranih liječnika:
-                if(response[0]["success"] !== "false"){
-                    //Dohvaćam ID liječnika
-                    this.idLijecnik = +response[0][0].idLijecnik;
+
+        //Pretplaćujem se na Subject iz login servisa
+        this.loginService.user.pipe(
+            tap((user) => {
+                //Ako postoji user u Subjectu, to znači da je prijavljen, ako ne postoji, prijavljen = false
+                this.prijavljen = !user ? false : true;
+                //Ako je korisnik prijavljen
+                if(this.prijavljen){
+                    //Ako je tip prijavljenog korisnika "lijecnik":
+                    if(user["tip"] == "lijecnik"){
+                        //Označavam da se liječnik prijavio
+                        this.isLijecnik = true;
+                    } else if(user["tip"] == "sestra"){
+                        //Označavam da se medicinska sestra prijavila
+                        this.isMedSestra = true;
+                    }
                 }
-                //Ako ima evidentiranih medicinskih sestara
-                if(response[1]["success"] !== "false"){
-                    //Dohvaćam ID medicinske sestre
-                    this.idMedSestra = +response[1][0].idMedSestra;
-                }
-          }),
-          takeUntil(this.pretplateSubject)
-      ).subscribe();
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
+
+        //Kombiniram dva Observable-a te dohvaćam odgovor servera
+        const combined = forkJoin([
+            this.headerService.getIDLijecnik(),
+            this.headerService.getIDMedSestra()
+        ]).pipe(
+            tap(
+                //Dohvaćam odgovor servera
+                (response) => {
+                    //Ako ima evidentiranih liječnika:
+                    if(response[0]["success"] !== "false"){
+                        //Dohvaćam ID liječnika
+                        this.idLijecnik = +response[0][0].idLijecnik;
+                    }
+                    //Ako ima evidentiranih medicinskih sestara
+                    if(response[1]["success"] !== "false"){
+                        //Dohvaćam ID medicinske sestre
+                        this.idMedSestra = +response[1][0].idMedSestra;
+                    }
+            })
+        ).subscribe();
 
     }
 
@@ -92,8 +91,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 //Postavljam obe oznake korisnika na false jer je odjavljen korisnik
                 this.isLijecnik = false;
                 this.isMedSestra = false;
-            }),
-            takeUntil(this.pretplateSubject)
+            })
         ).subscribe();
     }
 

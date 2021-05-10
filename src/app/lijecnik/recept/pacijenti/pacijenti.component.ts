@@ -89,7 +89,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     this.ids = this.pacijenti.map((objekt) => {
                         return objekt.id.toString();
                     });
-                    console.log(this.ids);
                 }
                 //Ako je server vratio da NEMA pacijenata u bazi podataka
                 else if(podatci["success"] === "false"){
@@ -97,7 +96,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     this.isPretraga = false;
                     //Spremam odgovor servera u svoju varijablu
                     this.nemaPacijenata = podatci["message"];
-                    console.log(this.nemaPacijenata);
                 }
             }),
             takeUntil(this.pretplateSubject)
@@ -150,8 +148,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                 //Spremam poruku servera
                                 this.porukaPretraga = odgovor["message"];
                             }
-                        }),
-                        takeUntil(this.pretplateSubject)
+                        })
                     );
                 }),
                 takeUntil(this.pretplateSubject)
@@ -196,8 +193,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                                         this.pacijenti.push(pacijent);
                                     }
                                 }
-                            }),
-                            takeUntil(this.pretplateSubject)
+                            })
                         );
                     }
                 }),
@@ -257,8 +253,7 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                         //Preusmjeri liječnika na prozor izdavanja recepta
                         this.router.navigate(['./',id],{relativeTo: this.route});
                     }
-                }),
-                takeUntil(this.pretplateSubject)
+                })
             ).subscribe();
         }
     }

@@ -679,8 +679,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                           this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
                           //Resetiram formu
                           this.ponistiPovezaniSlucajHandler();
-                      }),
-                      takeUntil(this.pretplateSubject)
+                      })
                 ).subscribe();
             }
             //Ako je slučaj povezan
@@ -719,11 +718,9 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                                     this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
                                     //Resetiram formu
                                     this.ponistiPovezaniSlucajHandler();
-                                }),
-                                takeUntil(this.pretplateSubject)
-                          );
-                    }),
-                    takeUntil(this.pretplateSubject)
+                                })
+                            );
+                    })
                 ).subscribe();
             }
         }
@@ -742,64 +739,62 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Metoda koja se aktivira kada komponenta primi informaciju da se EVENT AKTIVIRAO ($event je šifra primarne dijagnoze pojedinog retka otvorenog slučaja)
     onPoveziOtvoreniSlucaj($event){
-      //Ako je pacijent aktivan
-      if(this.isAktivan){
-          //Pretplaćujem se na Observable u kojemu se nalaze NAZIV PRIMARNE DIJAGNOZE i NAZIVI NJEZINIH SEKUNDARNIH DIJAGNOZA
-          this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).pipe(
-              tap(//Dohvaćam podatke
-                (podatci) => {
-                  console.log(podatci);
-                  //Spremam podatke kada povežem slučaj (treba će kada prelazim iz korisnika ovamo da mi ne ostanu njegovi podatci)
-                  this.prosliPregled = podatci[0].idPregled;
-                  this.proslaBoja = podatci[0].bojaPregled;
-                  //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                  const podatciProslogPregleda = {
-                      idObrada: podatci[0].idObradaMedSestra,
-                      mkbPrimarnaDijagnoza: podatci[0].mkbSifraPrimarna
-                  };
-                  //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                  localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                  //Resetiram formu sekundarnih dijagnoza
-                  this.sekundarnaDijagnoza.clear();
-                  //Resetiram svoje polje sekundarnih dijagnoza
-                  this.sekundarnaDijagnozaOtvoreniSlucaj = [];
-                  //Dodaj jedan form control da inicijalno bude 1
-                  this.onAddDiagnosis();
-                  //Prolazim poljem odgovora servera
-                  for(let dijagnoza of podatci){
-                    //Spremam naziv primarne dijagnoze otvorenog slučaja
-                    this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
-                    //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
-                    this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
-                    //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
+        //Ako je pacijent aktivan
+        if(this.isAktivan){
+            //Pretplaćujem se na Observable u kojemu se nalaze NAZIV PRIMARNE DIJAGNOZE i NAZIVI NJEZINIH SEKUNDARNIH DIJAGNOZA
+            this.otvoreniSlucajService.getDijagnozePovezanSlucaj($event,this.idPacijent).pipe(
+                //Dohvaćam podatke
+                tap((podatci) => {
+                    //Spremam podatke kada povežem slučaj (treba će kada prelazim iz korisnika ovamo da mi ne ostanu njegovi podatci)
+                    this.prosliPregled = podatci[0].idPregled;
+                    this.proslaBoja = podatci[0].bojaPregled;
+                    //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                    const podatciProslogPregleda = {
+                        idObrada: podatci[0].idObradaMedSestra,
+                        mkbPrimarnaDijagnoza: podatci[0].mkbSifraPrimarna
+                    };
+                    //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                    localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                    //Resetiram formu sekundarnih dijagnoza
+                    this.sekundarnaDijagnoza.clear();
+                    //Resetiram svoje polje sekundarnih dijagnoza
+                    this.sekundarnaDijagnozaOtvoreniSlucaj = [];
+                    //Dodaj jedan form control da inicijalno bude 1
                     this.onAddDiagnosis();
-                  }
-                  //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
-                  this.onDeleteDiagnosis(-1);
-                  //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
-                  this.sekundarnaDijagnozaOtvoreniSlucaj.forEach((element,index) => {
-                      //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
-                      (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
-                      //Postavljam MKB šifre sek.dijagnoza
-                      SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
-                  });
-                  //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
-                  this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
-                  //Postavljam MKB šifru primarne dijagnoze
-                  SharedHandler.nazivToMKB(this.primarnaDijagnozaOtvoreniSlucaj,this.dijagnoze,this.forma);
-                  //Zatvaram prozor otvorenog slučaja
-                  this.otvoren = false;
-                  //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
-                  this.ponistiPovezaniSlucaj = true;
-                  //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
-                  this.povezanSlucaj.patchValue(true,{emitEvent: false});
-                  //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
-                  this.povezanSlucaj.disable({emitEvent: false});
-                  //Resetiram checkbox novog slučaja da ne ostane da su oba true
-                  this.noviSlucaj.reset();
-                }),
-                takeUntil(this.pretplateSubject)
-          ).subscribe();
+                    //Prolazim poljem odgovora servera
+                    for(let dijagnoza of podatci){
+                        //Spremam naziv primarne dijagnoze otvorenog slučaja
+                        this.primarnaDijagnozaOtvoreniSlucaj = dijagnoza.NazivPrimarna;
+                        //U polje sekundarnih dijagnoza spremam sve sekundarne dijagnoze otvorenog slučaja
+                        this.sekundarnaDijagnozaOtvoreniSlucaj.push(dijagnoza.NazivSekundarna);
+                        //Za svaku sekundarnu dijagnozu sa servera NADODAVAM JEDAN FORM CONTROL
+                        this.onAddDiagnosis();
+                    }
+                    //BRIŠEM ZADNJI FORM CONTROL da ne bude jedan viška
+                    this.onDeleteDiagnosis(-1);
+                    //Prolazim kroz sve prikupljene nazive sekundarnih dijagnoza sa servera
+                    this.sekundarnaDijagnozaOtvoreniSlucaj.forEach((element,index) => {
+                        //U polju naziva sekundarnih dijagnoza postavljam prikupljena imena sek. dijagnoza na određenom indexu
+                        (<FormGroup>(<FormArray>this.forma.get('sekundarnaDijagnoza')).at(index)).get('nazivSekundarna').patchValue(element,{emitEvent: false});
+                        //Postavljam MKB šifre sek.dijagnoza
+                        SharedHandler.nazivToMKBSekundarna(element,this.dijagnoze,this.forma,index);
+                    });
+                    //Postavljam vrijednost naziva primarne dijagnoze na vrijednost koju sam dobio sa servera
+                    this.primarnaDijagnoza.patchValue(this.primarnaDijagnozaOtvoreniSlucaj,{emitEvent: false});
+                    //Postavljam MKB šifru primarne dijagnoze
+                    SharedHandler.nazivToMKB(this.primarnaDijagnozaOtvoreniSlucaj,this.dijagnoze,this.forma);
+                    //Zatvaram prozor otvorenog slučaja
+                    this.otvoren = false;
+                    //Omogućavam vidljivost gumba za poništavanje povezanog slučaja
+                    this.ponistiPovezaniSlucaj = true;
+                    //Postavljam vrijednost checkboxa "PovezanSlucaj" na true
+                    this.povezanSlucaj.patchValue(true,{emitEvent: false});
+                    //Onemogućavam mijenjanje stanja checkboxa "Povezan slučaj"
+                    this.povezanSlucaj.disable({emitEvent: false});
+                    //Resetiram checkbox novog slučaja da ne ostane da su oba true
+                    this.noviSlucaj.reset();
+                })
+            ).subscribe();
       }
     }
 

@@ -35,9 +35,7 @@ export class PreglediListComponent implements OnInit, OnDestroy{
     ) {}
 
     //Ova metoda se poziva kada se komponenta incicijalizira
-    ngOnInit(){
-        console.log(this.pregledi);
-    }
+    ngOnInit(){}
 
     //Metoda koja se aktivira kada korisnik stisne button "Sljedeći pregled"
     idiNaSljedeciPregled(sljedeciPregled: number,$event: any){
@@ -165,19 +163,12 @@ export class PreglediListComponent implements OnInit, OnDestroy{
                                         return 0;
                                     });
                                 }
-                            }),
-                            takeUntil(this.pretplate)
+                            })
                         );
-                    }),
-                    takeUntil(this.pretplate)
+                    })
                 );
             })
         );
-    }
-
-    //Metoda koja provjerava je li postoje dva ili više pregleda iz grupacije u listi pregleda
-    provjeraIstaGrupacija(){
-
     }
 
     //Kada se klikne element liste (određeni pregled)

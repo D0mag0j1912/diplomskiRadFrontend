@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { merge, of, Subject } from 'rxjs';
+import { merge, of, Subject} from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { NalazList } from './nalazList.model';
 import { NalaziService } from './nalazi.service';
@@ -68,7 +68,8 @@ export class NalaziComponent implements OnInit, OnDestroy{
                     this.filter.disable({emitEvent: false});
                     this.datum.disable({emitEvent: false});
                 }
-            })
+            }),
+            takeUntil(this.pretplata)
         ).subscribe();
 
         //Ako JE pacijent aktivan
@@ -101,14 +102,11 @@ export class NalaziComponent implements OnInit, OnDestroy{
                                   else{
                                       this.nemaNalaza = 'Nema evidentiranih nalaza!';
                                   }
-                              }),
-                              takeUntil(this.pretplata)
+                              })
                           );
                       }
                       else{
-                          return of(null).pipe(
-                              takeUntil(this.pretplata)
-                          );
+                          return of(null);
                       }
                   }),
                   takeUntil(this.pretplata)
@@ -133,17 +131,15 @@ export class NalaziComponent implements OnInit, OnDestroy{
                                     else{
                                         this.nemaNalaza = 'Nema evidentiranih nalaza!';
                                     }
-                                }),
-                                takeUntil(this.pretplata)
+                                })
                             );
                         }
                         //Ako je value null, nastavljam stream
                         else{
-                            return of(null).pipe(
-                                takeUntil(this.pretplata)
-                            );
+                            return of(null);
                         }
-                    })
+                    }),
+                    takeUntil(this.pretplata)
                 )
             ).subscribe();
         }
@@ -173,8 +169,7 @@ export class NalaziComponent implements OnInit, OnDestroy{
                         //Ovu poruku prikazujem u alertu
                         this.responsePoruka = 'Aktivni pacijent nema primljenih nalaza!';
                     }
-                }),
-                takeUntil(this.pretplata)
+                })
             ).subscribe();
         }
         //Ako pacijent NIJE aktivan

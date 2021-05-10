@@ -70,7 +70,6 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     if(podatci.pregledi[0] === null){
                         //Označavam da aktivni pacijent NEMA aktivnih pregleda
                         this.imaLiPregleda = false;
-                        console.log("tu sam");
                     }
                     else{
                         //Označavam da aktivni pacijent IMA pregleda
@@ -151,8 +150,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                         }
                                                         //Postavljam dohvaćeni najnoviji datum u formu
                                                         this.forma.get('datum').patchValue(podatci[1],{emitEvent: false});
-                                                    }),
-                                                    takeUntil(this.pretplate)
+                                                    })
                                                 );
                                             }
                                             //Ako pacijent NIJE aktivan u obradi
@@ -166,9 +164,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                         }
                         //Ako nije kliknut button "Pregledi"
                         else{
-                            return of(null).pipe(
-                                takeUntil(this.pretplate)
-                            );
+                            return of(null);
                         }
                     }),
                     takeUntil(this.pretplate)
@@ -211,17 +207,14 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                                     //Preusmjeravam se na detail stranicu sa ID-em najnovijeg pregleda za promijenjeni datum
                                                                     this.router.navigate(['./',idPregled],{relativeTo: this.route});
                                                                 }
-                                                            }),
-                                                            takeUntil(this.pretplate)
+                                                            })
                                                         );
                                                     }
                                                     //Ako aktivni pacijent NEMA evidentiranih pregleda za taj datum
                                                     else{
                                                         //Označavam da NEMA pregleda
                                                         this.imaLiPregleda = false;
-                                                        return of(null).pipe(
-                                                            takeUntil(this.pretplate)
-                                                        );
+                                                        return of(null);
                                                     }
                                                 }),
                                                 takeUntil(this.pretplate)
@@ -229,12 +222,9 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                         }
                                         //Ako pacijent NIJE AKTIVAN
                                         else{
-                                            return of(null).pipe(
-                                                takeUntil(this.pretplate)
-                                            );
+                                            return of(null);
                                         }
-                                    }),
-                                    takeUntil(this.pretplate)
+                                    })
                                 );
                             })
                         );
@@ -261,7 +251,6 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                 this.preglediDetailService.getNajnovijiIDPregledZaPretragu(user.tip,+podatci[0].idPacijent,value)
                                             ]).pipe(
                                                 tap(pregledi => {
-                                                    console.log(pregledi);
                                                     //Ako odgovor servera nije null, tj. ako ovaj pacijent IMA neke evidentirane preglede
                                                     if(pregledi[0] !== null){
                                                         //Ako ima pronađenih pregleda za pretragu
@@ -298,21 +287,16 @@ export class PreglediComponent implements OnInit, OnDestroy{
                                                         //Restartam poruku da nema rezultata pretrage
                                                         this.porukaNemaRezultata = null;
                                                     }
-                                                }),
-                                                takeUntil(this.pretplate)
+                                                })
                                             );
                                         }
                                         //Ako pacijent nije aktivan u obradi
                                         else{
-                                            return of(null).pipe(
-                                                takeUntil(this.pretplate)
-                                            );
+                                            return of(null);
                                         }
-                                    }),
-                                    takeUntil(this.pretplate)
+                                    })
                                 );
-                            }),
-                            takeUntil(this.pretplate)
+                            })
                         );
                     }),
                     takeUntil(this.pretplate)
@@ -328,8 +312,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
             tap(datum => {
                 //Postavi datum u formu
                 this.forma.get('datum').patchValue(datum,{emitEvent: false});
-            }),
-            takeUntil(this.pretplate)
+            })
         ).subscribe();
     }
 
