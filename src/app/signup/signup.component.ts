@@ -79,7 +79,6 @@ export class SignupComponent implements OnInit, OnDestroy {
             this.ponovnoLozinka.value
         ).pipe(
             tap((response) => {
-                console.log(response);
                 //Odgovor backenda => true
                 this.response = true;
                 //Vrijednost odgovora backenda se sprema u varijablu "responsePoruka"

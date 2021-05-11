@@ -92,15 +92,15 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                             this.mkbSifre.push(d.mkbSifra);
                         }
                         //Ako je Resolver vratio aktivnog pacijenta
-                        if(podatci.pacijent["success"] !== "false"){
-                        //Označavam da je pacijent aktivan u obradi
-                        this.isAktivan = true;
-                        //Spremam podatke obrade trenutno aktivnog pacijenta
-                        this.trenutnoAktivniPacijent = new Obrada(podatci.pacijent[0]);
-                        //Spremam ID trenutno aktivnog pacijenta
-                        this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
-                        //Spremam ID obrade
-                        this.idObrada = this.trenutnoAktivniPacijent.idObrada;
+                        if(podatci.pacijent.obrada.success !== "false"){
+                            //Označavam da je pacijent aktivan u obradi
+                            this.isAktivan = true;
+                            //Spremam podatke obrade trenutno aktivnog pacijenta
+                            this.trenutnoAktivniPacijent = new Obrada(podatci.pacijent.obrada[0]);
+                            //Spremam ID trenutno aktivnog pacijenta
+                            this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
+                            //Spremam ID obrade
+                            this.idObrada = this.trenutnoAktivniPacijent.idObrada;
                         }
 
                         this.forma = new FormGroup({

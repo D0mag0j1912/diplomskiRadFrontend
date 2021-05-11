@@ -60,12 +60,13 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
         //Pretplaćivam se na podatke Resolvera
         this.route.data.pipe(
             tap(pregledi => {
+                console.log(pregledi);
                 //Prolazim kroz odgovor servera
                 for(const pregled of pregledi.cijeliPregled){
                     //Ako se u odgovoru pregleda nalazi tip korisnika "sestra":
                     if(pregled.tip === "sestra"){
                         //Spremam ID pacijenta
-                        this.idPacijent = +pregledi.obrada.pacijent[0].idPacijent;
+                        this.idPacijent = +pregledi.obrada.obrada[0].idPacijent;
                         //Označavam da su opći podatci u pitanju
                         this.isPovijestBolesti = false;
                         //Kreiram objekt tipa "Pregled"
@@ -74,7 +75,7 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
                     //Ako se u odgovoru pregleda nalazi tip korisnika "lijecnik"
                     else if(pregled.tip === "lijecnik"){
                         //Spremam ID pacijenta
-                        this.idPacijent = +pregledi.obrada[0].idPacijent;
+                        this.idPacijent = +pregledi.obrada.obrada[0].idPacijent;
                         //Označavam da je povijest bolesti u pitanju
                         this.isPovijestBolesti = true;
                         //Kreiram objekt tipa "PovijestBolesti"

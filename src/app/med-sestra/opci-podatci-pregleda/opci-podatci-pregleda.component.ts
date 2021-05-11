@@ -135,13 +135,13 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     this.drzave.push(objektDrzava);
                 }
                 //Ako je Resolver vratio aktivnog pacijenta
-                if(response.pacijent.pacijent["success"] !== "false"){
+                if(response.pacijent.obrada.success !== "false"){
                   //Označavam da je pacijent aktivan u obradi
                   this.isAktivan = true;
                   //Spremam podatke obrade trenutno aktivnog pacijenta
-                  this.trenutnoAktivniPacijent = new Obrada(response.pacijent.pacijent[0]);
+                  this.trenutnoAktivniPacijent = new Obrada(response.pacijent.obrada[0]);
                   //Spremam osobne podatke trenutno aktivnog pacijenta
-                  this.pacijent = new Pacijent(response.pacijent.pacijent[0]);
+                  this.pacijent = new Pacijent(response.pacijent.obrada[0]);
                   //Spremam ID pacijenta
                   this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
                   //Spremam ID obrade
@@ -149,7 +149,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   //Definiram objekt zdr. podataka
                   let objektZdrPodatci;
                   //Prolazim kroz odgovor servera
-                  for(const podatci of response.pacijent.podatci){
+                  for(const podatci of response.pacijent.zdravstveniPodatci){
                       objektZdrPodatci = new ZdravstveniPodatci(podatci);
                       this.zdravstveniPodatci.push(objektZdrPodatci);
                   }
