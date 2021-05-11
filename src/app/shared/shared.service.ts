@@ -43,7 +43,12 @@ export class SharedService {
         idObrada: string,
         novaCijena: number,
         tipKorisnik: string,
-        usluge: {idRecept: number, idUputnica: number, idBMI: number}){
+        usluge: {
+            idRecept: number,
+            idUputnica: number,
+            idBMI: number,
+            idUzorak: number
+        }){
         return this.http.put<number>(baseUrl + 'shared/azurirajUkupnuCijenuPregleda.php',
         {
             idObrada,
@@ -58,7 +63,12 @@ export class SharedService {
         idObrada: string,
         novaCijena: number,
         tipKorisnik: string,
-        usluge: {idRecept: number, idUputnica: number, idBMI: number},
+        usluge: {
+            idRecept: number,
+            idUputnica: number,
+            idBMI: number,
+            idUzorak: number
+        },
         idPacijent: number){
         //Pretplaćujem se na podatke aktivnog pacijenta
         this.obradaService.getPatientProcessing(tipKorisnik).pipe(

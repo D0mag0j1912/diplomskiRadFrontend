@@ -60,6 +60,4 @@ import { AngularMaterialModule } from '../angular-material.module';
         UzorciComponent
     ]
 })
-export class SharedModule{
-
-}
+export class SharedModule{}

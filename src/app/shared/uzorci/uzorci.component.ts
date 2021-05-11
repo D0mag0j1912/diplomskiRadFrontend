@@ -2,13 +2,14 @@ import { Component, OnInit, Output, EventEmitter, OnDestroy, Input } from '@angu
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UzorciService } from './uzorci.service';
 import { merge, Subject} from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as UzorciValidations from './uzorci.validations';
 import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { Uputnica } from '../modeli/uputnica.model';
 import { SharedService } from '../shared.service';
 import { Uzorak } from './uzorci.model';
 import { ReferentnaVrijednost } from './referentna-vrijednost.model';
+import { ObradaService } from '../obrada/obrada.service';
 
 @Component({
   selector: 'app-uzorci',
@@ -52,7 +53,9 @@ export class UzorciComponent implements OnInit, OnDestroy{
         //Dohvaćam servis uzoraka
         private uzorciService: UzorciService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
@@ -223,6 +226,40 @@ export class UzorciComponent implements OnInit, OnDestroy{
                     //Emitiram event prema roditelju da je uzorak spremljen
                     this.uzorakSpremljen.emit();
                 }
+            }),
+            mergeMap((odgovor) => {
+                console.log(odgovor);
+                return this.obradaService.getPatientProcessing('sestra').pipe(
+                    tap((podatci) => {
+                        //Ako je pacijent aktivan
+                        if(podatci.success !== "false"){
+                            //Spremam ID obrade
+                            const idObrada: string = podatci[0].idObrada;
+                            //Spremam ID aktivnog pacijenta
+                            const idPacijent: number = +podatci[0].idPacijent;
+                            //Inicijaliziram novu cijenu
+                            const novaCijena: number = podatci[0].brojIskazniceDopunsko ? null : 20;
+                            //Inicijaliziram tip korisnika
+                            const tipKorisnik = 'sestra';
+                            //Spremam zadnje dodani ID uzorka
+                            const idUzorak: number = +odgovor.idUzorak;
+                            //Kreiram objekt "usluge"
+                            const usluge = {
+                                idRecept: null,
+                                idUputnica: null,
+                                idBMI: null,
+                                idUzorak: idUzorak
+                            };
+                            this.sharedService.postaviNovuCijenu(
+                                idObrada,
+                                novaCijena,
+                                tipKorisnik,
+                                usluge,
+                                idPacijent
+                            );
+                        }
+                    })
+                );
             })
         ).subscribe();
     }

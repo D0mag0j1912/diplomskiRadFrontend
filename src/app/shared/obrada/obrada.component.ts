@@ -304,7 +304,12 @@ export class ObradaComponent implements OnInit, OnDestroy {
                                         //Prikazivam poruku da sam spremio bmi
                                         this.spremioBMI = 'BMI spremljen!';
                                         //Kreiram novi JS objekt koji sadržava vrstu usluga koje se naplaćuju
-                                        const usluge = {idRecept: null, idUputnica: null, idBMI: +idBMI};
+                                        const usluge = {
+                                            idRecept: null,
+                                            idUputnica: null,
+                                            idBMI: +idBMI,
+                                            idUzorak: null
+                                        };
                                         //Naplaćujem računanje BMI-a
                                         this.sharedService.postaviNovuCijenu(
                                             this.trenutnoAktivniPacijent.idObrada.toString(),

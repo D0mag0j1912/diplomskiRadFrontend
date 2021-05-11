@@ -2107,7 +2107,12 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                             }),
                             mergeMap(() => {
                                 //Kreiram JS objekt koji sadrži sve usluge koje se naplaćivaju
-                                const usluge = {idRecept: +odgovor.idRecept, idUputnica: null, idBMI: null};
+                                const usluge = {
+                                    idRecept: +odgovor.idRecept,
+                                    idUputnica: null,
+                                    idBMI: null,
+                                    idUzorak: null
+                                };
                                 //Ako je izabran lijek iz dopunske liste
                                 if(lijekDL){
                                     return forkJoin([

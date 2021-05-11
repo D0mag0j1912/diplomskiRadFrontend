@@ -699,7 +699,12 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             return this.sharedService.getDopunsko(this.idPacijent).pipe(
                                 tap(dopunsko => {
                                         //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
-                                        const usluge = {idRecept: null, idUputnica: +odgovor.idUputnica, idBMI: null};
+                                        const usluge = {
+                                            idRecept: null,
+                                            idUputnica: +odgovor.idUputnica,
+                                            idBMI: null,
+                                            idUzorak: null
+                                        };
                                         //Naplaćujem izdavanje uputnice
                                         this.sharedService.postaviNovuCijenu(
                                             this.poslaniIDObrada,
