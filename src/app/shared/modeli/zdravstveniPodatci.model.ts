@@ -1,13 +1,13 @@
 export class ZdravstveniPodatci{
-    public dopunskoOd: Date;
-    public dopunskoDo: Date;
-    public nositeljOsiguranja: string;
-    public oslobodenParticipacije: string;
-    public osnovnoOd: Date;
-    public osnovnoDo: Date;
-    public participacijaDo: Date;
-    public trajnoOsnovno: string;
-    public trajnoParticipacija: string;
+    public dopunskoOd?: Date;
+    public dopunskoDo?: Date;
+    public nositeljOsiguranja?: string;
+    public oslobodenParticipacije?: string;
+    public osnovnoOd?: Date;
+    public osnovnoDo?: Date;
+    public participacijaDo?: Date;
+    public trajnoOsnovno?: string;
+    public trajnoParticipacija?: string;
     public brojIskazniceDopunsko?: string;
     public drzavaOsiguranja?: string;
     public mboPacijent?: string;

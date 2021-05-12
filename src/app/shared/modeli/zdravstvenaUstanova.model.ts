@@ -1,11 +1,10 @@
 export class ZdravstvenaUstanova {
-    public lijecnik: string;
-    public adresa: string;
-    public telefon: string;
-    public id: string;
     public naziv: string;
+    public adresa?: string;
+    public telefon?: string;
+    public id?: string;
     public idUputnica?: number;
-
+    public lijecnik?: string;
     constructor(response: any){
         if(response.Lijecnik){
             this.lijecnik = response.Lijecnik;

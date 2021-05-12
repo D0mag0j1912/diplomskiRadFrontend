@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
-import { mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { mergeMap, tap } from 'rxjs/operators';
 import { Mjesto } from 'src/app/shared/modeli/mjesto.model';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { Recept } from 'src/app/shared/modeli/recept.model';
@@ -62,6 +62,7 @@ export class PrikazReceptComponent implements OnInit, OnDestroy {
             tap(podatci => {
                 //Spremam podatke sa servera u svoje objekte
                 this.zdrUstanova = new ZdravstvenaUstanova(podatci[1][0]);
+                console.log(this.zdrUstanova);
                 this.mjesto = new Mjesto(podatci[1][0]);
                 this.objektRecept = new Recept(podatci[0][0]);
                 this.pacijent = new Pacijent(podatci[0][0]);

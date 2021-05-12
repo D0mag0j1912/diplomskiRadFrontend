@@ -60,9 +60,9 @@
                                   readonly>
                             </td>
                         </tr>
-                        <tr *ngIf="!isOpciPodatci && !isPovijestBolesti">
+                        <tr *ngIf="!isOpciPodatci && podatciDetaljaPregleda.tip === 'sestra'">
                             <td colspan="3">
-                                <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih podataka na pregledu!</strong></h4>
+                                <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih općih podataka na pregledu!</strong></h4>
                             </td>
                         </tr>
                         <ng-container *ngIf="podatciDetaljaPregleda.tip === 'sestra' && isOpciPodatci">
@@ -138,6 +138,11 @@
                                 </ng-container>
                             </ng-container>
                         </ng-container>
+                        <tr *ngIf="!isPovijestBolesti && podatciDetaljaPregleda.tip === 'lijecnik'">
+                            <td colspan="3">
+                                <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranu povijest bolesti na pregledu!</strong></h4>
+                            </td>
+                        </tr>
                         <ng-container *ngIf="podatciDetaljaPregleda.tip === 'lijecnik' && isPovijestBolesti">
                             <tr>
                                 <td colspan="3">

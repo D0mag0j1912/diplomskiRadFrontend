@@ -34,12 +34,12 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
         //Dohvaćam podatke Resolvera (tj. sve podatke kliknutog nalaza)
         this.route.data.pipe(
             tap((nalaz: any) => {
-                console.log(nalaz);
                 //Prolazim kroz podatke poslane sa servera
                 for(const n of nalaz.nalaz[0]){
                     //Spremam podatke u svoj objekt
                     this.nalaz = new Nalaz(n);
                 }
+                console.log(this.nalaz);
                 //Ako ima dohvaćenih sek. dijagnoza
                 if(nalaz.nalaz[1] !== null){
                     //Prolazim kroz sve dohvaćene sekundarne dijagnoze te ih spremam u svoj model

@@ -189,10 +189,10 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     let objektOtvoreniSlucaj;
                     //Prolazim odgovorom servera
                     for(const slucaj of odgovor[0]){
-                      //Za svaki objekt u odgovoru servera, kreiram svoj objekt tipa "OtvoreniSlucaj"
-                      objektOtvoreniSlucaj = new OtvoreniSlucaj(slucaj);
-                      //Dodavam novostvoreni objekt u svoje polje otvorenih slučaja
-                      this.otvoreniSlucaji.push(objektOtvoreniSlucaj);
+                        //Za svaki objekt u odgovoru servera, kreiram svoj objekt tipa "OtvoreniSlucaj"
+                        objektOtvoreniSlucaj = new OtvoreniSlucaj(slucaj);
+                        //Dodavam novostvoreni objekt u svoje polje otvorenih slučaja
+                        this.otvoreniSlucaji.push(objektOtvoreniSlucaj);
                     }
                     //Resetartam polje sekundarnih dijagnoza
                     this.sekDijagnoze = [];

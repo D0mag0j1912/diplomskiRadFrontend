@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { forkJoin, of, Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, take, tap } from 'rxjs/operators';
 import { DetaljiPregleda } from './detaljiPregleda.model';
 import { PovijestBolesti } from '../../modeli/povijestBolesti.model';
 import { Pregled } from '../../modeli/pregled.model';
@@ -74,6 +74,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 (odgovor) => {
                     //Spremam osobne podatke pacijenta detalja pregleda
                     this.detaljiPregleda = new DetaljiPregleda(odgovor[0][0]);
+                    console.log(this.detaljiPregleda);
                     //Ako postoji BMI u mom modelu
                     if(this.detaljiPregleda.bmi){
                         //Označavam da ima BMI-a

@@ -2,16 +2,16 @@ import { Time } from "@angular/common";
 import { Pacijent } from "./pacijent.model";
 
 export class Pregled {
-    public idPregled: number;
     public nacinPlacanja: string;
-    public oznakaOsiguranika: string;
-    public nazivDrzave: string;
-    public primarnaDijagnoza: string;
     public mkbSifraPrimarna: string;
     public tipSlucaj: string;
     public datum: Date;
     public vrijeme: Time;
-    public tip: string;
+    public idPregled?: number;
+    public tip?: string;
+    public primarnaDijagnoza?: string;
+    public nazivDrzave?: string;
+    public oznakaOsiguranika?: string;
     public mkbSifraSekundarna?: string;
     public nazivPrimarna?: string;
     public _pacijent?: Pacijent;

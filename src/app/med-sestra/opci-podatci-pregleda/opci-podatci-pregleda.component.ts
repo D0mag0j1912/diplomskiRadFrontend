@@ -136,23 +136,23 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 }
                 //Ako je Resolver vratio aktivnog pacijenta
                 if(response.pacijent.obrada.success !== "false"){
-                  //Označavam da je pacijent aktivan u obradi
-                  this.isAktivan = true;
-                  //Spremam podatke obrade trenutno aktivnog pacijenta
-                  this.trenutnoAktivniPacijent = new Obrada(response.pacijent.obrada[0]);
-                  //Spremam osobne podatke trenutno aktivnog pacijenta
-                  this.pacijent = new Pacijent(response.pacijent.obrada[0]);
-                  //Spremam ID pacijenta
-                  this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
-                  //Spremam ID obrade
-                  this.idObrada = this.trenutnoAktivniPacijent.idObrada;
-                  //Definiram objekt zdr. podataka
-                  let objektZdrPodatci;
-                  //Prolazim kroz odgovor servera
-                  for(const podatci of response.pacijent.zdravstveniPodatci){
-                      objektZdrPodatci = new ZdravstveniPodatci(podatci);
-                      this.zdravstveniPodatci.push(objektZdrPodatci);
-                  }
+                    //Označavam da je pacijent aktivan u obradi
+                    this.isAktivan = true;
+                    //Spremam podatke obrade trenutno aktivnog pacijenta
+                    this.trenutnoAktivniPacijent = new Obrada(response.pacijent.obrada[0]);
+                    //Spremam osobne podatke trenutno aktivnog pacijenta
+                    this.pacijent = new Pacijent(response.pacijent.obrada[0]);
+                    //Spremam ID pacijenta
+                    this.idPacijent = this.trenutnoAktivniPacijent.idPacijent;
+                    //Spremam ID obrade
+                    this.idObrada = this.trenutnoAktivniPacijent.idObrada;
+                    //Definiram objekt zdr. podataka
+                    let objektZdrPodatci;
+                    //Prolazim kroz odgovor servera
+                    for(const podatci of response.pacijent.zdravstveniPodatci){
+                        objektZdrPodatci = new ZdravstveniPodatci(podatci);
+                        this.zdravstveniPodatci.push(objektZdrPodatci);
+                    }
                 }
                 //Kreiram formu
                 this.forma = new FormGroup({

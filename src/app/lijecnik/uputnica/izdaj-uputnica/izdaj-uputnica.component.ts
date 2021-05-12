@@ -503,7 +503,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                         //Dohvaćam zadnje dodane dijagnoze povijesti bolesti za ovog pacijenta (INICIJALNE)
                                         return this.izdajUputnicaService.getInicijalneDijagnoze(+idObrada, polje[2]).pipe(
                                             tap(dijagnoze => {
-                                                console.log(dijagnoze);
                                                 //Ako postoje dodane dijagnoze
                                                 if(dijagnoze){
                                                     //Restartam polje inicijalnih dijagnoza
@@ -847,6 +846,7 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja će postaviti sve dijagnoze koje su postavljene u zadnjoj povijesti bolesti
     dohvatiInicijalneDijagnoze(dijagnoze: InicijalneDijagnoze[]){
+        console.log(dijagnoze);
         //Omogućavam unos sekundarne dijagnoze koja je inicijalno disable
         this.sekundarnaDijagnoza.enable({emitEvent: false});
         this.sekundarnaDijagnoza.clear();

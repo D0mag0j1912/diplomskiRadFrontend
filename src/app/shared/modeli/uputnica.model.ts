@@ -1,16 +1,16 @@
 export class Uputnica {
-    public sifDjel: number;
-    public nazivDjel: string;
-    public idPacijent: number;
-    public imePacijent: string;
-    public prezPacijent: string;
-    public mboPacijent: string;
-    public mkbSifraPrimarna: string;
-    public nazivPrimarna: string;
-    public vrstaPregled: string;
-    public molimTraziSe: string;
-    public napomena: string;
-    public datum: Date;
+    public molimTraziSe?: string;
+    public napomena?: string;
+    public vrstaPregled?: string;
+    public mkbSifraPrimarna?: string;
+    public nazivPrimarna?: string;
+    public datum?: Date;
+    public sifDjel?: number;
+    public nazivDjel?: string;
+    public idPacijent?: number;
+    public imePacijent?: string;
+    public prezPacijent?: string;
+    public mboPacijent?: string;
     public sifraSpecijalist?: number;
     public tipSpecijalist?: string;
     public idZdrUst?: number;
@@ -49,6 +49,9 @@ export class Uputnica {
         }
         if(response.vrstaPregled){
             this.vrstaPregled = response.vrstaPregled;
+        }
+        else if(response.vrstaPregleda){
+            this.vrstaPregled = response.vrstaPregleda;
         }
         if(response.molimTraziSe){
             this.molimTraziSe = response.molimTraziSe;

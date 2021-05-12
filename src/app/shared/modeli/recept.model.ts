@@ -2,10 +2,10 @@ import { Time } from "@angular/common";
 
 export class Recept{
     //Definiram propertye ove klase
-    public mkbSifraPrimarna: string;
-    public proizvod: string;
-    public dostatnost: string;
-    public datumRecept: Date;
+    public mkbSifraPrimarna?: string;
+    public proizvod?: string;
+    public dostatnost?: string;
+    public datumRecept?: Date;
     public nazivPrimarna?: string;
     public mkbSifraSekundarna?: string;
     public idRecept?: number;

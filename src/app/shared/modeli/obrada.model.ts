@@ -1,12 +1,13 @@
 import { Time } from "@angular/common";
 
 export class Obrada {
-    public tip: string;
     public idObrada: number;
     public idPacijent: number;
     public datumDodavanja: Date;
     public vrijemeDodavanja: Time;
     public statusObrada: string;
+    public tip?: string;
+
     constructor(response: any){
         if(response.tip){
             this.tip = response.tip;

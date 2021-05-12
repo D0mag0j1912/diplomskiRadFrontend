@@ -2,11 +2,11 @@ import { Time } from "@angular/common";
 
 export class InicijalneDijagnoze {
     public nazivPrimarna: string;
-    public nazivSekundarna: string;
     public datum: Date;
     public idObradaLijecnik: number;
     public tipSlucaj: string;
     public vrijeme: Time;
+    public nazivSekundarna?: string;
 
     constructor(response: any){
         if(response.NazivPrimarna){

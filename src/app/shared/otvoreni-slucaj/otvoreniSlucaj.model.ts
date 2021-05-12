@@ -4,7 +4,7 @@ export class OtvoreniSlucaj {
     public datumPregled: Date;
     public vrijemePregled: Time;
     public tipSlucaj: string;
-    public nazivPrimarna: string;
+    public nazivPrimarna?: string;
     public mkbSifraPrimarna?: string;
     public mkbSifraSekundarna?: string;
     public nazivSekundarna?: string;
