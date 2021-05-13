@@ -1,6 +1,5 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import {baseUrl} from '../../backend-path';
 import {handleError} from '../../shared/rxjs-error';
@@ -9,10 +8,6 @@ import {handleError} from '../../shared/rxjs-error';
     providedIn: 'root'
 })
 export class SekundarniHeaderService{
-
-    //Kreiram Subject koji će obavjestiti "PreglediComponent" da je kliknut button "Pregledi"
-    kliknutHeader = new Subject<boolean>();
-    kliknutHeaderObs = this.kliknutHeader.asObservable();
 
     constructor(private http: HttpClient){}
 

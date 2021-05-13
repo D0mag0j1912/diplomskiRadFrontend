@@ -272,8 +272,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             if(this.isAktivan){
                 //Ako pacijent IMA evidentiranih pregleda
                 if(this.imaLiPregleda){
-                    //Emitiram vrijednost Subjectom da je kliknut "Pregledi"
-                    this.sekundarniHeaderService.kliknutHeader.next(true);
                     //Preusmjeravam se na detail stranicu sa ID-em za najnoviji pregled
                     this.router.navigate(['/lijecnik/obrada/pregledi',this.idPregled]);
                 }
@@ -293,8 +291,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             if(this.isAktivan){
                 //Ako pacijent IMA evidentiranih pregleda
                 if(this.imaLiPregleda){
-                    //Emitiram vrijednost Subjectom da je kliknut "Pregledi"
-                    this.sekundarniHeaderService.kliknutHeader.next(true);
                     //Preusmjeravam se na detail stranicu sa ID-em za najnoviji pregled
                     this.router.navigate(['/med-sestra/obrada/pregledi',this.idPregled]);
                 }

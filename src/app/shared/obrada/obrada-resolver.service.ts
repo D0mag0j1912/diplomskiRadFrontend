@@ -25,22 +25,20 @@ export class ObradaResolverService implements Resolve<any>{
         return this.loginService.user.pipe(
             take(1),
             switchMap(user => {
-                console.log(user);
                 //Ako je tip korisnika "lijecnik":
                 if(user.tip === "lijecnik"){
                     //Vraćam samo podatke trenutno aktivnog pacijenta
                     return forkJoin([
                         this.obradaService.getPatientProcessing(user.tip),
                         this.obradaService.getSljedeciPacijent(user.tip),
-                        this.obradaService.getVrijemeNarudzbe(user.tip),
-                        of(user.tip)
+                        this.obradaService.getVrijemeNarudzbe(user.tip)
                     ]).pipe(
                         map(result => {
                             return {
                                 obrada: result[0],
                                 sljedeciPacijent: result[1],
                                 vrijemeNarudzbe: result[2],
-                                tip: result[3]
+                                tip: user.tip
                             };
                         })
                     );
