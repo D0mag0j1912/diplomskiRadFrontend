@@ -91,6 +91,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
         this.route.data.pipe(
             map(podatci => podatci.pacijent),
             tap(podatci => {
+                console.log(podatci);
                 //Ako korisnički objekt nije null
                 if(podatci.tip != null){
                     if(podatci.tip === "lijecnik"){
@@ -115,6 +116,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                         //ID obrade spremam u Local Storage
                         localStorage.setItem("idObrada",JSON.stringify(this.trenutnoAktivniPacijent.idObrada));
                         this.pacijent = new Pacijent(podatci.obrada[0]);
+                        console.log(this.pacijent);
                         //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
                         this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
                     }
@@ -348,12 +350,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
     //Metoda koja se pokreće kada korisnik klikne "Dodaj u čekaonicu" u prozoru pretrage pacijenta
     onSljedeciPacijent(){
         //Pretplaćujem se na odgovor servera ima li sljedećeg pacijenta koji ima status "Čeka na pregled"
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.obradaService.getSljedeciPacijent(user.tip);
-            })
-        ).subscribe(
+        this.obradaService.getSljedeciPacijent(this.isLijecnik ? 'lijecnik' : 'sestra').subscribe(
             //Dohvaćam pacijenta ili poruku da nema pacijenta
             (odgovor) => {
                 //Ako ima SLJEDEĆEG pacijenta koji čeka na pregled
@@ -379,16 +376,13 @@ export class ObradaComponent implements OnInit, OnDestroy {
         //U Local Storage stavljam novu vrijednost ID-a obrade
         localStorage.setItem("idObrada",JSON.stringify(null));
         //Dohvaćam tip prijavljenog korisnika te tu informaciju predavam metodama
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return combineLatest([
-                    this.obradaService.editPatientStatus(this.trenutnoAktivniPacijent.idObrada,user.tip,this.trenutnoAktivniPacijent.idPacijent),
-                    this.obradaService.getPatientProcessing(user.tip)
-                ]);
-            })
-        //Pretplaćivam se na odgovore servera
-        ).subscribe(
+        const combined = combineLatest([
+            this.obradaService.editPatientStatus(
+                this.trenutnoAktivniPacijent.idObrada,
+                this.isLijecnik ? 'lijecnik' : 'sestra',
+                this.trenutnoAktivniPacijent.idPacijent),
+            this.obradaService.getPatientProcessing(this.isLijecnik ? 'lijecnik' : 'sestra')
+        ]).subscribe(
             () => {
                 //Označavam da pacijent više nije aktivan
                 this.isAktivan = false;

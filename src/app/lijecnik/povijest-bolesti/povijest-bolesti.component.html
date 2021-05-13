@@ -177,7 +177,10 @@
                                     type="button"
                                     class="btn btn-info"
                                     (click)="onAddDiagnosis()"
-                                    [disabled]="sekundarnaDijagnoza.errors?.duplikat || forma.errors?.primarnaJeIstaKaoSekundarna || !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button>
+                                    [disabled]="sekundarnaDijagnoza.errors?.duplikat ||
+                                                forma.errors?.primarnaJeIstaKaoSekundarna ||
+                                                !primarnaDijagnoza.value ||
+                                                !isAktivan">Dodaj sekunardnu dijagnozu</button>
                             </div>
                             </td>
                         </tr>

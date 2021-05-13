@@ -25,6 +25,7 @@ export class ObradaResolverService implements Resolve<any>{
         return this.loginService.user.pipe(
             take(1),
             switchMap(user => {
+                console.log(user);
                 //Ako je tip korisnika "lijecnik":
                 if(user.tip === "lijecnik"){
                     //Vraćam samo podatke trenutno aktivnog pacijenta

@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
-import {switchMap, take, takeUntil, tap} from 'rxjs/operators';
+import {switchMap, take,takeUntil,tap} from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from './cekaonica.model';
 import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
@@ -65,6 +65,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     tip: string;
     //Kreiram instancu komponente "BrisanjePacijentaAlertComponent"
     private brisanjeComponent: BrisanjePacijentaAlertComponent;
+
     //Dohvaćam child komponentu "BrisanjePacijentaAlertComponent" kada se ova komponenta prikaže tj. ngif=true
     @ViewChild('brisanjeComponent',{static: false}) set brisanjeKomponenta(komponenta: BrisanjePacijentaAlertComponent){
         //Ovo se samo prikazuje ako se otvori prozor za brisanje pacijenta iz čekaonice
@@ -162,7 +163,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                 //Spremam tip prijavljenog korisnika
                 this.tipKorisnik = user.tip;
                 return this.route.data;
-            })
+            }),
+            takeUntil(this.pretplateSubject)
         ).subscribe(
             //Dohvaćam odgovor tj. pacijente iz čekaonice
             (odgovor)=>{
@@ -328,12 +330,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
         });
 
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti određenog statusa
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.cekaonicaService.getPatientByStatus(user.tip,this.selectedStatusValues);
-            })
-        ).subscribe(
+        this.cekaonicaService.getPatientByStatus(this.isLijecnik ? 'lijecnik' : 'sestra',this.selectedStatusValues).subscribe(
             //Dohvaćam odgovor servera (pacijente)
             (odgovor) => {
               //Praznim polje pacijenata
@@ -479,12 +476,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     onAzurirajStanje(){
 
         //Pretplaćujem se na Observable u kojemu se nalaze novi pacijenti čekaonice
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.cekaonicaService.getPatientsWaitingRoom(user.tip);
-            })
-        ).subscribe(
+        this.cekaonicaService.getPatientsWaitingRoom(this.isLijecnik ? 'lijecnik' : 'sestra').subscribe(
             //Uzimam pacijente
             (odgovor) => {
                 //Označavam da čekaonica više nije prazna
@@ -523,12 +515,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     prikazi10zadnjih(){
 
         //Pretplaćujem se na Observable u kojemu se nalaze pacijenti
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.cekaonicaService.getTenLast(user.tip);
-            })
-        ).subscribe(
+        this.cekaonicaService.getTenLast(this.isLijecnik ? 'lijecnik' : 'sestra').subscribe(
             //Uzimam odgovor
             (odgovor) => {
                 //Praznim polje pacijenata
