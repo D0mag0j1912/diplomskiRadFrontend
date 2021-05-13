@@ -27,6 +27,8 @@ import { ZdravstveniPodatci } from 'src/app/shared/modeli/zdravstveniPodatci.mod
 })
 export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
+    //Oznaka je li forma submit
+    isSubmitted: boolean = false;
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
     //Oznaka je li gumb za poništavanje povezanog slučaja aktivan
@@ -162,9 +164,11 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   'ozljeda': new FormControl(null),
                   'sifUredOzljeda': new FormControl(null),
                   'poduzece': new FormControl(null),
-                  'kategorijaOsiguranja': new FormControl(null),
+                  'kategorijaOsiguranja': new FormControl(null, this.isAktivan ?
+                        [Validators.required, OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)] : []),
                   'oznakaOsiguranika': new FormControl(null),
-                  'drzavaOsiguranja': new FormControl(null),
+                  'drzavaOsiguranja': new FormControl(null, this.isAktivan ?
+                        [Validators.required, OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)] : []),
                   //Ako je pacijent aktivan u obradi, POSTAVLJAM MU VALIDATOR NA MBO, inače NE POSTAVLJAM
                   'mbrPacijent': new FormControl(null,
                       this.isAktivan ?
@@ -188,7 +192,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
-
+        this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
         //AKO JE PACIJENT AKTIVAN
         if(this.isAktivan){
             //Inicijalno onemogućavam unos nekih polja u formi
@@ -198,7 +202,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.forma.get('ozljeda').disable({emitEvent: false});
             this.forma.get('poduzece').disable({emitEvent: false});
             this.forma.get('oznakaOsiguranika').disable({emitEvent: false});
-            this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
 
             //Prolazim poljem zdravstvenih podataka
             for(let podatci of this.zdravstveniPodatci){
@@ -513,10 +516,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 //Onemogućavam unos područnog ureda ozljede na radu te naziva poduzeća
                 this.ozljeda.disable({emitEvent: false});
                 this.poduzece.disable({emitEvent: false});
-                //Kategorija osiguranja mora biti unesena
-                this.kategorijaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)]);
-                //Država osiguranja mora biti unesena
-                this.drzavaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)]);
             }
             //Ako je trenutna vrijednost načina plaćanja "ozljeda"
             else if(value === 'ozljeda'){
@@ -536,16 +535,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 //Onemogućavam unos područnog ureda i poduzeća
                 this.podrucniUred.disable({emitEvent: false});
                 this.poduzece.disable({emitEvent: false});
-                //Kategorija osiguranja mora biti unesena
-                this.kategorijaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)]);
-                //Država osiguranja mora biti unesena
-                this.drzavaOsiguranja.setValidators([Validators.required, OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)]);
             }
             else if(value === 'poduzece'){
-                //Odbaci validatore
-                this.kategorijaOsiguranja.clearValidators();
-                //Odbaci validatore
-                this.drzavaOsiguranja.clearValidators();
                 //Odbaci validatore
                 this.podrucniUred.clearValidators();
                 //Odbaci validatore
@@ -565,10 +556,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 this.ozljeda.disable({emitEvent: false});
             }
             else if(value === 'osobno'){
-                //Odbaci validatore
-                this.kategorijaOsiguranja.clearValidators();
-                //Odbaci validatore
-                this.drzavaOsiguranja.clearValidators();
                 //Odbaci validatore
                 this.podrucniUred.clearValidators();
                 //Odbaci validatore
@@ -593,8 +580,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             this.sifUred.updateValueAndValidity({emitEvent: false});
             this.ozljeda.updateValueAndValidity({emitEvent: false});
             this.sifUredOzljeda.updateValueAndValidity({emitEvent: false});
-            this.kategorijaOsiguranja.updateValueAndValidity({emitEvent: false});
-            this.drzavaOsiguranja.updateValueAndValidity({emitEvent: false});
         }
     }
 
@@ -635,7 +620,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Kada korisnik klikne "Potvrdi opće podatke"
     onSubmit(){
-
+        this.isSubmitted = true;
         //Ako forma nije ispravna
         if(!this.forma.valid){
           return;

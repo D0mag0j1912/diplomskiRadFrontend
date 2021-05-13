@@ -120,7 +120,7 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                 'spol': new FormControl(this.isPodatciAktivni ? this.pacijent.spol: null,this.isPodatciAktivni ? [Validators.required] : []),
                 'pbr': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.mjesta)] : []),
                 'mjesto': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null, this.isPodatciAktivni ? [Handler.isValidMjesto(this.mjesta)] : []),
-                'mobitel': new FormControl(this.isPodatciAktivni ? this.pacijent.mobitel: null, this.isPodatciAktivni ? [Validators.pattern(/^(\+\d{1,3}[- ]?)?\d{10}$/)] : []),
+                'mobitel': new FormControl(this.isPodatciAktivni ? this.pacijent.mobitel: null, this.isPodatciAktivni ? [Validators.pattern(/^[0-9\s\+]*$/)] : []),
                 'bracnoStanje': new FormControl(this.isPodatciAktivni ? this.pacijent.bracnoStanje: null, this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.bracnaStanja) : null),
                 'radniStatus': new FormControl(this.isPodatciAktivni ? this.pacijent.radniStatus: null,this.isPodatciAktivni ? Handler.isValidRadniStatus(this.radniStatusi) : null),
                 'status': new FormControl(this.isPodatciAktivni ? this.pacijent.status: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.statusiPacijenta)] : null)

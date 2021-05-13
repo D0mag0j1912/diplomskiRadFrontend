@@ -134,6 +134,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
                     alertBox.style.height = "10vw";
                     alertBox.style.width = "30vw";
                     alertBox.style.left = "35vw";
+                    //Dižem overflow-y
+                    alertBox.style.overflowY = "hidden";
                     //U svoju varijablu spremam poruku backenda da pacijent nije aktivan
                     this.porukaAktivan = response["message"];
                     //Kreiram Observable od te poruke tako da ga switchMapom vratim ako nema aktivnog pacijenta

@@ -23,7 +23,7 @@
                             </td>
                             <td>
                                 <select class="form-control" style="width:200px;height:35px;margin-left:-250px;" formControlName="podrucniUred">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite područni ured</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite područni ured</option>
                                     <option *ngFor="let ured of podrucniUredi" value="{{ured.nazivSluzbe}}">{{ured.nazivSluzbe}}</option>
                                 </select>
                                 <input
@@ -31,10 +31,11 @@
                                     formControlName="sifUred"
                                     class="form-control"
                                     style="width:50px;margin-top:-35px;margin-left:-40px;">
-                                <span class="help-block" *ngIf="(podrucniUred.touched || podrucniUred.dirty) && !podrucniUred.valid">
-                                    <span *ngIf="podrucniUred.errors['required']" style="margin-left:-250px;">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="podrucniUred.errors['uredIsForbidden'] && !podrucniUred.errors['required']" style="margin-left:-250px;">Ova vrijednost nije dozvoljena!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(podrucniUred.touched || podrucniUred.dirty) && !podrucniUred.valid">
+                                    <mat-error *ngIf="podrucniUred.errors['required']" style="margin-left:-250px;">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="podrucniUred.errors['uredIsForbidden'] && !podrucniUred.errors['required']" style="margin-left:-250px;">Ova vrijednost nije dozvoljena!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="2"></td>
                         </tr>
@@ -48,7 +49,7 @@
                             </td>
                             <td>
                                 <select class="form-control" style="width:200px;height:35px;margin-left:-250px;" formControlName="ozljeda">
-                                    <option  value="" [disabled]="true" [ngValue]="null">Odaberite područni ured</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite područni ured</option>
                                     <option *ngFor="let ured of podrucniUredi" value="{{ured.nazivSluzbe}}">{{ured.nazivSluzbe}}</option>
                                 </select>
                                 <input
@@ -56,10 +57,11 @@
                                     formControlName="sifUredOzljeda"
                                     class="form-control"
                                     style="width:50px;margin-top:-35px;margin-left:-40px;">
-                                <span class="help-block" *ngIf="(ozljeda.touched || ozljeda.dirty) && !ozljeda.valid">
-                                    <span *ngIf="ozljeda.errors['required']" style="margin-left:-250px;">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="ozljeda.errors['uredIsForbidden'] && !ozljeda.errors['required']" style="margin-left:-250px;">Ova vrijednost nije dozvoljena!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(ozljeda.touched || ozljeda.dirty) && !ozljeda.valid">
+                                    <mat-error *ngIf="ozljeda.errors['required']" style="margin-left:-250px;">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="ozljeda.errors['uredIsForbidden'] && !ozljeda.errors['required']" style="margin-left:-250px;">Ova vrijednost nije dozvoljena!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="2"></td>
                         </tr>
@@ -78,9 +80,10 @@
                                     class="form-control"
                                     style="width:200px;margin-left:-250px;"
                                     formControlName="poduzece">
-                                <span class="help-block" *ngIf="(poduzece.touched || poduzece.dirty) && !poduzece.valid">
-                                    <span *ngIf="poduzece.errors?.required" style="margin-left:-250px;">Ovo polje je obavezno za unos!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(poduzece.touched || poduzece.dirty) && !poduzece.valid">
+                                    <mat-error *ngIf="poduzece.errors?.required" style="margin-left:-250px;">Ovo polje je obvezno za unos!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="2"></td>
                         </tr>
@@ -91,11 +94,15 @@
                                     type="radio"
                                     value="osobno"
                                     formControlName="nacinPlacanja">Osobno
+                                <mat-error
+                                    *ngIf="isSubmitted"
+                                    style="display:block;">
+                                    <mat-error
+                                        *ngIf="nacinPlacanja.errors?.required">Unos načina plaćanja je obvezan!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="3"></td>
                         </tr>
-                        <!-- Input mora prvo bit dodirnut jer ako nije, ispisiva mi poruku inicijalno!-->
-                        <span class="help-block" *ngIf="!forma.get('nacinPlacanja').valid && forma.get('nacinPlacanja').touched">Unos načina plaćanja je obavezan!</span>
                         <tr>
                             <td>
                                 <label
@@ -104,7 +111,7 @@
                             </td>
                             <td>
                                 <select class="form-control" style="width:250px;height:38px" formControlName="kategorijaOsiguranja">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite kategoriju osiguranja</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite kategoriju osiguranja</option>
                                     <option *ngFor="let kategorija of katOsiguranja" value="{{kategorija.opisOsiguranika}}">{{kategorija.opisOsiguranika}}</option>
                                 </select>
                                 <input
@@ -112,10 +119,11 @@
                                     formControlName="oznakaOsiguranika"
                                     class="form-control"
                                     style="width:50px;margin-left:255px;margin-top:-38px;height:38px;">
-                                <span class="help-block" *ngIf="(kategorijaOsiguranja.touched || kategorijaOsiguranja.dirty) && !kategorijaOsiguranja.valid">
-                                    <span *ngIf="kategorijaOsiguranja.errors['required']">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="kategorijaOsiguranja.errors['opisIsForbidden'] && !kategorijaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(kategorijaOsiguranja.touched || kategorijaOsiguranja.dirty) && !kategorijaOsiguranja.valid">
+                                    <mat-error *ngIf="kategorijaOsiguranja.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="kategorijaOsiguranja.errors['opisIsForbidden'] && !kategorijaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="3"></td>
                         </tr>
@@ -127,13 +135,13 @@
                             </td>
                             <td>
                                 <select class="form-control" style="width:250px;height:35px" formControlName="drzavaOsiguranja">
-                                    <option value="" [disabled]="true" [ngValue]="null">Odaberite državu osiguranja</option>
+                                    <option [disabled]="true" [ngValue]="null">Odaberite državu osiguranja</option>
                                     <option *ngFor="let drzava of drzave" value="{{drzava.nazivDrzave}}">{{drzava.nazivDrzave}}</option>
                                 </select>
-                                <span class="help-block" *ngIf="(drzavaOsiguranja.touched || drzavaOsiguranja.dirty) && !drzavaOsiguranja.valid">
-                                    <span *ngIf="drzavaOsiguranja.errors['required']">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="drzavaOsiguranja.errors['drzaveIsForbidden'] && !drzavaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</span>
-                                </span>
+                                <mat-error *ngIf="(drzavaOsiguranja.touched || drzavaOsiguranja.dirty) && !drzavaOsiguranja.valid">
+                                    <mat-error *ngIf="drzavaOsiguranja.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="drzavaOsiguranja.errors['drzaveIsForbidden'] && !drzavaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="3"></td>
                         </tr>
@@ -150,11 +158,11 @@
                                     class="form-control"
                                     placeholder="Unesite matični broj pacijenta.."
                                     style="width:250px;">
-                                <span class="help-block" *ngIf="(mbrPacijent.touched || mbrPacijent.dirty) && !mbrPacijent.valid">
-                                    <span *ngIf="mbrPacijent.errors['pattern']">Morate unijeti ispravan format MBO-a!</span>
-                                    <span *ngIf="mbrPacijent.errors['required']">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="mbrPacijent.errors?.nePostojiMBO && !mbrPacijent.errors['pattern'] && !mbrPacijent.errors['required']">Nesipravan MBO!</span>
-                                </span>
+                                <mat-error *ngIf="(mbrPacijent.touched || mbrPacijent.dirty) && !mbrPacijent.valid">
+                                    <mat-error *ngIf="mbrPacijent.errors['pattern']">Morate unijeti ispravan format MBO-a!</mat-error>
+                                    <mat-error *ngIf="mbrPacijent.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="mbrPacijent.errors?.nePostojiMBO && !mbrPacijent.errors['pattern'] && !mbrPacijent.errors['required']">Nesipravan MBO!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="3"></td>
                         </tr>
@@ -177,11 +185,11 @@
                                     class="form-control"
                                     placeholder="Unesite broj iskaznice dopunskog osiguranja.."
                                     style="width:250px;">
-                                <span class="help-block" *ngIf="(brIskDopunsko.touched || brIskDopunsko.dirty) && !brIskDopunsko.valid">
-                                    <span *ngIf="brIskDopunsko.errors?.required">Morate unijeti broj iskaznice dopunskog osiguranja!</span>
-                                    <span *ngIf="brIskDopunsko.errors?.pattern">Morate unijeti ispravan format broja iskaznice dopunskog osiguranja!</span>
-                                    <span *ngIf="brIskDopunsko.errors?.nePostojiBrojDopunsko && !brIskDopunsko.errors?.required && !brIskDopunsko.errors?.pattern">Neispravan broj iskaznice dopunskog osiguranja!</span>
-                                </span>
+                                <mat-error *ngIf="(brIskDopunsko.touched || brIskDopunsko.dirty) && !brIskDopunsko.valid">
+                                    <mat-error *ngIf="brIskDopunsko.errors?.required">Morate unijeti broj iskaznice dopunskog osiguranja!</mat-error>
+                                    <mat-error *ngIf="brIskDopunsko.errors?.pattern">Morate unijeti ispravan format broja iskaznice dopunskog osiguranja!</mat-error>
+                                    <mat-error *ngIf="brIskDopunsko.errors?.nePostojiBrojDopunsko && !brIskDopunsko.errors?.required && !brIskDopunsko.errors?.pattern">Neispravan broj iskaznice dopunskog osiguranja!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="3"></td>
                         </tr>
@@ -199,11 +207,10 @@
                                     <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
-                                <span
-                                    class="help-block"
+                                <mat-error
                                     *ngIf="primarnaDijagnoza.value">
-                                    <span *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza">Neispravan unos primarne dijagnoze!</span>
-                                  </span>
+                                    <mat-error *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza">Neispravan unos primarne dijagnoze!</mat-error>
+                                </mat-error>
                             </td>
                             <td>
                                 <input
@@ -212,12 +219,11 @@
                                     style="width:100px;height:35px"
                                     formControlName="mkbPrimarnaDijagnoza"
                                     placeholder="MKB šifra">
-                                <span
-                                    class="help-block"
+                                <mat-error
                                     *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)"
                                     style="font-family: Verdana, sans-serif;font-weight: bold;">
-                                    <span *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB">Neispravan unos MKB šifre!</span>
-                                </span>
+                                    <mat-error *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB">Neispravan unos MKB šifre!</mat-error>
+                                </mat-error>
                             </td>
                             <td colspan="2"></td>
                         </tr>
@@ -235,37 +241,31 @@
                                             <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
                                             <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                         </select>
-                                        <span
-                                            class="help-block"
-                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                            <span
-                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obavezna za unos!</span>
-                                            <span
+                                        <mat-error
+                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid">
+                                            <mat-error
+                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obavezna za unos!</mat-error>
+                                            <mat-error
                                                 *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB"
-                                                style="display: block;">Neispravan unos MKB šifre!</span>
-                                            <span
+                                                style="display: block;">Neispravan unos MKB šifre!</mat-error>
+                                            <mat-error
                                                 *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna"
-                                                style="display: block;">Naziv sekundarne dijagnoze je obavezan za unos!</span>
-                                        </span>
-                                        <span
-                                            class="help-block"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;"
+                                                style="display: block;">Naziv sekundarne dijagnoze je obavezan za unos!</mat-error>
+                                        </mat-error>
+                                        <mat-error
                                             *ngIf="!sekundarnaDijagnoza.valid">
                                             <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
-                                            <span
+                                            <mat-error
                                                 *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza"
-                                                style="display: block;">Duplikati nisu dozvoljeni!</span>
-                                        </span>
-                                        <span
-                                            class="help-block"
+                                                style="display: block;">Duplikati nisu dozvoljeni!</mat-error>
+                                        </mat-error>
+                                        <mat-error
                                             *ngIf="((dijagnozaCtrl.touched || dijagnozaCtrl.dirty) ||
                                             (primarnaDijagnoza.touched || primarnaDijagnoza.dirty) ||
-                                            (mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty)) && !forma.valid"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                            <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza"
-                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
-                                        </span>
+                                            (mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty)) && !forma.valid">
+                                            <mat-error *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza"
+                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</mat-error>
+                                        </mat-error>
                                     </td>
                                     <td>
                                         <input
@@ -291,7 +291,10 @@
                                     type="button"
                                     class="btn btn-info"
                                     (click)="onAddDiagnosis()"
-                                    [disabled]="sekundarnaDijagnoza.errors?.duplikat || forma.errors?.primarnaJeIstaKaoSekundarna || !primarnaDijagnoza.value">Dodaj sekunardnu dijagnozu</button></td>
+                                    [disabled]="sekundarnaDijagnoza.errors?.duplikat ||
+                                            forma.errors?.primarnaJeIstaKaoSekundarna ||
+                                            !primarnaDijagnoza.value ||
+                                            !isAktivan">Dodaj sekunardnu dijagnozu</button></td>
                             <td colspan="3"></td>
                         </tr>
                         <tr formGroupName="tipSlucaj">
@@ -305,6 +308,12 @@
                                     for="noviSlucaj"
                                     style="margin-left:2px;font-family: Verdana, sans-serif"
                                     *ngIf="!ponistiPovezaniSlucaj">Novi slučaj</label>
+                                <mat-error
+                                    *ngIf="isSubmitted"
+                                    style="display:block;">
+                                    <mat-error
+                                        *ngIf="tipSlucaj.errors?.baremJedanTipSlucaj">Morate odabrati barem jedan tip slučaja!</mat-error>
+                                </mat-error>
                                 <input
                                     type="checkbox"
                                     formControlName="povezanSlucaj"
@@ -332,16 +341,8 @@
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                                    [disabled]="!forma.valid"
                                     style="margin:auto;display:block;">Potvrdi opće podatke</button>
                             </td>
-                            <!-- <td colspan="3">
-                                <h4
-                                    style="color:#006600;
-                                    font-family: Verdana, sans-serif;
-                                    font-weight: bold;white-space: nowrap;"
-                                    *ngIf="forma.valid && isAktivan">Podatci su spremni za unos!</h4>
-                            </td> -->
                         </tr>
                     </tbody>
                 </table>

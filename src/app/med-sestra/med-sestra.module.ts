@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { AngularMaterialModule } from '../angular-material.module';
 import { SharedModule } from '../shared/shared.module';
 import { MedSestraRoutingModule } from './med-sestra-routing.module';
 import { MedSestraComponent } from './med-sestra.component';
@@ -19,7 +20,8 @@ import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podat
         RouterModule,
         SharedModule,
         MedSestraRoutingModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        AngularMaterialModule
     ],
     exports: [
         MedSestraComponent,

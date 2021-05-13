@@ -32,6 +32,12 @@
                                     formControlName="mobitel"
                                     style="width:300px;"
                                     placeholder="Unesite broj mobitela (+385...)">
+                                <span
+                                    class="help-block"
+                                    *ngIf="(mobitel.touched || mobitel.dirty) && !mobitel.valid">
+                                    <span
+                                        *ngIf="mobitel.errors?.pattern">Neispravan format broja mobitela!</span>
+                                </span>
                             </td>
                         </tr>
                         <tr>
