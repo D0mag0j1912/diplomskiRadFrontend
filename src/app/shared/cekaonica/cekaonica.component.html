@@ -11,11 +11,6 @@
             *ngIf="isPretraga && !response"
             (close)="onCloseTablica()"
             (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
-        <app-brisanje-pacijenta-alert
-            *ngIf="isBrisanje"
-            (close)="onCloseBrisanje()"
-            (brisanje)="onBrisanje()"
-            #brisanjeComponent></app-brisanje-pacijenta-alert>
         <app-detalji-pregleda
             *ngIf="isDetaljiPregleda"
             (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>
@@ -120,8 +115,15 @@
                                         type="button"
                                         class="btn btn-danger btn-sm"
                                         [disabled]="tipKorisnik !== pacijent.tipKorisnik"
-                                        (click)="onGetTableData(pacijent.idCekaonica,i,pacijent.imePacijent,pacijent.prezPacijent,
-                                                pacijent.datumDodavanja,pacijent.vrijemeDodavanja,pacijent.status,pacijent.tipKorisnik)"
+                                        (click)="onGetTableData(
+                                                    pacijent.idCekaonica,
+                                                    i,
+                                                    pacijent.imePacijent,
+                                                    pacijent.prezPacijent,
+                                                    pacijent.datumDodavanja,
+                                                    pacijent.vrijemeDodavanja,
+                                                    pacijent.status,
+                                                    pacijent.tipKorisnik)"
                                         >Izbriši iz čekaonice</button>
                         </tr>
                     </tbody>

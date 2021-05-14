@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { forkJoin, merge, of, Subject, Subscription } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
+import { DialogComponent } from '../dialog/dialog.component';
 import { Uputnica } from '../modeli/uputnica.model';
 import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { ObradaService } from '../obrada/obrada.service';
@@ -72,7 +74,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         //Dohvaćam shared servis
         private sharedService: SharedService,
         //Dohvaćam servis uzoraka
-        private uzorciService: UzorciService
+        private uzorciService: UzorciService,
+        //Dohvaćam dialog servis
+        private dialog: MatDialog
     ) { }
 
     ngOnInit() {
@@ -382,10 +386,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
         }
         //Ako NEMA evidentiranih izdanih uputnica gdje NIJE poslan uzorak
         else{
-            //Otvori alert
-            this.isAlert = true;
-            //Spremam poruku za njega
-            this.alertPoruka = 'Nema evidentiranih uputnica!';
+            //Otvori dialog sa porukom
+            this.dialog.open(DialogComponent, {data: {message: 'Aktivni pacijent nema laboratorijskih uputnica!'}});
         }
     }
     //Metoda koja zatvara prozor uzoraka

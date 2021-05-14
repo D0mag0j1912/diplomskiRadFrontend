@@ -4,9 +4,35 @@
     <p>{{data.message}}</p>
 </div>
 <div
+    mat-dialog-title
+    *ngIf="data.brisanje">
+    <p>{{data.brisanje.title}}</p>
+</div>
+<div
+    mat-dialog-content
+    *ngIf="data.brisanje">
+    <p class="mat-body-1">Ime i prezime:
+        <strong>{{data.brisanje.ime + ' ' + data.brisanje.prezime}}</strong>
+    </p>
+    <p class="mat-body-1">Datum dodavanja:
+        <strong>{{data.brisanje.datumDodavanja}}</strong>
+    </p>
+    <p class="mat-body-1">Vrijeme dodavanja:
+        <strong>{{data.brisanje.vrijemeDodavanja}}</strong>
+    </p>
+    <p class="mat-body-1">Status čekaonice:
+        <strong>{{data.brisanje.statusCekaonica}}</strong>
+    </p>
+</div>
+<div
     mat-dialog-actions>
     <button
         mat-raised-button
-        mat-dialog-close
-        type="button">Close</button>
+        [mat-dialog-close]="false"
+        type="button">Izađi</button>
+    <button
+        mat-raised-button
+        [mat-dialog-close]="true"
+        type="button"
+        *ngIf="data.brisanje">Obriši</button>
 </div>

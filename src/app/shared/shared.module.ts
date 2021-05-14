@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AlertComponent } from './alert/alert.component';
-import { BrisanjePacijentaAlertComponent } from './brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
 import { PretragaPacijentComponent } from './pretraga-pacijent/pretraga-pacijent.component';
 import { CekaonicaComponent } from './cekaonica/cekaonica.component';
 import { DetaljiPregledaComponent } from './cekaonica/detalji-pregleda/detalji-pregleda.component';
@@ -18,7 +17,6 @@ import { DialogComponent } from './dialog/dialog.component';
 @NgModule({
     declarations: [
         AlertComponent,
-        BrisanjePacijentaAlertComponent,
         PretragaPacijentComponent,
         CekaonicaComponent,
         DetaljiPregledaComponent,
@@ -38,7 +36,6 @@ import { DialogComponent } from './dialog/dialog.component';
     ],
     exports: [
         AlertComponent,
-        BrisanjePacijentaAlertComponent,
         PretragaPacijentComponent,
         CekaonicaComponent,
         DetaljiPregledaComponent,

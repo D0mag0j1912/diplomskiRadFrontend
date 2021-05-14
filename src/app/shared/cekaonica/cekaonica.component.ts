@@ -1,14 +1,15 @@
 import { Time } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import {switchMap, take,takeUntil,tap} from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from './cekaonica.model';
-import { BrisanjePacijentaAlertComponent } from '../brisanje-pacijenta-alert/brisanje-pacijenta-alert.component';
 import { ObradaService } from '../obrada/obrada.service';
 import { CekaonicaService } from './cekaonica.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'app-cekaonica',
@@ -52,76 +53,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     isMedSestra: boolean = false;
     //Oznaka koji je tip korisnika prijavljen da ga mogu usporediti sa tipom korisnika iz retka
     tipKorisnik: string = null;
-
+    //Spremam broj retka
     brojRetka: number;
-    //Spremam podatke izbrisanog retka čekaonice
-    idCekaonica: number;
-    index: number;
-    imePacijent: string;
-    prezPacijent: string;
-    datumDodavanja: Date;
-    vrijemeDodavanja: Time;
-    statusCekaonica: string;
-    tip: string;
-    //Kreiram instancu komponente "BrisanjePacijentaAlertComponent"
-    private brisanjeComponent: BrisanjePacijentaAlertComponent;
 
-    //Dohvaćam child komponentu "BrisanjePacijentaAlertComponent" kada se ova komponenta prikaže tj. ngif=true
-    @ViewChild('brisanjeComponent',{static: false}) set brisanjeKomponenta(komponenta: BrisanjePacijentaAlertComponent){
-        //Ovo se samo prikazuje ako se otvori prozor za brisanje pacijenta iz čekaonice
-        if(komponenta && this.isBrisanje){
-            this.brisanjeComponent = komponenta;
-            //Dohvaćam div u toj komponenti (class = "alert-box")
-            const div = this.brisanjeComponent.alertbox.nativeElement;
-            //Postavljam širinu
-            div.style.width = "30vw";
-            //Postavljam lijevu marginu
-            div.style.left = "35vw";
-            //Postavljam border-radius
-            div.style.borderRadius = '7px';
-            //Kreiram poruku koja će se prikazati korisniku
-            const newP = document.createElement("h5");
-            newP.innerHTML = `Jeste li sigurni da želite izbrisati pacijenta:`;
-            newP.style.fontFamily = 'Verdana, sans-serif';
-            div.insertBefore(newP,div.children[1]);
-            const imePrezime = document.createElement("h5");
-            imePrezime.innerHTML = "Ime i prezime: ";
-            imePrezime.style.fontFamily = 'Verdana, sans-serif';
-            const boldImePrezime = document.createElement("b");
-            boldImePrezime.innerHTML = this.imePacijent + " " + this.prezPacijent;
-            boldImePrezime.style.fontWeight = "bold";
-            boldImePrezime.style.fontFamily = 'Verdana, sans-serif';
-            imePrezime.append(boldImePrezime);
-            div.insertBefore(imePrezime,div.children[2]);
-            const datumDodavanjaH = document.createElement("h5");
-            datumDodavanjaH.innerHTML = "Datum dodavanja: ";
-            datumDodavanjaH.style.fontFamily = 'Verdana, sans-serif';
-            const boldDatumDodavanja = document.createElement("b");
-            boldDatumDodavanja.innerHTML = this.datumDodavanja.toString();
-            boldDatumDodavanja.style.fontWeight = "bold";
-            boldDatumDodavanja.style.fontFamily = 'Verdana, sans-serif';
-            datumDodavanjaH.append(boldDatumDodavanja);
-            div.insertBefore(datumDodavanjaH,div.children[3]);
-            const vrijemeDodavanjaH = document.createElement("h5");
-            vrijemeDodavanjaH.innerHTML = "Vrijeme dodavanja: ";
-            vrijemeDodavanjaH.style.fontFamily = 'Verdana, sans-serif';
-            const boldVrijemeDodavanja = document.createElement("b");
-            boldVrijemeDodavanja.innerHTML = this.vrijemeDodavanja.toString();
-            boldVrijemeDodavanja.style.fontWeight = "bold";
-            boldVrijemeDodavanja.style.fontFamily = 'Verdana, sans-serif';
-            vrijemeDodavanjaH.append(boldVrijemeDodavanja);
-            div.insertBefore(vrijemeDodavanjaH,div.children[4]);
-            const statusCekaonicaH = document.createElement("h5");
-            statusCekaonicaH.innerHTML = "Status čekaonice: ";
-            statusCekaonicaH.style.fontFamily = 'Verdana, sans-serif';
-            const boldStatusCekaonica = document.createElement("b");
-            boldStatusCekaonica.innerHTML = this.statusCekaonica;
-            boldStatusCekaonica.style.fontWeight = "bold";
-            boldStatusCekaonica.style.fontFamily = 'Verdana, sans-serif';
-            statusCekaonicaH.append(boldStatusCekaonica);
-            div.insertBefore(statusCekaonicaH,div.children[5]);
-        }
-    }
     constructor(
       //Dohvaćam trenutni url
       private route: ActivatedRoute,
@@ -134,7 +68,9 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       //Dohvaćam router
       private router: Router,
       //Dohvaćam login servis
-      private loginService: LoginService
+      private loginService: LoginService,
+      //Dohvaćam servis dialoga
+      private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -179,7 +115,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                         //Nadodavam ih u polje
                         this.pacijenti.push(cekaonica);
                     }
-                    console.log(this.pacijenti);
                     //Kreiram privremenu varijablu u kojoj ću spremiti odgovornu osobu
                     let pom: string;
                     //Inicijaliziram brojač na 0 na početku
@@ -288,23 +223,38 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja prikuplja sve podatke iz izbrisanog retka čekaonice da bi ih proslijedila uvodnom prozoru brisanja
-    onGetTableData(idCekaonica: number,index: number,imePacijent: string, prezPacijent: string,datum: Date,vrijeme: Time,status: string,tip: string){
-        this.idCekaonica = idCekaonica;
-        this.index = index;
-        this.imePacijent = imePacijent;
-        this.prezPacijent = prezPacijent;
-        this.datumDodavanja = datum;
-        this.vrijemeDodavanja = vrijeme;
-        this.statusCekaonica = status;
-        this.tip = tip;
-        //Prvo otvaram prozor za brisanje u kojemu liječnik potvrđuje brisanje ili odustaje
-        this.isBrisanje = true;
-    }
-
-    //Metoda koja se pokreće kada korisnik klikne "Obriši" u prozoru brisanja
-    onBrisanje(){
-        //Pokreni postupak brisanja
-        this.onDeleteCekaonica(this.tip,this.idCekaonica,this.index);
+    onGetTableData(
+        idCekaonica: number,
+        index: number,
+        imePacijent: string,
+        prezPacijent: string,
+        datum: Date,
+        vrijeme: Time,
+        status: string,
+        tip: string){
+        //Otvaram dialog
+        let dialogRef = this.dialog.open(DialogComponent,
+            {data: {
+                brisanje: {
+                    title: 'Jeste li sigurni da želite izbrisati pacijenta?',
+                    ime: imePacijent,
+                    prezime: prezPacijent,
+                    datumDodavanja: datum,
+                    vrijemeDodavanja: vrijeme,
+                    statusCekaonica: status
+                }
+            }}
+        );
+        //Pretplaćujem se na korisničku akciju u dialogu
+        dialogRef.afterClosed().pipe(
+            tap(result => {
+                //Ako je korisnik odabrao "Obriši"
+                if(result){
+                    this.onDeleteCekaonica(tip, idCekaonica, index);
+                }
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Metoda koja kreira polje koje se sastoji do form controlova statusa čekaonice
