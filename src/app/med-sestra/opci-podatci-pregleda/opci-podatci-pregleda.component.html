@@ -1,10 +1,18 @@
 <div class="row">
     <div class="col-xs-12 col-md-10 col-md-offset-1">
         <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
+        <app-alert
+            *ngIf="response"
+            [message]="responsePoruka"
+            (close)="onClose()"></app-alert>
         <!--Prikaziva se prozor sa otvorenim slučajevima-->
         <app-otvoreni-slucaj
-            *ngIf="otvoren" (close)="onCloseCase()" (podatciRetka)="onPoveziOtvoreniSlucaj($event)"></app-otvoreni-slucaj>
+            *ngIf="otvoren"
+            (close)="onCloseCase()"
+            (podatciRetka)="onPoveziOtvoreniSlucaj($event)"
+            [otvoreniSlucaji]="otvoreniSlucaji"
+            [sekDijagnoze]="sekDijagnoze"
+            [idAktivniPacijent]="idPacijent"></app-otvoreni-slucaj>
         <form (ngSubmit)="onSubmit()" [formGroup]="forma">
             <div class="table-responsive-sm">
                 <table class="table table-striped">
@@ -98,7 +106,7 @@
                                     *ngIf="isSubmitted"
                                     style="display:block;">
                                     <mat-error
-                                        *ngIf="nacinPlacanja.errors?.required">Unos načina plaćanja je obvezan!</mat-error>
+                                        *ngIf="nacinPlacanja.errors?.required">Unos načina plaćanja je obvezan za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td colspan="3"></td>
@@ -250,7 +258,7 @@
                                                 style="display: block;">Neispravan unos MKB šifre!</mat-error>
                                             <mat-error
                                                 *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna"
-                                                style="display: block;">Naziv sekundarne dijagnoze je obavezan za unos!</mat-error>
+                                                style="display: block;">Naziv sekundarne dijagnoze je obvezan za unos!</mat-error>
                                         </mat-error>
                                         <mat-error
                                             *ngIf="!sekundarnaDijagnoza.valid">

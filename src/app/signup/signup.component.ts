@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 import { ZdravstveniRadnik } from '../shared/modeli/zdravstveniRadnik.model';
@@ -26,8 +26,12 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     //Kreiram instancu servisa
     constructor(
-      private signupService: SignupService,
-      private route: ActivatedRoute
+        //Dohvaćam signup servis
+        private signupService: SignupService,
+        //Dohvaćam trenutni route
+        private route: ActivatedRoute,
+        //Dohvaćam router
+        private router: Router
     ) {}
 
     //Kada se komponenta loada, poziva se ova metoda
@@ -58,7 +62,9 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     //Kada ova komponenta čuje event od Alert komponente, vraća response varijablu na false i gasi se prozor
     onClose(){
-      this.response = false;
+        this.response = false;
+        //Preusmjeravam se na login stranicu
+        this.router.navigate(['/login']);
     }
 
     //Kada se klikne button "Registriraj se":

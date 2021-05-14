@@ -11,7 +11,7 @@ import { ZdravstveniPodatciComponent } from './zdravstveni-podatci/zdravstveni-p
 import { PreglediComponent } from './pregledi/pregledi.component';
 import { PreglediListComponent } from './pregledi/pregledi-list/pregledi-list.component';
 import { PreglediDetailComponent } from './pregledi/pregledi-detail/pregledi-detail.component';
-import { AngularMaterialModule } from 'src/app/angular-material.module';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
     declarations: [
@@ -30,7 +30,7 @@ import { AngularMaterialModule } from 'src/app/angular-material.module';
         SharedModule,
         ReactiveFormsModule,
         ObradaRoutingModule,
-        AngularMaterialModule
+        MatFormFieldModule
     ],
     exports: [
         OsnovniPodatciComponent,

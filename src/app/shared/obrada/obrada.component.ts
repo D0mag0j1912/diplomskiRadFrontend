@@ -91,7 +91,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
         this.route.data.pipe(
             map(podatci => podatci.pacijent),
             tap(podatci => {
-                console.log(podatci);
                 //Ako korisnički objekt nije null
                 if(podatci.tip != null){
                     if(podatci.tip === "lijecnik"){
@@ -116,7 +115,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
                         //ID obrade spremam u Local Storage
                         localStorage.setItem("idObrada",JSON.stringify(this.trenutnoAktivniPacijent.idObrada));
                         this.pacijent = new Pacijent(podatci.obrada[0]);
-                        console.log(this.pacijent);
                         //Spremam ID trenutno aktivnog pacijenta kojega dobivam iz metode obrade
                         this.idTrenutnoAktivniPacijent = this.trenutnoAktivniPacijent.idPacijent;
                     }

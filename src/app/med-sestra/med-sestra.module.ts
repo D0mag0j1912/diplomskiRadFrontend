@@ -8,11 +8,16 @@ import { MedSestraRoutingModule } from './med-sestra-routing.module';
 import { MedSestraComponent } from './med-sestra.component';
 import { NarucivanjeComponent } from './narucivanje/narucivanje.component';
 import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podatci-pregleda.component';
+import {NarudzbaComponent} from './narudzba/narudzba.component';
+import { OtvoreniSlucajComponent } from './otvoreni-slucaj/otvoreni-slucaj.component';
+
 @NgModule({
     declarations: [
         MedSestraComponent,
         NarucivanjeComponent,
-        OpciPodatciPregledaComponent
+        NarudzbaComponent,
+        OpciPodatciPregledaComponent,
+        OtvoreniSlucajComponent
     ],
     imports: [
         CommonModule,
@@ -26,7 +31,9 @@ import { OpciPodatciPregledaComponent } from './opci-podatci-pregleda/opci-podat
     exports: [
         MedSestraComponent,
         NarucivanjeComponent,
-        OpciPodatciPregledaComponent
+        NarudzbaComponent,
+        OpciPodatciPregledaComponent,
+        OtvoreniSlucajComponent
     ]
 })
 export class MedSestraModule{

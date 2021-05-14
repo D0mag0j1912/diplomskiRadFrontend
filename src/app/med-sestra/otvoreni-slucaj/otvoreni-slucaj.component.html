@@ -3,7 +3,7 @@
     <h3 style="text-align: center;color: #337ab7;font-weight: bold;">Otvoreni slučajevi</h3>
     <div class="row">
         <div class="col-xs-12 col-md-6 col-md-offset-4" id="promjenaKlase">
-            <form [formGroup]="forma" *ngIf="forma && isDijagnoza">
+            <form [formGroup]="forma" *ngIf="forma">
                 <div class="form-group">
                     <input
                         type="text"
@@ -19,8 +19,7 @@
             </form>
         </div>
     </div>
-    <!--AKO JE PACIJENT AKTIVAN U OBRADI-->
-    <div class="table-responsive-sm" *ngIf="(isAktivan && isDijagnoza && !porukaDijagnozaPretraga)">
+    <div class="table-responsive-sm" *ngIf="!porukaDijagnozaPretraga">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -72,13 +71,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-    <!--AKO PACIJENT NIJE AKTIVAN U OBRADI-->
-    <div *ngIf="!isAktivan">
-        <h3 style="text-align: center;color:#a94442;">{{porukaAktivan}}</h3>
-    </div>
-    <div *ngIf="!isDijagnoza">
-        <h3 style="text-align: center;color:#a94442;">{{porukaDijagnoza}}</h3>
     </div>
     <div class="alert-box-actions">
         <button class="btn btn-primary" (click)="onClose()">Izađi</button>

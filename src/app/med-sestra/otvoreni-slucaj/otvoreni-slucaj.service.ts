@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import {handleError} from '../rxjs-error';
+import {handleError} from '../../shared/rxjs-error';
 import {baseUrl} from '../../backend-path';
 import { Time } from '@angular/common';
 
@@ -22,7 +22,7 @@ export class OtvoreniSlucajService{
         let params = new HttpParams().append("id",id.toString());
         return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getOtvoreniSlucaj.php', {params: params}).pipe(
             catchError(handleError)
-        ); 
+        );
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze svi podatci SEKUNDARNIH DIJAGNOZA trenutno aktivnog pacijenta
@@ -31,7 +31,7 @@ export class OtvoreniSlucajService{
         let params = new HttpParams().append("id",id.toString());
         return this.http.get<any>(baseUrl + 'otvoreniSlucajevi/getSekundarneDijagnoze.php', {params: params}).pipe(
             catchError(handleError)
-        ); 
+        );
     }
 
     //Metoda koja vraća Observable u kojemu se nalaze podatci vezani za povezan slučaj

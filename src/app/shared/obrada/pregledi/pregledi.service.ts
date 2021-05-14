@@ -1,4 +1,3 @@
-import { Time } from "@angular/common";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
@@ -12,9 +11,9 @@ import {handleError} from '../../rxjs-error';
 export class PreglediService {
     //Kreiram Subject koji će obavjestiti sekundarni header da je novi pregled dodan
     pregledDodan = new Subject<{isDodan: boolean, tipKorisnik: string}>();
-    //Kreiram Observable od njega 
+    //Kreiram Observable od njega
     pregledDodanObs = this.pregledDodan.asObservable();
-    
+
     constructor(
         private http: HttpClient
     ){}

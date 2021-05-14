@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { merge, Subject } from 'rxjs';
+import { forkJoin, merge, Subject } from 'rxjs';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { DrzavaOsiguranja } from 'src/app/shared/modeli/drzavaOsiguranja.model';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { KategorijaOsiguranja } from 'src/app/shared/modeli/kategorijaOsiguranja.model';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
-import { OtvoreniSlucajService } from 'src/app/shared/otvoreni-slucaj/otvoreni-slucaj.service';
+import { OtvoreniSlucajService } from 'src/app/med-sestra/otvoreni-slucaj/otvoreni-slucaj.service';
 import { PodrucniUred } from 'src/app/shared/modeli/podrucniUred.model';
 import { MedSestraService } from '../med-sestra.service';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -19,6 +19,9 @@ import * as SharedValidations from '../../shared/shared-validations';
 import * as OpciPodatciValidations from './opci-podatci-validations';
 import * as OpciPodatciHandler from './opci-podatci-handler';
 import { ZdravstveniPodatci } from 'src/app/shared/modeli/zdravstveniPodatci.model';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { OtvoreniSlucaj } from '../otvoreni-slucaj/otvoreniSlucaj.model';
 
 @Component({
   selector: 'app-opci-podatci-pregleda',
@@ -82,20 +85,26 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     proslaBoja: string = "";
     //Spremam oznaku je li pacijent ima inicijalno dopunsko osiguranje
     isDopunskoInicijalno: boolean = false;
+    //Spremam sve podatke otvorenog slučaja osim sek. dijagnoza
+    otvoreniSlucaji: OtvoreniSlucaj[] = [];
+    //Spremam sve sek. dijagnoze otvorenog slučaja
+    sekDijagnoze: OtvoreniSlucaj[] = [];
 
     constructor(
-      //Dohvaćam route da mogu dohvatiti podatke koje je Resolver poslao
-      private route: ActivatedRoute,
-      //Dohvaćam servis medicinske sestre
-      private medSestraService: MedSestraService,
-      //Dohvaćam header servis
-      private headerService: HeaderService,
-      //Dohvaćam servis otvorenog slučaja
-      private otvoreniSlucajService: OtvoreniSlucajService,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam servis prethodnih pregleda
-      private preglediService: PreglediService
+        //Dohvaćam route da mogu dohvatiti podatke koje je Resolver poslao
+        private route: ActivatedRoute,
+        //Dohvaćam servis medicinske sestre
+        private medSestraService: MedSestraService,
+        //Dohvaćam header servis
+        private headerService: HeaderService,
+        //Dohvaćam servis otvorenog slučaja
+        private otvoreniSlucajService: OtvoreniSlucajService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam servis prethodnih pregleda
+        private preglediService: PreglediService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) {}
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -843,8 +852,52 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Kada se klikne button "Otvoreni slučaj"
     onOpenCase(){
-        //Otvori prozor sa otvorenim slučajevima
-        this.otvoren = true;
+        //Ako je pacijent AKTIVAN
+        if(this.isAktivan){
+            //Pretplaćivam se na evidentirane dijagnoze trenutno aktivnog pacijenta
+            const combined = forkJoin([
+                this.otvoreniSlucajService.getOtvoreniSlucaj(this.idPacijent),
+                this.otvoreniSlucajService.getSekundarneDijagnoze(this.idPacijent)
+            ]).pipe(
+                tap(podatci => {
+                    //Ako pacijent IMA aktivnih dijagnoza
+                    if(podatci[0].success !== "false"){
+                        //Resetiram polje otvorenih slučajeva
+                        this.otvoreniSlucaji = [];
+                        //Resetiram polje sek. dijagnoza
+                        this.sekDijagnoze = [];
+                        //Definiram objekt tipa "OtvoreniSlucaj"
+                        let objektOtvoreniSlucaj;
+                        //Prolazim odgovorom servera
+                        for(const slucaj of podatci[0]){
+                          //Za svaki objekt u odgovoru servera, kreiram svoj objekt tipa "OtvoreniSlucaj"
+                          objektOtvoreniSlucaj = new OtvoreniSlucaj(slucaj);
+                          //Dodavam novostvoreni objekt u svoje polje otvorenih slučaja
+                          this.otvoreniSlucaji.push(objektOtvoreniSlucaj);
+                        }
+                        //Definiram objekt tipa "OtvoreniSlucaj"
+                        let objektSekDijagnoza;
+                        //Prolazim kroz odgovor servera tj. sek dijagnoze sa servera
+                        for(const dijagnoza of podatci[1]){
+                            //Za svaki objekt u odgovoru servera, kreiram svoj objekt tipa "OtvoreniSlucaj"
+                            objektSekDijagnoza = new OtvoreniSlucaj(dijagnoza);
+                            //Dodavam novostvoreni objekt u svoje polje otvorenih slučaja
+                            this.sekDijagnoze.push(objektSekDijagnoza);
+                        }
+                        //Otvaram prozor otvorenih slučajeva
+                        this.otvoren = true;
+                    }
+                    //Ako pacijent NEMA aktivnih dijagnoza
+                    else{
+                        this.dialog.open(DialogComponent, {data: {message: 'Aktivni pacijent nema evidentiranih dijagnoza!'}});
+                    }
+                })
+            ).subscribe();
+        }
+        //Ako pacijent NIJE AKTIVAN
+        else{
+            this.dialog.open(DialogComponent, {data: {message: 'Pacijent nije aktivan!'}});
+        }
     }
 
     //Kada se klikne button "Izađi"

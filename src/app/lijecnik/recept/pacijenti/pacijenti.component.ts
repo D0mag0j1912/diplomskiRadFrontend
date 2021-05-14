@@ -222,7 +222,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     }
                     //Ako se ID pacijenta kojemu je klinut redak NE NALAZI u polju ID-ova (tj. NIJE mu još dodana povijest bolesti)
                     else{
-                        console.log("tu sam");
                         //Šaljem child komponenti ovaj ID pacijenta
                         this.idPacijent = +id;
                         //Otvaram prozor povijesti bolesti

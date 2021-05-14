@@ -2,8 +2,7 @@ import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { LoginService } from 'src/app/login/login.service';
+import { switchMap, tap } from 'rxjs/operators';
 import { PregledList } from '../pregledList.model';
 import { PreglediListService } from './pregledi-list.service';
 
@@ -18,6 +17,8 @@ export class PreglediListComponent implements OnInit, OnDestroy{
     pretplate = new Subject<boolean>();
     //Primam pregleda za listu od roditelja
     @Input() pregledi: PregledList[];
+    //Primam tip prijavljenog korisnika od "PreglediComponent"
+    @Input() prijavljeniKorisnik: string;
     //Šaljem datum roditeljskoj komponenti da ga postavi u filter
     @Output() datum = new EventEmitter<Date>();
     //Šaljem listu pregleda nakon dodavanja novog pregleda u nju roditeljskoj komponenti
@@ -28,8 +29,6 @@ export class PreglediListComponent implements OnInit, OnDestroy{
         private router: Router,
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
-        //Dohvaćam login servis
-        private loginService: LoginService,
         //Dohvaćam servis liste pregleda
         private preglediListService: PreglediListService
     ) {}
@@ -65,8 +64,8 @@ export class PreglediListComponent implements OnInit, OnDestroy{
         this.router.navigate(['./',sljedeciPregled.toString()],{relativeTo: this.route});
     }
 
-    //Metoda koja se aktivira kada korisnik stisne button "Novi pregled"
-    idiNaPrethodniNoviPregled(prethodniNoviSlucaj: number,$event: any){
+    //Metoda koja se aktivira kada korisnik stisne button "Novi slučaj"
+    idiNaPrethodniNoviPregled(prethodniNoviSlucaj: number, $event: any){
         //Inicijaliziram da nije pronađen pregled inicijalno
         let isInArray: boolean = false;
         //Prolazim kroz sve trenutne preglede u listi pregleda
@@ -123,48 +122,43 @@ export class PreglediListComponent implements OnInit, OnDestroy{
 
     //Metoda koja vraća Observable koji vraća traženi datum
     vratiTrazeniDatum(idPregled: number){
-        return this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.preglediListService.dohvatiTrazeniPregled(user.tip,idPregled).pipe(
-                    tap(pregled => {
-                        //Inicijaliziram objekt tipa "PregledList"
-                        let objektPregled: PregledList;
-                        //Za svaki objekt u polju pregleda
-                        for(const pr of pregled){
-                            //Kreiram svoj objekt
-                            objektPregled = new PregledList(pr);
-                            //Pusham ga u svoje polje pregleda
-                            this.pregledi.push(objektPregled);
-                        }
-                    }),
-                    switchMap(() => {
-                        //Kreiram polje koje samo sadrži ID-ove pregleda koji se trenutno nalaze u listu
-                        const ids = this.pregledi.map((pregled) => {
-                            return pregled.idPregled.toString();
-                        });
-                        return this.preglediListService.provjeriIstuGrupaciju(user.tip,ids).pipe(
-                            tap(pregledi => {
-                                //Ako postoji neki pregled koji treba izbrisati
-                                if(pregledi.length !== 0){
-                                    //Prolazim kroz sve preglede koje treba izbrisati iz liste
-                                    for(const id of pregledi){
-                                        //Izbriši onaj pregled u listi pregleda koji ima ID jednak onomu kojega je backend poslao da treba izbrisati
-                                        this.pregledi.splice(this.pregledi.findIndex(pregled => pregled.idPregled === +id),1);
-                                    }
-                                    //Sortiram listu pregleda po njegovom ID-u, najveći idu prvi gore
-                                    this.pregledi.sort(function(pregled1,pregled2){
-                                        if(pregled1.idPregled > pregled2.idPregled){
-                                            return -1;
-                                        }
-                                        else if(pregled1.idPregled < pregled2.idPregled){
-                                            return 1;
-                                        }
-                                        return 0;
-                                    });
+        return this.preglediListService.dohvatiTrazeniPregled(this.prijavljeniKorisnik,idPregled).pipe(
+            tap(pregled => {
+                //Inicijaliziram objekt tipa "PregledList"
+                let objektPregled: PregledList;
+                //Za svaki objekt u polju pregleda
+                for(const pr of pregled){
+                    //Kreiram svoj objekt
+                    objektPregled = new PregledList(pr);
+                    //Pusham ga u svoje polje pregleda
+                    this.pregledi.push(objektPregled);
+                }
+            }),
+            switchMap(() => {
+                //Kreiram polje koje samo sadrži ID-ove pregleda koji se trenutno nalaze u listu
+                const ids = this.pregledi.map((pregled) => {
+                    return pregled.idPregled.toString();
+                });
+                return this.preglediListService.provjeriIstuGrupaciju(this.prijavljeniKorisnik,ids).pipe(
+                    tap(pregledi => {
+                        //Ako postoji neki pregled koji treba izbrisati
+                        if(pregledi.length !== 0){
+                            //Prolazim kroz sve preglede koje treba izbrisati iz liste
+                            for(const id of pregledi){
+                                //Izbriši onaj pregled u listi pregleda koji ima ID jednak onomu kojega je backend poslao da treba izbrisati
+                                this.pregledi.splice(this.pregledi.findIndex(pregled => pregled.idPregled === +id),1);
+                            }
+                            //Sortiram listu pregleda po njegovom ID-u, najveći idu prvi gore
+                            this.pregledi.sort(function(pregled1,pregled2){
+                                if(pregled1.idPregled > pregled2.idPregled){
+                                    return -1;
                                 }
-                            })
-                        );
+                                else if(pregled1.idPregled < pregled2.idPregled){
+                                    return 1;
+                                }
+                                return 0;
+                            });
+                        }
                     })
                 );
             })
