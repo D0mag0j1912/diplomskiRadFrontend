@@ -16,10 +16,6 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     pretplateSubject = new Subject<boolean>();
     //Oznaka je li prozor sa detaljima narudžbe otvoren
     isNarudzba: boolean = false;
-    //Označavam je li ima odgovora servera
-    response: boolean = false;
-    //Spremam odgovor servera
-    responsePoruka: string = null;
     //Kreiram svoju formu
     forma: FormGroup;
     //Spremam podatke kojima će biti popunjen prvi redak (HEAD)
@@ -214,6 +210,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
                     (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
+                //Zatvori prozor narudžbe
+                this.onCloseNarudzba();
             }
         );
     }
@@ -241,6 +239,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
                     (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
+                //Zatvori prozor narudžbe
+                this.onCloseNarudzba();
             }
         );
     }
@@ -269,6 +269,8 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
                     //Postavljam datume i nazive dana u tjednu u tablicu narudžbi
                     (<FormArray>this.formaTablica.get('datumiNaziviDana')).at(index+1).patchValue(element.NazivDana+" "+element.Datum);
                 });
+                //Zatvori prozor narudžbe
+                this.onCloseNarudzba();
             }
         );
     }
@@ -279,7 +281,13 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         //Svaki od elemenata polja stavlja u svoju varijablu
         const [ime,prezime,mbo,idNarudzba,bojaPregled] = transformiraniPodatci;
         //Vraćam objekt
-        return {ime:ime,prezime:prezime,mbo:mbo,idNarudzba:idNarudzba,bojaPregled:bojaPregled};
+        return {
+            ime:ime,
+            prezime:prezime,
+            mbo:mbo,
+            idNarudzba:idNarudzba,
+            bojaPregled:bojaPregled
+        };
     }
 
     //Dohvaća formarray TBODY unutar glavnog polja
@@ -388,12 +396,6 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
         );
     }
 
-    //Metoda se pokreće kada korisnik izađe iz prozora poruke
-    onClose(){
-        //Zatvori prozor
-        this.response = false;
-    }
-
     //Metoda koja se pokreće kada korisnik klikne "Izađi" na prozoru narudžbe
     onCloseNarudzba(){
         //Izađi iz prozora
@@ -401,11 +403,14 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     }
 
     onCellClick(idNarudzba: string,vrijeme: Time,danUTjednu: string){
-        console.log(idNarudzba);
         let datum = this.datum.value;
-        console.log(datum);
         //Dohvaćam BehaviourSubject iz servisa i punim ga potrebnim podatcima da ih mogu proslijediti PROZORU NARUDŽBE
-        this.narucivanjeService.podatciNarudzbe.next({idNarudzba,vrijeme,danUTjednu,datum});
+        this.narucivanjeService.podatciNarudzbe.next({
+            idNarudzba,
+            vrijeme,
+            danUTjednu,
+            datum
+        });
         //Otvaram prozor detalja narudžbe
         this.isNarudzba = true;
     }

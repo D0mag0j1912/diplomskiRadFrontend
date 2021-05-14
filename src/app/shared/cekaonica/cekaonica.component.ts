@@ -26,12 +26,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     selectedStatusValues = [];
     //Oznaka jesu li detalji pregleda aktivirani
     isDetaljiPregleda: boolean = false;
-    //Oznaka je li brisanje aktivirano
-    isBrisanje: boolean = false;
-    //Oznaka ima li odgovora servera
-    response: boolean = false;
-    //Spremam odgovor servera
-    responsePoruka: string = null;
     //Oznaka je li korisnik pretražuje ili ne
     isPretraga: boolean = false;
     //Kreiram svoju formu
@@ -170,8 +164,6 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                     //U pomoćnu varijablu stavljam odgovorne osobe
                     pom = pacijent.odgovornaOsoba;
                   }
-                  //Zatvaram prozor za brisanje
-                  this.isBrisanje = false;
             }),
             switchMap(() => {
                 return this.cekaonicaService.checkCountCekaonica().pipe(
@@ -325,23 +317,16 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada korisnik klikne button "Dodaj u obradu"
     onDodajObrada(id: number){
-        let tipKorisnik;
-        //Ako je prijavljen liječnik:
-        if(this.isLijecnik){
-            tipKorisnik = "lijecnik";
-        }
-        //Ako je prijavljena medicinska sestra
-        else{
-            tipKorisnik = "sestra";
-        }
         //Pretplaćujem se na rezultate da ih dohvatim
-        this.obradaService.addPatientToProcessing(tipKorisnik,id).pipe(
+        this.obradaService.addPatientToProcessing(
+            this.isLijecnik ? 'lijecnik' : 'sestra',
+            id)
+            .pipe(
             switchMap((response) => {
                 //Ako već postoji neki aktivan pacijent u obradi
                 if(response.message === 'Već postoji aktivan pacijent!'){
-                    //Prikaži poruku
-                    this.response = true;
-                    this.responsePoruka = response.message;
+                    //Otvori dialog
+                    this.dialog.open(DialogComponent, {data: {message: response.message}});
                     return of(null);
                 }
                 //Ako ne postoji pacijent u obradi trenutno
@@ -355,7 +340,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                         //Pođi na stranicu povijesti bolesti
                         this.router.navigate(['../obrada/povijestBolesti'], {relativeTo: this.route});
                     }
-                    return this.cekaonicaService.getPatientsWaitingRoom(tipKorisnik).pipe(
+                    return this.cekaonicaService.getPatientsWaitingRoom(this.isLijecnik ? 'lijecnik' : 'sestra').pipe(
                         tap(odgovor => {
                             //Praznim polje pacijenata
                             this.pacijenti = [];
@@ -392,7 +377,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda se pokreće kada korisnik klikne "Pretraži"
-    onSubmit(){
+    onPretragaPacijenti(){
         //Ako forma nije ispravna
         if(!this.forma.valid){
           return;
@@ -402,12 +387,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
             tap((odgovor) => {
                 //Ako je odgovor negativan, tj. nema pacijenata
                 if(odgovor["success"] == "false"){
-                  //Označavam da ima poruke servera
-                  this.response = true;
-                  //Spremam poruku servera u prozor
-                  this.responsePoruka = odgovor["message"];
-                  //Resetiram formu
-                  this.forma.reset();
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                    //Resetiram formu
+                    this.forma.reset();
                 }
                 //Ako je odgovor pozitivan, tj. ima pacijenata
                 else{
@@ -515,22 +498,10 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
       return this.poljeStatusa.controls;
     }
 
-    //Metoda se pokreće kada se zatvori prozor poruke
-    onClose(){
-      //Zatvori prozor
-      this.response = false;
-    }
-
     //Metoda se pokreće kada se zatvori prozor pretrage
     onCloseTablica(){
       //Zatvori prozor
       this.isPretraga = false;
-    }
-
-    //Metoda koja zatvara prozor brisanja
-    onCloseBrisanje(){
-        //Zatvori prozor
-        this.isBrisanje = false;
     }
 
     //Metoda koja se aktivira kada korisnik klikne "Izađi" ili negdje vanka

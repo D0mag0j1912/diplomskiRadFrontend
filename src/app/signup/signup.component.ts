@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, map, takeUntil, tap } from 'rxjs/operators';
+import { DialogComponent } from '../shared/dialog/dialog.component';
 import { ZdravstveniRadnik } from '../shared/modeli/zdravstveniRadnik.model';
 import { SignupService } from './signup.service';
 
@@ -15,10 +17,6 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Inicijalizacija boolean varijable za postojanje responsa
-    response: boolean = false;
-    //Varijabla koja pohranjuje vrijednost odgovora backenda
-    responsePoruka: string = null;
     //Kreiram formu
     forma: FormGroup;
     //Spremam sve specijalizacije
@@ -31,7 +29,9 @@ export class SignupComponent implements OnInit, OnDestroy {
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
         //Dohvaćam router
-        private router: Router
+        private router: Router,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) {}
 
     //Kada se komponenta loada, poziva se ova metoda
@@ -60,13 +60,6 @@ export class SignupComponent implements OnInit, OnDestroy {
         ).subscribe();
     }
 
-    //Kada ova komponenta čuje event od Alert komponente, vraća response varijablu na false i gasi se prozor
-    onClose(){
-        this.response = false;
-        //Preusmjeravam se na login stranicu
-        this.router.navigate(['/login']);
-    }
-
     //Kada se klikne button "Registriraj se":
     onSubmit(){
         //Još jedna provjera da vidim je li forma valjana
@@ -84,15 +77,25 @@ export class SignupComponent implements OnInit, OnDestroy {
             this.lozinka.value,
             this.ponovnoLozinka.value
         ).pipe(
-            tap((response) => {
-                //Odgovor backenda => true
-                this.response = true;
-                //Vrijednost odgovora backenda se sprema u varijablu "responsePoruka"
-                this.responsePoruka = response['message'];
+            concatMap((response) => {
+                //Ako je server vratio neuspješnu poruku
+                if(response.success === "false"){
+                    //Otvaram dialog
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: response.message}});
+                    return dialogRef.afterClosed();
+                }
                 //Ako je server vratio uspješnu poruku
                 if(response.success === "true"){
-                    //Resetiram formu
-                    this.forma.reset();
+                    //Otvaram dialog
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: response.message}});
+                    return dialogRef.afterClosed().pipe(
+                        tap(result => {
+                            if(!result){
+                                //Preusmjeravam se na login stranicu
+                                this.router.navigate(['/login']);
+                            }
+                        })
+                    );
                 }
             })
         ).subscribe();

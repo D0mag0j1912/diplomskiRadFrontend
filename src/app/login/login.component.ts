@@ -5,6 +5,8 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
 import { LoginService } from './login.service';
 import * as Validacija from './login-validations';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-login',
@@ -15,24 +17,27 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Ovdje spremam ima li odgovora servera
-    response: boolean = false;
+    //Definiram formu
     forma: FormGroup;
-    //Ovdje spremam poruku odgovora servera
-    responsePoruka: string = null;
 
     constructor(
-      private loginService: LoginService,
-      //Dohvaćam router klasu da se mogu preusmjeriti
-      private router: Router
-    )
-    {}
+        //Dohvaćam login servis
+        private loginService: LoginService,
+        //Dohvaćam router klasu da se mogu preusmjeriti
+        private router: Router,
+        //Dohvaćam dialog servis
+        private dialog: MatDialog
+    ){}
 
     //Kada se komponenta loada
     ngOnInit(){
         //Kreiram formu
         this.forma = new FormGroup({
-            'email': new FormControl(null,[Validators.required,Validators.email],[Validacija.provjeriEmail(this.loginService,this.pretplateSubject)]),
+            'email': new FormControl(null,
+                //Obični validatori
+                [Validators.required,Validators.email],
+                //Async validatori
+                [Validacija.provjeriEmail(this.loginService,this.pretplateSubject)]),
             'password': new FormControl(null)
         });
         //Inicijalno postavljam validatore za polje lozinke
@@ -79,19 +84,12 @@ export class LoginComponent implements OnInit, OnDestroy {
                     }
                 }
                 else{
-                    //Označavam da postoji negativni odgovor servera
-                    this.response = true;
-                    //Odgovor servera spremam u varijablu "responsePoruka"
-                    this.responsePoruka = response["message"];
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: response['message']}});
                 }
 
             })
         ).subscribe();
-    }
-
-    //Metoda koja zatvara prozor poruke
-    onClose(){
-      this.response = false;
     }
 
     //Ova metoda se pokreće kad se komponenta uništi

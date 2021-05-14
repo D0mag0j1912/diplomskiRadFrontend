@@ -1,8 +1,9 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { combineLatest, Subject } from 'rxjs';
-import { switchMap,take,takeUntil,tap } from 'rxjs/operators';
-import { LoginService } from 'src/app/login/login.service';
+import { concatMap, switchMap,takeUntil,tap } from 'rxjs/operators';
 import { CekaonicaService } from '../cekaonica/cekaonica.service';
+import { DialogComponent } from '../dialog/dialog.component';
 import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from '../obrada/obrada.service';
 
@@ -15,10 +16,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
 
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Oznaka je li postoji odgovor servera
-    response: boolean = false;
-    //Spremam odgovor servera
-    responsePoruka: string = null;
     //Spremam ime i prezime pacijenta
     imePacijent: string = null;
     prezimePacijent: string = null;
@@ -30,13 +27,16 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     stranica: number;
     //Kreiram polje koje će imati elemenata koliki je broj ukupnih stranica
     fakeArray: any[];
+    //Primam tip prijavljenog korisnika od "ObradaComponent"
+    @Input() prijavljeniKorisnik: string;
+
     constructor(
-      //Dohvaćam servis čekaonice
-      private cekaonicaService: CekaonicaService,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam login servis
-      private loginService: LoginService
+        //Dohvaćam servis čekaonice
+        private cekaonicaService: CekaonicaService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam dialog servis
+        private dialog: MatDialog
     ) { }
     //Kreiram event emitter koji će pokrenuti event kada se stisne "Close"
     @Output() close = new EventEmitter<any>();
@@ -47,7 +47,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit() {
-
         //Pretplaćujem se na odgovor servera
         this.obradaService.imePrezimePacijent.pipe(
             //Dohvaćam vrijednosti koje se nalaze u Subjectu
@@ -99,7 +98,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
                   }
                   //Ažuriram svoju varijablu trenutne stranice
                   this.stranica = brojTrenutneStranice;
-                  console.log(this.stranica);
                 }
             )
         ).subscribe();
@@ -108,29 +106,33 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
     //Metoda koja dodava određenog pacijenta u čekaonicu
     onDodajCekaonica(id: number){
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na dodavanje pacijenta u čekaonicu
-        this.loginService.user.pipe(
-            take(1),
-            switchMap(user => {
-                return this.cekaonicaService.addToWaitingRoom(user.tip,id);
-            })
-        ).subscribe(
-            //Uzimam odgovor
-            (odgovor) => {
-              //Označavam da ima odgovora servera
-              this.response = true;
-              //Spremam odgovor servera
-              this.responsePoruka = odgovor["message"];
-              //Pokrećem event
-              this.dodaj.emit();
-              //Pokrećem event za sljedećeg pacijenta
-              this.sljedeciPacijent.emit();
-            }
-        );
+        this.cekaonicaService.addToWaitingRoom(
+            this.prijavljeniKorisnik,
+            id)
+            .pipe(
+                concatMap(odgovor => {
+                    //Otvaram dialog
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor['message']}});
+                    return dialogRef.afterClosed().pipe(
+                        tap(result => {
+                            //Ako je korisnik kliknuo "Izađi"
+                            if(!result){
+                                //Pokrećem event
+                                this.dodaj.emit();
+                                //Pokrećem event za sljedećeg pacijenta
+                                this.sljedeciPacijent.emit();
+                                //Emitiram event prema "ObradaComponent" da ugasi ovaj prozor
+                                this.onCloseAlert();
+                            }
+                        })
+                    );
+                })
+            ).subscribe();
     }
 
     //Ova metoda se pokreće kada korisnik klikne "Izađi" ili negdje izvan prozora
     onClose(){
-      this.close.emit();
+        this.close.emit();
     }
 
     //Ova metoda se poziva kada se komponenta uništi
@@ -143,8 +145,6 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
 
     //Ova metoda zatvara prozor poruke alerta
     onCloseAlert(){
-        //Zatvori alert
-        this.response = false;
         this.close.emit();
     }
 }

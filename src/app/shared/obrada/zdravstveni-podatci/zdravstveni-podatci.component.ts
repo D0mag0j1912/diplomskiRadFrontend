@@ -15,6 +15,8 @@ import { StatusPacijent } from '../../modeli/statusPacijent.model';
 import { ObradaService } from '../obrada.service';
 import { ZdravstveniPodatciService } from './zdravstveni-podatci.service';
 import * as Handler from './zdravstveni-podatci-handler';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../../dialog/dialog.component';
 
 @Component({
     selector: 'app-zdravstveni-podatci',
@@ -27,10 +29,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
     pretplateSubject = new Subject<boolean>();
     //Oznaka jesu li podatci aktivni
     isPodatciAktivni: boolean = false;
-    //Oznaka je li ima odgovora servera
-    response: boolean = false;
-    //Spremam odgovor servera
-    responsePoruka: string = null;
     //Kreiram svoju formu
     forma: FormGroup;
     //Spremam države osiguranja
@@ -68,7 +66,9 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
       //Dohvaćam servis zdravstvenih podataka
       private zdravstveniPodatciService: ZdravstveniPodatciService,
       //Dohvaćam servis obrade
-      private obradaService: ObradaService
+      private obradaService: ObradaService,
+      //Dohvaćam servis dialoga
+      private dialog: MatDialog
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -79,7 +79,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
             tap(
               //Dohvaćam podatke
               (response: {podatci: any, zdravstveniPodatci: ZdravstveniPodatci | any}) => {
-                console.log(response);
                 let objektDrzava;
                 //Prolazim kroz odgovor servera
                 for(const drzava of response.podatci.drzave){
@@ -300,19 +299,16 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
               tap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
-                    //Označavam da ima odgovora servera
-                    this.response = true;
-                    //Spremam odgovor servera
-                    this.responsePoruka = odgovor["message"];
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: odgovor['message']}});
                 }
               )
           ).subscribe();
       }
       //Ako podatci nisu aktivni
       else{
-          //Označavam da ima odgovora servera
-          this.response = true;
-          this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
+          //Otvaram dialog
+          this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnog pacijenta u obradi!'}});
       }
   }
 
@@ -423,12 +419,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
         //Primjeni ove promjene
         this.participacijaDo.updateValueAndValidity({emitEvent:false});
     }
-  }
-
-  //Ova metoda se poziva kada korisnik ugasi prozor poruke
-  onClose(){
-    //Zatvori prozor poruke
-    this.response = false;
   }
 
   //Ova metoda se poziva kada se komponenta uništi

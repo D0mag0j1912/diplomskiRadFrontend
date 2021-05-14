@@ -4,7 +4,6 @@
         font-family: Verdana, sans-serif;
         color: #337ab7">Narudžba</h3>
     <div class="row">
-        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onCloseAlert()"></app-alert>
         <form [formGroup]="forma" *ngIf="forma">
             <div class="table-responsive-sm">
                 <table class="table table-striped">

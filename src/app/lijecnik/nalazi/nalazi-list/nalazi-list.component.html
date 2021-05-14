@@ -3,10 +3,6 @@
     *ngIf="isUzorci"
     [primljeniUzorci]="poslaniUzorci"
     [referentneVrijednosti]="referentneVrijednosti"></app-uzorci>
-<app-alert
-    [message]="porukaAlert"
-    *ngIf="response"
-    (close)="onCloseAlert()"></app-alert>
 <div
     class="row"
     *ngIf="nalazi.length > 0">

@@ -1,14 +1,8 @@
 <div class="container">
     <div class="row">
-        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert
-            *ngIf="response"
-            [message]="responsePoruka"
-            (close)="onClose()"
-            #childAlert></app-alert>
         <!--Prikaziva se prozor sa tablicom pacijenata-->
         <app-pretraga-pacijent
-            *ngIf="isPretraga && !response"
+            *ngIf="isPretraga"
             (close)="onCloseTablica()"
             (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
         <app-detalji-pregleda
@@ -22,7 +16,7 @@
                     font-family:Verdana, sans-serif;
                     color:#337ab7;">Popis pacijenata u čekaonici</h2>
             <form
-                (ngSubmit)="onSubmit()"
+                (ngSubmit)="onPretragaPacijenti()"
                 [formGroup]="forma"
                 class="form-inline">
                 <div class="form-group">

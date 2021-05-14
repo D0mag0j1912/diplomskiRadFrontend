@@ -11,6 +11,8 @@ import { StatusPacijent } from 'src/app/shared/modeli/statusPacijent.model';
 import { ObradaService } from '../obrada.service';
 import { OsnovniPodatciService } from './osnovni-podatci.service';
 import * as Handler from './osnovni-podatci-handler';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../../dialog/dialog.component';
 
 @Component({
   selector: 'app-osnovni-podatci',
@@ -26,10 +28,6 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                         "a","b","c","č","ć","d","dž","đ","e","f","g","h","i","j","k","l","lj","m","n","nj","o","p","r","s","š","t","u","v","z","ž"];
     //Oznaka jesu li osnovni podatci aktivni
     isPodatciAktivni: boolean = false;
-    //Označavam je li ima odgovora servera
-    response: boolean = false;
-    //Spremam odgovor servera
-    responsePoruka: string = null;
     //Kreiram svoju formu
     forma: FormGroup;
     //Polje za mjesta
@@ -48,12 +46,14 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
     idPacijent: number;
 
     constructor(
-      //Dohvaćam trenutni route
-      private route: ActivatedRoute,
-      //Dohvaćam servis osnovnih podataka
-      private osnovniPodatciService: OsnovniPodatciService,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService
+        //Dohvaćam trenutni route
+        private route: ActivatedRoute,
+        //Dohvaćam servis osnovnih podataka
+        private osnovniPodatciService: OsnovniPodatciService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -111,19 +111,45 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
               }
               //Kreiram svoju formu:
               this.forma = new FormGroup({
-                'ime': new FormControl(this.isPodatciAktivni ? this.pacijent.ime : null, this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
-                'prezime': new FormControl(this.isPodatciAktivni ? this.pacijent.prezime : null, this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
-                'datRod': new FormControl(this.isPodatciAktivni ? this.pacijent.datRod: null, this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
-                'adresa': new FormControl(this.isPodatciAktivni ? this.pacijent.adresa: null, this.isPodatciAktivni ? [Validators.required] : []),
-                'oib': new FormControl(this.isPodatciAktivni ? this.pacijent.oib: null, this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
-                'email': new FormControl(this.isPodatciAktivni ? this.pacijent.email: null, this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
-                'spol': new FormControl(this.isPodatciAktivni ? this.pacijent.spol: null,this.isPodatciAktivni ? [Validators.required] : []),
-                'pbr': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.mjesta)] : []),
-                'mjesto': new FormControl(this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null, this.isPodatciAktivni ? [Handler.isValidMjesto(this.mjesta)] : []),
-                'mobitel': new FormControl(this.isPodatciAktivni ? this.pacijent.mobitel: null, this.isPodatciAktivni ? [Validators.pattern(/^[0-9\s\+]*$/)] : []),
-                'bracnoStanje': new FormControl(this.isPodatciAktivni ? this.pacijent.bracnoStanje: null, this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.bracnaStanja) : null),
-                'radniStatus': new FormControl(this.isPodatciAktivni ? this.pacijent.radniStatus: null,this.isPodatciAktivni ? Handler.isValidRadniStatus(this.radniStatusi) : null),
-                'status': new FormControl(this.isPodatciAktivni ? this.pacijent.status: null, this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.statusiPacijenta)] : null)
+                'ime': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.ime : null,
+                    this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
+                'prezime': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.prezime : null,
+                    this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
+                'datRod': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.datRod: null,
+                    this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
+                'adresa': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.adresa: null,
+                    this.isPodatciAktivni ? [Validators.required] : []),
+                'oib': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.oib: null,
+                    this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
+                'email': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.email: null,
+                    this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
+                'spol': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.spol: null,
+                    this.isPodatciAktivni ? [Validators.required] : []),
+                'pbr': new FormControl(
+                    this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null,
+                    this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.mjesta)] : []),
+                'mjesto': new FormControl(
+                    this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null,
+                    this.isPodatciAktivni ? [Handler.isValidMjesto(this.mjesta)] : []),
+                'mobitel': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.mobitel: null,
+                    this.isPodatciAktivni ? [Validators.pattern(/^[0-9\s\+]*$/)] : []),
+                'bracnoStanje': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.bracnoStanje: null,
+                    this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.bracnaStanja) : null),
+                'radniStatus': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.radniStatus: null,
+                    this.isPodatciAktivni ? Handler.isValidRadniStatus(this.radniStatusi) : null),
+                'status': new FormControl(
+                    this.isPodatciAktivni ? this.pacijent.status: null,
+                    this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.statusiPacijenta)] : null)
               }, {validators: this.isPodatciAktivni ? Handler.isValidKombinacija(this.mjesta) : null});
           }),
           takeUntil(this.pretplateSubject)
@@ -138,7 +164,6 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
               this.pbr.valueChanges.pipe(
                   tap(
                       (value: number) => {
-                          console.log(value);
                           //Ako je form control ispravan
                           if(this.forma.get('pbr').valid){
                               //Pozivam metodu
@@ -210,30 +235,18 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                   tap(
                     //Dohvaćam odgovor servera
                     (odgovor) => {
-                        //Označavam da ima odgovora servera
-                        this.response = true;
-                        //Spremam odgovor servera
-                        this.responsePoruka = odgovor["message"];
+                        //Otvaram dialog
+                        this.dialog.open(DialogComponent, {data: {message: odgovor['message']}});
                     }
                   )
           ).subscribe();
         }
         //Ako podatci nisu aktivni
         else{
-            //Označavam da ima odgovora servera
-            this.response = true;
-            //Spremam odgovor servera
-            this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
+            //Otvaram dialog
+            this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnog pacijenta u obradi!'}});
         }
     }
-
-
-    //Metoda koja se pokreće kada se zatvori prozor poruke
-    onClose(){
-      //Zatvori prozor
-      this.response = false;
-    }
-
 
     //Metoda se poziva kada se komponenta uništi
     ngOnDestroy(){

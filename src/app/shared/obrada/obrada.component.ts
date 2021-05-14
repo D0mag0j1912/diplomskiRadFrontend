@@ -2,13 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { combineLatest, merge, of, Subject } from 'rxjs';
-import { map, mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { LoginService } from 'src/app/login/login.service';
+import { map, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { Pacijent } from '../modeli/pacijent.model';
 import { ObradaService } from './obrada.service';
 import * as ObradaValidations from './obrada-validations';
 import { SharedService } from '../shared.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'app-obrada',
@@ -21,10 +22,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
     pretplateSubject = new Subject<boolean>();
     //Oznaka je li postoji sljedeći pacijent koji čeka u čekaonici
     isSljedeciPacijent: boolean = false;
-    //Oznaka je li prozor poruke aktivan
-    response: boolean = false;
-    //Spremam poruku prozora
-    responsePoruka: string = null;
     //Oznaka je li prikazan prozor pretrage pacijenata
     isPretraga: boolean = false;
     //Oznaka je li ima aktivnog pacijenta
@@ -66,16 +63,18 @@ export class ObradaComponent implements OnInit, OnDestroy {
     vrijemeObradeMedSestra: string;
     //Spremam poruku da sam spremio BMI
     spremioBMI: string = null;
+    //Spremam tip prijavljenog korisnika
+    prijavljeniKorisnik: string = null;
 
     constructor(
         //Dohvaćam trenutni route da dohvatim podatke
         private route: ActivatedRoute,
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
-        //Dohvaćam login servis
-        private loginService: LoginService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -91,6 +90,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
         this.route.data.pipe(
             map(podatci => podatci.pacijent),
             tap(podatci => {
+                //Spremam tip prijavljenog korisnika
+                this.prijavljeniKorisnik = podatci.tip;
                 //Ako korisnički objekt nije null
                 if(podatci.tip != null){
                     if(podatci.tip === "lijecnik"){
@@ -357,7 +358,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
                     this.isSljedeciPacijent = true;
                     //Spremam sljedećeg pacijenta
                     this.sljedeciPacijent = odgovor[0].imePacijent + " " + odgovor[0].prezPacijent;
-                    console.log(this.sljedeciPacijent);
                 }
                 else{
                     //Spremam neuspješnu poruku
@@ -418,7 +418,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
     }
 
     //Ova metoda se pokreće kada korisnik klikne button "Pretraži"
-    onSubmit(){
+    onPretragaPacijenti(){
 
         //Ako forma nije ispravna
         if(!this.forma.valid){
@@ -429,10 +429,8 @@ export class ObradaComponent implements OnInit, OnDestroy {
             tap((odgovor) => {
                 //Ako je odgovor negativan, tj. nema pacijenata
                 if(odgovor["success"] == "false"){
-                    //Označavam da ima poruke servera
-                    this.response = true;
-                    //Spremam poruku servera u prozor
-                    this.responsePoruka = odgovor["message"];
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
                     //Resetiram formu
                     this.forma.reset();
                 }
@@ -447,12 +445,6 @@ export class ObradaComponent implements OnInit, OnDestroy {
                 }
             })
         ).subscribe();
-    }
-
-    //Kada korisnik klikne button "Izađi" na prozoru poruke ili negdje izvan njega
-    onClose(){
-      //Zatvori prozor
-      this.response = false;
     }
 
     //Kada korisnik klikne button "Izađi" na prozoru tablice pacijenata

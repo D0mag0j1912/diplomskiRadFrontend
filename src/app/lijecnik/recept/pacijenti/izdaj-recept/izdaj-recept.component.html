@@ -1,6 +1,5 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <app-alert (close)="onCloseAlert()" [message]="responsePoruka" *ngIf="response"></app-alert>
     <h3
         style="text-align: center;color:#337ab7;font-family: Verdana, sans-serif;font-weight: bold;">{{editMode ? 'Ažuriranje' : 'Unos novog'}} recepta</h3>
     <h4

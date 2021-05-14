@@ -7,6 +7,8 @@ import { NalazList } from '../nalazList.model';
 import {Uzorak} from '../../../shared/uzorci/uzorci.model';
 import { ImportService } from 'src/app/shared/import.service';
 import {ReferentnaVrijednost} from '../../../shared/uzorci/referentna-vrijednost.model';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-nalazi-list',
@@ -25,10 +27,6 @@ export class NalaziListComponent implements OnInit, OnDestroy{
     isUzorci: boolean = false;
     //Spremam sve uzorke koje je sestra unijela za uputnicu koja je povezana sa nalazom
     poslaniUzorci: Uzorak;
-    //Oznaka je li prikazan prozor alerta
-    response: boolean = false;
-    //Spremam poruku da uzorci još nisu dodani
-    porukaAlert: string = null;
     //Spremam sve ref. vrijednosti
     referentneVrijednosti: ReferentnaVrijednost[] = [];
 
@@ -38,7 +36,9 @@ export class NalaziListComponent implements OnInit, OnDestroy{
         //Dohvaćam servis uzoraka
         private uzorciService: UzorciService,
         //Dohvaćam import servis
-        private importService: ImportService
+        private importService: ImportService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -64,10 +64,8 @@ export class NalaziListComponent implements OnInit, OnDestroy{
                 }
                 //Ako NEMA uzoraka
                 else{
-                    //Otvaram prozor alerta
-                    this.response = true;
-                    //Spremam poruku
-                    this.porukaAlert = 'Uzorci još nisu poslani!';
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: 'Uzorci još nisu poslani!'}});
                 }
                 this.referentneVrijednosti = [];
                 let obj;
@@ -83,12 +81,6 @@ export class NalaziListComponent implements OnInit, OnDestroy{
     onCloseUzorci(){
         //Zatvori uzorke
         this.isUzorci = false;
-    }
-
-    //Metoda koja zatvara alert
-    onCloseAlert(){
-        //Zatvori alert
-        this.response = false;
     }
 
     //Ova metoda se poziva kada se komponenta uništi

@@ -1,11 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Subject } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, take, tap } from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
 import { LijecnikService } from '../../lijecnik/lijecnik.service';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'app-azuriranje-lozinka',
@@ -16,10 +18,6 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
 
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Oznaka je li postoji odgovor backenda
-    response: boolean = false;
-    //Varijabla u kojoj spremam odgovor backenda
-    responsePoruka: string = null;
     //Spremam ID liječnika
     idLijecnik: number;
     //Spremam ID medicinske sestre
@@ -35,7 +33,9 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
         //Dohvaćam servis medicinske sestre
         private medSestraService: MedSestraService,
         //Dohvaćam login servis
-        private loginService: LoginService
+        private loginService: LoginService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Metoda koja se pokreće kada se komponenta inicijalizira
@@ -81,10 +81,8 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
                 this.novaLozinka.value, this.ponovnoNovaLozinka.value).pipe(
                 tap(
                     (response) => {
-                        //Označavam da postoji odgovor servera
-                        this.response = true;
-                        //Spremam odgovor servera
-                        this.responsePoruka = response["message"];
+                        //Otvaram dialog
+                        this.dialog.open(DialogComponent, {data: {message: response['message']}});
                         //Resetiraj formu
                         this.forma.reset();
                     }
@@ -97,20 +95,13 @@ export class AzuriranjeLozinkaComponent implements OnInit, OnDestroy {
             this.medSestraService.editPassword(this.idMedSestra,this.trenutnaLozinka.value,
                 this.novaLozinka.value, this.ponovnoNovaLozinka.value).pipe(
                 tap(response => {
-                    //Označavam da postoji odgovor servera
-                    this.response = true;
-                    //Spremam odgovor servera
-                    this.responsePoruka = response["message"];
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: response['message']}});
                     //Resetiraj formu
                     this.forma.reset();
                 })
             ).subscribe();
         }
-    }
-    //Metoda koja se pokreće kada se zatvori prozor odgovora backenda
-    onClose(){
-      //Zatvori prozor
-      this.response = false;
     }
 
     ngOnDestroy(){

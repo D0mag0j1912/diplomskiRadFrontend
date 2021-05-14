@@ -6,6 +6,8 @@ import { NalazList } from './nalazList.model';
 import { NalaziService } from './nalazi.service';
 import { ActivatedRoute } from '@angular/router';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-nalazi',
@@ -14,10 +16,6 @@ import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 })
 export class NalaziComponent implements OnInit, OnDestroy{
 
-    //Oznaka je li otvoren prozor poruke alerta
-    response: boolean = false;
-    //Spremam poruku servera da pacijent nije aktivan
-    responsePoruka: string = null;
     //Spremam pretplatu
     pretplata = new Subject<boolean>();
     //Definiram formu
@@ -39,7 +37,9 @@ export class NalaziComponent implements OnInit, OnDestroy{
         //Dohvaćam trenutni route
         private route: ActivatedRoute,
         //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private obradaService: ObradaService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -164,20 +164,16 @@ export class NalaziComponent implements OnInit, OnDestroy{
                     }
                     //Ako NEMA nalaza za ovog aktivnog pacijenta
                     else{
-                        //Otvaram alert
-                        this.response = true;
-                        //Ovu poruku prikazujem u alertu
-                        this.responsePoruka = 'Aktivni pacijent nema primljenih nalaza!';
+                        //Otvaram dialog
+                        this.dialog.open(DialogComponent, {data: {message: 'Aktivni pacijent nema primljenih nalaza!'}});
                     }
                 })
             ).subscribe();
         }
         //Ako pacijent NIJE aktivan
         else{
-            //Otvori prozor alerta
-            this.response = true;
-            //Spremi odgovor servera
-            this.responsePoruka = 'Pacijent nije aktivan u obradi!';
+            //Otvaram dialog
+            this.dialog.open(DialogComponent, {data: {message: 'Pacijent nije aktivan u obradi!'}});
         }
     }
 
@@ -208,12 +204,6 @@ export class NalaziComponent implements OnInit, OnDestroy{
             //Označavam da se ne pretraživa po datumu
             this.isDatum = false;
         }
-    }
-
-    //Metoda koja zatvara prozor alerta
-    onCloseAlert(){
-        //Zatvori prozor
-        this.response = false;
     }
 
     //Ova metoda se pokreće kada se komponenta uništi

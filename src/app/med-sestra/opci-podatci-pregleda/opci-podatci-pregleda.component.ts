@@ -46,10 +46,6 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
     idMedSestra: number;
     //Spremam ID obrade
     idObrada: number;
-    //Oznaka je li ima odgovora servera
-    response: boolean = false;
-    //Spremam odgovor servera
-    responsePoruka: string = null;
     //Kreiram formu
     forma: FormGroup;
     //Spremam područne urede
@@ -651,17 +647,27 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 //Restartam boju prethodnog pregleda kada je novi slučaj
                 this.proslaBoja = "";
                 //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na zahtjev dodavanja općih podataka pregleda
-                this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
-                  this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
-                  this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
-                  this.mkbPrimarnaDijagnoza.value, mkbPolje,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-                  this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
+                this.medSestraService.sendVisitData(
+                    this.idMedSestra,
+                    this.idPacijent,
+                    this.nacinPlacanja.value,
+                    this.podrucniUred.value,
+                    this.ozljeda.value,
+                    this.poduzece.value,
+                    this.oznakaOsiguranika.value,
+                    this.drzavaOsiguranja.value,
+                    this.mbrPacijent.value,
+                    this.brIskDopunsko.value,
+                    this.mkbPrimarnaDijagnoza.value,
+                    mkbPolje,
+                    this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+                    this.idObrada,
+                    this.prosliPregled,
+                    this.proslaBoja).pipe(
                       //Dohvaćam odgovor servera
                       tap((response) => {
-                          //Označavam da ima odgovora servera
-                          this.response = true;
-                          //Spremam odgovor servera
-                          this.responsePoruka = response["message"];
+                          //Otvaram dialog
+                          this.dialog.open(DialogComponent, {data: {message: response.message}});
                           //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
                           const podatciProslogPregleda = {
                               idObrada: this.idObrada,
@@ -687,48 +693,51 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 let proslaIDObrada = +podatci.idObrada;
                 this.medSestraService.getIDPregled(this.mbrPacijent.value,proslaIDObrada,proslaMKBSifra).pipe(
                     switchMap((podatci) => {
-                          //Spremam podatke prošlog pregleda
-                          this.proslaBoja = podatci[0].bojaPregled;
-                          this.prosliPregled = podatci[0].idPregled;
-                          return this.medSestraService.sendVisitData(this.idMedSestra,this.idPacijent,this.nacinPlacanja.value,this.podrucniUred.value,
-                            this.ozljeda.value, this.poduzece.value, this.oznakaOsiguranika.value,
-                            this.drzavaOsiguranja.value, this.mbrPacijent.value, this.brIskDopunsko.value,
-                            this.mkbPrimarnaDijagnoza.value, mkbPolje,this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-                            this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
-                                //Dohvaćam odgovor servera
-                                tap((response) => {
-                                    //Označavam da ima odgovora servera
-                                    this.response = true;
-                                    //Spremam odgovor servera
-                                    this.responsePoruka = response["message"];
-                                    //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                                    const podatciProslogPregleda = {
-                                       idObrada: this.idObrada,
-                                       mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
-                                    };
-                                    //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                                    localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                                    //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
-                                    this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
-                                    //Resetiram formu
-                                    this.ponistiPovezaniSlucajHandler();
-                                })
-                            );
+                        //Spremam podatke prošlog pregleda
+                        this.proslaBoja = podatci[0].bojaPregled;
+                        this.prosliPregled = podatci[0].idPregled;
+                        return this.medSestraService.sendVisitData(
+                        this.idMedSestra,
+                        this.idPacijent,
+                        this.nacinPlacanja.value,
+                        this.podrucniUred.value,
+                        this.ozljeda.value,
+                        this.poduzece.value,
+                        this.oznakaOsiguranika.value,
+                        this.drzavaOsiguranja.value,
+                        this.mbrPacijent.value,
+                        this.brIskDopunsko.value,
+                        this.mkbPrimarnaDijagnoza.value,
+                        mkbPolje,
+                        this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
+                        this.idObrada,
+                        this.prosliPregled,
+                        this.proslaBoja).pipe(
+                            //Dohvaćam odgovor servera
+                            tap((response) => {
+                                //Otvaram dialog
+                                this.dialog.open(DialogComponent, {data: {message: response.message}});
+                                //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                                const podatciProslogPregleda = {
+                                    idObrada: this.idObrada,
+                                    mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                                };
+                                //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                                localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                                //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
+                                this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
+                                //Resetiram formu
+                                this.ponistiPovezaniSlucajHandler();
+                            })
+                        );
                     })
                 ).subscribe();
             }
         }
         else{
-          //Označavam da se prozor aktivira
-          this.response = true;
-          this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
+            //Otvaram dialog
+            this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnog pacijenta u obradi!'}});
         }
-    }
-
-    //Metoda koja se poziva kada se zatvori prozor poruke
-    onClose(){
-      //Zatvori prozor
-      this.response = false;
     }
 
     //Metoda koja se aktivira kada komponenta primi informaciju da se EVENT AKTIVIRAO ($event je šifra primarne dijagnoze pojedinog retka otvorenog slučaja)

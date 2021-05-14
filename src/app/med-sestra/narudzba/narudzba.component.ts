@@ -1,10 +1,12 @@
 import { Time } from '@angular/common';
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { concatMap, takeUntil, tap } from 'rxjs/operators';
 import { NarucivanjeService } from 'src/app/med-sestra/narucivanje/narucivanje.service';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 @Component({
   selector: 'app-narudzba',
   templateUrl: './narudzba.component.html',
@@ -14,10 +16,6 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
 
     //Kreiram Subject
     pretplateSubject = new Subject<boolean>();
-    //Označavam da ima odgovora servera
-    response: boolean = false;
-    //Spremam poruku servera
-    responsePoruka: string = null;
     //Oznaka je li korisnik kliknuo na praznu ćeliju ili na ćeliju s podatcima pacijenta
     isPacijent: boolean = false;
     //Kreiram event emitter za izlaz
@@ -61,7 +59,9 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
         //Dohvaćam servis naručivanja
         private narucivanjeService: NarucivanjeService,
         //Dohvaćam trenutni route
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Metoda koja se pokreće inicijalizicijom komponente
@@ -101,7 +101,6 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                     this.vrijemeNarudzba = podatci[2][0].vrijeme;
                     //Spremam datum narudžbe u svoju varijablu
                     this.datumNarudzba = podatci[0][0].datum;
-                    console.log(this.datumNarudzba);
                     //Spremam detalje naružbe u svoje polje
                     this.narudzba = podatci[1];
                     //Ako je Objekt prazan (ako nema ključeva) tj. ako je korisnik kliknuo na praznu ćeliju
@@ -176,17 +175,26 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     onAzurirajNarudzbu(){
 
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na ažuriranje narudžbe
-        this.narucivanjeService.onAzurirajNarudzbu(this.vrijeme.value,this.vrstaPregleda.value,
-            this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
-            tap(
+        this.narucivanjeService.onAzurirajNarudzbu(
+            this.vrijeme.value,
+            this.vrstaPregleda.value,
+            this.datum.value,
+            this.pacijentiForm.value,
+            this.napomena.value).pipe(
+            concatMap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
-                    //Pokrećem event
-                    this.azuriranje.emit();
-                    //Označavam da postoji odgovor servera
-                    this.response = true;
-                    //Spremam poruku servera
-                    this.responsePoruka = odgovor["message"];
+                    //Otvaram dialog
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                    return dialogRef.afterClosed().pipe(
+                        tap(result => {
+                            //Ako je sestra kliknula "Izađi"
+                            if(!result){
+                                //Pokrećem event
+                                this.azuriranje.emit();
+                            }
+                        })
+                    );
                 }
             ),
             takeUntil(this.pretplateSubject)
@@ -197,17 +205,26 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     onNaruciPacijenta(){
 
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na naručivanje pacijenta
-        this.narucivanjeService.naruciPacijenta(this.vrijeme.value,this.vrstaPregleda.value,
-                                                                    this.datum.value,this.pacijentiForm.value,this.napomena.value).pipe(
-            tap(
+        this.narucivanjeService.naruciPacijenta(
+            this.vrijeme.value,
+            this.vrstaPregleda.value,
+            this.datum.value,
+            this.pacijentiForm.value,
+            this.napomena.value).pipe(
+            concatMap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
-                    //Pokrećem event
-                    this.narucivanje.emit();
-                    //Označavam da ima odgovora servera
-                    this.response = true;
-                    //Spremam poruku servera
-                    this.responsePoruka = odgovor["message"];
+                    //Otvaram dialog
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                    return dialogRef.afterClosed().pipe(
+                        tap(result => {
+                            //Ako je sestra kliknula "Izađi"
+                            if(!result){
+                                //Pokrećem event
+                                this.narucivanje.emit();
+                            }
+                        })
+                    );
                 }
             )
         ).subscribe();
@@ -218,15 +235,20 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
 
         //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na OTKAZIVANJE narudžbe pacijenta
         this.narucivanjeService.onOtkaziNarudzbu().pipe(
-            tap(
+            concatMap(
                 //Dohvaćam odgovor servera
                 (odgovor) => {
-                    //Pokrećem event
-                    this.otkazivanje.emit();
-                    //Označavam da ima odgovora servera
-                    this.response = true;
-                    //Spremam poruku servera
-                    this.responsePoruka = odgovor["message"];
+                    //Otvaram dialog
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                    return dialogRef.afterClosed().pipe(
+                        tap(result => {
+                            //Ako je sestra kliknula "Izađi"
+                            if(!result){
+                                //Pokrećem event
+                                this.otkazivanje.emit();
+                            }
+                        })
+                    );
                 }
             ),
             takeUntil(this.pretplateSubject)
@@ -237,14 +259,6 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
     onClose(){
         //Pokreni event
         this.close.emit();
-    }
-
-    //Metoda koja zatvara prozor poruke servera
-    onCloseAlert(){
-        //Zatvori prozor
-        this.response = false;
-        //Emitiraj event da zatvori prozor narudžbe
-        this.zatvaranje.emit();
     }
 
     //Ova metoda se pokreće kada se komponenta uništi

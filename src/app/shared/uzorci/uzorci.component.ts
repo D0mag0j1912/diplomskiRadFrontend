@@ -1,8 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UzorciService } from './uzorci.service';
-import { merge, Subject} from 'rxjs';
-import { mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { merge, of, Subject} from 'rxjs';
+import { concatMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import * as UzorciValidations from './uzorci.validations';
 import { ZdravstvenaUstanova } from '../modeli/zdravstvenaUstanova.model';
 import { Uputnica } from '../modeli/uputnica.model';
@@ -10,6 +10,8 @@ import { SharedService } from '../shared.service';
 import { Uzorak } from './uzorci.model';
 import { ReferentnaVrijednost } from './referentna-vrijednost.model';
 import { ObradaService } from '../obrada/obrada.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'app-uzorci',
@@ -20,10 +22,6 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Pomoćno polje
     pom: number[] = [0,1,2,3];
-    //Spremam oznaku koja označava hoće li prozor odgovora servera biti otvoren ili ne
-    response: boolean = false;
-    //Spremam poruku servera
-    responsePoruka: string = null;
     //Spremam pretplatu
     pretplata = new Subject<boolean>();
     //Definiram formu
@@ -55,7 +53,9 @@ export class UzorciComponent implements OnInit, OnDestroy{
         //Dohvaćam shared servis
         private sharedService: SharedService,
         //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private obradaService: ObradaService,
+        //Dohvaćam dialog servis
+        private dialog: MatDialog
     ) { }
 
     //Metoda koja se poziva kada se komponenta inicijalizira
@@ -216,50 +216,61 @@ export class UzorciComponent implements OnInit, OnDestroy{
             +this.bazofilniGranulociti.value,
             +this.retikulociti.value
         ).pipe(
-            tap(odgovor => {
+            concatMap(odgovor => {
                 //Ako odgovor servera nije null
                 if(odgovor !== null){
-                    //Označavam da se otvori prozor koji prikaziva poruku servera
-                    this.response = true;
-                    //Spremam poruku servera
-                    this.responsePoruka = odgovor.message;
-                    //Emitiram event prema roditelju da je uzorak spremljen
-                    this.uzorakSpremljen.emit();
+                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                    return dialogRef.afterClosed().pipe(
+                        concatMap(result => {
+                            //Ako je korisnik kliknuo "Izađi"
+                            if(!result){
+                                return this.obradaService.getPatientProcessing('sestra').pipe(
+                                    tap((podatci) => {
+                                        //Ako je pacijent aktivan
+                                        if(podatci.success !== "false"){
+                                            //Spremam ID obrade
+                                            const idObrada: string = podatci[0].idObrada;
+                                            //Spremam ID aktivnog pacijenta
+                                            const idPacijent: number = +podatci[0].idPacijent;
+                                            //Inicijaliziram novu cijenu
+                                            const novaCijena: number = podatci[0].brojIskazniceDopunsko ? null : 20;
+                                            //Inicijaliziram tip korisnika
+                                            const tipKorisnik = 'sestra';
+                                            //Spremam zadnje dodani ID uzorka
+                                            const idUzorak: number = +odgovor.idUzorak;
+                                            //Kreiram objekt "usluge"
+                                            const usluge = {
+                                                idRecept: null,
+                                                idUputnica: null,
+                                                idBMI: null,
+                                                idUzorak: idUzorak
+                                            };
+                                            this.sharedService.postaviNovuCijenu(
+                                                idObrada,
+                                                novaCijena,
+                                                tipKorisnik,
+                                                usluge,
+                                                idPacijent
+                                            );
+                                            //Emitiram event prema roditelju da je uzorak spremljen
+                                            this.uzorakSpremljen.emit();
+                                            //Emitiram prema "SekundarniHeaderComponent" da izađem iz uzoraka nakon spremanja
+                                            this.onClose();
+                                        }
+                                    })
+                                );
+                            }
+                            //Ako nije
+                            else{
+                                return of(null);
+                            }
+                        })
+                    );
                 }
-            }),
-            mergeMap((odgovor) => {
-                console.log(odgovor);
-                return this.obradaService.getPatientProcessing('sestra').pipe(
-                    tap((podatci) => {
-                        //Ako je pacijent aktivan
-                        if(podatci.success !== "false"){
-                            //Spremam ID obrade
-                            const idObrada: string = podatci[0].idObrada;
-                            //Spremam ID aktivnog pacijenta
-                            const idPacijent: number = +podatci[0].idPacijent;
-                            //Inicijaliziram novu cijenu
-                            const novaCijena: number = podatci[0].brojIskazniceDopunsko ? null : 20;
-                            //Inicijaliziram tip korisnika
-                            const tipKorisnik = 'sestra';
-                            //Spremam zadnje dodani ID uzorka
-                            const idUzorak: number = +odgovor.idUzorak;
-                            //Kreiram objekt "usluge"
-                            const usluge = {
-                                idRecept: null,
-                                idUputnica: null,
-                                idBMI: null,
-                                idUzorak: idUzorak
-                            };
-                            this.sharedService.postaviNovuCijenu(
-                                idObrada,
-                                novaCijena,
-                                tipKorisnik,
-                                usluge,
-                                idPacijent
-                            );
-                        }
-                    })
-                );
+                //Ako je odgovor servera null (upit je fail)
+                else{
+                    return of(null);
+                }
             })
         ).subscribe();
     }
@@ -267,14 +278,6 @@ export class UzorciComponent implements OnInit, OnDestroy{
     //Metoda koja se pokreće kada korisnik želi izaći iz ovog prozora
     onClose(){
         this.close.emit();
-    }
-
-    //Metoda koja zatvara alert
-    onCloseAlert(){
-        //Zatvori alert
-        this.response = false;
-        //Emitiram event prema roditeljskoj komponenti "SekundarniHeaderComponent"
-        this.onClose();
     }
 
     get ustanova(): FormControl{

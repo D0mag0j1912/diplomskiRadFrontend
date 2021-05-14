@@ -1,7 +1,5 @@
 <div class="row">
     <div class="col-xs-12 col-md-10 col-md-offset-1">
-        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
         <!--Prikaziva se prozor sa otvorenim povijestima bolesti-->
         <app-povezani-povijest-bolesti
             *ngIf="otvorenPovijestBolesti"

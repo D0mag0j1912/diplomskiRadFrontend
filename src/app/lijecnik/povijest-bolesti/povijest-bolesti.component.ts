@@ -7,11 +7,13 @@ import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 import { PovijestBolestiService } from './povijest-bolesti.service';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../../shared/shared-handler';
 import * as SharedValidations from '../../shared/shared-validations';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-povijest-bolesti',
@@ -26,10 +28,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       ponistiPovezaniSlucaj: boolean = false;
       //Oznaka je li otvoren prozor sa povijestima bolesti
       otvorenPovijestBolesti: boolean = false;
-      //Oznaka je li ima odgovora servera
-      response: boolean = false;
-      //Spremam odgovor servera
-      responsePoruka: string = null;
       //Kreiram formu
       forma: FormGroup;
       //Spremam dijagnoze
@@ -72,7 +70,9 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
           //Dohvaćam servis povezane povijesti bolesti
           private povezaniPovijestBolestiService: PovezaniPovijestBolestiService,
           //Dohvaćam servis prethodnih pregleda
-          private preglediService: PreglediService
+          private preglediService: PreglediService,
+          //Dohvaćam servis dialoga
+          private dialog: MatDialog
       ) { }
 
       //Metoda koja se izvodi kada se komponenta inicijalizira
@@ -364,27 +364,38 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                         this.terapija.value,this.preporukaLijecnik.value,
                         this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
                         //Dohvaćam odgovor servera
-                        tap((odgovor) => {
-                            //Označavam da ima odgovora servera
-                            this.response = true;
-                            //Spremam odgovor servera
-                            this.responsePoruka = odgovor["message"];
-                            //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                            const podatciProslogPregleda = {
-                                idObrada: this.idObrada,
-                                mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
-                            };
-                            //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                            localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                            //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
-                            this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
-                            //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
-                            const isDodanPregled = {
-                                isDodan: true,
-                                tipKorisnik: "lijecnik"
-                            };
-                            //U Local Storage postavljam tu informaciju
-                            localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                        concatMap((odgovor) => {
+                            //Ako je odgovor servera pozitivan (ako je spremljena povijest bolesti)
+                            if(odgovor.success === "true"){
+                                let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                                return dialogRef.afterClosed().pipe(
+                                    tap(result => {
+                                        //Ako je korisnik kliknuo "Izađi" (to je jedina opcija)
+                                        if(!result){
+                                            //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                                            const podatciProslogPregleda = {
+                                                idObrada: this.idObrada,
+                                                mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                                            };
+                                            //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                                            localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                                            //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
+                                            this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
+                                            //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
+                                            const isDodanPregled = {
+                                                isDodan: true,
+                                                tipKorisnik: "lijecnik"
+                                            };
+                                            //U Local Storage postavljam tu informaciju
+                                            localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                                        }
+                                    })
+                                );
+                            }
+                            //Ako je server vratio error
+                            else{
+                                this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                            }
                         })
                     ).subscribe();
                 }
@@ -411,29 +422,40 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                                 this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
                                 this.terapija.value,this.preporukaLijecnik.value,
                                 this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
-                                tap(
+                                concatMap(
                                     //Dohvaćam odgovor servera
                                     (odgovor) => {
-                                    //Označavam da ima odgovora servera
-                                    this.response = true;
-                                    //Spremam odgovor servera
-                                    this.responsePoruka = odgovor["message"];
-                                    //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                                    const podatciProslogPregleda = {
-                                        idObrada: this.idObrada,
-                                        mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
-                                    };
-                                    //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                                    localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                                    //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
-                                    this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
-                                    //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
-                                    const isDodanPregled = {
-                                        isDodan: true,
-                                        tipKorisnik: "lijecnik"
-                                    };
-                                    //U Local Storage postavljam tu informaciju
-                                    localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                                        //Ako je server vratio uspješan odgovor
+                                        if(odgovor.success === "true"){
+                                            let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                                            return dialogRef.afterClosed().pipe(
+                                                tap(result => {
+                                                    //Ako je korisnik kliknuo "Izađi" (jedina opcija)
+                                                    if(!result){
+                                                        //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                                                        const podatciProslogPregleda = {
+                                                            idObrada: this.idObrada,
+                                                            mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                                                        };
+                                                        //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                                                        localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                                                        //Emitiram vrijednost Subjectom da je dodan pregled prema "SekundarniHeaderComponent"
+                                                        this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "lijecnik"});
+                                                        //Kreiram objekt u kojemu će se nalaziti informacija je li dodan novi pregled (tu informaciju treba "SekundarniHeaderComponent")
+                                                        const isDodanPregled = {
+                                                            isDodan: true,
+                                                            tipKorisnik: "lijecnik"
+                                                        };
+                                                        //U Local Storage postavljam tu informaciju
+                                                        localStorage.setItem("isDodanPregled",JSON.stringify(isDodanPregled));
+                                                    }
+                                                })
+                                            );
+                                        }
+                                        //Ako je server vratio error
+                                        else{
+                                            this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                                        }
                                 })
                             );
                         })
@@ -442,9 +464,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
             }
             //Ako pacijent nije aktivan u obradi
             else{
-                //Označavam da se prozor aktivira
-                this.response = true;
-                this.responsePoruka = "Nema aktivnog pacijenta u obradi!";
+                //Otvaram dialog
+                this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnog pacijenta u obradi!'}});
             }
         }
 
@@ -551,12 +572,6 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                     })
                 ).subscribe();
             }
-        }
-
-        //Metoda koja se izvodi kada korisnik klikne "Izađi"
-        onClose(){
-            //Zatvori prozor poruke
-            this.response = false;
         }
 
         //Metoda koja se poziva kada korisnik klikne button "Poveži povijest bolesti"

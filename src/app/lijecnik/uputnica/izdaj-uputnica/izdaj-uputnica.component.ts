@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { forkJoin, merge, of, Subject } from 'rxjs';
-import { tap, takeUntil, switchMap, take, mergeMap } from 'rxjs/operators';
+import { tap, takeUntil, switchMap, take, mergeMap, concatMap } from 'rxjs/operators';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { ImportService } from 'src/app/shared/import.service';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
@@ -17,6 +17,8 @@ import * as UputnicaHandler from './izdaj-uputnica-handler';
 import * as UputnicaValidators from './izdaj-uputnica-validators';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
 
 @Component({
   selector: 'app-izdaj-uputnica',
@@ -25,10 +27,6 @@ import { ObradaService } from 'src/app/shared/obrada/obrada.service';
 })
 export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
-    //Označavam je li otvoren prozor poruke
-    response: boolean = false;
-    //Spremam poruku servera
-    responsePoruka: string = null;
     //Spremam pretplate
     pretplate = new Subject<boolean>();
     //Šaljem event roditeljskoj komponenti
@@ -81,7 +79,9 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         //Dohvaćam shared servis
         private sharedService: SharedService,
         //Dohvaćam servis obrade
-        private obradaService: ObradaService
+        private obradaService: ObradaService,
+        //Dohvaćam dialog servis
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -669,56 +669,61 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
            this.poslanoVrijeme,
            this.idLijecnik
         ).pipe(
-            tap((odgovor) => {
-                console.log(odgovor);
-                //Označavam da se prikaže odgovor servera
-                this.response = true;
-                //Spremam poruku servera u svoju varijablu i prikazujem je
-                this.responsePoruka = odgovor.message;
+            concatMap((odgovor) => {
+                let dialogRef = this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
                 //Ako je server vratio potvrdi odgovor
                 if(odgovor.success === "true"){
-                    //Emitiram event prema roditelju da zna da je dodana nova uputnica
-                    this.uputnicaIzdana.emit();
-                }
-            }),
-            mergeMap((odgovor) => {
-                //Ako je server vratio potvrdni odgovor
-                if(odgovor.success  === "true"){
-                    //Pretplaćivam se na informaciju je li pacijent aktivan ili nije
-                    return this.obradaService.getPatientProcessing('lijecnik').pipe(
-                        tap(podatci => {
-                            //Ako pacijent NIJE AKTIVAN
-                            if(podatci.success === "false"){
-                                //Filtriram polje ID-eva pacijenata
-                                this.sharedService.filterPacijentiIDs(this.idPacijent.toString());
+                    return dialogRef.afterClosed().pipe(
+                        concatMap(result => {
+                            //Ako je korisnik kliknuo "Izađi"
+                            if(!result){
+                                //Pretplaćivam se na informaciju je li pacijent aktivan ili nije
+                                return this.obradaService.getPatientProcessing('lijecnik').pipe(
+                                    tap(podatci => {
+                                        //Ako pacijent NIJE AKTIVAN
+                                        if(podatci.success === "false"){
+                                            //Filtriram polje ID-eva pacijenata
+                                            this.sharedService.filterPacijentiIDs(this.idPacijent.toString());
+                                        }
+                                    }),
+                                    mergeMap(() => {
+                                        //Pretplaćivam se na informaciju je li pacijent kojemu izdavam uputnicu ima dopunsko osiguranje
+                                        return this.sharedService.getDopunsko(this.idPacijent).pipe(
+                                            tap(dopunsko => {
+                                                    //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
+                                                    const usluge = {
+                                                        idRecept: null,
+                                                        idUputnica: +odgovor.idUputnica,
+                                                        idBMI: null,
+                                                        idUzorak: null
+                                                    };
+                                                    //Naplaćujem izdavanje uputnice
+                                                    this.sharedService.postaviNovuCijenu(
+                                                        this.poslaniIDObrada,
+                                                        dopunsko ? null : 30,
+                                                        'lijecnik',
+                                                        usluge,
+                                                        this.idPacijent);
+                                            })
+                                        );
+                                    }),
+                                    tap(() => {
+                                        //Emitiram event prema roditelju da zna da je dodana nova uputnica
+                                        this.uputnicaIzdana.emit();
+                                        this.onCloseAlert();
+                                    })
+                                );
                             }
-                        }),
-                        mergeMap(() => {
-                            //Pretplaćivam se na informaciju je li pacijent kojemu izdavam uputnicu ima dopunsko osiguranje
-                            return this.sharedService.getDopunsko(this.idPacijent).pipe(
-                                tap(dopunsko => {
-                                        //Kreiram JS objekt koji sadrži usluge koje treba poslati zbog tablice "racun"
-                                        const usluge = {
-                                            idRecept: null,
-                                            idUputnica: +odgovor.idUputnica,
-                                            idBMI: null,
-                                            idUzorak: null
-                                        };
-                                        //Naplaćujem izdavanje uputnice
-                                        this.sharedService.postaviNovuCijenu(
-                                            this.poslaniIDObrada,
-                                            dopunsko ? null : 30,
-                                            'lijecnik',
-                                            usluge,
-                                            this.idPacijent);
-                                })
-                            );
+                            //Ako je korisnik kliknuo nešto drugo (nema toga)
+                            else{
+                                return of(null);
+                            }
                         })
                     );
                 }
-                //Ako je server vratio negativni odgovor
+                //Ako je server vratio error
                 else{
-                    return of(null);
+                    return dialogRef.afterClosed();
                 }
             })
         ).subscribe();
@@ -846,7 +851,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja će postaviti sve dijagnoze koje su postavljene u zadnjoj povijesti bolesti
     dohvatiInicijalneDijagnoze(dijagnoze: InicijalneDijagnoze[]){
-        console.log(dijagnoze);
         //Omogućavam unos sekundarne dijagnoze koja je inicijalno disable
         this.sekundarnaDijagnoza.enable({emitEvent: false});
         this.sekundarnaDijagnoza.clear();
@@ -892,8 +896,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada liječnik želi zatvoriti prozor alerta
     onCloseAlert(){
-        //Zatvori alert
-        this.response = false;
         //Emitiram vrijednost prema roditeljskoj komponenti da izađem iz ovog prozora
         this.close.emit();
     }

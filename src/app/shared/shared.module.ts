@@ -13,6 +13,7 @@ import { UzorciComponent } from './uzorci/uzorci.component';
 import { AngularMaterialModule } from '../angular-material.module';
 import { PrikaziPovijestBolestiComponent } from './prikazi-povijest-bolesti/prikazi-povijest-bolesti.component';
 import { DialogComponent } from './dialog/dialog.component';
+import { PovezaniPovijestBolestiComponent } from '../lijecnik/povezani-povijest-bolesti/povezani-povijest-bolesti.component';
 
 @NgModule({
     declarations: [
@@ -24,6 +25,7 @@ import { DialogComponent } from './dialog/dialog.component';
         AzuriranjeOsobnihPodatakaComponent,
         AzuriranjeLozinkaComponent,
         PrikaziPovijestBolestiComponent,
+        PovezaniPovijestBolestiComponent,
         IzdaneUputniceComponent,
         UzorciComponent,
         DialogComponent
@@ -45,6 +47,7 @@ import { DialogComponent } from './dialog/dialog.component';
         IzdaneUputniceComponent,
         UzorciComponent,
         PrikaziPovijestBolestiComponent,
+        PovezaniPovijestBolestiComponent,
         DialogComponent
     ],
     entryComponents: [DialogComponent]

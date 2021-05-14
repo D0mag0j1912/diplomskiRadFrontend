@@ -10,13 +10,11 @@ import { NalaziComponent } from './nalazi/nalazi.component';
 import { NalaziListComponent } from './nalazi/nalazi-list/nalazi-list.component';
 import { NalaziDetailComponent } from './nalazi/nalazi-list/nalazi-detail/nalazi-detail.component';
 import { AngularMaterialModule } from '../angular-material.module';
-import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/povezani-povijest-bolesti.component';
 
 @NgModule({
     declarations: [
         LijecnikComponent,
         PovijestBolestiComponent,
-        PovezaniPovijestBolestiComponent,
         NalaziComponent,
         NalaziListComponent,
         NalaziDetailComponent
@@ -35,8 +33,7 @@ import { PovezaniPovijestBolestiComponent } from './povezani-povijest-bolesti/po
         PovijestBolestiComponent,
         NalaziComponent,
         NalaziListComponent,
-        NalaziDetailComponent,
-        PovezaniPovijestBolestiComponent
+        NalaziDetailComponent
     ]
 })
 export class LijecnikModule{

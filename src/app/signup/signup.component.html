@@ -1,10 +1,5 @@
 <div class="row">
     <div class="col-xs-12 col-md-6 col-md-offset-3">
-        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert
-            *ngIf="response"
-            [message]="responsePoruka"
-            (close)="onClose()"></app-alert>
         <form
             (ngSubmit)="onSubmit()"
             [formGroup]="forma"

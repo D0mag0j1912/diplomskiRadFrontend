@@ -1,11 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { MedSestraService } from 'src/app/med-sestra/med-sestra.service';
 import { Korisnik } from 'src/app/shared/modeli/korisnik.model';
 import { LijecnikService } from '../../lijecnik/lijecnik.service';
+import { DialogComponent } from '../dialog/dialog.component';
 import { ZdravstveniRadnik } from '../modeli/zdravstveniRadnik.model';
 
 @Component({
@@ -21,22 +23,20 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
     pretplateSubject = new Subject<boolean>();
     //Kreiram objekt tipa Korisnik u kojemu će se nalaziti svi osobni podatci liječnika
     osobniPodatci: Korisnik;
-    //Oznaka je li postoji odgovor od backenda (za alert)
-    response: boolean = false;
-    //Poruka backenda (ako postoji response)
-    responsePoruka: string = null;
     //Definiram formu
     forma: FormGroup;
     //Spremam sve specijalizacije
     zdrRadnici: ZdravstveniRadnik[];
 
     constructor(
-      //Dohvaćam liječnički servis
-      private lijecnikService: LijecnikService,
-      //Dohvaćam servis med. sestre
-      private medSestraService: MedSestraService,
-      //Dohvaćam podatke koje su poslani tom routu preko Resolvera
-      private route: ActivatedRoute
+        //Dohvaćam liječnički servis
+        private lijecnikService: LijecnikService,
+        //Dohvaćam servis med. sestre
+        private medSestraService: MedSestraService,
+        //Dohvaćam podatke koje su poslani tom routu preko Resolvera
+        private route: ActivatedRoute,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) {}
 
     //Ova metoda se poziva kada se ova komponenta pokrene
@@ -75,15 +75,13 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
             this.lijecnikService.editPersonalData(this.osobniPodatci.idLijecnik,this.email.value,
                 this.ime.value,this.prezime.value,this.adresa.value,this.specijalizacija.value).pipe(
                 tap(
-                  (response) => {
-                      //Ako postoji odgovor
-                      if(response){
-                          //Označavam da ima odgovora servera
-                          this.response = true;
-                          //Spremam odgovor servera
-                          this.responsePoruka = response["message"];
-                      }
-                  }
+                    (response) => {
+                        //Ako postoji odgovor
+                        if(response){
+                            //Otvori dialog
+                            this.dialog.open(DialogComponent, {data: {message: response['message']}});
+                        }
+                    }
                 )
             ).subscribe();
         }
@@ -95,19 +93,12 @@ export class AzuriranjeOsobnihPodatakaComponent implements OnInit, OnDestroy {
                 tap(response => {
                     //Ako postoji odgovor
                     if(response){
-                      //Označavam da ima odgovora servera
-                      this.response = true;
-                      //Spremam odgovor servera
-                      this.responsePoruka = response["message"];
+                        //Otvori dialog
+                        this.dialog.open(DialogComponent, {data: {message: response['message']}});
                     }
                 })
             ).subscribe();
         }
-    }
-
-    //Zatvaranje prozora poruke
-    onClose(){
-        this.response = false;
     }
 
     //Ova metoda se poziva kada se komponenta uništi

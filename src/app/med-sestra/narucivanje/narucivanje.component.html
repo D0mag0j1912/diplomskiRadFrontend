@@ -1,27 +1,25 @@
 <div class="container">
     <div class="row">
-        <!--Prikaziva se prozor sa pogreškom ako ima errora-->
-        <app-alert *ngIf="response" [message]="responsePoruka" (close)="onClose()"></app-alert>
         <!--Prikaziva se prozor za kreiranje/ažuriranje/otkazivanje narudžbe-->
-        <app-narudzba  
-            *ngIf="isNarudzba" 
-            (close)="onCloseNarudzba()" 
-            (azuriranje)="onAzuriranjeNarudzba()" 
-            (narucivanje)="onNarucivanjePacijenta()" 
-            (otkazivanje)="onOtkazivanjeNarudzba()" 
+        <app-narudzba
+            *ngIf="isNarudzba"
+            (close)="onCloseNarudzba()"
+            (azuriranje)="onAzuriranjeNarudzba()"
+            (narucivanje)="onNarucivanjePacijenta()"
+            (otkazivanje)="onOtkazivanjeNarudzba()"
             (zatvaranje)="onCloseNarudzba()"></app-narudzba>
         <div class="col-xs-12 col-md-12">
             <form [formGroup]="forma">
                 <div class="form-group">
-                    <label 
-                        for="datum" 
+                    <label
+                        for="datum"
                         style="font-family: Verdana, sans-serif;margin-top:5px;">Datum</label>
                     <input
                         type="date"
-                        class="form-control" 
+                        class="form-control"
                         formControlName="datum"
                         style="width:270px;"
-                        placeholder="Unesite datum početka naručivanja..."> 
+                        placeholder="Unesite datum početka naručivanja...">
                 </div>
             </form>
             <div style="background-color:#FAEBD7;border:1px solid gray;height:35px;">
@@ -45,86 +43,86 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th 
-                                    formArrayName="datumiNaziviDana" 
+                                <th
+                                    formArrayName="datumiNaziviDana"
                                     *ngFor="let ctrl of getControlsDatumINazivDana(); let i = index">
-                                    <input 
+                                    <input
                                         type="text"
                                         [formControlName]="i"
                                         [value]="ctrl.value"
-                                        readonly 
+                                        readonly
                                         style="border: 0;text-align: center;">
                                 </th>
-                            </tr>  
+                            </tr>
                         </thead>
                         <tbody formArrayName="tbody">
                             <tr *ngFor="let ctrl of getControlsTbody();let t = index" [formGroupName]="t">
                                 <td>
-                                    <input 
+                                    <input
                                         type="text"
                                         formControlName="vrijeme"
                                         readonly
                                         style="border: 0;text-align: center;font-weight: bold;">
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.ponedjeljak.idNarudzba,ctrl.value.ponedjeljak.vrijeme,ctrl.value.ponedjeljak.danUTjednu)"
-                                    style="cursor: pointer;" 
-                                    formGroupName="ponedjeljak" 
+                                    style="cursor: pointer;"
+                                    formGroupName="ponedjeljak"
                                     [ngStyle]="{'background-color':ctrl.value.ponedjeljak.bojaPregled}">
-                                    <textarea  
+                                    <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;" 
+                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.ponedjeljak.bojaPregled}"></textarea>
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.utorak.idNarudzba,ctrl.value.utorak.vrijeme,ctrl.value.utorak.danUTjednu)"
                                     style="cursor: pointer;"
-                                    formGroupName="utorak" 
+                                    formGroupName="utorak"
                                     [ngStyle]="{'background-color':ctrl.value.utorak.bojaPregled}">
-                                    <textarea  
+                                    <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;" 
+                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.utorak.bojaPregled}"></textarea>
                                 </td>
-                                <td (click)="onCellClick(ctrl.value.srijeda.idNarudzba,ctrl.value.srijeda.vrijeme,ctrl.value.srijeda.danUTjednu)" 
+                                <td (click)="onCellClick(ctrl.value.srijeda.idNarudzba,ctrl.value.srijeda.vrijeme,ctrl.value.srijeda.danUTjednu)"
                                     style="cursor: pointer;"
-                                    formGroupName="srijeda" 
+                                    formGroupName="srijeda"
                                     [ngStyle]="{'background-color':ctrl.value.srijeda.bojaPregled}">
-                                    <textarea  
+                                    <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;" 
+                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.srijeda.bojaPregled}"></textarea>
                                 </td>
-                                <td (click)="onCellClick(ctrl.value.cetvrtak.idNarudzba,ctrl.value.cetvrtak.vrijeme,ctrl.value.cetvrtak.danUTjednu)" 
+                                <td (click)="onCellClick(ctrl.value.cetvrtak.idNarudzba,ctrl.value.cetvrtak.vrijeme,ctrl.value.cetvrtak.danUTjednu)"
                                     style="cursor: pointer;"
-                                    formGroupName="cetvrtak" 
+                                    formGroupName="cetvrtak"
                                     [ngStyle]="{'background-color':ctrl.value.cetvrtak.bojaPregled}">
-                                    <textarea  
+                                    <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;" 
+                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.cetvrtak.bojaPregled}"></textarea>
                                 </td>
-                                <td (click)="onCellClick(ctrl.value.petak.idNarudzba,ctrl.value.petak.vrijeme,ctrl.value.petak.danUTjednu)" 
-                                    style="cursor: pointer;" 
-                                    formGroupName="petak" 
+                                <td (click)="onCellClick(ctrl.value.petak.idNarudzba,ctrl.value.petak.vrijeme,ctrl.value.petak.danUTjednu)"
+                                    style="cursor: pointer;"
+                                    formGroupName="petak"
                                     [ngStyle]="{'background-color':ctrl.value.petak.bojaPregled}">
-                                    <textarea  
+                                    <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;" 
+                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.petak.bojaPregled}"></textarea>
-                                </td> 
-                            </tr> 
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
-                </form> 
+                </form>
             </div>
         </div>
     </div>

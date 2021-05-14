@@ -23,10 +23,6 @@ import { SekundarniHeaderService } from './sekundarni-header.service';
 })
 export class SekundarniHeaderComponent implements OnInit, OnDestroy {
 
-    //Oznaka je li otvoren prozor alerta ili nije
-    isAlert: boolean = false;
-    //Spremam alert poruku
-    alertPoruka: string = null;
     //Oznaka je li otvoren prozor uzoraka ili nije
     isUzorci: boolean = false;
     //Kreiram Subject
@@ -370,6 +366,7 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     }
     //Metoda koja se aktivira kada med. sestra klikne na "Pošalji uzorke"
     onPosaljiUzorke(){
+        console.log(this.zdrUstanove);
         //Ako je liječnik izdao uputnicu za trenutno aktivnog pacijenta te sestra NIJE poslala uzorak za tu uputnicu (AKO IMA zdr. ustanova)
         if(this.zdrUstanove.length > 0){
             //Pretplaćujem se na Observable koji vraća slučajno generirane uzorke
@@ -393,12 +390,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     //Metoda koja zatvara prozor uzoraka
     onCloseUzorci(){
         this.isUzorci = false;
-    }
-
-    //Metoda koja zatvara prozor alerta
-    onCloseAlert(){
-        //Zatvori alert
-        this.isAlert = false;
     }
 
     //Metoda se poziva kada se komponenta uništi
