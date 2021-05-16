@@ -10,7 +10,6 @@ import { ZdravstvenaDjelatnost } from 'src/app/shared/modeli/zdravstvenaDjelatno
 import { ZdravstvenaUstanova } from 'src/app/shared/modeli/zdravstvenaUstanova.model';
 import { ZdravstveniRadnik } from 'src/app/shared/modeli/zdravstveniRadnik.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
-import { SharedService } from 'src/app/shared/shared.service';
 import { IzdajUputnicaService } from './izdaj-uputnica/izdajuputnica.service';
 import { UputnicaService } from './uputnica.service';
 
@@ -47,6 +46,8 @@ export class UputnicaComponent implements OnInit, OnDestroy{
     uputnice: Uputnica[] = [];
     //Spremam poruku da nema dohvaćenih uputnica
     nemaUputnica: string = null;
+    //Šaljem informaciju u "PrikaziPovijestBolestiComponent" da dolazim iz uputnice
+    oznaka: string = null;
 
     constructor(
         //Dohvaćam trenutni route
@@ -57,8 +58,6 @@ export class UputnicaComponent implements OnInit, OnDestroy{
         private obradaService: ObradaService,
         //Dohvaćam import servis
         private importService: ImportService,
-        //Dohvaćam shared servis
-        private sharedService: SharedService,
         //Dohvaćam servis uputnice
         private uputnicaService: UputnicaService
     ) { }
@@ -238,8 +237,8 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                                         this.idPacijent = +idPacijent;
                                         //Otvaram prozor povijesti bolesti
                                         this.isPovijestBolesti = true;
-                                        //Emitiram informaciju Subjectom komponenti povijesti bolesti da dolazim iz uputnice
-                                        this.sharedService.receptIliUputnica.next("uputnica");
+                                        //Spremam oznaku i šaljem je
+                                        this.oznaka = 'uputnica';
                                     })
                                 );
                             }

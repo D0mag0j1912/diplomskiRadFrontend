@@ -65,7 +65,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
     poslaniIDObrada: string = "";
     poslaniTipSlucaj: string = "";
     poslanoVrijeme: string = "";
-
+    //Šaljem informaciju u "PrikaziPovijestBolestiComponent" da dolazim iz uputnice
+    oznaka: string = null;
     //Vrste pregleda
     vrstePregleda: string[] = ['Dijagnostička pretraga'];
 
@@ -188,10 +189,10 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                     }
                     //Ako pacijent NEMA zapisanu povijest bolesti u ovoj sesiji obrade
                     else{
+                        //Šaljem oznaku childu da sam došao u njega iz uputnice
+                        this.oznaka = 'uputnica';
                         //Otvaram prozor povijesti bolesti
                         this.isPovijestBolesti = true;
-                        //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
-                        this.sharedService.receptIliUputnica.next("uputnica");
                     }
                 })
             ).subscribe();
@@ -547,12 +548,12 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                         this.primarnaDijagnoza.reset();
                                         //Praznim sva polja
                                         this.isprazniPolja();
-                                        //Otvaram prozor povijesti bolesti
-                                        this.isPovijestBolesti = true;
                                         //Spremam ID pacijenta
                                         this.idPacijent = +idPacijent;
-                                        //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
-                                        this.sharedService.receptIliUputnica.next("uputnica");
+                                        //Šaljem oznaku childu da sam došao u njega iz uputnice
+                                        this.oznaka = 'uputnica';
+                                        //Otvaram prozor povijesti bolesti
+                                        this.isPovijestBolesti = true;
                                     })
                                 );
                             }
@@ -580,10 +581,10 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             this.primarnaDijagnoza.reset();
                             //Praznim sve unose
                             this.isprazniPolja();
+                            //Šaljem oznaku childu da sam došao u njega iz uputnice
+                            this.oznaka = 'uputnica';
                             //Otvaram prozor unosa povijesti bolesti
                             this.isPovijestBolesti = true;
-                            //Pomoću Subjecta informiram child komponentu "PrikaziPovijestBolesti" da sam došao iz izdavanja uputnice
-                            this.sharedService.receptIliUputnica.next("uputnica");
                             return of(null);
                         }
                         //Ako ovaj pacijent IMA upisanu povijest bolesti za ovu sesiju

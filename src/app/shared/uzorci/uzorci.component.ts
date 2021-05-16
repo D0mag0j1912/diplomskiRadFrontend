@@ -42,10 +42,10 @@ export class UzorciComponent implements OnInit, OnDestroy{
     @Input() primljeniUzorci: Uzorak;
     //Primam sve referentne vrijednosti
     @Input() referentneVrijednosti: ReferentnaVrijednost[];
+    //Spremam informaciju je li roditelj ove komponente "NalaziListComponent" ili "SekundarniHeaderComponent"
+    @Input() oznaka: string;
     //Spremam sve ključeve nazive form controlova
     nazivi: string[] = [];
-    //Spremam informaciju je li roditelj ove komponente "NalaziListComponent" ili "SekundarniHeaderComponent"
-    sekundarniIliNalazi: string = null;
 
     constructor(
         //Dohvaćam servis uzoraka
@@ -60,6 +60,7 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
+        console.log(this.oznaka);
         this.forma = new FormGroup({
             'ustanova': new FormControl(this.primljeniUzorci.idUputnica ? null : this.nazivZdrUst),
             'eritrociti': new FormControl(
@@ -159,13 +160,6 @@ export class UzorciComponent implements OnInit, OnDestroy{
         }
 
         const combined = merge(
-            //Pretplaćivam se na informaciju jesam li ovdje došao iz NALAZA ili SEKUNDARNOG HEADERA
-            this.sharedService.sekundarniIliNalaziObs.pipe(
-                tap(sekundarniIliNalazi => {
-                    this.sekundarniIliNalazi = sekundarniIliNalazi;
-                }),
-                takeUntil(this.pretplata)
-            ),
             //Pretplaćivam se na promjene u dropdownu zdr. ustanove
             this.ustanova.valueChanges.pipe(
                 tap((value: string) => {

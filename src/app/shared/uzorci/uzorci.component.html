@@ -3,12 +3,12 @@
     <h3
         style="font-family: Verdana, sans-serif;
               text-align: center;color:#337ab7">
-        {{sekundarniIliNalazi === 'sekundarni' ? 'Kompletna krvna slika' : 'Rezultati pretraga'}}
+        {{oznaka === 'sekundarni' ? 'Kompletna krvna slika' : 'Rezultati pretraga'}}
     </h3>
     <form [formGroup]="forma" (ngSubmit)="onSubmit()">
         <div
             style="display:flex"
-            *ngIf="sekundarniIliNalazi === 'nalazi'">
+            *ngIf="oznaka === 'nalazi'">
             <mat-card
                 *ngFor="let p of pom"
                 style="width:24%;margin-left:5px;">
@@ -71,7 +71,7 @@
         </div>
         <div
             style="display:flex;"
-            *ngIf="sekundarniIliNalazi === 'sekundarni'">
+            *ngIf="oznaka === 'sekundarni'">
             <mat-card
                 style="flex: 1 1 auto;max-width: 50%;">
                 <mat-form-field
@@ -320,17 +320,15 @@
         <div class="alert-box-actions">
             <button
                 type="submit"
-                mat-raised-button
-                color="primary"
+                class="btn btn-primary"
                 style="float:left;"
                 [disabled]="!forma.valid"
-                *ngIf="sekundarniIliNalazi === 'sekundarni'">Spremi</button>
+                *ngIf="oznaka === 'sekundarni'">Spremi</button>
             <button
                 type="button"
-                mat-raised-button
-                color="primary"
+                class="btn btn-primary"
                 (click)="onClose()"
-                [ngStyle]="{'margin-right' : (sekundarniIliNalazi === 'nalazi') ? '14px' : '0px'}">Izađi</button>
+                [ngStyle]="{'margin-right' : (oznaka === 'nalazi') ? '14px' : '0px'}">Izađi</button>
         </div>
     </form>
 </div>

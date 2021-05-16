@@ -53,6 +53,8 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     uputnica: Uputnica;
     //Spremam slučajno generirane uzorke te ih šaljem child komponenti "UzorciComponent"
     poslaniUzorci: Uzorak;
+    //Spremam oznaku da je pošaljem childu da znam odakle sam došao u child
+    oznaka: string = null;
 
     constructor(
         //Dohvaćam login servis
@@ -366,7 +368,6 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
     }
     //Metoda koja se aktivira kada med. sestra klikne na "Pošalji uzorke"
     onPosaljiUzorke(){
-        console.log(this.zdrUstanove);
         //Ako je liječnik izdao uputnicu za trenutno aktivnog pacijenta te sestra NIJE poslala uzorak za tu uputnicu (AKO IMA zdr. ustanova)
         if(this.zdrUstanove.length > 0){
             //Pretplaćujem se na Observable koji vraća slučajno generirane uzorke
@@ -374,10 +375,10 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
                 (uzorci) => {
                     //Formiram uzorke te ih šaljem "UzorciComponent"
                     this.poslaniUzorci = new Uzorak(uzorci);
+                    //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "SekundarniHeaderComponent"
+                    this.oznaka = 'sekundarni';
                     //Otvori prozor uzoraka
                     this.isUzorci = true;
-                    //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "SekundarniHeaderComponent"
-                    this.sharedService.sekundarniIliNalazi.next("sekundarni");
                 }
             );
         }
