@@ -12,6 +12,9 @@ import { PreglediService } from '../obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../shared-handler';
 import * as SharedValidations from '../shared-validations';
 import { SharedService } from '../shared.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../dialog/dialog.component';
+import { PovijestBolesti } from '../modeli/povijestBolesti.model';
 
 @Component({
   selector: 'app-prikazi-povijest-bolesti',
@@ -58,6 +61,8 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
     proslaBoja: string = "";
     //Spremam oznaku jesam li došao ovdje preko recepta ili preko uputnice
     receptIliUputnica: string = null;
+    //Spremam sve povijesti bolesti koje šaljem "PovezaniPovijestBolestiComponent"
+    povijestBolesti: PovijestBolesti[] = [];
 
     constructor(
         //Dohvaćam router
@@ -75,7 +80,9 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Dohvaćam servis prethodnih pregleda
         private preglediService: PreglediService,
         //Dohvaćam shared servis
-        private sharedService: SharedService
+        private sharedService: SharedService,
+        //Dohvaćam dialog servis
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -358,12 +365,22 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
             //Uvijek unosim empty prošlu boju kada je novi slučaj da se generira nova u backendu
             this.proslaBoja = "";
             //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
-            this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
-                this.anamneza.value,this.status.value,this.nalaz.value,
-                this.mkbPrimarnaDijagnoza.value,mkbPolje,
+            this.povijestBolestiService.potvrdiPovijestBolesti(
+                this.idLijecnik,
+                this.idPacijent,
+                this.razlogDolaska.value,
+                this.anamneza.value,
+                this.status.value,
+                this.nalaz.value,
+                this.mkbPrimarnaDijagnoza.value,
+                mkbPolje,
                 this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-                this.terapija.value,this.preporukaLijecnik.value,
-                this.napomena.value,this.idObrada,this.prosliPregled, this.proslaBoja).pipe(
+                this.terapija.value,
+                this.preporukaLijecnik.value,
+                this.napomena.value,
+                this.idObrada,
+                this.prosliPregled,
+                this.proslaBoja).pipe(
                 //Dohvaćam odgovor servera
                 tap(() => {
                     //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
@@ -446,12 +463,22 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
                 }),
                 switchMap(() => {
                     //Pretplaćujem se na Observable u kojemu se nalazi odgovor servera na potvrdu povijesti bolesti
-                    return this.povijestBolestiService.potvrdiPovijestBolesti(this.idLijecnik,this.idPacijent,this.razlogDolaska.value,
-                        this.anamneza.value,this.status.value,this.nalaz.value,
-                        this.mkbPrimarnaDijagnoza.value,mkbPolje,
+                    return this.povijestBolestiService.potvrdiPovijestBolesti(
+                        this.idLijecnik,
+                        this.idPacijent,
+                        this.razlogDolaska.value,
+                        this.anamneza.value,
+                        this.status.value,
+                        this.nalaz.value,
+                        this.mkbPrimarnaDijagnoza.value,
+                        mkbPolje,
                         this.noviSlucaj.value === true ? 'noviSlucaj' : 'povezanSlucaj',
-                        this.terapija.value,this.preporukaLijecnik.value,
-                        this.napomena.value,this.idObrada,this.prosliPregled,this.proslaBoja).pipe(
+                        this.terapija.value,
+                        this.preporukaLijecnik.value,
+                        this.napomena.value,
+                        this.idObrada,
+                        this.prosliPregled,
+                        this.proslaBoja).pipe(
                         //Dohvaćam odgovor servera
                         tap(() => {
                             //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
@@ -608,10 +635,47 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
 
     //Metoda koja se poziva kada korisnik klikne button "Poveži povijest bolesti"
     onPoveziPovijestBolesti(){
-        //Označavam da ulazim u ovu komponentu preko recepta
-        this.povezaniPovijestBolestiService.isObrada.next(false);
-        //Otvori prozor sa povijestima bolesti ovog pacijenta
-        this.otvorenPovijestBolesti = true;
+        //Ako pacijent NIJE AKTIVAN u obradi
+        this.povezaniPovijestBolestiService.getPovijestBolesti(this.idPacijent).pipe(
+            tap(result => {
+                //Ako pacijent NEMA evidentiranih povijesti bolesti
+                if(result.success === "false"){
+                    //Otvaram dialog
+                    this.dialog.open(DialogComponent, {data: {message: result.message}});
+                }
+                //Ako pacijent IMA evidentiranih povijesti bolesti
+                else{
+                    //Restartam polje povijesti bolesti
+                    this.povijestBolesti = [];
+                    //Definiram svoj objekt
+                    let objPovijestBolesti;
+                    //Prolazim kroz sve dohvaćene povijesti bolesti sa servera
+                    for(const povijest of result){
+                        //Kreiram objekt tipa "PovijestBolesti"
+                        objPovijestBolesti = new PovijestBolesti(povijest);
+                        //Nadodavam taj objekt u svoje polje
+                        this.povijestBolesti.push(objPovijestBolesti);
+                    }
+                    //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
+                    let pom = [];
+                    //Za svaku vrijednost u polju povijesti bolesti
+                    for(let povijest of this.povijestBolesti){
+                        //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
+                        if(pom.indexOf(povijest._godina) === -1){
+                            //Dodaj tu godinu u pomoćno polje
+                            pom.push(povijest._godina);
+                        }
+                        //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
+                        else{
+                            //Dodjeljuje joj se vrijednost null
+                            povijest.godina = null;
+                        }
+                    }
+                    //Otvori prozor sa povijestima bolesti ovog pacijenta
+                    this.otvorenPovijestBolesti = true;
+                }
+            })
+        ).subscribe();
     }
     //Metoda koja se poziva kada korisnik klikne "Izađi" u prozoru povezanog povijesti bolesti
     onClosePovezanPovijestBolesti(){

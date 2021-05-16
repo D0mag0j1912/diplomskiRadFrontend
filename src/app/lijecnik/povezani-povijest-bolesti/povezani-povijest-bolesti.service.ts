@@ -1,7 +1,6 @@
 import { Time } from "@angular/common";
 import { HttpClient,HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
 import { catchError } from "rxjs/operators";
 import {handleError} from '../../shared/rxjs-error';
 import {baseUrl} from '../../backend-path';
@@ -10,10 +9,6 @@ import {baseUrl} from '../../backend-path';
     providedIn: 'root'
 })
 export class PovezaniPovijestBolestiService{
-
-    //Kreiram Subject koji će obavjestiti komponentu "PovezaniPovijestBolestiComponent" je li se u nju ušlo preko obrade ili preko recepta
-    isObrada = new BehaviorSubject<boolean>(false);
-    isObradaObs = this.isObrada.asObservable();
 
     constructor(
         //Dohvaćam http

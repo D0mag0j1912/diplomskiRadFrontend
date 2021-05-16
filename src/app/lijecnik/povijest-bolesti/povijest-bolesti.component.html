@@ -4,7 +4,9 @@
         <app-povezani-povijest-bolesti
             *ngIf="otvorenPovijestBolesti"
             (close)="onClosePovezanPovijestBolesti()"
-            (podatciRetka)="onPoveziPodatciRetka($event)"></app-povezani-povijest-bolesti>
+            (podatciRetka)="onPoveziPodatciRetka($event)"
+            [primljeniIDPacijent]="idPacijent"
+            [povijestBolesti]="povijestBolesti"></app-povezani-povijest-bolesti>
         <form (ngSubmit)="onSubmit()" [formGroup]="forma">
             <div class="table-responsive-sm">
                 <table class="table table-striped">

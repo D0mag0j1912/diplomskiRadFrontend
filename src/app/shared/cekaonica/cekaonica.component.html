@@ -4,7 +4,8 @@
         <app-pretraga-pacijent
             *ngIf="isPretraga"
             (close)="onCloseTablica()"
-            (dodaj)="onAzurirajStanje()"></app-pretraga-pacijent>
+            (dodaj)="onAzurirajStanje()"
+            [prijavljeniKorisnik]="tipKorisnik"></app-pretraga-pacijent>
         <app-detalji-pregleda
             *ngIf="isDetaljiPregleda"
             (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>

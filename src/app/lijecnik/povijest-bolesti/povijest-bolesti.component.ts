@@ -14,6 +14,7 @@ import * as SharedHandler from '../../shared/shared-handler';
 import * as SharedValidations from '../../shared/shared-validations';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from 'src/app/shared/dialog/dialog.component';
+import { PovijestBolesti } from 'src/app/shared/modeli/povijestBolesti.model';
 
 @Component({
   selector: 'app-povijest-bolesti',
@@ -57,6 +58,8 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
       prosliPregled: string = "";
       //Spremam boju pregleda prethodnog pregleda
       proslaBoja: string = "";
+      //Spremam sve povezane povijesti bolesti koje šaljem "PovezaniPovijestBolestiComponent"
+      povijestBolesti: PovijestBolesti[] = [];
 
       constructor(
           //Dohvaćam trenutni route da dohvatim podatke iz Resolvera
@@ -576,10 +579,54 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
 
         //Metoda koja se poziva kada korisnik klikne button "Poveži povijest bolesti"
         onPoveziPovijestBolesti(){
-            //Označavam preko Subjecta da ulazim u ovu komponentu preko obrade
-            this.povezaniPovijestBolestiService.isObrada.next(true);
-            //Otvori prozor sa povijestima bolesti ovog pacijenta
-            this.otvorenPovijestBolesti = true;
+            //Ako pacijent NIJE AKTIVAN
+            if(!this.isAktivan){
+                //Otvaram dialog
+                this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnih pacijenata!'}});
+            }
+            //Ako JE pacijent aktivan
+            else{
+                this.povezaniPovijestBolestiService.getPovijestBolesti(this.idPacijent).pipe(
+                    tap(result => {
+                        //Ako pacijent NEMA evidentiranih povijesti bolesti
+                        if(result.success === "false"){
+                            //Otvaram dialog
+                            this.dialog.open(DialogComponent, {data: {message: result.message}});
+                        }
+                        //Ako pacijent IMA evidentiranih povijesti bolesti
+                        else{
+                            //Restartam polje povijesti bolesti
+                            this.povijestBolesti = [];
+                            //Definiram svoj objekt
+                            let objPovijestBolesti;
+                            //Prolazim kroz sve dohvaćene povijesti bolesti sa servera
+                            for(const povijest of result){
+                                //Kreiram objekt tipa "PovijestBolesti"
+                                objPovijestBolesti = new PovijestBolesti(povijest);
+                                //Nadodavam taj objekt u svoje polje
+                                this.povijestBolesti.push(objPovijestBolesti);
+                            }
+                            //Kreiram pomoćno polje u kojemu će biti jedinstvene vrijednosti
+                            let pom = [];
+                            //Za svaku vrijednost u polju povijesti bolesti
+                            for(let povijest of this.povijestBolesti){
+                                //Ako se godina iz povijesti bolesti NE NALAZI u pomoćnom polju
+                                if(pom.indexOf(povijest._godina) === -1){
+                                    //Dodaj tu godinu u pomoćno polje
+                                    pom.push(povijest._godina);
+                                }
+                                //Ako se godina iz povijesti bolesti NALAZI u pomoćnom polju
+                                else{
+                                    //Dodjeljuje joj se vrijednost null
+                                    povijest.godina = null;
+                                }
+                            }
+                            //Otvori prozor sa povijestima bolesti ovog pacijenta
+                            this.otvorenPovijestBolesti = true;
+                        }
+                    })
+                ).subscribe();
+            }
         }
         //Metoda koja se poziva kada korisnik klikne "Izađi" u prozoru povezanog povijesti bolesti
         onClosePovezanPovijestBolesti(){

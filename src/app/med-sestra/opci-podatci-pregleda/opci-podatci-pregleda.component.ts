@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin, merge, Subject } from 'rxjs';
+import { forkJoin, merge, of, Subject } from 'rxjs';
 import { Dijagnoza } from 'src/app/shared/modeli/dijagnoza.model';
 import { DrzavaOsiguranja } from 'src/app/shared/modeli/drzavaOsiguranja.model';
 import { HeaderService } from 'src/app/shared/header/header.service';
@@ -11,7 +11,7 @@ import { OtvoreniSlucajService } from 'src/app/med-sestra/otvoreni-slucaj/otvore
 import { PodrucniUred } from 'src/app/shared/modeli/podrucniUred.model';
 import { MedSestraService } from '../med-sestra.service';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { concatMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Pacijent } from 'src/app/shared/modeli/pacijent.model';
 import { PreglediService } from 'src/app/shared/obrada/pregledi/pregledi.service';
 import * as SharedHandler from '../../shared/shared-handler';
@@ -664,22 +664,36 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     this.idObrada,
                     this.prosliPregled,
                     this.proslaBoja).pipe(
-                      //Dohvaćam odgovor servera
-                      tap((response) => {
-                          //Otvaram dialog
-                          this.dialog.open(DialogComponent, {data: {message: response.message}});
-                          //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                          const podatciProslogPregleda = {
-                              idObrada: this.idObrada,
-                              mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
-                          };
-                          //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                          localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                          //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
-                          this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
-                          //Resetiram formu
-                          this.ponistiPovezaniSlucajHandler();
-                      })
+                        //Dohvaćam odgovor servera
+                        concatMap((response) => {
+                            //Ako je server vratio uspješan odgovor (spremio opće podatke)
+                            if(response.success !== "false"){
+                                let dialogRef = this.dialog.open(DialogComponent, {data: {message: response.message}});
+                                return dialogRef.afterClosed().pipe(
+                                    tap(result => {
+                                        //Ako je korisnik kliknuo "Izađi" (jedina opcija)
+                                        if(!result){
+                                            //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                                            const podatciProslogPregleda = {
+                                                idObrada: this.idObrada,
+                                                mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                                            };
+                                            //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                                            localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                                            //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
+                                            this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
+                                            //Resetiram formu
+                                            this.ponistiPovezaniSlucajHandler();
+                                        }
+                                    })
+                                );
+                            }
+                            //Ako je server vratio error
+                            else{
+                                this.dialog.open(DialogComponent, {data: {message: response.message}});
+                                return of(null);
+                            }
+                        })
                 ).subscribe();
             }
             //Ako je slučaj povezan
@@ -714,20 +728,34 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                         this.prosliPregled,
                         this.proslaBoja).pipe(
                             //Dohvaćam odgovor servera
-                            tap((response) => {
-                                //Otvaram dialog
-                                this.dialog.open(DialogComponent, {data: {message: response.message}});
-                                //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
-                                const podatciProslogPregleda = {
-                                    idObrada: this.idObrada,
-                                    mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
-                                };
-                                //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
-                                localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
-                                //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
-                                this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
-                                //Resetiram formu
-                                this.ponistiPovezaniSlucajHandler();
+                            concatMap((response) => {
+                                //Ako je server vratio uspješan odgovor (spremio opće podatke)
+                                if(response.success !== "false"){
+                                    let dialogRef = this.dialog.open(DialogComponent, {data: {message: response.message}});
+                                    return dialogRef.afterClosed().pipe(
+                                        tap(result => {
+                                            //Ako je korisnik kliknuo "Izađi"
+                                            if(!result){
+                                                //Kreiram objekt u kojemu će se nalaziti podatci prošlog pregleda koje stavljam u LocalStorage
+                                                const podatciProslogPregleda = {
+                                                    idObrada: this.idObrada,
+                                                    mkbPrimarnaDijagnoza: this.mkbPrimarnaDijagnoza.value
+                                                };
+                                                //U Local Storage postavljam trenutno unesenu podatke da je kasnije mogu dohvatiti kada povežem više puta zaredom
+                                                localStorage.setItem("podatciProslogPregleda",JSON.stringify(podatciProslogPregleda));
+                                                //Emitiraj vrijednost prema komponenti "SekundarniHeaderComponent" da je header dodan
+                                                this.preglediService.pregledDodan.next({isDodan: true, tipKorisnik: "sestra"});
+                                                //Resetiram formu
+                                                this.ponistiPovezaniSlucajHandler();
+                                            }
+                                        })
+                                    );
+                                }
+                                //Ako je server vratio error
+                                else{
+                                    this.dialog.open(DialogComponent, {data: {message: response.message}});
+                                    return of(null);
+                                }
                             })
                         );
                     })

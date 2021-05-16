@@ -1,9 +1,9 @@
 <div class="backdrop" (click)="onClose()"></div>
-<div class="alert-box" id="alert-box">
+<div class="alert-box">
     <h3 style="text-align: center;color: #337ab7;font-weight: bold;">Povežite povijest bolesti</h3>
     <div class="row">
         <div class="col-xs-12 col-md-6 col-md-offset-3">
-            <form [formGroup]="forma" *ngIf="forma && isPovijestBolesti">
+            <form [formGroup]="forma" *ngIf="forma">
                 <div class="form-group">
                     <input
                         type="text"
@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="col-xs-12 col-md-12">
-        <form [formGroup]="glavnaForma" *ngIf="isPovijestBolesti && !porukaPovijestBolestiPretraga">
+        <form [formGroup]="glavnaForma" *ngIf="!porukaPovijestBolestiPretraga">
             <!--AKO JE PACIJENT AKTIVAN U OBRADI-->
             <div class="table-responsive-sm">
                 <table class="table">
@@ -118,13 +118,6 @@
                 </table>
             </div>
         </form>
-    </div>
-    <!--AKO PACIJENT NIJE AKTIVAN U OBRADI-->
-    <div *ngIf="!isAktivan">
-        <h3 style="text-align: center;color:#a94442;">{{porukaAktivan}}</h3>
-    </div>
-    <div *ngIf="!isPovijestBolesti">
-        <h3 style="text-align: center;color:#a94442;">{{porukaPovijestBolesti}}</h3>
     </div>
     <div class="alert-box-actions">
         <button class="btn btn-primary" (click)="onClose()">Izađi</button>
