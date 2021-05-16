@@ -12,7 +12,10 @@ import {baseUrl} from '../../backend-path';
 export class ObradaService{
 
     //Kreiram BehaviourSubject u kojega spremam ime i prezime pacijenta
-    imePrezimePacijent = new BehaviorSubject<{ime: string, prezime: string,stranica: number}>({ime:'unknown',prezime:'unknown',stranica:1});
+    imePrezimePacijent = new BehaviorSubject<{
+        ime: string,
+        prezime: string,
+        stranica: number}>({ime:null,prezime:null,stranica:1});
     //Kreiram Subject kojim ću obavjestiti komponentu obrade da je pregled završio
     zavrsenPregled = new Subject<boolean>();
     obsZavrsenPregled = this.zavrsenPregled.asObservable();

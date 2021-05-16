@@ -3,7 +3,8 @@
     *ngIf="isPovijestBolesti"
     (closeRecept)="onClosePovijestBolesti()"
     [primljeneDijagnoze]="dijagnoze"
-    [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
+    [idPacijent]="idPacijent"
+    [oznaka]="oznaka"></app-prikazi-povijest-bolesti>
 <h3 style="text-align: center;font-family: Verdana, sans-serif;">Tablica pacijenata</h3>
 <form [formGroup]="formaPretraga">
     <div class="col-md-offset-1">

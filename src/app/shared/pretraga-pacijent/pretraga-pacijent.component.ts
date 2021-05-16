@@ -53,8 +53,13 @@ export class PretragaPacijentComponent implements OnInit, OnDestroy {
             switchMap(pacijenti => {
                 return combineLatest([
                     //Vrijednosti iz Subjecta davam ovim dvaju metodama
-                    this.obradaService.getPatients(pacijenti.ime,pacijenti.prezime,pacijenti.stranica),
-                    this.obradaService.getData(pacijenti.ime,pacijenti.prezime)
+                    this.obradaService.getPatients(
+                        pacijenti.ime,
+                        pacijenti.prezime,
+                        pacijenti.stranica),
+                    this.obradaService.getData(
+                        pacijenti.ime,
+                        pacijenti.prezime)
                 ]).pipe(
                     tap(odgovor => {
                         //Inicijaliziram praznu varijablu

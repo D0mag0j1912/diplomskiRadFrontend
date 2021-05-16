@@ -1,7 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { forkJoin, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { SharedService } from 'src/app/shared/shared.service';
 import { UzorciService } from 'src/app/shared/uzorci/uzorci.service';
 import { NalazList } from '../nalazList.model';
 import {Uzorak} from '../../../shared/uzorci/uzorci.model';
@@ -29,10 +28,10 @@ export class NalaziListComponent implements OnInit, OnDestroy{
     poslaniUzorci: Uzorak;
     //Spremam sve ref. vrijednosti
     referentneVrijednosti: ReferentnaVrijednost[] = [];
+    //Spremam oznaku koju šaljem childu da mu kažem da dolazim iz nalaza
+    oznaka: string = null;
 
     constructor(
-        //Dohvaćam shared servis
-        private sharedService: SharedService,
         //Dohvaćam servis uzoraka
         private uzorciService: UzorciService,
         //Dohvaćam import servis
@@ -57,10 +56,10 @@ export class NalaziListComponent implements OnInit, OnDestroy{
                 if(podatci[0].length > 0){
                     //Formiram uzorak koji šaljem childu "UzorciComponent"
                     this.poslaniUzorci = new Uzorak(podatci[0][0]);
+                    //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "NalaziListComponent"
+                    this.oznaka = 'nalazi';
                     //Otvaram prozor uzoraka
                     this.isUzorci = true;
-                    //Emitiram vrijednost prema "UzorciComponent" da se zna da joj je roditelj "NalaziListComponent"
-                    this.sharedService.sekundarniIliNalazi.next("nalazi");
                 }
                 //Ako NEMA uzoraka
                 else{

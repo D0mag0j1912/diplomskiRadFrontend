@@ -7,7 +7,8 @@
         *ngIf="isPovijestBolesti"
         (closeUputnica)="onClosePovijestBolesti($event)"
         [primljeneDijagnoze]="dijagnoze"
-        [idPacijent]="idPacijent"></app-prikazi-povijest-bolesti>
+        [idPacijent]="idPacijent"
+        [oznaka]="oznaka"></app-prikazi-povijest-bolesti>
     <div class="col-xs-12 col-md-12">
         <form [formGroup]="forma" *ngIf="forma" (ngSubmit)="onSubmit()">
             <div class="table-responsive-sm">

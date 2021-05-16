@@ -14,11 +14,6 @@ export class SharedService {
     //Kreiram Subject koji će obavjestiti "ObradaComponent" da su potvrđeni ili osnovni ili zdravstveni podatci
     potvrdeniPodatci = new Subject<void>();
 
-    //Kreiram Subject koji će napraviti razliku između izdavanja recepta i izdavanja uputnice pri ulasku u povijest bolesti kada pacijent NIJE aktivan
-    receptIliUputnica = new BehaviorSubject<string>(null);
-    //Kreiram Observable od njega
-    receptIliUputnicaObs = this.receptIliUputnica.asObservable();
-
     //Kreiram Subject koji sadrži sve ID-ove pacijenata kojima je napisana povijest bolesti kada pacijent NIJE aktivan
     private pacijentiIDsSubject = new BehaviorSubject<number[]>([]);
     //Kreiram Observable od njega
@@ -30,11 +25,6 @@ export class SharedService {
     private cijeneSubject = new BehaviorSubject<number>(0);
     //Kreiram Observable od njega
     cijeneObs = this.cijeneSubject.asObservable();
-
-    //Kreiram Subject koji će obavjestiti komponentu uzoraka je li joj roditelj "SekundarniHeaderComponent" ili "NalaziListComponent"
-    sekundarniIliNalazi = new BehaviorSubject<string>(null);
-    //Kreiram Observable od njega
-    sekundarniIliNalaziObs = this.sekundarniIliNalazi.asObservable();
 
     constructor(
         private http: HttpClient,

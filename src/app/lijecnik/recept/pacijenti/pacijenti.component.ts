@@ -38,6 +38,8 @@ export class PacijentiComponent implements OnInit, OnDestroy {
     dijagnoze: any;
     //Spremam ID pacijenta kojega šaljem child komponenti "PrikaziPovijestBolesti"
     idPacijent: number;
+    //Spremam oznaku koju šaljem childu da dolazim u njega iz recepta
+    oznaka: string = null;
 
     constructor(
         //Dohvaćam trenutni route
@@ -214,7 +216,6 @@ export class PacijentiComponent implements OnInit, OnDestroy {
             this.sharedService.pacijentiIDsObs.pipe(
                 take(1),
                 tap(pacijentiIDs => {
-                    console.log(pacijentiIDs);
                     //Ako se ID pacijenta kojemu je kliknut redak NALAZI u polju ID-ova (tj. njemu je dodana povijest bolesti)
                     if(pacijentiIDs.indexOf(+id) !== -1){
                         //Preusmjeri liječnika na prozor izdavanja recepta
@@ -224,10 +225,10 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     else{
                         //Šaljem child komponenti ovaj ID pacijenta
                         this.idPacijent = +id;
+                        //Emitiram vrijednost prema childu da dolazim u njega preko recepta
+                        this.oznaka = 'recept';
                         //Otvaram prozor povijesti bolesti
                         this.isPovijestBolesti = true;
-                        //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
-                        this.sharedService.receptIliUputnica.next("recept");
                     }
                 }),
                 takeUntil(this.pretplateSubject)
@@ -243,10 +244,10 @@ export class PacijentiComponent implements OnInit, OnDestroy {
                     if(+brojPovijestiBolesti === 0){
                         //Šaljem child komponenti ovaj ID pacijenta
                         this.idPacijent = +id;
+                        //Emitiram vrijednost prema childu da dolazim u njega preko recepta
+                        this.oznaka = 'recept';
                         //Otvaram prozor povijesti bolesti
                         this.isPovijestBolesti = true;
-                        //Subjectom davam informaciju child komponenti da dolazim iz izdavanja recepta
-                        this.sharedService.receptIliUputnica.next("recept");
                     }
                     else{
                         //Preusmjeri liječnika na prozor izdavanja recepta
