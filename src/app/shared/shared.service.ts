@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { catchError, switchMap, take, tap } from "rxjs/operators";
 import {baseUrl} from '../backend-path';
 import {handleError} from '../shared/rxjs-error';
@@ -10,6 +10,9 @@ import { ObradaService } from "./obrada/obrada.service";
     providedIn: 'root'
 })
 export class SharedService {
+
+    //Kreiram Subject koji će obavjestiti "ObradaComponent" da su potvrđeni ili osnovni ili zdravstveni podatci
+    potvrdeniPodatci = new Subject<void>();
 
     //Kreiram Subject koji će napraviti razliku između izdavanja recepta i izdavanja uputnice pri ulasku u povijest bolesti kada pacijent NIJE aktivan
     receptIliUputnica = new BehaviorSubject<string>(null);

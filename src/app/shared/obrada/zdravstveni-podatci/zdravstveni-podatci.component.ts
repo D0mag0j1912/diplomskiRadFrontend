@@ -17,6 +17,7 @@ import { ZdravstveniPodatciService } from './zdravstveni-podatci.service';
 import * as Handler from './zdravstveni-podatci-handler';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../../dialog/dialog.component';
+import { SharedService } from '../../shared.service';
 
 @Component({
     selector: 'app-zdravstveni-podatci',
@@ -61,14 +62,16 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
     idPacijent: number;
 
     constructor(
-      //Dohvaćam trenutni route
-      private route: ActivatedRoute,
-      //Dohvaćam servis zdravstvenih podataka
-      private zdravstveniPodatciService: ZdravstveniPodatciService,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam servis dialoga
-      private dialog: MatDialog
+        //Dohvaćam trenutni route
+        private route: ActivatedRoute,
+        //Dohvaćam servis zdravstvenih podataka
+        private zdravstveniPodatciService: ZdravstveniPodatciService,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     //Ova metoda se poziva kada se komponenta inicijalizira
@@ -280,37 +283,50 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
 
       }
 
-  //Ova metoda se poziva kada se stisne button "Potvrdi zdravstvene podatke"
-  onSubmit(){
+    //Ova metoda se poziva kada se stisne button "Potvrdi zdravstvene podatke"
+    onSubmit(){
 
-      //Ako forma nije valjanja
-      if(!this.forma){
-          return;
-      }
+        //Ako forma nije valjanja
+        if(!this.forma){
+            return;
+        }
 
-      //Ako je pacijent aktivan
-      if(this.isPodatciAktivni){
-          this.zdravstveniPodatciService.potvrdiZdravstvenePodatke(this.idPacijent,this.mbo.value,this.nositeljOsiguranja.value,
-              this.drzavaOsiguranja.value,this.kategorijaOsiguranja.value,
-              this.trajnoOsnovno.value ? "trajnoOsnovno": null,this.osnovnoOd.value,this.osnovnoDo.value,
-              this.brIskDopunsko.value,this.dopunskoOd.value,this.dopunskoDo.value,
-              this.oslobodenParticipacije.value ? "oslobodenParticipacije": null,this.clanakParticipacija.value,
-              this.trajnoParticipacija.value ? "trajnoParticipacija" : null,this.participacijaDo.value,this.sifUred.value).pipe(
-              tap(
-                //Dohvaćam odgovor servera
-                (odgovor) => {
-                    //Otvaram dialog
-                    this.dialog.open(DialogComponent, {data: {message: odgovor['message']}});
-                }
-              )
-          ).subscribe();
-      }
-      //Ako podatci nisu aktivni
-      else{
-          //Otvaram dialog
-          this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnog pacijenta u obradi!'}});
-      }
-  }
+        //Ako je pacijent aktivan
+        if(this.isPodatciAktivni){
+            this.zdravstveniPodatciService.potvrdiZdravstvenePodatke(
+                this.idPacijent,
+                this.mbo.value,
+                this.nositeljOsiguranja.value,
+                this.drzavaOsiguranja.value,
+                this.kategorijaOsiguranja.value,
+                this.trajnoOsnovno.value ? "trajnoOsnovno": null,
+                this.osnovnoOd.value,
+                this.osnovnoDo.value,
+                this.brIskDopunsko.value,
+                this.dopunskoOd.value,
+                this.dopunskoDo.value,
+                this.oslobodenParticipacije.value ? "oslobodenParticipacije": null,
+                this.clanakParticipacija.value,
+                this.trajnoParticipacija.value ? "trajnoParticipacija" : null,
+                this.participacijaDo.value,
+                this.sifUred.value).pipe(
+                tap(
+                    //Dohvaćam odgovor servera
+                    (odgovor) => {
+                        //Otvaram dialog
+                        this.dialog.open(DialogComponent, {data: {message: odgovor['message']}});
+                        //Emitiram informaciju prema "ObradaComponent" da su potvrđeni zdr. podatci
+                        this.sharedService.potvrdeniPodatci.next();
+                    }
+                )
+            ).subscribe();
+        }
+        //Ako podatci nisu aktivni
+        else{
+            //Otvaram dialog
+            this.dialog.open(DialogComponent, {data: {message: 'Nema aktivnog pacijenta u obradi!'}});
+        }
+    }
 
   //Metoda se poziva kada je trajno osiguranje promijeni svoju vrijednost
   onChecked(event){

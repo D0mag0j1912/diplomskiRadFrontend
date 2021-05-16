@@ -21,15 +21,47 @@ import { ZdravstveniPodatciComponent } from './zdravstveni-podatci/zdravstveni-p
 
 const routes = [
     {path: '', component: ObradaComponent ,resolve: {pacijent: ObradaResolverService}, children: [
-        {path: 'opciPodatci', component: OpciPodatciPregledaComponent, resolve: {podatci: ImportiResolverService, pacijent: ObradaResolverService}},
-        {path: 'povijestBolesti', component: PovijestBolestiComponent,resolve: {podatci: ImportiResolverService, pacijent: ObradaResolverService}},
-        {path: 'osnovniPodatci', component: OsnovniPodatciComponent, resolve: {podatci: OsnovniPodatciImportResolverService, pacijenti: OsnovniPodatciResolverService}},
-        {path: 'zdravstveniPodatci', component: ZdravstveniPodatciComponent, resolve: {podatci: ImportiResolverService, zdravstveniPodatci: ZdravstveniPodatciResolverService}},
-        {path: 'pregledi', component: PreglediComponent, resolve: {pregledi: PreglediResolverService}, children: [
-            {path: ':id', component: PreglediDetailComponent,resolve: {cijeliPregled: PreglediDetailResolverService, obrada: ObradaResolverService}}
+        {
+            path: 'opciPodatci',
+            component: OpciPodatciPregledaComponent,
+            resolve: {podatci: ImportiResolverService, pacijent: ObradaResolverService}
+        },
+        {
+            path: 'povijestBolesti',
+            component: PovijestBolestiComponent,
+            resolve: {podatci: ImportiResolverService, pacijent: ObradaResolverService}
+        },
+        {
+            path: 'osnovniPodatci',
+            component: OsnovniPodatciComponent,
+            resolve: {podatci: OsnovniPodatciImportResolverService, pacijenti: OsnovniPodatciResolverService}
+        },
+        {
+            path: 'zdravstveniPodatci',
+            component: ZdravstveniPodatciComponent,
+            resolve: {podatci: ImportiResolverService, zdravstveniPodatci: ZdravstveniPodatciResolverService}
+        },
+        {
+            path: 'pregledi',
+            component: PreglediComponent,
+            resolve: {pregledi: PreglediResolverService},
+            children: [
+                {
+                    path: ':id',
+                    component: PreglediDetailComponent,
+                    resolve: {cijeliPregled: PreglediDetailResolverService, obrada: ObradaResolverService}
+                }
         ]},
-        {path: 'nalazi', component: NalaziComponent, resolve: {aktivan: NalaziResolverService}, children: [
-            {path: ':id', component: NalaziDetailComponent, resolve: {nalaz: NalaziDetailResolverService}}
+        {
+            path: 'nalazi',
+            component: NalaziComponent,
+            resolve: {aktivan: NalaziResolverService},
+            children: [
+                {
+                    path: ':id',
+                    component: NalaziDetailComponent,
+                    resolve: {nalaz: NalaziDetailResolverService}
+                }
         ]}
     ]},
 ];

@@ -4,7 +4,11 @@ import { UputnicaResolverService } from "./uputnica-resolver.service";
 import { UputnicaComponent } from "./uputnica.component";
 
 const routes: Routes = [
-    {path: '', component: UputnicaComponent, resolve: {importi: UputnicaResolverService}}
+    {
+        path: '',
+        component: UputnicaComponent,
+        resolve: {importi: UputnicaResolverService}
+    }
 ];
 
 @NgModule({

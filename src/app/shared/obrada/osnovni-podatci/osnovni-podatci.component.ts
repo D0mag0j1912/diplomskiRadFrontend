@@ -13,6 +13,7 @@ import { OsnovniPodatciService } from './osnovni-podatci.service';
 import * as Handler from './osnovni-podatci-handler';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../../dialog/dialog.component';
+import { SharedService } from '../../shared.service';
 
 @Component({
   selector: 'app-osnovni-podatci',
@@ -53,7 +54,9 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
         //Dohvaćam servis obrade
         private obradaService: ObradaService,
         //Dohvaćam servis dialoga
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        //Dohvaćam shared servis
+        private sharedService: SharedService
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -237,6 +240,8 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
                     (odgovor) => {
                         //Otvaram dialog
                         this.dialog.open(DialogComponent, {data: {message: odgovor['message']}});
+                        //Emitiram obavijest prema "ObradaComponent" da sam potvrdio osnovne podatke (da se ažurira template)
+                        this.sharedService.potvrdeniPodatci.next();
                     }
                   )
           ).subscribe();

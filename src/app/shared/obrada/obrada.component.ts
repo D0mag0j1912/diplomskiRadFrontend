@@ -266,6 +266,22 @@ export class ObradaComponent implements OnInit, OnDestroy {
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
+
+        //Pretplaćujem se na informaciju jesu li potvrdeni osobni podatci pacijenta
+        this.sharedService.potvrdeniPodatci.pipe(
+            switchMap(() => {
+                return this.obradaService.getPatientProcessing(this.prijavljeniKorisnik).pipe(
+                    tap(podatci => {
+                        //Ako je pacijent aktivan (a trebao bih biti kada dođe vrijednost ovdje)
+                        if(podatci.success !== "false"){
+                            //Ažuriram osobne podatke pacijenta
+                            this.pacijent = new Pacijent(podatci[0]);
+                        }
+                    })
+                );
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
     }
 
     //Izračunaj BMI
@@ -392,15 +408,15 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Dohvaćam ime i prezime pacijenta
     getImePrezime(){
-      return this.pacijent.ime + ' ' + this.pacijent.prezime;
+        return this.pacijent.ime + ' ' + this.pacijent.prezime;
     }
     //Dohvaćam datum rođenja pacijenta
     getDatRod(){
-      return this.pacijent.datRod;
+        return this.pacijent.datRod;
     }
     //Dohvaćam adresu pacijenta
     getAdresa(){
-      return this.pacijent.adresa;
+        return this.pacijent.adresa;
     }
     //Dohvaćam MBO pacijenta
     getMBO(){
@@ -409,12 +425,12 @@ export class ObradaComponent implements OnInit, OnDestroy {
 
     //Custom validator koji provjerava je li barem jedno od polja imena ili prezimena uneseno
     atLeastOneRequired(group : FormGroup) : {[s:string ]: boolean} {
-      if (group) {
-        if(group.controls['ime'].value || group.controls['prezime'].value) {
-          return null;
+        if (group) {
+            if(group.controls['ime'].value || group.controls['prezime'].value) {
+                return null;
+            }
         }
-      }
-      return {'error': true};
+        return {'error': true};
     }
 
     //Ova metoda se pokreće kada korisnik klikne button "Pretraži"

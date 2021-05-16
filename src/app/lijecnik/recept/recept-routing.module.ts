@@ -5,9 +5,16 @@ import { IzdajReceptComponent } from "./pacijenti/izdaj-recept/izdaj-recept.comp
 import { ReceptComponent } from "./recept.component";
 import {ReceptResolverService} from './recept-resolver.service';
 const routes = [
-    {path: '', component: ReceptComponent, resolve: {podatci: ReceptResolverService},
-    children: [
-        {path:':id', component: IzdajReceptComponent, resolve: {importi: IzdajReceptResolverService}}
+    {
+        path: '',
+        component: ReceptComponent,
+        resolve: {podatci: ReceptResolverService},
+        children: [
+            {
+                path:':id',
+                component: IzdajReceptComponent,
+                resolve: {importi: IzdajReceptResolverService}
+            }
     ]}
 ];
 
