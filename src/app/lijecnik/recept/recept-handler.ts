@@ -1,10 +1,8 @@
-import { AbstractControl, FormGroup, Validators } from "@angular/forms";
+import { AbstractControl, FormGroup } from "@angular/forms";
 import { Observable, of, Subject } from "rxjs";
 import { tap, takeUntil, switchMap } from "rxjs/operators";
 import {ReceptService} from './recept.service';
 import * as Validacija from './recept-validations';
-import { ZdravstveniRadnik } from "src/app/shared/modeli/zdravstveniRadnik.model";
-import * as SharedValidations from '../../shared/shared-validations';
 
 //Funkcija koja vraća Observable u kojemu se nalazi MAKSIMALNA doza nekog lijeka (dnevna/tjedna)
 export function dohvatiDefiniranaDoza(forma: AbstractControl, receptService: ReceptService): Observable<any>{
@@ -97,7 +95,6 @@ export function azuriranjeDostatnostiHandler(
     isPonovljiv: boolean) : Observable<any>{
     return azuriranjeDostatnosti(forma,receptService,isPonovljiv).pipe(
         tap(value => {
-            console.log(value);
             //Vrijednost dostatnosti stavljam u polje
             forma.get('trajanje.dostatnost').patchValue(value === null ? value : value.toString(),{emitEvent: false});
         }),
@@ -109,8 +106,7 @@ export function azuriranjeDostatnostiHandler(
                     tap(datum => {
                         //Vrijednost datuma postavljam u njegovo polje
                         forma.get('trajanje.vrijediDo').patchValue(datum,{emitEvent: false});
-                    }),
-                    takeUntil(pretplateSubject)
+                    })
                 );
             }
             //Ako je dostatnost null (uključuje da je odabran mag.pripravak ili je prazno doziranje, lijek ili količina)
@@ -133,11 +129,9 @@ export function azuriranjeDostatnostiHandler(
                             tap(datum => {
                                 //Postavi datum
                                 forma.get('trajanje.vrijediDo').patchValue(datum,{emitEvent: false});
-                            }),
-                            takeUntil(pretplateSubject)
+                            })
                         );
-                    }),
-                    takeUntil(pretplateSubject)
+                    })
                 );
             }
         }),

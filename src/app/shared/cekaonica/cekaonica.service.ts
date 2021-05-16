@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
 import { catchError} from 'rxjs/operators';
 import {handleError} from '../rxjs-error';
 import {baseUrl} from '../../backend-path';
@@ -11,10 +10,6 @@ import { Time } from "@angular/common";
 })
 export class CekaonicaService{
 
-    //Kreiram BehaviourSubject da mogu poslati podatke iz čekaonice u detalje pregleda
-    podatciPregleda = new BehaviorSubject<{tip:string,idObrada: number}>(null);
-    //Pretvaram Subject u Observable
-    obsPodatciPregleda = this.podatciPregleda.asObservable();
     constructor(
         //Dohvaćam http
         private http: HttpClient

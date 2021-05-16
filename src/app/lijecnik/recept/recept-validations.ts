@@ -1,6 +1,5 @@
 import { FormControl } from "@angular/forms";
 import { FormGroup, ValidatorFn } from "@angular/forms";
-import { ZdravstveniRadnik } from "src/app/shared/modeli/zdravstveniRadnik.model";
 
 //Funkcija koja provjerava je li doziranje prešlo max dozu
 export function prekoracenjeDoze(objekt:{success:string,message:string,maxDoza:string} | null): ValidatorFn{

@@ -8,7 +8,10 @@
             [prijavljeniKorisnik]="tipKorisnik"></app-pretraga-pacijent>
         <app-detalji-pregleda
             *ngIf="isDetaljiPregleda"
-            (close)="onCloseDetaljiPregleda()"></app-detalji-pregleda>
+            (close)="onCloseDetaljiPregleda()"
+            [primljeniTipKorisnik]="poslaniTipKorisnik"
+            [primljeniIDObrada]="poslaniIDObrada"
+            [detaljiPregleda]="detaljiPregleda"></app-detalji-pregleda>
     </div>
     <div class="row">
         <div class="col-xs-12 col-md-6 center_div">

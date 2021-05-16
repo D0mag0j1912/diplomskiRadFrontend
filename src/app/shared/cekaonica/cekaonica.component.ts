@@ -2,7 +2,7 @@ import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, Subject } from 'rxjs';
+import { forkJoin, of, Subject } from 'rxjs';
 import {switchMap, take,takeUntil,tap} from 'rxjs/operators';
 import { LoginService } from 'src/app/login/login.service';
 import { Cekaonica } from './cekaonica.model';
@@ -10,6 +10,7 @@ import { ObradaService } from '../obrada/obrada.service';
 import { CekaonicaService } from './cekaonica.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
+import {DetaljiPregleda} from './detalji-pregleda/detaljiPregleda.model';
 
 @Component({
   selector: 'app-cekaonica',
@@ -49,22 +50,27 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     tipKorisnik: string = null;
     //Spremam broj retka
     brojRetka: number;
+    //Šaljem detaljima završenog pregleda ID obrade i tip korisnika stisnutog retka
+    poslaniIDObrada: number;
+    poslaniTipKorisnik: string;
+    //Spremam detalje pregleda koje ću prikazati u dialogu
+    detaljiPregleda: DetaljiPregleda;
 
     constructor(
-      //Dohvaćam trenutni url
-      private route: ActivatedRoute,
-      //Dohvaćam servis čekaonice
-      private cekaonicaService: CekaonicaService,
-      //Pravim formu
-      private fb: FormBuilder,
-      //Dohvaćam servis obrade
-      private obradaService: ObradaService,
-      //Dohvaćam router
-      private router: Router,
-      //Dohvaćam login servis
-      private loginService: LoginService,
-      //Dohvaćam servis dialoga
-      private dialog: MatDialog
+        //Dohvaćam trenutni url
+        private route: ActivatedRoute,
+        //Dohvaćam servis čekaonice
+        private cekaonicaService: CekaonicaService,
+        //Pravim formu
+        private fb: FormBuilder,
+        //Dohvaćam servis obrade
+        private obradaService: ObradaService,
+        //Dohvaćam router
+        private router: Router,
+        //Dohvaćam login servis
+        private loginService: LoginService,
+        //Dohvaćam servis dialoga
+        private dialog: MatDialog
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
@@ -133,11 +139,40 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     }
 
     //Metoda koja otvara prozor detalja pregleda
-    onOtvoriDetalje(idObrada: number,tip: string){
-        //U Behaviour Subject ubacivam podatke iz retka čekaonice da ih mogu proslijediti detaljima pregleda
-        this.cekaonicaService.podatciPregleda.next({tip,idObrada});
-        //Otvori prozor detalja
-        this.isDetaljiPregleda = true;
+    onOtvoriDetalje(idObrada: number, tip: string){
+        //Šaljem "DetaljiPregledaComponent" ID obrade i tip korisnika koji je obradio taj redak
+        this.poslaniIDObrada = idObrada;
+        this.poslaniTipKorisnik = tip;
+
+        const combined = forkJoin([
+            this.cekaonicaService.getImePrezimeDatum(tip, idObrada),
+            this.cekaonicaService.getPodatciPregleda(tip, idObrada)
+        ]).pipe(
+            tap(podatci => {
+                //Spremam osobne podatke pacijenta detalja pregleda
+                this.detaljiPregleda = new DetaljiPregleda(podatci[0][0]);
+                //Ako NEMA evidentiranih općih podataka ili povijesti bolesti za određeni pregled
+                if(podatci[1].length === 0){
+                    //Otvori dialog
+                    this.dialog.open(DialogComponent,
+                        {data: {
+                            detaljiPregleda: {
+                                ime: this.detaljiPregleda.imePacijent,
+                                prezime: this.detaljiPregleda.prezimePacijent,
+                                datum: this.detaljiPregleda.datumPregled,
+                                ukupnaCijenaPregled: this.detaljiPregleda.ukupnaCijenaPregled,
+                                bmi: this.detaljiPregleda.bmi ? this.detaljiPregleda.bmi : null,
+                                tipKorisnik: tip
+                            }
+                        }});
+                }
+                //Ako IMA evidentiranih podataka na pregledu
+                else{
+                    //Otvori prozor detalja
+                    this.isDetaljiPregleda = true;
+                }
+            })
+        ).subscribe();
     }
 
     //Metoda koja briše pacijenta iz čekaonice

@@ -17,6 +17,14 @@ export class DialogComponent implements OnInit{
                     datumDodavanja: Date,
                     vrijemeDodavanja: Time,
                     statusCekaonica: string
+                },
+                detaljiPregleda?: {
+                    ime: string,
+                    prezime: string,
+                    datum: Date,
+                    ukupnaCijenaPregled: string,
+                    bmi?: string,
+                    tip: string
                 }
             }
     ){}

@@ -31,7 +31,6 @@ export class IzdajReceptResolverService implements Resolve<any>{
         return this.listaReceptiService.editMessengerObs.pipe(
             take(1),
             switchMap(recept => {
-                console.log(recept);
                 //Ako je recept null, to znači da sam došao dodavde iz buttona "Izdaj recept"
                 if(!recept){
                     //Pretplaćivam se podatak JE LI pacijent AKTIVAN ili NIJE

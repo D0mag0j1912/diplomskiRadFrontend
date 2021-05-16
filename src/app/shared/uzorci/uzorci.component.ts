@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, Input } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UzorciService } from './uzorci.service';
 import { merge, of, Subject} from 'rxjs';
 import { concatMap, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -12,6 +12,12 @@ import { ReferentnaVrijednost } from './referentna-vrijednost.model';
 import { ObradaService } from '../obrada/obrada.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
+
+//Definiram kako će izgledati polje pomoću kojega prikazivam poruke validatora
+interface UzorciValidators {
+    control: AbstractControl;
+    naziv: string;
+}
 
 @Component({
   selector: 'app-uzorci',
@@ -46,6 +52,10 @@ export class UzorciComponent implements OnInit, OnDestroy{
     @Input() oznaka: string;
     //Spremam sve ključeve nazive form controlova
     nazivi: string[] = [];
+    //Oznaka je li forma submittana
+    isSubmitted: boolean = false;
+    //Spremam sve form controlove i njihove nazive
+    controls: UzorciValidators[] = [];
 
     constructor(
         //Dohvaćam servis uzoraka
@@ -60,7 +70,6 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada se komponenta inicijalizira
     ngOnInit(){
-        console.log(this.oznaka);
         this.forma = new FormGroup({
             'ustanova': new FormControl(this.primljeniUzorci.idUputnica ? null : this.nazivZdrUst),
             'eritrociti': new FormControl(
@@ -153,10 +162,16 @@ export class UzorciComponent implements OnInit, OnDestroy{
                 [Validators.required,
                 UzorciValidations.isBroj()] : [])
         });
+
         //Prolazim kroz sve form controlove u formi
         for(const key in this.forma.controls){
             //Spremam im nazive
             this.nazivi.push(key);
+            //Spremam sve form controlove i njihove nazive
+            this.controls.push({
+                control: this.forma.get(key),
+                naziv: key
+            });
         }
 
         const combined = merge(
@@ -186,6 +201,8 @@ export class UzorciComponent implements OnInit, OnDestroy{
 
     //Metoda koja se poziva kada med.sestra stisne button "Pošalji"
     onSubmit(){
+        //Označavam da je forma submittana
+        this.isSubmitted = true;
         if(this.forma.invalid){
             return;
         }

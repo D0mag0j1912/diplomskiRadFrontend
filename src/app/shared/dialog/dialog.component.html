@@ -3,6 +3,7 @@
     *ngIf="data.message">
     <p>{{data.message}}</p>
 </div>
+<!--DIO ZA BRISANJE PACIJENTA IZ ČEKAONICE-->
 <div
     mat-dialog-title
     *ngIf="data.brisanje">
@@ -23,6 +24,40 @@
     <p class="mat-body-1">Status čekaonice:
         <strong>{{data.brisanje.statusCekaonica}}</strong>
     </p>
+</div>
+<!--DIO ZA DETALJE ZAVRŠENOG PREGLEDA-->
+<div
+    mat-dialog-title
+    *ngIf="data.detaljiPregleda"
+    style="text-align: center;color:#337ab7">
+    <mat-card-title>Detalji pregleda</mat-card-title>
+</div>
+<div
+    mat-dialog-content
+    *ngIf="data.detaljiPregleda">
+    <h4>
+        Aktivni pacijent:
+        <strong>{{data.detaljiPregleda.ime + ' ' + data.detaljiPregleda.prezime}}</strong>
+    </h4>
+    <h4>
+        Datum pregleda:
+        <strong>{{data.detaljiPregleda.datum}}</strong>
+    </h4>
+    <h4>
+        Ukupna cijena pregleda:
+        <strong>{{data.detaljiPregleda.ukupnaCijenaPregled}}</strong>
+    </h4>
+    <h4
+        *ngIf="data.detaljiPregleda.bmi">
+        BMI:
+        <strong>{{data.detaljiPregleda.bmi}}</strong>
+    </h4>
+    <hr>
+    <h4 style="color:#a94442">
+        {{data.detaljiPregleda.tipKorisnik === 'lijecnik' ?
+        'Pacijent nema evidentiranu povijest bolesti na pregledu!' :
+        'Pacijent nema evidentiranih općih podataka na pregledu!'}}
+    </h4>
 </div>
 <div
     mat-dialog-actions>
