@@ -2324,7 +2324,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                                     this.sharedService.getDopunsko(+this.idPacijent)
                                                 ]).pipe(
                                                     tap(cijenaDopunsko => {
-                                                        console.log(cijenaDopunsko);
                                                         //Dohvaćam doplatu sa servera
                                                         let doplata = cijenaDopunsko[0][0].doplataLijek;
                                                         //Mijenjam zarez za točku

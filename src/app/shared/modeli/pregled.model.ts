@@ -3,12 +3,12 @@ import { Pacijent } from "./pacijent.model";
 
 export class Pregled {
     public nacinPlacanja: string;
-    public mkbSifraPrimarna: string;
     public tipSlucaj: string;
     public datum: Date;
     public vrijeme: Time;
     public idPregled?: number;
     public tip?: string;
+    public mkbSifraPrimarna?: string;
     public primarnaDijagnoza?: string;
     public nazivDrzave?: string;
     public oznakaOsiguranika?: string;

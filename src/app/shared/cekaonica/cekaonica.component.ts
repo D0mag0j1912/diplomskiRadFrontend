@@ -11,6 +11,8 @@ import { CekaonicaService } from './cekaonica.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
 import {DetaljiPregleda} from './detalji-pregleda/detaljiPregleda.model';
+import {Pregled} from '../modeli/pregled.model';
+import {PovijestBolesti} from '../modeli/povijestBolesti.model';
 
 @Component({
   selector: 'app-cekaonica',
@@ -50,11 +52,14 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     tipKorisnik: string = null;
     //Spremam broj retka
     brojRetka: number;
-    //Šaljem detaljima završenog pregleda ID obrade i tip korisnika stisnutog retka
-    poslaniIDObrada: number;
+    //Šaljem detaljima završenog pregleda tip korisnika stisnutog retka
     poslaniTipKorisnik: string;
     //Spremam detalje pregleda koje ću prikazati u dialogu
     detaljiPregleda: DetaljiPregleda;
+    //Spremam sve podatke općih podataka pregleda za slanje childu
+    pregledi: Pregled[] = [];
+    //Spremam sve podatke povijesti bolesti za slanje childu
+    povijestiBolesti: PovijestBolesti[] = [];
 
     constructor(
         //Dohvaćam trenutni url
@@ -140,8 +145,7 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
     //Metoda koja otvara prozor detalja pregleda
     onOtvoriDetalje(idObrada: number, tip: string){
-        //Šaljem "DetaljiPregledaComponent" ID obrade i tip korisnika koji je obradio taj redak
-        this.poslaniIDObrada = idObrada;
+        //Šaljem "DetaljiPregledaComponent" tip korisnika koji je obradio taj redak
         this.poslaniTipKorisnik = tip;
 
         const combined = forkJoin([
@@ -168,6 +172,37 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                 }
                 //Ako IMA evidentiranih podataka na pregledu
                 else{
+                    //Definiram objekte
+                    let objektPovijestBolesti;
+                    let objektPregled;
+                    //Restartam polja
+                    this.pregledi = [];
+                    this.povijestiBolesti = [];
+                    //Prolazim kroz odgovor servera
+                    for(const pregled of podatci[1]){
+                        //Ako se u odgovoru servera NE SPOMINJE "idPovijestBolesti"
+                        if(!('idPovijestBolesti' in pregled)){
+                            //Podatke sa servera spremam u svoj objekt
+                            objektPregled = new Pregled(pregled);
+                            //Spremam podatke pacijenta
+                            objektPregled.pacijent = pregled;
+                            //Dodavam objekte u svoje polje
+                            this.pregledi.push(objektPregled);
+                        }
+                        //Ako se u odgovoru servera SPOMINJE "idPovijestBolesti"
+                        else{
+                            //Podatke sa servera spremam u svoj objekt
+                            objektPovijestBolesti = new PovijestBolesti(pregled);
+                            //Spremam podatke recepta
+                            objektPovijestBolesti.recept = pregled;
+                            //Spremam podatke uputnice
+                            objektPovijestBolesti.uputnica = pregled;
+                            //Spremam podatke pacijenata
+                            objektPovijestBolesti.pacijent = pregled;
+                            //Dodavam objekte u svoje polje
+                            this.povijestiBolesti.push(objektPovijestBolesti);
+                        }
+                    }
                     //Otvori prozor detalja
                     this.isDetaljiPregleda = true;
                 }

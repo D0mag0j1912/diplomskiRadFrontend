@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PovezaniPovijestBolestiService} from '../povezani-povijest-bolesti/povezani-povijest-bolesti.service';
-import { merge,Subject } from 'rxjs';
+import { merge,of,Subject } from 'rxjs';
 import { HeaderService } from 'src/app/shared/header/header.service';
 import { Obrada } from 'src/app/shared/modeli/obrada.model';
 import { ObradaService } from 'src/app/shared/obrada/obrada.service';
@@ -398,6 +398,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                             //Ako je server vratio error
                             else{
                                 this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                                return of(null);
                             }
                         })
                     ).subscribe();
@@ -458,6 +459,7 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                                         //Ako je server vratio error
                                         else{
                                             this.dialog.open(DialogComponent, {data: {message: odgovor.message}});
+                                            return of(null);
                                         }
                                 })
                             );

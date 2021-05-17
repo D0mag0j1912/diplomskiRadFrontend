@@ -1,5 +1,5 @@
 <div class="backdrop" (click)="onClose()"></div>
-<div class="alert-box" #detaljiPregleda>
+<div class="alert-box">
     <h3 style="text-align: center;
             color:#337ab7;
             font-weight: bold;font-family: Verdana, sans-serif">Detalji pregleda</h3>
@@ -60,18 +60,18 @@
                                   readonly>
                             </td>
                         </tr>
-                        <tr *ngIf="!isOpciPodatci && primljeniTipKorisnik === 'sestra'">
+                        <tr *ngIf="pregledi.length === 0 && primljeniTipKorisnik === 'sestra'">
                             <td colspan="3">
                                 <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih općih podataka na pregledu!</strong></h4>
                             </td>
                         </tr>
-                        <ng-container *ngIf="primljeniTipKorisnik === 'sestra' && isOpciPodatci">
+                        <ng-container *ngIf="primljeniTipKorisnik === 'sestra' && pregledi.length > 0">
                             <tr>
                                 <td colspan="3">
                                     <h4><strong style="font-family: Verdana, sans-serif;">Opći podatci pregleda</strong></h4>
                                 </td>
                             </tr>
-                            <tr *ngIf="!isOpciPodatci">
+                            <tr *ngIf="pregledi.length === 0">
                                 <td colspan="3">
                                     <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema primarnih dijagnoza!</strong>
                                 </td>
@@ -138,19 +138,19 @@
                                 </ng-container>
                             </ng-container>
                         </ng-container>
-                        <tr *ngIf="!isPovijestBolesti && primljeniTipKorisnik === 'lijecnik'">
+                        <tr *ngIf="povijestiBolesti.length === 0 && primljeniTipKorisnik === 'lijecnik'">
                             <td colspan="3">
                                 <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranu povijest bolesti na pregledu!</strong></h4>
                             </td>
                         </tr>
-                        <ng-container *ngIf="primljeniTipKorisnik === 'lijecnik' && isPovijestBolesti">
+                        <ng-container *ngIf="primljeniTipKorisnik === 'lijecnik' && povijestiBolesti.length > 0">
                             <tr>
                                 <td colspan="3">
                                     <h4>
                                         <strong style="font-family: Verdana, sans-serif;">Povijest bolesti</strong></h4>
                                 </td>
                             </tr>
-                            <tr *ngIf="!isPovijestBolesti">
+                            <tr *ngIf="povijestiBolesti.length === 0">
                                 <td colspan="3">
                                     <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema evidentiranih povijesti bolesti!</strong>
                                 </td>

@@ -23,7 +23,7 @@ export class DetaljiPregleda {
             this.ukupnaCijenaPregled = response.ukupnaCijenaPregled;
         }
         else{
-            this.ukupnaCijenaPregled = '0.00';
+            this.ukupnaCijenaPregled = '0.00 kn';
         }
         if(response.bmi){
             this.bmi = response.bmi;
