@@ -11,7 +11,7 @@
                         placeholder="Unesite parametar pretrage..."
                         formControlName="parametar"
                         style="width:350px;">
-                    <span class="help-block" *ngIf="porukaPovijestBolestiPretraga">{{porukaPovijestBolestiPretraga}}</span>
+                    <mat-error *ngIf="porukaPovijestBolestiPretraga">{{porukaPovijestBolestiPretraga}}</mat-error>
                 </div>
             </form>
         </div>

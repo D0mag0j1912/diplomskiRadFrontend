@@ -71,11 +71,6 @@
                                     <h4><strong style="font-family: Verdana, sans-serif;">Opći podatci pregleda</strong></h4>
                                 </td>
                             </tr>
-                            <tr *ngIf="pregledi.length === 0">
-                                <td colspan="3">
-                                    <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema primarnih dijagnoza!</strong>
-                                </td>
-                            </tr>
                             <ng-container formArrayName="opciPodatci" *ngFor="let control of getControlsOpciPodatci();let i = index">
                                 <ng-container [formGroupName]="i">
                                     <tr [ngClass]="(i === 0) ? 'border_top' : ''">
@@ -107,7 +102,9 @@
                                                 readonly>
                                         </td>
                                     </tr>
-                                    <tr class="border_bottom">
+                                    <tr
+                                        class="border_bottom"
+                                        *ngIf="control.value.primarnaDijagnoza">
                                         <td>
                                             <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
                                             <textarea
@@ -133,6 +130,13 @@
                                                 type="text"
                                                 readonly
                                                 style="border:0;width:40%;margin-left:270px;">
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        class="border_bottom"
+                                        *ngIf="!control.value.primarnaDijagnoza">
+                                        <td colspan="3">
+                                            <strong style="font-family: Verdana, sans-serif;color:#a94442;">Primarna dijagnoza nije unesena!</strong>
                                         </td>
                                     </tr>
                                 </ng-container>

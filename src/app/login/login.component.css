@@ -5,7 +5,3 @@ input.ng-invalid {
     border-left: 5px solid #a94442; /* red */
 }
 
-span{
-    color:#a94442;
-    font-weight: bold;
-}

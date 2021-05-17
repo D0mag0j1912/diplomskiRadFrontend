@@ -18,15 +18,12 @@
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
     overflow-x:hidden;
-    overflow-y:auto; 
+    overflow-y:auto;
     border-radius: 7px;
 }
 
 .alert-box-actions{
-    text-align:right;   
-}
-span{
-    color:#a94442;
+    text-align:right;
 }
 table td{
     padding:5px;
@@ -35,7 +32,7 @@ table td{
 }
 textarea{
     border:0;
-    width:100%; 
+    width:100%;
     font-family: Verdana, sans-serif;
     resize:none;
 }
@@ -45,9 +42,6 @@ textarea{
     border-style: inset;
     border-width: 1px;
 }
-/* input.ng-valid, select.ng-valid  {
-    border-left: 5px solid #42A948; /* green 
-} */
 .ng-invalid:not(form)  {
     border-left: 5px solid #a94442; /* red */
 }

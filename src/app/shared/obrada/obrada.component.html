@@ -59,12 +59,10 @@
                             style="width:100px;height:34px;margin-left:7px;"
                             [disabled]="!forma.valid">Pretraži</button>
                 </div>
-                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid">
-                    <span
-                        *ngIf="forma.hasError('error')"
-                        style="font-weight: bold;"
-                        class="help-block">Morate unijeti barem jedno od polja!</span>
-                </span>
+                <mat-error *ngIf="(forma.touched || forma.dirty) && !forma.valid">
+                    <mat-error
+                        *ngIf="forma.hasError('error')">Morate unijeti barem jedno od polja!</mat-error>
+                </mat-error>
             </form>
         </div>
     </div>
@@ -114,36 +112,33 @@
                                           placeholder="BMI"
                                           formControlName="bmi"
                                           style="width:100px;left:5px;position: relative;">
-                                      <span
-                                          class="help-block"
+                                      <mat-error
                                           *ngIf="tezina.value">
-                                          <span
-                                              *ngIf="tezina.errors?.pattern">Težina mora biti cjelobrojni pozitivni broj!</span>
-                                          <span
+                                          <mat-error
+                                              *ngIf="tezina.errors?.pattern">Težina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                          <mat-error
                                               *ngIf="!tezina.errors?.pattern
-                                              && tezina.errors?.moraBitiPozitivanBroj">Težina mora biti cjelobrojni pozitivni broj!</span>
-                                          <span
+                                              && tezina.errors?.moraBitiPozitivanBroj">Težina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                          <mat-error
                                               *ngIf="!tezina.errors?.pattern
                                               && !tezina.errors?.moraBitiPozitivanBroj
-                                              && tezina.errors?.neispravanUnos">Prevelika ili premala kilaža!</span>
-                                      </span>
-                                      <span
-                                          class="help-block"
+                                              && tezina.errors?.neispravanUnos">Prevelika ili premala kilaža!</mat-error>
+                                      </mat-error>
+                                      <mat-error
                                           *ngIf="visina.value">
-                                          <span
-                                              *ngIf="visina.errors?.pattern">Visina mora biti cjelobrojni pozitivni broj!</span>
-                                          <span
+                                          <mat-error
+                                              *ngIf="visina.errors?.pattern">Visina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                          <mat-error
                                               *ngIf="!visina.errors?.pattern
-                                              && visina.errors?.moraBitiPozitivanBroj">Visina mora biti cjelobrojni pozitivni broj!</span>
-                                          <span
+                                              && visina.errors?.moraBitiPozitivanBroj">Visina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                          <mat-error
                                               *ngIf="!visina.errors?.pattern
                                               && !visina.errors?.moraBitiPozitivanBroj
-                                              && visina.errors?.neispravanUnos">Premala ili prevelika visina!</span>
-                                      </span>
-                                      <span
-                                          class="help-block"
+                                              && visina.errors?.neispravanUnos">Premala ili prevelika visina!</mat-error>
+                                      </mat-error>
+                                      <mat-error
                                           *ngIf="spremioBMI"
-                                          style="color:#42A948;">{{spremioBMI}}</span>
+                                          style="color:#42A948;">{{spremioBMI}}</mat-error>
                                   </form>
                               </td>
                           </tr>

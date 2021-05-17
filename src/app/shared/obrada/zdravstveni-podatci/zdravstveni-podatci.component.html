@@ -41,7 +41,7 @@
                                     <option *ngFor="let drzava of drzave" value="{{drzava.nazivDrzave}}">{{drzava.nazivDrzave}}</option>
                                 </select>
                                 <mat-error *ngIf="(drzavaOsiguranja.touched || drzavaOsiguranja.dirty) && !drzavaOsiguranja.valid">
-                                    <mat-error *ngIf="drzavaOsiguranja.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="drzavaOsiguranja.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="drzavaOsiguranja.errors['drzaveIsForbidden'] && !drzavaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -58,7 +58,7 @@
                                     <option *ngFor="let kategorija of katOsiguranja" value="{{kategorija.oznakaOsiguranika}}">{{kategorija.oznakaOsiguranika}}</option>
                                 </select>
                                 <mat-error *ngIf="(kategorijaOsiguranja.touched || kategorijaOsiguranja.dirty) && !kategorijaOsiguranja.valid">
-                                    <mat-error *ngIf="kategorijaOsiguranja.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="kategorijaOsiguranja.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="kategorijaOsiguranja.errors['oznakaIsForbidden'] && !kategorijaOsiguranja.errors['required']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -83,7 +83,7 @@
                                     class="form-control"
                                     style="width:50px;margin-left:255px;margin-top:-35px;">
                                 <mat-error *ngIf="(podrucniUred.touched || podrucniUred.dirty) && !podrucniUred.valid">
-                                    <mat-error *ngIf="podrucniUred.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="podrucniUred.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="podrucniUred.errors['uredIsForbidden'] && !podrucniUred.errors['required']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -103,7 +103,7 @@
                                     placeholder="Unesite matični broj pacijenta...">
                                 <mat-error *ngIf="(mbo.touched || mbo.dirty) && !mbo.valid">
                                     <mat-error *ngIf="mbo.errors['pattern']">Morate unijeti ispravan format MBO-a!</mat-error>
-                                    <mat-error *ngIf="mbo.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="mbo.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
@@ -118,7 +118,7 @@
                                         for="trajnoOsnovno"
                                         style="margin-left:5px;font-family: Verdana, sans-serif;">Trajno osnovno osiguranje</label>
                                     <mat-error *ngIf="(trajnoOsnovno.touched || trajnoOsnovno.dirty) && !trajnoOsnovno.valid">
-                                        <mat-error *ngIf="trajnoOsnovno.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                        <mat-error *ngIf="trajnoOsnovno.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     </mat-error>
                                     <mat-error
                                         *ngIf="forma.hasError('baremJedanOsnovno')"
@@ -139,7 +139,7 @@
                                     formControlName="osnovnoOd"
                                     style="width:250px;">
                                 <mat-error *ngIf="(osnovnoOd.touched || osnovnoOd.dirty) && !osnovnoOd.valid">
-                                    <mat-error *ngIf="osnovnoOd.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="osnovnoOd.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="osnovnoOd.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
                                 </mat-error>
                                 <mat-error *ngIf="datumiOsnovno.errors?.neValjaDatumOsnovno">Početni datum mora biti manji od završnog!</mat-error>
@@ -154,7 +154,7 @@
                                     formControlName="osnovnoDo"
                                     style="width:250px;">
                                 <mat-error *ngIf="(osnovnoDo.touched || osnovnoDo.dirty) && !osnovnoDo.valid">
-                                    <mat-error *ngIf="osnovnoDo.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="osnovnoDo.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="osnovnoDo.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
                                 </mat-error>
                             </td>
@@ -196,7 +196,7 @@
                                     formControlName="dopunskoOd"
                                     style="width:250px;">
                                 <mat-error *ngIf="(dopunskoOd.touched || dopunskoOd.dirty) && !dopunskoOd.valid">
-                                    <mat-error *ngIf="dopunskoOd.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="dopunskoOd.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="dopunskoOd.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
                                 </mat-error>
                                 <mat-error *ngIf="datumiDopunsko.errors?.neValjaDatumDopunsko">Početni datum mora biti manji od završnog!</mat-error>
@@ -211,7 +211,7 @@
                                     formControlName="dopunskoDo"
                                     style="width:250px;">
                                 <mat-error *ngIf="(dopunskoDo.touched || dopunskoDo.dirty) && !dopunskoDo.valid">
-                                    <mat-error *ngIf="dopunskoDo.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="dopunskoDo.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="dopunskoDo.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
                                 </mat-error>
                             </td>
@@ -248,7 +248,7 @@
                                     <option *ngFor="let participacija of participacije" value="{{participacija.razlogParticipacija}}">{{participacija.razlogParticipacija}}</option>
                                 </select>
                                 <mat-error *ngIf="(clanakParticipacija.touched || clanakParticipacija.dirty) && !clanakParticipacija.valid">
-                                    <mat-error *ngIf="clanakParticipacija.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="clanakParticipacija.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="clanakParticipacija.errors?.participacijaIsForbidden && !clanakParticipacija.errors?.required">Morate unijeti ispravni članak!</mat-error>
                                 </mat-error>
                            </td>
@@ -279,7 +279,7 @@
                                     formControlName="participacijaDo"
                                     style="width:250px;">
                                 <mat-error *ngIf="(participacijaDo.touched || participacijaDo.dirty) && !participacijaDo.valid">
-                                    <mat-error *ngIf="participacijaDo.errors?.required">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="participacijaDo.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="participacijaDo.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
                                 </mat-error>
                            </td>

@@ -79,14 +79,12 @@
                                     <option [ngValue]="null" [disabled]="true">Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
-                                <span
-                                    class="help-block"
-                                    *ngIf="((primarnaDijagnoza.touched || primarnaDijagnoza.dirty) && !primarnaDijagnoza.valid)"
-                                    style="font-family: Verdana, sans-serif;font-weight: bold;">
-                                    <span *ngIf="primarnaDijagnoza.errors?.required">Primarna dijagnoza je obavezna!</span>
-                                    <span *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza &&
-                                          !primarnaDijagnoza.errors?.required">Neispravan unos primarne dijagnoze!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="((primarnaDijagnoza.touched || primarnaDijagnoza.dirty) && !primarnaDijagnoza.valid)">
+                                    <mat-error *ngIf="primarnaDijagnoza.errors?.required">Primarna dijagnoza je obvezna!</mat-error>
+                                    <mat-error *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza &&
+                                          !primarnaDijagnoza.errors?.required">Neispravan unos primarne dijagnoze!</mat-error>
+                                </mat-error>
                             </td>
                             <td>
                                 <input
@@ -95,13 +93,11 @@
                                     style="width:100px;height:35px"
                                     formControlName="mkbPrimarnaDijagnoza"
                                     placeholder="MKB šifra">
-                                <span
-                                    class="help-block"
-                                    *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)"
-                                    style="font-family: Verdana, sans-serif;font-weight: bold;">
-                                    <span *ngIf="mkbPrimarnaDijagnoza.errors?.required">MKB šifra dijagnoze je obavezna!</span>
-                                    <span *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB && !mkbPrimarnaDijagnoza.errors?.required">Neispravan unos MKB šifre!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)">
+                                    <mat-error *ngIf="mkbPrimarnaDijagnoza.errors?.required">MKB šifra dijagnoze je obvezna!</mat-error>
+                                    <mat-error *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB && !mkbPrimarnaDijagnoza.errors?.required">Neispravan unos MKB šifre!</mat-error>
+                                </mat-error>
                             </td>
                             <td></td>
                         </tr>
@@ -119,38 +115,32 @@
                                             <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
                                             <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                         </select>
-                                        <span
-                                            class="help-block"
-                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                            <span
-                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obavezna za unos!</span>
-                                            <span
+                                        <mat-error
+                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid">
+                                            <mat-error
+                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obvezna za unos!</mat-error>
+                                            <mat-error
                                                 *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB"
-                                                style="display: block;">Neispravan unos MKB šifre!</span>
-                                            <span
+                                                style="display: block;">Neispravan unos MKB šifre!</mat-error>
+                                            <mat-error
                                                 *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna"
-                                                style="display: block;">Naziv sekundarne dijagnoze je obvezan za unos!</span>
-                                        </span>
-                                        <span
-                                            class="help-block"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;"
+                                                style="display: block;">Naziv sekundarne dijagnoze je obvezan za unos!</mat-error>
+                                        </mat-error>
+                                        <mat-error
                                             *ngIf="!sekundarnaDijagnoza.valid">
                                             <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
-                                            <span
+                                            <mat-error
                                                 *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza"
-                                                style="display: block;">Duplikati nisu dozvoljeni!</span>
-                                        </span>
-                                        <span
-                                            class="help-block"
+                                                style="display: block;">Duplikati nisu dozvoljeni!</mat-error>
+                                        </mat-error>
+                                        <mat-error
                                             *ngIf="((dijagnozaCtrl.touched || dijagnozaCtrl.dirty) ||
                                                 (primarnaDijagnoza.touched || primarnaDijagnoza.dirty) ||
-                                                (mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty)) && !forma.valid"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                            <span
+                                                (mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty)) && !forma.valid">
+                                            <mat-error
                                                 *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza"
-                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
-                                        </span>
+                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</mat-error>
+                                        </mat-error>
                                     </td>
                                     <td>
                                         <input

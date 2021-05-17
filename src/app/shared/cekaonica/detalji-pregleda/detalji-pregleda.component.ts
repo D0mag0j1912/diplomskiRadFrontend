@@ -50,7 +50,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
     ngOnInit() {
-        console.log(this.pregledi);
         //Ako postoji BMI u mom modelu
         if(this.detaljiPregleda.bmi){
             //Označavam da ima BMI-a
@@ -76,14 +75,17 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
             }
             //Prolazim poljem općih podataka.
             for(let i=0;i<this.getControlsOpciPodatci().length;i++){
-                //U pomoćno polje ubacivam Observable u kojemu se nalazi naziv i šifra sekundarne dijagnoze
-                polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(
-                  this.primljeniTipKorisnik,
-                  this.getControlsOpciPodatci()[i].value.datum,
-                  this.getControlsOpciPodatci()[i].value.vrijemeZaBazu,
-                  this.getControlsOpciPodatci()[i].value.tipSlucaj,
-                  this.getControlsOpciPodatci()[i].value.primarnaDijagnoza,
-                  this.detaljiPregleda.idObrada));
+                //Ako primarna dijagnoza NIJE null (ako je upisana primarna dijagnoza)
+                if(this.getControlsOpciPodatci()[i].value.primarnaDijagnoza !== null){
+                    //U pomoćno polje ubacivam Observable u kojemu se nalazi naziv i šifra sekundarne dijagnoze
+                    polje.push(this.cekaonicaService.getNazivSifraSekundarnaDijagnoza(
+                        this.primljeniTipKorisnik,
+                        this.getControlsOpciPodatci()[i].value.datum,
+                        this.getControlsOpciPodatci()[i].value.vrijemeZaBazu,
+                        this.getControlsOpciPodatci()[i].value.tipSlucaj,
+                        this.getControlsOpciPodatci()[i].value.primarnaDijagnoza,
+                        this.detaljiPregleda.idObrada));
+                }
             }
             //Vrati polje Observable-a u kojemu se nalaze sekundarne dijagnoze općih podataka pregleda
             const combined = forkJoin(polje).pipe(
@@ -168,7 +170,6 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     onIzdanaUputnica(uputnica: Uputnica){
         //Podatke uputnice šaljem komponenti "IzdaneUputniceComponent"
         this.uputnica = {...uputnica};
-        console.log(this.uputnica);
         //Otvaram prozor izdane uputnice
         this.isIzdanaUputnica = true;
     }
@@ -238,7 +239,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         (<FormArray>this.forma.get('opciPodatci')).push(
             new FormGroup({
                 'nacinPlacanja': new FormControl(opciPodatci.nacinPlacanja),
-                'primarnaDijagnoza': new FormControl(opciPodatci.nazivPrimarna + " [" + opciPodatci.mkbSifraPrimarna + ']'),
+                'primarnaDijagnoza': new FormControl(
+                    opciPodatci.mkbSifraPrimarna ? opciPodatci.nazivPrimarna + " [" + opciPodatci.mkbSifraPrimarna + ']' : null),
                 'vrijemeZaBazu': new FormControl(opciPodatci.vrijeme),
                 'tipSlucaj': new FormControl(opciPodatci.tipSlucaj),
                 'datum': new FormControl(opciPodatci.datum),

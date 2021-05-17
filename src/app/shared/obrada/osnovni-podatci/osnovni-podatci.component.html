@@ -18,7 +18,7 @@
                                 <mat-error
                                     *ngIf="(ime.touched || ime.dirty) && !ime.valid"
                                     style="margin-left:40px;">
-                                    <mat-error *ngIf="ime.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="ime.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="ime.errors?.neispravanZnak">Samo slova su dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -53,7 +53,7 @@
                                 <mat-error
                                     *ngIf="(prezime.touched || prezime.dirty) && !prezime.valid"
                                     style="margin-left:70px;">
-                                    <mat-error *ngIf="prezime.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="prezime.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="prezime.errors?.neispravanZnak">Samo slova su dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -90,7 +90,7 @@
                                     *ngIf="(datRod.touched || datRod.dirty) && !datRod.valid"
                                     style="margin-left:100px;">
                                     <mat-error *ngIf="datRod.errors['pattern']">Morate unijeti ispravan format datuma!</mat-error>
-                                    <mat-error *ngIf="datRod.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="datRod.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
@@ -126,7 +126,7 @@
                                 <mat-error
                                     *ngIf="(adresa.touched || adresa.dirty) && !adresa.valid"
                                     style="margin-left:70px;">
-                                    <mat-error *ngIf="adresa.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="adresa.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
@@ -144,7 +144,7 @@
                                 <mat-error
                                     *ngIf="(status.touched || status.dirty) && !status.valid"
                                     style="margin-left:120px;">
-                                    <mat-error *ngIf="status.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="status.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="status.errors['statusPacijentIsForbidden']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -164,7 +164,7 @@
                                     *ngIf="(pbr.touched || pbr.dirty) && !pbr.valid"
                                     style="margin-left:100px;">
                                     <mat-error *ngIf="pbr.errors['pbrIsForbidden'] && !pbr.errors['required']">Unesena vrijednost nije dozvoljena!</mat-error>
-                                    <mat-error *ngIf="pbr.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="pbr.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
@@ -181,7 +181,7 @@
                                     *ngIf="(oib.touched || oib.dirty) && !oib.valid"
                                     style="margin-left:40px;">
                                     <mat-error *ngIf="oib.errors['pattern']">Morate unijeti ispravan format OIB-a!</mat-error>
-                                    <mat-error *ngIf="oib.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="oib.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                         </tr>
@@ -219,7 +219,7 @@
                                     *ngIf="(email.touched || email.dirty) && !email.valid"
                                     style="margin-left:50px;">
                                     <mat-error *ngIf="email.errors['email']">Morate unijeti ispravan format email-a!</mat-error>
-                                    <mat-error *ngIf="email.errors['required']">Ovo polje je obavezno za unos!</mat-error>
+                                    <mat-error *ngIf="email.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                         </tr>

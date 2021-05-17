@@ -17,9 +17,10 @@
                                     type="time"
                                     formControlName="vrijeme"
                                     class="form-control">
-                                <span class="help-block" *ngIf="(vrijeme.touched || vrijeme.dirty) && !vrijeme.valid">
-                                    <span *ngIf="vrijeme.errors['required']">Ovo polje je obavezno za unos!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(vrijeme.touched || vrijeme.dirty) && !vrijeme.valid">
+                                    <mat-error *ngIf="vrijeme.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                </mat-error>
                             </td>
                             <td>
                                 <label
@@ -29,10 +30,11 @@
                                     <option [value]="null" [disabled]="true">Odaberite vrstu pregleda</option>
                                     <option *ngFor="let vrsta of razliciteVrstePregleda" [value]="vrsta.nazivVrstaPregled">{{vrsta.nazivVrstaPregled}}</option>
                                 </select>
-                                <span class="help-block" *ngIf="(vrstaPregleda.touched || vrstaPregleda.dirty) && !vrstaPregleda.valid">
-                                    <span *ngIf="vrstaPregleda.errors['required']">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="vrstaPregleda.errors['vrstaIsForbidden'] && !vrstaPregleda.errors['required']">Nedozvoljen unos!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(vrstaPregleda.touched || vrstaPregleda.dirty) && !vrstaPregleda.valid">
+                                    <mat-error *ngIf="vrstaPregleda.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="vrstaPregleda.errors['vrstaIsForbidden'] && !vrstaPregleda.errors['required']">Nedozvoljen unos!</mat-error>
+                                </mat-error>
                             </td>
                             <td>
                                 <label
@@ -42,10 +44,10 @@
                                     type="date"
                                     formControlName="datum"
                                     class="form-control">
-                                <span class="help-block" *ngIf="(datum.touched || datum.dirty) && !datum.valid">
-                                    <span *ngIf="datum.errors['required']">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="datum.errors['pattern'] && !datum.errors['required']">Neispravan format datuma!</span>
-                                </span>
+                                <mat-error *ngIf="(datum.touched || datum.dirty) && !datum.valid">
+                                    <mat-error *ngIf="datum.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="datum.errors['pattern'] && !datum.errors['required']">Neispravan format datuma!</mat-error>
+                                </mat-error>
                             </td>
                         </tr>
                         <tr>
@@ -55,10 +57,11 @@
                                     <option [value]="null" [disabled]="true">Odaberite pacijenta</option>
                                     <option *ngFor="let pacijent of pacijenti" [value]="pacijent.Pacijent">{{pacijent.Pacijent}}</option>
                                 </select>
-                                <span class="help-block" *ngIf="(pacijentiForm.touched || pacijentiForm.dirty) && !pacijentiForm.valid">
-                                    <span *ngIf="pacijentiForm.errors['required']">Ovo polje je obavezno za unos!</span>
-                                    <span *ngIf="pacijentiForm.errors['pacijentIsForbidden'] && !pacijentiForm.errors['required']">Nedozvoljen unos!</span>
-                                </span>
+                                <mat-error
+                                    *ngIf="(pacijentiForm.touched || pacijentiForm.dirty) && !pacijentiForm.valid">
+                                    <mat-error *ngIf="pacijentiForm.errors['required']">Ovo polje je obvezno za unos!</mat-error>
+                                    <mat-error *ngIf="pacijentiForm.errors['pacijentIsForbidden'] && !pacijentiForm.errors['required']">Nedozvoljen unos!</mat-error>
+                                </mat-error>
                             </td>
                             <td></td>
                         </tr>

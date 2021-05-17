@@ -50,9 +50,9 @@
                         style="width:100px;height:34px;margin-left:7px;"
                         [disabled]="!forma.valid">Pretraži</button>
                 </div>
-                <span *ngIf="(forma.touched || forma.dirty) && !forma.valid" class="help-block">
-                    <span *ngIf="forma.hasError('error')" style="font-weight: bold;">Morate unijeti barem jedno od polja!</span>
-                </span>
+                <mat-error *ngIf="(forma.touched || forma.dirty) && !forma.valid">
+                    <mat-error *ngIf="forma.hasError('error')">Morate unijeti barem jedno od polja!</mat-error>
+                </mat-error>
             </form>
         </div>
     </div>

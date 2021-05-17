@@ -11,10 +11,8 @@
                         placeholder="Unesite parametar pretrage..."
                         formControlName="parametar"
                         style="width:350px;">
-                    <span
-                        class="help-block"
-                        style="font-weight:bold"
-                        *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</span>
+                    <mat-error
+                        *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</mat-error>
                 </div>
             </form>
         </div>
