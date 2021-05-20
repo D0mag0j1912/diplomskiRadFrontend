@@ -135,10 +135,19 @@ export class NarudzbaComponent implements OnInit, OnDestroy {
                     //Kreiram formu
                     this.forma = new FormGroup({
                         //Ako već postoji narudžba pacijenta, popuni podatke forme s podatcima narudžbe, a ako ne postoji, stavi null ili stavi VRIJEME I DATUM
-                        'vrijeme': new FormControl(this.isPacijent ? this.narudzba[0].vrijemeNarucivanje : this.vrijemeNarudzba, [Validators.required]),
-                        'vrstaPregleda': new FormControl(null,[Validators.required, this.isValidVrstaPregleda.bind(this)]),
-                        'datum': new FormControl(this.isPacijent ? this.narudzba[0].datumNarucivanje : this.datumNarudzba,[Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
-                        'pacijenti': new FormControl(null,[Validators.required, this.isValidPacijent.bind(this)]),
+                        'vrijeme': new FormControl(
+                            this.isPacijent ? this.narudzba[0].vrijemeNarucivanje : this.vrijemeNarudzba,
+                            [Validators.required]),
+                        'vrstaPregleda': new FormControl(null,
+                            [Validators.required,
+                            this.isValidVrstaPregleda.bind(this)]),
+                        'datum': new FormControl(
+                            this.isPacijent ? this.narudzba[0].datumNarucivanje : this.datumNarudzba,
+                            [Validators.required,
+                            Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
+                        'pacijenti': new FormControl(null,
+                            [Validators.required,
+                            this.isValidPacijent.bind(this)]),
                         'napomena': new FormControl(this.isPacijent ? this.narudzba[0].napomenaNarucivanje : null)
                     });
                     //Postavljam inicijalnu vrijednost dropdowna na vrijednost PACIJENTA koji je kliknut u ćeliji tablice

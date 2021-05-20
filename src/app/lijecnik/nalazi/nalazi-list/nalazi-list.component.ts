@@ -41,7 +41,9 @@ export class NalaziListComponent implements OnInit, OnDestroy{
     ) { }
 
     //Ova metoda se pokreće kada se komponenta inicijalizira
-    ngOnInit(){}
+    ngOnInit(){
+        console.log(this.nalazi);
+    }
 
     //Metoda koja se aktivira kada liječnik klikne na "Pogledaj uzorke"
     onPogledajUzorke(idNalaz: number, $event){

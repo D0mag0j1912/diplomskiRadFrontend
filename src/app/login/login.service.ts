@@ -12,6 +12,8 @@ import {baseUrl} from '../backend-path';
 })
 
 export class LoginService implements OnDestroy{
+
+    onChangeHeader = new Subject<void>();
     //Kreiram Subject koji poništava pretplate
     pretplateSubject = new Subject<boolean>();
     //Kreiram boolean varijablu u kojoj ću označiti je li se korisnik automatski odjavio. Ako jest, vrijednost će biti true i neće se prikazati liječnički header

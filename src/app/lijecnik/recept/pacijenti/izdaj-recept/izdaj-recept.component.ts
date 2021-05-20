@@ -2601,6 +2601,17 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             this.brojPonavljanja.patchValue("1",{emitEvent: false});
             //Postavljam riječima broj ponavljanja na "jedan put"
             this.rijecimaBrojPonavljanja.patchValue("jedan put", {emitEvent: false});
+            //Postavljam validatore na polje dostatnosti
+            this.dostatnost.setValidators(
+                [
+                    Validacija.provjeriDostatnost(
+                        this.isPonovljiv,
+                        this.brojPonavljanja.value),
+                    Validators.pattern("^[0-9]*$"),
+                    Validators.required
+                ]);
+            //Ažuriram validaciju
+            this.dostatnost.updateValueAndValidity({emitEvent: false});
             //Pretplaćivam se na Observable ažuriranja trajanje terapije
             const pretplataTrajanjeTerapije = forkJoin([
                 receptHandler.azuriranjeDostatnostiHandler(
@@ -2614,17 +2625,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                     this.receptService)
             ]).pipe(
                 tap((value) => {
-                    //Postavljam validatore na polje dostatnosti
-                    this.dostatnost.setValidators(
-                        [
-                            Validacija.provjeriDostatnost(
-                                this.isPonovljiv,
-                                this.brojPonavljanja.value),
-                            Validators.pattern("^[0-9]*$"),
-                            Validators.required
-                        ]);
-                    //Ažuriram validaciju
-                    this.dostatnost.updateValueAndValidity({emitEvent: false});
                     //Ako server nije vratio null tj. ako lijek završava na mg ili g
                     if(value[1] !== null){
                         //Te ako je server vratio informaciju da je trenutno doziranje PREŠLO definiranu dnevnu dozu

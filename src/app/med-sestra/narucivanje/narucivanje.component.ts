@@ -1,5 +1,6 @@
 import { Time } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Validators} from '@angular/forms';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {forkJoin, Subject} from 'rxjs';
@@ -51,7 +52,7 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
 
                 //Kreiram svoju formu za početne datume
                 this.forma = new FormGroup({
-                    'datum': new FormControl(this.danasnjiDatum)
+                    'datum': new FormControl(this.danasnjiDatum, [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)])
                 });
 
                 //Kreiram reactive formu koja sadržava sve retke i stupce tablice narudžbi

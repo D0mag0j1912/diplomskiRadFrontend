@@ -223,8 +223,7 @@
                                     formControlName="mkbPrimarnaDijagnoza"
                                     placeholder="MKB šifra">
                                 <mat-error
-                                    *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)"
-                                    style="font-family: Verdana, sans-serif;font-weight: bold;">
+                                    *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)">
                                     <mat-error *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB">Neispravan unos MKB šifre!</mat-error>
                                 </mat-error>
                             </td>

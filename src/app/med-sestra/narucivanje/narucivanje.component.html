@@ -20,6 +20,8 @@
                         formControlName="datum"
                         style="width:270px;"
                         placeholder="Unesite datum početka naručivanja...">
+                    <mat-error
+                        *ngIf="datum.errors?.pattern">Neispravan format datuma!</mat-error>
                 </div>
             </form>
             <div style="background-color:#FAEBD7;border:1px solid gray;height:35px;">

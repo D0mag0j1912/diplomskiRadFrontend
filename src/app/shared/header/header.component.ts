@@ -80,6 +80,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
             })
         ).subscribe();
 
+        //Pretplaćujem se na informaciju kada će Guard odbiti korisnika da ažuriram header
+        this.loginService.onChangeHeader.pipe(
+            tap(() => {
+                console.log("tu sam");
+                //Postavljam obe oznake korisnika na false jer je odjavljen korisnik
+                this.isLijecnik = false;
+                this.isMedSestra = false;
+                //Označavam da korisnik više nije prijavljen
+                this.prijavljen = false;
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
+
     }
 
     //Metoda se poziva kada korisnik klikne button "Logout"
@@ -91,6 +104,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
                 //Postavljam obe oznake korisnika na false jer je odjavljen korisnik
                 this.isLijecnik = false;
                 this.isMedSestra = false;
+                //Označavam da korisnik više nije prijavljen
+                this.prijavljen = false;
             })
         ).subscribe();
     }

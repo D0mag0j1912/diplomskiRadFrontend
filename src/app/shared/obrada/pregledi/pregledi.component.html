@@ -28,6 +28,9 @@
                             class="form-control"
                             formControlName="datum"
                             style="width:200px;display: inline;margin-left:5px;">
+                        <mat-error
+                            *ngIf="datum.errors?.pattern"
+                            style="display:block;">Neispravan format datuma!</mat-error>
                     </ng-container>
                     <ng-container *ngIf="!isDatum">
                         <label

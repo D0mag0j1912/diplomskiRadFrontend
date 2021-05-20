@@ -54,8 +54,6 @@ export class PreglediComponent implements OnInit, OnDestroy{
         this.route.data.pipe(
             map(podatci => podatci.pregledi),
             tap(podatci => {
-                //Spremam tip prijavljenog korisnika
-                this.prijavljeniKorisnik = podatci.tipKorisnik;
                 //Ako pacijent nije aktivan
                 if(podatci === null){
                     //Označavam da pacijent nije aktivan
@@ -71,6 +69,8 @@ export class PreglediComponent implements OnInit, OnDestroy{
                         this.imaLiPregleda = false;
                     }
                     else{
+                        //Spremam tip prijavljenog korisnika
+                        this.prijavljeniKorisnik = podatci.tipKorisnik;
                         //Označavam da aktivni pacijent IMA pregleda
                         this.imaLiPregleda = true;
                         //Inicijaliziram objekt tipa "PregledList"
@@ -86,7 +86,7 @@ export class PreglediComponent implements OnInit, OnDestroy{
                     //Kreiram novu formu
                     this.forma = new FormGroup({
                         'filter': new FormControl('datum',[Validators.required]),
-                        'datum': new FormControl(podatci.najnovijiDatum),
+                        'datum': new FormControl(podatci.najnovijiDatum, [Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]),
                         'pretraga': new FormControl(null)
                     });
                 }
@@ -286,6 +286,10 @@ export class PreglediComponent implements OnInit, OnDestroy{
         this.preglediService.pregledDodan.next({isDodan: false, tipKorisnik:null});
         //Ažuriram stanje Local Storagea
         localStorage.setItem("isDodanPregled",JSON.stringify({isDodan: false, tipKorisnik:null}));
+    }
+
+    get datum(): FormControl {
+        return this.forma.get('datum') as FormControl;
     }
 
 }

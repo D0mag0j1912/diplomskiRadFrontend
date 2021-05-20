@@ -32,8 +32,12 @@ export class PreglediResolverService implements Resolve<any>{
                         //Ako JE pacijent aktivan u obradi
                         if(podatci["success"] !== "false"){
                             return forkJoin([
-                                this.preglediListService.dohvatiSvePreglede(user.tip,+podatci[0].idPacijent),
-                                this.preglediService.getNajnovijiDatum(user.tip,+podatci[0].idPacijent)
+                                this.preglediListService.dohvatiSvePreglede(
+                                    user.tip,
+                                    +podatci[0].idPacijent),
+                                this.preglediService.getNajnovijiDatum(
+                                    user.tip,
+                                    +podatci[0].idPacijent)
                             ]).pipe(
                                 map(podatci => {
                                     return {
