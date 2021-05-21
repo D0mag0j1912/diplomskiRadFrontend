@@ -15,12 +15,20 @@ export class CekaonicaService{
         private http: HttpClient
     ){}
 
+    //Metoda koja dohvaća datum zadnje dodane povijesti bolesti za neki završeni pregled (pocetniDatum - zavrsniDatum)
+    getMaxDatum(tipKorisnik: string, idObrada: number){
+        const params = `?tip=${tipKorisnik}&idObrada=${idObrada.toString()}`;
+        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getMaxDatum.php'+ params).pipe(
+            catchError(handleError)
+        );
+    }
+
     //Metoda koja vraća Observable sa naplaćenim uslugama koje pripadaju nekoj sesiji obrade
     getNaplaceneUsluge(tipKorisnik: string, idObrada: number){
-          const params = `?tipKorisnik=${tipKorisnik}&idObrada=${idObrada.toString()}`;
-          return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNaplaceneUsluge.php' + params).pipe(
-              catchError(handleError)
-          );
+        const params = `?tipKorisnik=${tipKorisnik}&idObrada=${idObrada.toString()}`;
+        return this.http.get<any>(baseUrl + 'cekaonica/detalji-pregleda/getNaplaceneUsluge.php' + params).pipe(
+            catchError(handleError)
+        );
     }
 
     //Metoda koja šalje zahtjev serveru za dodavanje pacijenta u čekaonicu te vraća Observable u kojemu se nalazi odgovor servera

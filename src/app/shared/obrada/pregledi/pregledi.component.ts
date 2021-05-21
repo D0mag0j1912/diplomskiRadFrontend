@@ -63,14 +63,14 @@ export class PreglediComponent implements OnInit, OnDestroy{
                 else{
                     //Označavam da je pacijent aktivan
                     this.isAktivan = true;
+                    //Spremam tip prijavljenog korisnika
+                    this.prijavljeniKorisnik = podatci.tipKorisnik;
                     //Ako aktivni pacijent NEMA evidentiranih pregleda
                     if(podatci.pregledi === null){
                         //Označavam da aktivni pacijent NEMA aktivnih pregleda
                         this.imaLiPregleda = false;
                     }
                     else{
-                        //Spremam tip prijavljenog korisnika
-                        this.prijavljeniKorisnik = podatci.tipKorisnik;
                         //Označavam da aktivni pacijent IMA pregleda
                         this.imaLiPregleda = true;
                         //Inicijaliziram objekt tipa "PregledList"

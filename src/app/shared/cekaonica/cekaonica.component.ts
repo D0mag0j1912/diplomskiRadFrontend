@@ -54,6 +54,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
     brojRetka: number;
     //Šaljem detaljima završenog pregleda tip korisnika stisnutog retka
     poslaniTipKorisnik: string;
+    //Šaljem detaljima završenog pregleda maksimalni datum
+    maxDatum: {obicni: Date, uredeni: string};
     //Spremam detalje pregleda koje ću prikazati u dialogu
     detaljiPregleda: DetaljiPregleda;
     //Spremam sve podatke općih podataka pregleda za slanje childu
@@ -150,7 +152,8 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
 
         const combined = forkJoin([
             this.cekaonicaService.getImePrezimeDatum(tip, idObrada),
-            this.cekaonicaService.getPodatciPregleda(tip, idObrada)
+            this.cekaonicaService.getPodatciPregleda(tip, idObrada),
+            this.cekaonicaService.getMaxDatum(tip, idObrada)
         ]).pipe(
             tap(podatci => {
                 //Spremam osobne podatke pacijenta detalja pregleda
@@ -205,6 +208,14 @@ export class CekaonicaComponent implements OnInit, OnDestroy{
                     }
                     //Otvori prozor detalja
                     this.isDetaljiPregleda = true;
+                    //Ako postoji maksimalni datum sa servera za ovaj završeni pregled
+                    if(podatci[2][0].MaxDatum !== null && podatci[2][0].Datum !== null){
+                        //Spremam max datum te ga šaljem detaljima pregleda
+                        this.maxDatum = {
+                            obicni: new Date(podatci[2][0].MaxDatum),
+                            uredeni: podatci[2][0].Datum
+                        };
+                    }
                 }
             })
         ).subscribe();

@@ -134,24 +134,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         this.mkbPrimarnaDijagnoza.disable({emitEvent: false});
         //Onemogućavam inicijalno unos sekundarnih dijagnoza
         this.sekundarnaDijagnoza.disable({emitEvent: false});
-        //Inicijalno postavljam naziv i šifru zdr. djelatnosti na LABORATORIJSKU DIJAGNOSTIKU
-        this.nazivZdrDjel.patchValue('Laboratorijska dijagnostika', {emitEvent: false});
-        this.nazivZdrDjel.disable({emitEvent: false});
-        //Tražim šifru lab. dijagnostike
-        const sifDjel = this.zdravstveneDjelatnosti.filter(element => {
-            if(element.nazivDjelatnosti === 'Laboratorijska dijagnostika'){
-                return element.sifDjelatnosti;
-            }
-        });
-        //Postavljam šifru lab. dijagnostike u polje
-        this.sifZdrDjel.patchValue(sifDjel[0].sifDjelatnosti, {emitEvent: false});
-        //Onemogućavam mijenjanje
-        this.sifZdrDjel.disable({emitEvent: false});
-        //Postavljam validator na naziv zdr. ustanove
-        this.zdravstvenaUstanova.setValidators([UputnicaValidators.requiredZdrUstanova(this.tip.value)]);
-        this.zdravstvenaUstanova.updateValueAndValidity({emitEvent: false});
-        //Onemogućavam promjenu vrste pregleda sve dok je "LABORATORIJSKA DIJAGNOSTIKA" tip uputnice
-        this.vrstaPregled.disable({emitEvent: false});
+        //Popuni lab. dijagnostika
+        this.popuniLabDijagnostika();
 
         /*****************************/
         //Ako je PACIJENT AKTIVAN
@@ -378,6 +362,29 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             )
         ).subscribe();
     }
+
+    //Metoda koja popunjava vrijednosti lab. dijagnostike
+    popuniLabDijagnostika(){
+        //Inicijalno postavljam naziv i šifru zdr. djelatnosti na LABORATORIJSKU DIJAGNOSTIKU
+        this.nazivZdrDjel.patchValue('Laboratorijska dijagnostika', {emitEvent: false});
+        this.nazivZdrDjel.disable({emitEvent: false});
+        //Tražim šifru lab. dijagnostike
+        const sifDjel = this.zdravstveneDjelatnosti.filter(element => {
+            if(element.nazivDjelatnosti === 'Laboratorijska dijagnostika'){
+                return element.sifDjelatnosti;
+            }
+        });
+        //Postavljam šifru lab. dijagnostike u polje
+        this.sifZdrDjel.patchValue(sifDjel[0].sifDjelatnosti, {emitEvent: false});
+        //Onemogućavam mijenjanje
+        this.sifZdrDjel.disable({emitEvent: false});
+        //Postavljam validator na naziv zdr. ustanove
+        this.zdravstvenaUstanova.setValidators([UputnicaValidators.requiredZdrUstanova(this.tip.value)]);
+        this.zdravstvenaUstanova.updateValueAndValidity({emitEvent: false});
+        //Onemogućavam promjenu vrste pregleda sve dok je "LABORATORIJSKA DIJAGNOSTIKA" tip uputnice
+        this.vrstaPregled.disable({emitEvent: false});
+    }
+
     //Metoda koja se poziva kada liječnik promijeni tip uputnice
     onChangeTip($event: any){
         //Ako je tip uputnice "Laboratorijska dijagnostika"
@@ -813,7 +820,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
                             return this.izdajUputnicaService.getInicijalneDijagnoze(+idObrada, mboPacijent).pipe(
                                 tap(dijagnoze => {
-                                    console.log(dijagnoze);
                                     //Restartam polje inicijalnih dijagnoza
                                     this.inicijalneDijagnoze = [];
                                     //Zatvaram prozor
@@ -832,6 +838,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                     this.primarnaDijagnoza.enable({emitEvent: false});
                                     this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
                                     this.sekundarnaDijagnoza.enable({emitEvent: false});
+                                    //Popuni lab. dijagnostiku
+                                    this.popuniLabDijagnostika();
                                 })
                             );
                         })
@@ -841,6 +849,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         }
         //Ako liječnik NIJE POTVRDIO povijest bolesti
         else{
+            //Popuni lab. dijagnostiku
+            this.popuniLabDijagnostika();
             //Samo zatvori prozor povijesti bolesti
             this.isPovijestBolesti = false;
             //Onemogućavam unos dijagnoza

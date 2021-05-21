@@ -22,6 +22,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     @Output() close = new EventEmitter<any>();
     //Primam tip korisnika od "CekaonicaComponent"
     @Input() primljeniTipKorisnik: string;
+    //Primam maksimalni datum (datum kada je dodan zadnji pregled ovog završenog pregleda)
+    @Input() maxDatum: {obicni: Date, uredeni: string};
     //Primam sve podatke povijesti bolesti od "CekaonicaComponent"
     @Input() povijestiBolesti: PovijestBolesti[];
     //Primam sve opće podatke pregleda od "CekaonicaComponent"
@@ -42,6 +44,8 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     brojacPregleda: number = 0;
     //Oznaka je li dodan BMI u ovoj sesiji obrade
     isDodanBMI: boolean = false;
+    //Spremam mogući string u kojemu se nalazi (pocetniDatum - zavrsniDatum)
+    pocetniZavrsni: string = null;
 
     constructor(
         //Dohvaćam servis čekaonice
@@ -50,6 +54,20 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
 
     //Ova metoda se izvodi kada se komponenta inicijalizira
     ngOnInit() {
+        //Ako max datum nije null
+        if(this.maxDatum){
+            //Rastavljam dohvaćeni datum na dijelove
+            const parts = this.detaljiPregleda.datumPregled.toString().match(/(\d+)/g);
+            //Spajam datum u default format (yyyy-MM-dd)
+            const pom = parts[2] + '-' + parts[1] + '-' + parts[0];
+            //Početni datum (yyyy-MM-dd)
+            const datum = new Date(pom).getTime();
+            //Ako je početni datum MANJI od maksimalnog
+            if(datum < this.maxDatum.obicni.getTime()){
+                //Kreiram string (pocetniDatum - zavrsniDatum)
+                this.pocetniZavrsni = this.detaljiPregleda.datumPregled + ' - ' + this.maxDatum.uredeni;
+            }
+        }
         //Ako postoji BMI u mom modelu
         if(this.detaljiPregleda.bmi){
             //Označavam da ima BMI-a
@@ -58,7 +76,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
         //Kreiram formu
         this.forma = new FormGroup({
             'imePrezime': new FormControl(this.detaljiPregleda.imePacijent + " " + this.detaljiPregleda.prezimePacijent),
-            'datumPregled': new FormControl(this.detaljiPregleda.datumPregled),
+            'datumPregled': new FormControl(this.pocetniZavrsni ? this.pocetniZavrsni : this.detaljiPregleda.datumPregled),
             'ukupnaCijenaPregled': new FormControl(this.detaljiPregleda.ukupnaCijenaPregled),
             'bmi': new FormControl(this.detaljiPregleda.bmi ? this.detaljiPregleda.bmi : null),
             'opciPodatci': new FormArray([]),
@@ -198,7 +216,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 'datum': new FormControl(povijestBolesti.datum),
                 'tipSlucaj': new FormControl(povijestBolesti.tipSlucaj),
                 'vrijemeZaBazu': new FormControl(povijestBolesti.vrijeme),
-                'vrijeme': new FormControl(this.brojacPregleda + '.pregled [' + povijestBolesti.vrijeme + ']'),
+                'vrijeme': new FormControl(this.brojacPregleda + '. pregled [' + povijestBolesti.datum + ' || ' + povijestBolesti.vrijeme + ']'),
                 'recept': new FormGroup({
                     'proizvod': new FormControl(povijestBolesti._recept.proizvod ? povijestBolesti._recept.proizvod : null),
                     'kolicina': new FormControl(povijestBolesti._recept.kolicina ? povijestBolesti._recept.kolicina : null),
@@ -245,7 +263,7 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
                 'tipSlucaj': new FormControl(opciPodatci.tipSlucaj),
                 'datum': new FormControl(opciPodatci.datum),
                 'sekundarneDijagnoze': new FormControl(),
-                'vrijemePregled': new FormControl(this.brojacPregleda + '.pregled [' + opciPodatci.vrijeme + ']'),
+                'vrijemePregled': new FormControl(this.brojacPregleda + '.pregled [' + opciPodatci.datum + ' || ' + opciPodatci.vrijeme + ']'),
                 'pacijent': new FormGroup({
                     'imePacijent': new FormControl(opciPodatci._pacijent.ime),
                     'prezPacijent': new FormControl(opciPodatci._pacijent.prezime),

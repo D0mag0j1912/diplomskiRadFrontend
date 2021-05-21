@@ -76,10 +76,19 @@ export function azuriranjeDostatnosti(
     else if(forma.get('dopunskaListaLijek.dopunskaListaLijekText').value){
         lijek = forma.get('dopunskaListaLijek.dopunskaListaLijekText').value;
     }
+    //Ako je doziranje 0
+    if(doza === '0xdnevno' || doza === '0xtjedno'){
+        //Nemoj ići u backend jer se s 0 ne dijeli
+        return of(null);
+    }
     //Ako su popunjeni unosi lijeka, količine lijeka i doziranja lijeka:
     if(lijek && doza && kolicina){
         //Vraćam Observable u kojemu se nalazi dostatnost u danima
-        return receptService.getDostatnost(lijek,kolicina,doza,brojPonavljanja);
+        return receptService.getDostatnost(
+            lijek,
+            kolicina,
+            doza,
+            brojPonavljanja);
     }
     //Ako NISU popunjeni unosi lijeka, količine lijeka i doziranja lijeka, vrati null
     else{
