@@ -28,3 +28,57 @@ textarea{
     resize:none;
     cursor: pointer;
 }
+
+.main-div__categories{
+    background-color:#FAEBD7;
+    border:1px solid gray;
+    height:35px;
+}
+
+.main-div__categories h5{
+    text-align: right;
+    font-family: Verdana, sans-serif;
+    float:left;
+    margin-left:25px;
+}
+
+.h5_ostali{
+    margin-top:-15px;
+}
+
+.main-div__categories div{
+    height:15px;
+    width:15px;
+}
+
+.div_kontrolni {
+    background-color: #6495ED;
+    margin-left:5px;
+    margin-top:10px;
+}
+
+.div_preventivni {
+    background-color: #D2691E;
+    margin-left:150px;
+    margin-top:-15px;
+}
+
+.div_cijepljenje {
+    background-color: #008B8B;
+    margin-left:315px;
+    margin-top:-15px;
+}
+
+.div_kirurski {
+    background-color: #556B2F;
+    margin-left:415px;
+    margin-top:-15px;
+}
+
+.div_ostalo {
+    background-color: #E6E6FA;
+    margin-left:545px;
+    margin-top:-15px;
+}
+
+

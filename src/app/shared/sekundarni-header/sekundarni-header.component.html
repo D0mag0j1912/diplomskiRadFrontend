@@ -24,7 +24,6 @@
                 routerLinkActive="active"
                 *ngIf="isMedSestra">
                 <a
-                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     routerLink="/med-sestra/obrada/opciPodatci">
                     Opći podatci pregleda</a>
             </li>
@@ -32,7 +31,6 @@
                 routerLinkActive="active"
                 *ngIf="isLijecnik">
                 <a
-                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     routerLink="/lijecnik/obrada/povijestBolesti">
                     Povijest bolesti</a>
             </li>
@@ -40,7 +38,6 @@
                 routerLinkActive="active"
                 class="dropdown">
                 <a
-                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     class="dropdown-toggle"
                     role="button"
                     id="navbarDropdown"
@@ -49,21 +46,16 @@
                     class="dropdown-menu"
                     aria-labelledby="navbarDropdown">
                     <li>
-                        <a
-                            style="cursor: pointer;font-family:Verdana, sans-serif"
-                            routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a>
+                        <a  routerLink="{{isLijecnik ? '/lijecnik/obrada/osnovniPodatci' : '/med-sestra/obrada/osnovniPodatci'}}">Osnovni podatci</a>
                     </li>
                     <div class="dropdown-divider"></div>
-                    <li><a
-                            style="cursor: pointer;font-family:Verdana, sans-serif"
-                            routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a>
+                    <li><a  routerLink="{{isLijecnik ? '/lijecnik/obrada/zdravstveniPodatci' : '/med-sestra/obrada/zdravstveniPodatci'}}">Zdravstveni podatci</a>
                     </li>
                 </ul>
             </li>
             <li
                 routerLinkActive="active">
                 <a
-                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     (click)="preumjeriNaPregled()">
                     Pregledi</a>
             </li>
@@ -71,7 +63,6 @@
                 routerLinkActive="active"
                 *ngIf="isLijecnik">
                 <a
-                    style="cursor: pointer;font-family:Verdana, sans-serif"
                     routerLink="/lijecnik/obrada/nalazi">
                     Nalazi</a>
             </li>

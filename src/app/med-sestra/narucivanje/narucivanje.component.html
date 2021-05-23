@@ -9,7 +9,9 @@
             (otkazivanje)="onOtkazivanjeNarudzba()"
             (zatvaranje)="onCloseNarudzba()"></app-narudzba>
         <div class="col-xs-12 col-md-12">
-            <form [formGroup]="forma">
+            <form
+                [formGroup]="forma"
+                *ngIf="forma">
                 <div class="form-group">
                     <label
                         for="datum"
@@ -24,24 +26,26 @@
                         *ngIf="datum.errors?.pattern">Neispravan format datuma!</mat-error>
                 </div>
             </form>
-            <div style="background-color:#FAEBD7;border:1px solid gray;height:35px;">
-                <h5 style="text-align: right;font-family: Verdana, sans-serif;float:left;margin-left:25px;">Kontrolni pregled</h5>
-                <div style="height:15px;width:15px;background-color: #6495ED;margin-top:10px;margin-left:5px;"></div>
-                <h5 style="text-align: right;font-family: Verdana, sans-serif;float:left;margin-left:25px;margin-top:-15px;">Preventivni pregled</h5>
-                <div style="height:15px;width:15px;background-color: #D2691E;margin-left:150px;margin-top:-15px;"></div>
-                <h5 style="text-align: right;font-family: Verdana, sans-serif;float:left;margin-left:25px;margin-top:-15px;">Cijepljenje</h5>
-                <div style="height:15px;width:15px;background-color: #008B8B;margin-left:315px;margin-top:-15px;"></div>
-                <h5 style="text-align: right;font-family: Verdana, sans-serif;float:left;margin-left:25px;margin-top:-15px;">Kirurški zahvat</h5>
-                <div style="height:15px;width:15px;background-color: #556B2F;margin-left:415px;margin-top:-15px;"></div>
-                <h5 style="text-align: right;font-family: Verdana, sans-serif;float:left;margin-left:25px;margin-top:-15px;">Ostalo</h5>
-                <div style="height:15px;width:15px;background-color: #E6E6FA;margin-left:545px;margin-top:-15px;"></div>
+            <div class="main-div__categories">
+                <h5 class="h5_kontrolni">Kontrolni pregled</h5>
+                <div class="div_kontrolni"></div>
+                <h5 class="h5_ostali">Preventivni pregled</h5>
+                <div class="div_preventivni"></div>
+                <h5 class="h5_ostali">Cijepljenje</h5>
+                <div class="div_cijepljenje"></div>
+                <h5 class="h5_ostali">Kirurški zahvat</h5>
+                <div class="div_kirurski"></div>
+                <h5 class="h5_ostali">Ostalo</h5>
+                <div class="div_ostalo"></div>
             </div>
         </div>
     </div>
     <div class="row">
         <div class="col-xs-12 col-md-12">
             <div class="table-responsive-sm">
-                <form [formGroup]="formaTablica">
+                <form
+                    [formGroup]="formaTablica"
+                    *ngIf="formaTablica">
                     <table class="table table-bordered">
                         <thead>
                             <tr>

@@ -1,3 +1,16 @@
 input {
     float:right;
 }
+
+.navbar {
+    padding: 0;
+}
+
+a{
+    cursor: pointer;
+    font-family:Verdana, sans-serif
+}
+
+ul li a{
+    color: #333;
+}

@@ -1,110 +1,93 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <button 
+    <button
         class="navbar-toggler ml-auto"
         data-toggle="collapse"
         data-target="#collapse_target">
         <span class="navbar-toggler-icon"></span>
     </button>
-    
+
 
     <div class="collapse navbar-collapse" id="collapse_target">
         <ul class="nav navbar-nav">
             <div class="navbar-header">
-                <a 
-                    routerLink="/" 
-                    class="navbar-brand" 
-                    (click)="goToObrada()" 
-                    style="cursor: pointer;
-                        font-family: Verdana, sans-serif;">Ordinacija opće/obiteljske medicine</a> 
+                <a
+                    routerLink="/"
+                    class="navbar-brand"
+                    (click)="goToObrada()">Ordinacija opće/obiteljske medicine</a>
             </div>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="!prijavljen">
-                <a 
-                    routerLink="/login" 
-                    style="cursor: pointer;font-family: Verdana, sans-serif;">Prijava</a>
+                <a
+                    routerLink="/login">Prijava</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="prijavljen">
-                <a 
-                    routerLink = "{{isLijecnik ? '/lijecnik/obrada/povijestBolesti' : '/med-sestra/obrada/opciPodatci'}}" 
-                    style="cursor: pointer;font-family: Verdana, sans-serif;">Obrada</a>
+                <a
+                    routerLink = "{{isLijecnik ? '/lijecnik/obrada/povijestBolesti' : '/med-sestra/obrada/opciPodatci'}}">Obrada</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="prijavljen">
-                <a 
-                    routerLink="{{isLijecnik ? '/lijecnik/cekaonica' : '/med-sestra/cekaonica'}}" 
-                    style="cursor: pointer;font-family: Verdana, sans-serif;">Čekaonica</a>
+                <a
+                    routerLink="{{isLijecnik ? '/lijecnik/cekaonica' : '/med-sestra/cekaonica'}}">Čekaonica</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="prijavljen && isLijecnik">
-                <a 
-                    routerLink="/lijecnik/recept" 
-                    style="cursor: pointer;font-family: Verdana, sans-serif;">Recepti</a>
+                <a
+                    routerLink="/lijecnik/recept">Recepti</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="prijavljen && isLijecnik">
-                <a 
-                    routerLink="/lijecnik/uputnica" 
-                    style="cursor: pointer;font-family: Verdana, sans-serif;">Uputnice</a>
+                <a
+                    routerLink="/lijecnik/uputnica">Uputnice</a>
             </li>
-            <li 
-                routerLinkActive="active" 
+            <li
+                routerLinkActive="active"
                 *ngIf="prijavljen && isMedSestra">
-                <a 
-                    routerLink="/med-sestra/narucivanje" 
-                    style="cursor: pointer;font-family: Verdana, sans-serif;">Naručivanje</a>
+                <a
+                    routerLink="/med-sestra/narucivanje">Naručivanje</a>
             </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li 
-                *ngIf="!prijavljen" 
+            <li
+                *ngIf="!prijavljen"
                 routerLinkActive="active">
-                <a 
-                    routerLink="/signup" 
-                    style="cursor:pointer;font-family: Verdana, sans-serif;">Registracija</a>
+                <a
+                    routerLink="/signup">Registracija</a>
             </li>
             <!--Ovaj dropdown se prikazuje samo ako je korisnik prijavljen i ako je korisnik tipa "lijecnik"-->
-            <li 
-                routerLinkActive="active" 
-                class="dropdown" 
+            <li
+                routerLinkActive="active"
+                class="dropdown"
                 *ngIf="prijavljen">
-                <a 
-                    style="cursor:pointer;font-family: Verdana, sans-serif;" 
-                    class="dropdown-toggle" 
-                    role="button" 
-                    id="navbarDropdown" 
+                <a
+                    class="dropdown-toggle"
+                    role="button"
+                    id="navbarDropdown"
                     data-toggle="dropdown">Postavke</a>
-                <ul 
-                    class="dropdown-menu" 
+                <ul
+                    class="dropdown-menu"
                     aria-labelledby="navbarDropdown">
                     <li>
-                        <a 
-                            style="cursor:pointer;font-family: Verdana, sans-serif;" 
-                            routerLink="{{isLijecnik ? '/lijecnik/editPersonalData' : '/med-sestra/editPersonalData'}}">Ažuriranje osobnih podataka</a>
+                        <a  routerLink="{{isLijecnik ? '/lijecnik/editPersonalData' : '/med-sestra/editPersonalData'}}">Ažuriranje osobnih podataka</a>
                     </li>
-                    <div 
+                    <div
                         class="dropdown-divider">
                     </div>
                     <li>
-                        <a 
-                            style="cursor:pointer;font-family: Verdana, sans-serif;" 
-                            [routerLink]="isLijecnik ? ['/lijecnik/editPassword', idLijecnik] : ['/med-sestra/editPassword', idMedSestra]">Ažuriranje lozinke</a>
+                        <a  [routerLink]="isLijecnik ? ['/lijecnik/editPassword', idLijecnik] : ['/med-sestra/editPassword', idMedSestra]">Ažuriranje lozinke</a>
                     </li>
                 </ul>
             </li>
             <!--Prikazati samo ako smo prijavljeni-->
-            <li 
+            <li
                 *ngIf="prijavljen">
-                <a 
-                    style="cursor:pointer;font-family: Verdana, sans-serif;" 
-                    (click)="onLogout()">Odjava</a>
+                <a  (click)="onLogout()">Odjava</a>
             </li>
         </ul>
     </div>
 </nav>
-   

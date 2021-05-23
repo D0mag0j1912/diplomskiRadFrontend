@@ -83,7 +83,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         //Pretplaćujem se na informaciju kada će Guard odbiti korisnika da ažuriram header
         this.loginService.onChangeHeader.pipe(
             tap(() => {
-                console.log("tu sam");
                 //Postavljam obe oznake korisnika na false jer je odjavljen korisnik
                 this.isLijecnik = false;
                 this.isMedSestra = false;
