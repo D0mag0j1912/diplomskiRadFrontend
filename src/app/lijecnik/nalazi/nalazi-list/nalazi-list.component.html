@@ -15,13 +15,11 @@
                 [routerLink]="[nalaz.idNalaz]"
                 class="unutarnji"
                 [ngStyle]="{'margin-top': (i > 3) ? '7px' : '0px'}">
-                <mat-card-subtitle
-                    style="height:30px;">{{nalaz.datumNalaz}}</mat-card-subtitle>
+                <mat-card-subtitle>{{nalaz.datumNalaz}}</mat-card-subtitle>
                 <button
                     mat-raised-button
                     class="pogledajUzorke"
                     (click)="onPogledajUzorke(nalaz.idNalaz,$event)"
-                    style="float:right;top:-5px;left:20px;position:relative;"
                     *ngIf="!nalaz.misljenjeSpecijalist">Pogledaj rezultate</button>
                 <h4
                     [ngStyle]="{'margin-top': (i > 3) ? '-10px' : '0px'}">{{nalaz.nazivZdrUst + ' [' + nalaz.idZdrUst + ']'}}</h4>

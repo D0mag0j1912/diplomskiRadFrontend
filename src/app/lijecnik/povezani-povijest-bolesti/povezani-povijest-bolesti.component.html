@@ -7,10 +7,9 @@
                 <div class="form-group">
                     <input
                         type="text"
-                        class="form-control"
+                        class="form-control input_pretraga"
                         placeholder="Unesite parametar pretrage..."
-                        formControlName="parametar"
-                        style="width:350px;">
+                        formControlName="parametar">
                     <mat-error *ngIf="porukaPovijestBolestiPretraga">{{porukaPovijestBolestiPretraga}}</mat-error>
                 </div>
             </form>
@@ -26,7 +25,7 @@
                             <div [formGroupName]="i">
                                 <!--Prikaži ovaj red samo ako je godina jedinstvena-->
                                 <tr *ngIf="control.value.godina !== null">
-                                    <td style="background-color: #337ab7;">
+                                    <td class="td_godina">
                                         <input
                                             type="text"
                                             formControlName="godina"

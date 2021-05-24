@@ -76,3 +76,35 @@ p{
     color:#337ab7;
     font-size: 18px;
 }
+
+.div_tablica{
+    margin-top:5px;
+}
+
+.th_akcija, .th_datum{
+    width:25%;
+}
+
+.th_mkb{
+    width:15%;
+}
+
+.th_lijek_mag_pripravak{
+    width:30%;
+}
+
+.th_dostatnost{
+    width:5%;
+}
+
+.td_akcija{
+    padding:2px;
+}
+
+.button_prikazi{
+    margin-left:2px;
+}
+
+.button_azuriraj{
+    margin-top:2px;
+}

@@ -4,6 +4,17 @@ mat-card {
     list-style:none;
 }
 
+mat-card-subtitle{
+    height:30px;
+}
+
+button{
+    float:right;
+    top:-5px;
+    left:20px;
+    position:relative;
+}
+
 .unutarnji {
     flex: 0 0 24%;
     margin-left:7px;

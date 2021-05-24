@@ -69,30 +69,29 @@
                 class="form-control col-xs-offset-2 input_ime_prezime"
                 readonly
                 [value]="(pacijent.ime) + ' ' + (pacijent.prezime)">
-            <div class="table-responsive-sm" style="margin-top:5px;">
+            <div
+                class="table-responsive-sm div_tablica">
                 <table class="table table-striped table-bordered tablica">
                     <thead>
-                        <th scope="col" style="width:25%;">Akcija</th>
-                        <th scope="col" style="width:25%;">Datum</th>
-                        <th scope="col" style="width:15%;">MKB</th>
-                        <th scope="col" style="width:30%;">Lijek/Mag.pripravak</th>
-                        <th scope="col" style="width:5%;">Dostatnost</th>
+                        <th scope="col" class="th_akcija">Akcija</th>
+                        <th scope="col" class="th_datum">Datum</th>
+                        <th scope="col" class="th_mkb">MKB</th>
+                        <th scope="col" class="th_lijek_mag_pripravak">Lijek/Mag.pripravak</th>
+                        <th scope="col" class="th_dostatnost">Dostatnost</th>
                     </thead>
                     <tbody>
                         <ng-container *ngFor="let recept of recepti">
                             <!--Prikaži samo recepte koji pripadaju pacijentu poviše tablice-->
                             <tr *ngIf="recept.idPacijent === pacijent.id">
                                 <td
-                                    style="padding:2px;">
+                                    class="td_akcija">
                                     <button
                                         type="button"
-                                        class="btn btn-info btn-sm"
-                                        (click)="podiNaPrikaz(recept)"
-                                        style="margin-left:2px;">Prikaži recept</button>
+                                        class="btn btn-info btn-sm button_prikazi"
+                                        (click)="podiNaPrikaz(recept)">Prikaži recept</button>
                                     <button
                                         type="button"
-                                        class="btn btn-warning btn-sm"
-                                        style="margin-top:2px;"
+                                        class="btn btn-warning btn-sm button_azuriraj"
                                         (click)="azurirajRecept(recept)">Ažuriraj recept</button>
                                 </td>
                                 <td class="td_datum_mkb_dostatnost">{{recept.datumRecept}}</td>

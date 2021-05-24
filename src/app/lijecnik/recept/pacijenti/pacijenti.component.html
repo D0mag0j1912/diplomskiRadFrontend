@@ -22,22 +22,20 @@
     </div>
 </form>
 <div
-    class="row"
-    style="margin-top:10px;margin-left:30px;"
+    class="row div_nema_pacijenata"
     *ngIf="!isPacijenti && nemaPacijenata">
     <h3 class="h3_nema_pacijenata">{{nemaPacijenata}}</h3>
 </div>
 <div
-    class="table-responsive-sm"
-    style="margin-top:10px;"
+    class="table-responsive-sm div_tablica"
     *ngIf="isPretraga && isPacijenti && !nemaPacijenata">
     <table class="table table-striped table-bordered tablicaPretraga">
         <thead>
-            <th scope="col" style="width:15%;">Ime</th>
-            <th scope="col" style="width:25%;">Prezime</th>
-            <th scope="col" style="width:25%;">Datum rođenja</th>
-            <th scope="col" style="width:15%;">MBO</th>
-            <th scope="col" style="width:20%;">Akcija</th>
+            <th scope="col" class="th_ime">Ime</th>
+            <th scope="col" class="th_prezime">Prezime</th>
+            <th scope="col" class="th_datum">Datum rođenja</th>
+            <th scope="col" class="th_mbo">MBO</th>
+            <th scope="col" class="th_akcija">Akcija</th>
         </thead>
         <tbody>
             <tr *ngFor="let pacijent of pacijenti">
