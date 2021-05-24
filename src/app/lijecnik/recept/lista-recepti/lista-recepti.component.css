@@ -1,6 +1,78 @@
+th{
+    font-family: Verdana, sans-serif;
+    text-align: center;
+}
+
+.td_datum_mkb_dostatnost{
+    padding:2px;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+}
+
+.td_proizvod {
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    padding:2px;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+}
+
 label{
     font-family: Verdana, sans-serif;
 }
 span{
-    color:#a94442;
+    font-weight: bold;
+    color:#337ab7;
+    font-size:20px;
+}
+
+.h3_naslov{
+    text-align: center;
+    font-family: Verdana, sans-serif;
+}
+
+.h3_poruka{
+    color:#337ab7;
+    left:40px;
+    position: relative;
+}
+
+#h3_poruka2{
+    color:#337ab7;
+    left:130px;
+    position: relative;
+}
+
+.div_poruka{
+    margin-top:10px;
+}
+
+.div_tablica_recepata{
+    border:2px solid #337ab7;
+    border-radius: 10px;
+    margin-top:10px;
+}
+
+p{
+    font-family: Verdana, sans-serif;
+}
+
+.input_pretraga{
+    width:300px;
+    left:80px;
+    position: relative;
+    margin-top:-35px;
+}
+
+.input_ime_prezime{
+    width:350px;
+    height:30px;
+    font-family: Verdana, sans-serif;
+    background-color: white;
+    border:0;
+    margin-top:5px;
+    text-align: center;
+    font-weight: bold;
+    color:#337ab7;
+    font-size: 18px;
 }

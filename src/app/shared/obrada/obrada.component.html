@@ -32,7 +32,11 @@
         <div class="col-xs-12 col-md-6">
             <p
                 style="font-family: Verdana, sans-serif"><strong>Dodaj u čekaonicu</strong></p>
-            <form (ngSubmit)="onPretragaPacijenti()" [formGroup]="forma" class="form-inline">
+            <form
+                (ngSubmit)="onPretragaPacijenti()"
+                [formGroup]="forma"
+                class="form-inline"
+                *ngIf="forma">
                 <div class="form-group">
                     <input
                         type="text"

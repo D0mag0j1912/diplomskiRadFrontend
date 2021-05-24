@@ -8,7 +8,10 @@
             [otvoreniSlucaji]="otvoreniSlucaji"
             [sekDijagnoze]="sekDijagnoze"
             [idAktivniPacijent]="idPacijent"></app-otvoreni-slucaj>
-        <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+        <form
+            (ngSubmit)="onSubmit()"
+            [formGroup]="forma"
+            *ngIf="forma">
             <div class="table-responsive-sm">
                 <table class="table table-striped">
                     <tbody>

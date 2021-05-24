@@ -1,6 +1,6 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <h3 style="text-align: center;color: #337ab7;font-weight: bold;">Povežite povijest bolesti</h3>
+    <h3>Povežite povijest bolesti</h3>
     <div class="row">
         <div class="col-xs-12 col-md-6 col-md-offset-3">
             <form [formGroup]="forma" *ngIf="forma">
@@ -30,9 +30,7 @@
                                         <input
                                             type="text"
                                             formControlName="godina"
-                                            style="border:0;background-color:#337ab7;
-                                            width:700px;height:15px;font-weight: bold;text-align: center;
-                                            font-family: Verdana, sans-serif;"
+                                            class="input_godina"
                                             readonly>
                                     </td>
                                 </tr>
@@ -50,47 +48,42 @@
                                                   control.value.vrijeme,
                                                   control.value.slucaj)"
                                             [disabled]="control.value.prosliPregled !== 0">Poveži</button>
-                                        <h4
-                                            style="float:right;color:#337ab7;
-                                            font-weight: bold;right:10px;position:relative">{{control.value.slucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h4>
+                                        <h4>{{control.value.slucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h4>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <strong style="font-family:Verdana, sans-serif">Datum: </strong>
+                                        <strong>Datum: </strong>
                                         <input
                                             type="text"
                                             formControlName="datum"
-                                            style="border:0;width:630px;height:20px;
-                                            font-family: Verdana, sans-serif;"
+                                            class="input_datum"
                                             readonly>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <p><strong style="font-family:Verdana, sans-serif">Razlog dolaska: </strong></p>
+                                        <p><strong>Razlog dolaska: </strong></p>
                                         <textarea
                                             type="text"
                                             formControlName="razlogDolaska"
                                             readonly
-                                            rows="3"
-                                            style="width:700px"></textarea>
+                                            rows="3"></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <p><strong style="font-family:Verdana, sans-serif">Anamneza: </strong></p>
+                                        <p><strong>Anamneza: </strong></p>
                                         <textarea
                                             type="text"
                                             formControlName="anamneza"
                                             readonly
-                                            rows="3"
-                                            style="width:700px"></textarea>
+                                            rows="3"></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <p><strong style="font-family:Verdana, sans-serif">Primarna dijagnoza: </strong></p>
+                                        <p><strong>Primarna dijagnoza: </strong></p>
                                         <textarea
                                             rows="2"
                                             formControlName="primarnaDijagnoza"
@@ -100,11 +93,9 @@
                                 <tr class="border_bottom">
                                   <td>
                                       <p
-                                          style="font-family: Verdana, sans-serif;"
                                           *ngIf="control.value.sekundarneDijagnoze"><strong>Sekundarne dijagnoze:</strong></p>
                                       <p
-                                          style="font-family: Verdana, sans-serif;"
-                                          *ngIf="!control.value.sekundarneDijagnoze"><strong style="color:#a94442">Nema sekundarnih dijagnoza!</strong></p>
+                                          *ngIf="!control.value.sekundarneDijagnoze"><strong class="nema_sekundarnih">Nema sekundarnih dijagnoza!</strong></p>
                                       <textarea
                                           formControlName="sekundarneDijagnoze"
                                           readonly

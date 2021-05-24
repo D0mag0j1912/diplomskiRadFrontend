@@ -34,6 +34,47 @@ textarea{
     font-family: Verdana, sans-serif;
     resize:none;
 }
+
 .border_bottom{
     border-bottom:1px solid black;
 }
+
+h3{
+    text-align: center;
+    color: #337ab7;
+    font-weight: bold;
+}
+
+.input_godina {
+    border:0;
+    background-color:#337ab7;
+    width:700px;
+    height:15px;
+    font-weight: bold;
+    text-align: center;
+    font-family: Verdana, sans-serif;
+}
+
+h4{
+    float:right;
+    color:#337ab7;
+    font-weight: bold;
+    right:10px;
+    position:relative;
+}
+
+.input_datum {
+    border:0;
+    width:630px;
+    height:20px;
+    font-family: Verdana, sans-serif;
+}
+
+strong{
+    font-family:Verdana, sans-serif;
+}
+
+.nema_sekundarnih {
+    color:#a94442;
+}
+

@@ -27,6 +27,13 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
     formaTablica: FormGroup;
     //Današnji datum
     danasnjiDatum: Date;
+    //Spremam objekt u kojemu se nalaze podatci narudžbe te ga ŠALJEM komponenti "NarudzbaComponent"
+    narudzba: {
+        idNarudzba: string,
+        vrijeme:Time,
+        danUTjednu: string,
+        datum: Date
+    };
 
     constructor(
         //Dohvaćam trenutni route zbog podataka iz Resolvera
@@ -405,13 +412,13 @@ export class NarucivanjeComponent implements OnInit, OnDestroy{
 
     onCellClick(idNarudzba: string,vrijeme: Time,danUTjednu: string){
         let datum = this.datum.value;
-        //Dohvaćam BehaviourSubject iz servisa i punim ga potrebnim podatcima da ih mogu proslijediti PROZORU NARUDŽBE
-        this.narucivanjeService.podatciNarudzbe.next({
-            idNarudzba,
-            vrijeme,
-            danUTjednu,
-            datum
-        });
+        //Šaljem podatke prozoru narudžbi
+        this.narudzba = {
+            idNarudzba: idNarudzba,
+            vrijeme: vrijeme,
+            danUTjednu: danUTjednu,
+            datum: datum
+        };
         //Otvaram prozor detalja narudžbe
         this.isNarudzba = true;
     }

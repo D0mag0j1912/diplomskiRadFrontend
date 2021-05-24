@@ -17,26 +17,22 @@
         [oznaka]="oznaka"></app-prikazi-povijest-bolesti>
     <div class="row">
         <div class="col-xs-12 col-md-12">
-          <h2
-              style="font-family: Verdana, sans-serif;
-                  color:#337ab7;text-align: center;">Uputnice</h2>
+          <h2>Uputnice</h2>
           <button
               type="button"
               class="btn btn-warning"
-              style="float:right;"
               (click)="onNovaUputnica()">Nova uputnica</button>
           <form [formGroup]="forma" *ngIf="forma">
               <input
                   type="text"
                   placeholder="Unesite parametar pretrage"
                   formControlName="pretraga"
-                  style="width:300px;"
                   class="form-control">
           </form>
           <div
               class="table-responsive-sm"
               *ngIf=!nemaUputnica
-              style="margin-top:20px;">
+              id="div_tablica">
               <table class="table table-striped table-bordered table-hover">
                   <thead>
                       <tr class="table-success">
@@ -60,6 +56,5 @@
     </div>
     <h3
         class="help-block"
-        *ngIf="nemaUputnica"
-        style="font-family: Verdana, sans-serif;text-align: center;color:#a94442;">{{nemaUputnica}}</h3>
+        *ngIf="nemaUputnica">{{nemaUputnica}}</h3>
 </div>

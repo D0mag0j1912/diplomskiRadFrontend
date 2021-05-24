@@ -7,7 +7,10 @@
             (podatciRetka)="onPoveziPodatciRetka($event)"
             [primljeniIDPacijent]="idPacijent"
             [povijestBolesti]="povijestBolesti"></app-povezani-povijest-bolesti>
-        <form (ngSubmit)="onSubmit()" [formGroup]="forma">
+        <form
+            (ngSubmit)="onSubmit()"
+            [formGroup]="forma"
+            *ngIf="forma">
             <div class="table-responsive-sm">
                 <table class="table table-striped">
                     <tbody>
@@ -18,16 +21,14 @@
                                     formControlName="brziUnos"
                                     value="brziUnos"
                                     (change)="onChangeBrziUnos($event)">
-                                <label for="brziUnos" style="margin-left:2px;font-family: Verdana, sans-serif;">Brzi unos</label>
-                                <a
-                                    (click)="onPoveziPovijestBolesti()"
-                                    style="float:right;color:#337ab7;cursor: pointer;font-weight: bold;font-family: Verdana, sans-serif;">Poveži povijest bolesti</a></td>
+                                <label for="brziUnos">Brzi unos</label>
+                                <a  id="a_povezi"
+                                    (click)="onPoveziPovijestBolesti()">Poveži povijest bolesti</a></td>
                         </tr>
                         <tr>
                             <td colspan="4">
                                 <label
-                                    for="razlogDolaska"
-                                    style="font-family: Verdana, sans-serif;">Razlog dolaska</label>
+                                    for="razlogDolaska">Razlog dolaska</label>
                                 <textarea
                                     class="form-control"
                                     placeholder="Unesite razlog dolaska..."
@@ -38,8 +39,7 @@
                         <tr>
                             <td colspan="4">
                                 <label
-                                    for="anamneza"
-                                    style="font-family: Verdana, sans-serif;">Anamneza</label>
+                                    for="anamneza">Anamneza</label>
                                 <textarea
                                     class="form-control"
                                     formControlName="anamneza"
@@ -50,8 +50,7 @@
                         <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label
-                                    for="status"
-                                    style="font-family: Verdana, sans-serif;">Status pacijenta</label>
+                                    for="status">Status pacijenta</label>
                                 <textarea
                                     class="form-control"
                                     formControlName="status"
@@ -62,8 +61,7 @@
                         <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label
-                                    for="nalaz"
-                                    style="font-family: Verdana, sans-serif;">Nalaz</label>
+                                    for="nalaz">Nalaz</label>
                                 <textarea
                                     class="form-control"
                                     formControlName="nalaz"
@@ -72,10 +70,9 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><label for="primarnaDijagnoza"
-                                    style="margin-top:8px;font-family: Verdana, sans-serif;">Primarna dijagnoza:</label></td>
+                            <td><label for="primarnaDijagnoza">Primarna dijagnoza:</label></td>
                             <td>
-                                <select class="form-control" style="width:350px;height:35px" formControlName="primarnaDijagnoza">
+                                <select class="form-control" formControlName="primarnaDijagnoza">
                                     <option [ngValue]="null" [disabled]="true">Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
@@ -90,7 +87,6 @@
                                 <input
                                     type="text"
                                     class="form-control"
-                                    style="width:100px;height:35px"
                                     formControlName="mkbPrimarnaDijagnoza"
                                     placeholder="MKB šifra">
                                 <mat-error
@@ -104,12 +100,10 @@
                         <tr formArrayName="sekundarnaDijagnoza" *ngFor="let dijagnozaCtrl of getControlsSekundarna(); let i = index">
                             <ng-container [formGroupName]="i">
                                     <td><label for="sekundarnaDijagnoza"
-                                                *ngIf="i<1"
-                                                style="font-family: Verdana, sans-serif;margin-top:6px;">Sekundarna dijagnoza:</label></td>
+                                                *ngIf="i<1">Sekundarna dijagnoza:</label></td>
                                     <td>
                                         <select
                                             class="form-control"
-                                            style="width:350px;height:35px;"
                                             formControlName="nazivSekundarna"
                                             (change)="onChangeNazivSekundarna(dijagnozaCtrl.value.nazivSekundarna,i)">
                                             <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
@@ -146,7 +140,6 @@
                                         <input
                                             type="text"
                                             class="form-control"
-                                            style="width:100px;height:35px;"
                                             formControlName="mkbSifraSekundarna"
                                             placeholder="MKB šifra"
                                             (input)="onChangeMKB(dijagnozaCtrl.value.mkbSifraSekundarna,i)">
@@ -182,25 +175,28 @@
                                         formControlName="noviSlucaj"
                                         value="noviSlucaj"
                                         *ngIf="!ponistiPovezaniSlucaj">
-                                    <label for="noviSlucaj" style="margin-left:2px;font-family: Verdana, sans-serif;" *ngIf="!ponistiPovezaniSlucaj">Novi slučaj</label>
+                                    <label
+                                        for="noviSlucaj"
+                                        *ngIf="!ponistiPovezaniSlucaj">Novi slučaj</label>
                                     <input
                                         type="checkbox"
                                         formControlName="povezanSlucaj"
                                         value="povezanSlucaj"
                                         *ngIf="ponistiPovezaniSlucaj">
-                                    <label for="povezanSlucaj" style="margin-left:2px;font-family: Verdana, sans-serif;" *ngIf="ponistiPovezaniSlucaj">Povezani slučaj</label>
+                                    <label
+                                        for="povezanSlucaj"
+                                        *ngIf="ponistiPovezaniSlucaj">Povezani slučaj</label>
                                     <a
                                         *ngIf="ponistiPovezaniSlucaj"
                                         (click)="onPonistiPovezaniSlucaj()"
-                                        style="margin-left: 50px;color:#337ab7;cursor: pointer;font-weight: bold;font-family: Verdana, sans-serif;">Poništi povezani slučaj</a>
+                                        id="a_ponisti_povezani_slucaj">Poništi povezani slučaj</a>
                                 </div>
                             </td>
                         </tr>
                         <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label
-                                    for="terapija"
-                                    style="font-family: Verdana, sans-serif;">Terapija</label>
+                                    for="terapija">Terapija</label>
                                 <textarea
                                     class="form-control"
                                     formControlName="terapija"
@@ -211,8 +207,7 @@
                         <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label
-                                    for="preporukaLijecnik"
-                                    style="font-family: Verdana, sans-serif;">Preporuka liječnika</label>
+                                    for="preporukaLijecnik">Preporuka liječnika</label>
                                 <textarea
                                     class="form-control"
                                     formControlName="preporukaLijecnik"
@@ -223,8 +218,7 @@
                         <tr *ngIf="!isBrziUnos">
                             <td colspan="4">
                                 <label
-                                    for="napomena"
-                                    style="font-family: Verdana, sans-serif;">Napomena</label>
+                                    for="napomena">Napomena</label>
                                 <textarea
                                     class="form-control"
                                     formControlName="napomena"
@@ -237,14 +231,11 @@
                             <td colspan="2">
                                 <button
                                     type="submit"
-                                    class="btn btn-primary"
-                                    [disabled]="!forma.valid"
-                                    style="left:250px;position:relative">Potvrdi povijest bolesti</button>
+                                    class="btn btn-primary potvrdi_povijest_bolesti"
+                                    [disabled]="!forma.valid">Potvrdi povijest bolesti</button>
                             </td>
                             <td colspan="2">
                                 <h4
-                                    style="color:#006600;
-                                    font-family: Verdana, sans-serif;font-weight: bold;"
                                     *ngIf="forma.valid && isAktivan">Podatci su spremni za unos!</h4>
                             </td>
                         </tr>

@@ -1,8 +1,6 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <h3
-        style="text-align: center;color:#337ab7;
-            font-family: Verdana, sans-serif;font-weight: bold;">Izdavanje uputnice</h3>
+    <h3>Izdavanje uputnice</h3>
     <app-prikazi-povijest-bolesti
         *ngIf="isPovijestBolesti"
         (closeUputnica)="onClosePovijestBolesti($event)"
@@ -10,21 +8,22 @@
         [idPacijent]="idPacijent"
         [oznaka]="oznaka"></app-prikazi-povijest-bolesti>
     <div class="col-xs-12 col-md-12">
-        <form [formGroup]="forma" *ngIf="forma" (ngSubmit)="onSubmit()">
+        <form
+            [formGroup]="forma"
+            *ngIf="forma"
+            (ngSubmit)="onSubmit()">
             <div class="table-responsive-sm">
                 <table class="table table-striped">
                     <tbody>
                         <tr>
                             <td>
-                                <label for="pacijent"
-                                    style="margin-top:8px;
-                                        font-family: Verdana, sans-serif;
-                                        float:right;margin-right:50px;">Pacijent:</label>
+                                <label
+                                    for="pacijent"
+                                    class="label_prva_skupina">Pacijent:</label>
                             </td>
                             <td colspan="3">
                                 <select
                                     class="form-control"
-                                    style="width:350px;height:35px"
                                     formControlName="pacijent"
                                     (change)="onChangePacijent($event)">
                                     <option [ngValue]="null" [disabled]="true">Odaberite pacijenta</option>
@@ -34,22 +33,19 @@
                         </tr>
                         <tr>
                             <td>
-                                <label for="primarnaDijagnoza"
-                                    style="margin-top:8px;font-family: Verdana, sans-serif;">Primarna dijagnoza:</label>
+                                <label for="primarnaDijagnoza">Primarna dijagnoza:</label>
                             </td>
                             <td>
                                 <select
                                     class="form-control"
-                                    style="width:350px;height:35px"
                                     formControlName="primarnaDijagnoza">
                                     <option [ngValue]="null" [disabled]="true">Odaberite dijagnozu</option>
                                     <option *ngFor="let dijagnoza of dijagnoze" value="{{dijagnoza.imeDijagnoza}}">{{dijagnoza.imeDijagnoza}}</option>
                                 </select>
                                 <span
                                     class="help-block"
-                                    *ngIf="((primarnaDijagnoza.touched || primarnaDijagnoza.dirty) && !primarnaDijagnoza.valid)"
-                                    style="font-family: Verdana, sans-serif;font-weight: bold;">
-                                    <span *ngIf="primarnaDijagnoza.errors?.required">Primarna dijagnoza je obavezna!</span>
+                                    *ngIf="((primarnaDijagnoza.touched || primarnaDijagnoza.dirty) && !primarnaDijagnoza.valid)">
+                                    <span *ngIf="primarnaDijagnoza.errors?.required">Primarna dijagnoza je obvezna!</span>
                                     <span *ngIf="primarnaDijagnoza.errors?.neispravanNazivDijagnoza &&
                                           !primarnaDijagnoza.errors?.required">Neispravan unos primarne dijagnoze!</span>
                                 </span>
@@ -57,15 +53,13 @@
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control"
-                                    style="width:100px;height:35px;"
+                                    class="form-control input_dijagnoze"
                                     formControlName="mkbPrimarnaDijagnoza"
                                     placeholder="MKB šifra">
                                 <span
                                     class="help-block"
-                                    *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)"
-                                    style="font-family: Verdana, sans-serif;font-weight: bold;">
-                                    <span *ngIf="mkbPrimarnaDijagnoza.errors?.required">MKB šifra dijagnoze je obavezna!</span>
+                                    *ngIf="((mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty) && !mkbPrimarnaDijagnoza.valid)">
+                                    <span *ngIf="mkbPrimarnaDijagnoza.errors?.required">MKB šifra dijagnoze je obvezna!</span>
                                     <span *ngIf="mkbPrimarnaDijagnoza.errors?.neispravanMKB && !mkbPrimarnaDijagnoza.errors?.required">Neispravan unos MKB šifre!</span>
                                 </span>
                             </td>
@@ -75,12 +69,10 @@
                             <ng-container [formGroupName]="i">
                                     <td>
                                         <label for="sekundarnaDijagnoza"
-                                                *ngIf="i<1"
-                                                style="font-family: Verdana, sans-serif;margin-top:6px;">Sekundarna dijagnoza:</label></td>
+                                                *ngIf="i<1">Sekundarna dijagnoza:</label></td>
                                     <td>
                                         <select
                                             class="form-control"
-                                            style="width:350px;height:35px"
                                             formControlName="nazivSekundarna"
                                             (change)="onChangeNazivSekundarna(dijagnozaCtrl.value.nazivSekundarna,i)">
                                             <option [disabled]="true" [ngValue]="null">Odaberite dijagnozu</option>
@@ -88,36 +80,29 @@
                                         </select>
                                         <span
                                             class="help-block"
-                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
+                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !dijagnozaCtrl.valid">
                                             <span
-                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obavezna za unos!</span>
+                                                *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obvezna za unos!</span>
                                             <span
-                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB"
-                                                style="display: block;">Neispravan unos MKB šifre!</span>
+                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB">Neispravan unos MKB šifre!</span>
                                         </span>
                                         <span
                                             class="help-block"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;"
                                             *ngIf="!sekundarnaDijagnoza.valid">
                                             <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
                                             <span
-                                                *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza"
-                                                style="display: block;">Duplikati nisu dozvoljeni!</span>
+                                                *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza">Duplikati nisu dozvoljeni!</span>
                                         </span>
                                         <span
                                             class="help-block"
-                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !forma.valid"
-                                            style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                            <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza"
-                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
+                                            *ngIf="(dijagnozaCtrl.touched || dijagnozaCtrl.dirty) && !forma.valid">
+                                            <span *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</span>
                                         </span>
                                     </td>
                                     <td>
                                         <input
                                             type="text"
-                                            class="form-control"
-                                            style="width:100px;height:35px"
+                                            class="form-control input_dijagnoze"
                                             formControlName="mkbSifraSekundarna"
                                             placeholder="MKB šifra"
                                             (input)="onChangeMKB(dijagnozaCtrl.value.mkbSifraSekundarna,i)">
@@ -125,9 +110,8 @@
                                     <td>
                                         <button
                                             type="button"
-                                            class="btn btn-danger"
-                                            (click)="onDeleteDiagnosis(i)"
-                                            style="margin-right:50px;">X</button>
+                                            class="btn btn-danger button_on_delete"
+                                            (click)="onDeleteDiagnosis(i)">X</button>
                                     </td>
                             </ng-container>
                         </tr>
@@ -147,20 +131,18 @@
                             <td colspan="2">
                                 <label
                                     for="laboratorijskaDijagnostika"
-                                    style="margin-left:4px;font-family: Verdana, sans-serif">Laboratorij</label>
+                                    class="label_laboratorij">Laboratorij</label>
                                 <input
                                     type="radio"
                                     formControlName="tip"
-                                    style="margin-left:5px;"
                                     value="laboratorijskaDijagnostika"
                                     (change)="onChangeTip($event)">
                                 <label
                                     for="specijalistickaDjelatnost"
-                                    style="margin-left:20px;font-family: Verdana, sans-serif">Specijalistička djelatnost</label>
+                                    class="label_spec_djelatnost">Specijalistička djelatnost</label>
                                 <input
                                     type="radio"
                                     formControlName="tip"
-                                    style="margin-left:5px;"
                                     value="specijalistickaDjelatnost"
                                     (change)="onChangeTip($event)">
                             </td>
@@ -168,14 +150,11 @@
                         </tr>
                         <tr formGroupName="zdravstvenaDjelatnost">
                             <td>
-                                <label for="zdravstvenaDjelatnost"
-                                    style="margin-top:8px;
-                                        font-family: Verdana, sans-serif;">Zdravstvena djelatnost:</label>
+                                <label for="zdravstvenaDjelatnost">Zdravstvena djelatnost:</label>
                             </td>
                             <td colspan="3">
                                 <select
-                                    class="form-control"
-                                    style="width:350px;height:35px;float:left"
+                                    class="form-control select_ostalo"
                                     formControlName="nazivZdrDjel">
                                     <option [ngValue]="null" [disabled]="true">Odaberite zdravstvenu djelatnost</option>
                                     <option *ngFor="let djelatnost of zdravstveneDjelatnosti" value="{{djelatnost.nazivDjelatnosti}}">{{djelatnost.nazivDjelatnosti}}</option>
@@ -183,13 +162,11 @@
                                 <input
                                     type="text"
                                     formControlName="sifZdrDjel"
-                                    class="form-control"
-                                    placeholder="Šifra djelatnosti"
-                                    style="width:250px;display:inline;margin-left:30px;">
+                                    class="form-control input_zdr"
+                                    placeholder="Šifra djelatnosti">
                                 <span
                                     class="help-block"
-                                    *ngIf="tip.value === 'specijalistickaDjelatnost'"
-                                    style="font-weight: bold;font-family: Verdana, sans-serif;">
+                                    *ngIf="tip.value === 'specijalistickaDjelatnost'">
                                     <span
                                         *ngIf="nazivZdrDjel.errors?.required">Zdravstvena djelatnost je obvezna za unos!</span>
                                     <span
@@ -198,8 +175,7 @@
                                 </span>
                                 <span
                                     class="help-block"
-                                    *ngIf="(sifZdrDjel.touched || sifZdrDjel.dirty) && !sifZdrDjel.valid"
-                                    style="font-weight: bold;font-family: Verdana, sans-serif;display:block;">
+                                    *ngIf="(sifZdrDjel.touched || sifZdrDjel.dirty) && !sifZdrDjel.valid">
                                     <span
                                         *ngIf="sifZdrDjel.errors?.required">Šifra zdravstvene djelatnosti je obvezna za unos!</span>
                                     <span
@@ -210,171 +186,150 @@
                                               !sifZdrDjel.errors?.pattern">Neispravan unos šifre zdr. djelatnosti!</span>
                                 </span>
                             </td>
-                      </tr>
-                      <tr formGroupName="zdravstvenaUstanova">
-                          <td>
-                              <label for="zdravstvenaUstanova"
-                                  style="margin-top:8px;
-                                      font-family: Verdana, sans-serif;">Zdravstvena ustanova:</label>
-                          </td>
-                          <td colspan="3">
-                              <select
-                                  class="form-control"
-                                  style="width:350px;height:35px;float:left"
-                                  formControlName="nazivZdrUst">
-                                  <option [ngValue]="null" [disabled]="true">Odaberite zdravstvenu ustanovu</option>
-                                  <option *ngFor="let ustanova of zdravstveneUstanove" value="{{ustanova.naziv}}">{{ustanova.naziv}}</option>
-                              </select>
-                              <input
-                                  type="text"
-                                  formControlName="sifZdrUst"
-                                  class="form-control"
-                                  placeholder="Šifra zdravstvene ustanove"
-                                  style="width:250px;display:inline;margin-left:30px;">
-                                <span
-                                    class="help-block"
-                                    *ngIf="tip.value === 'laboratorijskaDijagnostika'
-                                        && nazivZdrDjel.value && sifZdrDjel.value">
-                                    <span *ngIf="zdravstvenaUstanova.errors?.requiredZdrUstanova">
-                                        Morate unijeti zdravstvenu ustanovu!
-                                    </span>
-                                </span>
-                                <span
-                                    class="help-block"
-                                    *ngIf="(nazivZdrUst.touched || nazivZdrUst.dirty) && !nazivZdrUst.valid"
-                                    style="display: block;">
-                                    <span
-                                        *ngIf="nazivZdrUst.errors?.neispravanNazivZdrUstanova">Neispravan unos naziva zdr. ustanove!</span>
-                                </span>
-                                <span
-                                    class="help-block"
-                                    *ngIf="sifZdrUst.value"
-                                    style="font-weight: bold;font-family: Verdana, sans-serif;display:block;">
-                                    <span
-                                        *ngIf="sifZdrUst.errors?.pattern">Samo pozitivne cjelobrojne vrijednosti su dozvoljene!</span>
-                                    <span
-                                        *ngIf="sifZdrUst.errors?.neispravnaSifraZdrUstanova &&
-                                                !sifZdrUst.errors?.pattern">Neispravan unos šifre zdr. ustanove!</span>
-                                </span>
-                          </td>
                         </tr>
-                        <tr>
+                        <tr formGroupName="zdravstvenaUstanova">
                             <td>
-                                <label for="vrstaPregled"
-                                    style="margin-top:8px;
-                                        font-family: Verdana, sans-serif;
-                                        float:right;margin-right:50px;">Vrsta pregleda:</label>
+                                <label for="zdravstvenaUstanova">Zdravstvena ustanova:</label>
                             </td>
                             <td colspan="3">
                                 <select
+                                    class="form-control select_ostalo"
+                                    formControlName="nazivZdrUst">
+                                    <option [ngValue]="null" [disabled]="true">Odaberite zdravstvenu ustanovu</option>
+                                    <option *ngFor="let ustanova of zdravstveneUstanove" value="{{ustanova.naziv}}">{{ustanova.naziv}}</option>
+                                </select>
+                                <input
+                                    type="text"
+                                    formControlName="sifZdrUst"
+                                    class="form-control input_zdr"
+                                    placeholder="Šifra zdravstvene ustanove">
+                                    <span
+                                        class="help-block"
+                                        *ngIf="tip.value === 'laboratorijskaDijagnostika'
+                                            && nazivZdrDjel.value && sifZdrDjel.value">
+                                        <span *ngIf="zdravstvenaUstanova.errors?.requiredZdrUstanova">
+                                            Morate unijeti zdravstvenu ustanovu!
+                                        </span>
+                                    </span>
+                                    <span
+                                        class="help-block"
+                                        *ngIf="(nazivZdrUst.touched || nazivZdrUst.dirty) && !nazivZdrUst.valid">
+                                        <span
+                                            *ngIf="nazivZdrUst.errors?.neispravanNazivZdrUstanova">Neispravan unos naziva zdr. ustanove!</span>
+                                    </span>
+                                    <span
+                                        class="help-block"
+                                        *ngIf="sifZdrUst.value">
+                                        <span
+                                            *ngIf="sifZdrUst.errors?.pattern">Samo pozitivne cjelobrojne vrijednosti su dozvoljene!</span>
+                                        <span
+                                            *ngIf="sifZdrUst.errors?.neispravnaSifraZdrUstanova &&
+                                                    !sifZdrUst.errors?.pattern">Neispravan unos šifre zdr. ustanove!</span>
+                                    </span>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label
+                                        for="vrstaPregled"
+                                        class="label_prva_skupina">Vrsta pregleda:</label>
+                                </td>
+                                <td colspan="3">
+                                    <select
+                                        class="form-control"
+                                        formControlName="vrstaPregled">
+                                        <option [ngValue]="null" [disabled]="true">Odaberite vrstu pregleda</option>
+                                        <option
+                                            *ngFor="let pregled of vrstePregleda"
+                                            value="{{pregled}}">{{pregled}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr formGroupName="specijalist">
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    formControlName="isPreporukaSpecijalist"
+                                    (change)="onChangeSpecijalist($event)">
+                                <label
+                                    class="form-check-label label_specijalist"
+                                    for="isPreporukaSpecijalist">Preporučio specijalist</label>
+                            </td>
+                            <td colspan="3">
+                                <ng-container *ngIf="isSpecijalist">
+                                    <label
+                                        for="sifraSpecijalist"
+                                        class="label_sifra_specijalist">Šifra specijalista:</label>
+                                    <input
+                                        type="text"
+                                        class="form-control input_sifra_specijalist"
+                                        formControlName="sifraSpecijalist"
+                                        placeholder="Šifra specijalista...">
+                                    <input
+                                        type="text"
+                                        class="form-control input_tip_specijalist"
+                                        formControlName="tipSpecijalist"
+                                        placeholder="Naziv tipa specijalista..."
+                                        readonly>
+                                    <span
+                                        class="help-block span_specijalist"
+                                        *ngIf="sifraSpecijalist.errors?.requiredSpecijalist">Morate unijeti šifru specijalista!</span>
+                                    <span
+                                        class="help-block span_specijalist"
+                                        *ngIf="sifraSpecijalist.errors?.pattern">Šifra specijalista mora biti pozitivna cjelobrojna vrijednost!</span>
+                                    <span
+                                        class="help-block span_specijalist"
+                                        *ngIf="sifraSpecijalist.errors?.neispravnaSifraSpecijalista &&
+                                            !sifraSpecijalist.errors?.pattern &&
+                                            !sifraSpecijalist.errors?.requiredSpecijalist">Neispravan unos šifre specijalista!</span>
+                                </ng-container>
+                            </td>
+                        </tr>
+                        <tr>
+                                <td>
+                                    <label
+                                        class="label_prva_skupina"
+                                        for="molimTraziSe">Molim, traži se:</label>
+                            </td>
+                            <td colspan="3">
+                                <textarea
+                                    rows="2"
                                     class="form-control"
-                                    style="width:350px;height:35px"
-                                    formControlName="vrstaPregled">
-                                    <option [ngValue]="null" [disabled]="true">Odaberite vrstu pregleda</option>
-                                    <option
-                                        *ngFor="let pregled of vrstePregleda"
-                                        value="{{pregled}}">{{pregled}}</option>
-                              </select>
-                          </td>
-                      </tr>
-                      <tr formGroupName="specijalist">
-                          <td>
-                              <input
-                                  type="checkbox"
-                                  class="form-check-input"
-                                  formControlName="isPreporukaSpecijalist"
-                                  (change)="onChangeSpecijalist($event)">
-                              <label
-                                  class="form-check-label"
-                                  for="isPreporukaSpecijalist"
-                                  style="left:20px;position: relative;font-family: Verdana, sans-serif">Preporučio specijalist</label>
-                          </td>
-                          <td colspan="3">
-                              <ng-container *ngIf="isSpecijalist">
-                                  <label
-                                      for="sifraSpecijalist"
-                                      style="margin-top:6px;font-family: Verdana, sans-serif;float:left;margin-top:2px;">Šifra specijalista:</label>
-                                  <input
-                                      type="text"
-                                      class="form-control"
-                                      formControlName="sifraSpecijalist"
-                                      placeholder="Šifra specijalista..."
-                                      style="width:200px;height:35px;
-                                          margin-top:-4px;left:10px;position: relative;float:left;">
-                                  <input
-                                      type="text"
-                                      class="form-control"
-                                      formControlName="tipSpecijalist"
-                                      placeholder="Naziv tipa specijalista..."
-                                      style="width:250px;height:35px;margin-top:-4px;left:40px;position:relative;"
-                                      readonly>
-                                  <span
+                                    formControlName="molimTraziSe"></textarea>
+                                <span
                                     class="help-block"
-                                    *ngIf="sifraSpecijalist.errors?.requiredSpecijalist"
-                                    style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Morate unijeti šifru specijalista!</span>
-                                  <span
-                                      class="help-block"
-                                      *ngIf="sifraSpecijalist.errors?.pattern"
-                                      style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Šifra specijalista mora biti pozitivna cjelobrojna vrijednost!</span>
-                                  <span
-                                      class="help-block"
-                                      *ngIf="sifraSpecijalist.errors?.neispravnaSifraSpecijalista &&
-                                          !sifraSpecijalist.errors?.pattern &&
-                                          !sifraSpecijalist.errors?.requiredSpecijalist"
-                                      style="font-family: Verdana, sans-serif;font-weight: bold;left:150px;position:relative">Neispravan unos šifre specijalista!</span>
-                              </ng-container>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <label for="molimTraziSe"
-                                  style="margin-top:8px;
-                                      font-family: Verdana, sans-serif;
-                                      float:right;margin-right:50px;">Molim, traži se:</label>
-                          </td>
-                          <td colspan="3">
-                              <textarea
-                                  rows="2"
-                                  class="form-control"
-                                  formControlName="molimTraziSe"></textarea>
-                              <span
-                                  class="help-block"
-                                  *ngIf="tip.value"
-                                  style="font-weight: bold;font-family: Verdana, sans-serif;">
-                                  <span
-                                      *ngIf="molimTraziSe.errors?.required">"Molim, Traži se" je obvezno za unos!</span>
-                              </span>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <label for="napomena"
-                                  style="margin-top:8px;
-                                      font-family: Verdana, sans-serif;
-                                      float:right;margin-right:50px;">Napomena liječnika:</label>
-                          </td>
-                          <td colspan="3">
-                              <textarea
-                                  rows="2"
-                                  class="form-control"
-                                  formControlName="napomena"></textarea>
-                          </td>
-                      </tr>
-                      <tr>
-                          <td colspan="2">
-                              <button
-                                  type="submit"
-                                  [disabled]="!forma.valid"
-                                  class="btn btn-info"
-                                  style="float:right;right:200px;position:relative">Izdaj uputnicu</button>
-                          </td>
-                          <td colspan="2">
-                              <h4
-                                  style="text-align: right;color:#006600;
-                                  font-family: Verdana, sans-serif;font-weight: bold;"
-                                  *ngIf="forma.valid">Uputnica je spremna za unos!</h4>
-                          </td>
-                      </tr>
+                                    *ngIf="tip.value">
+                                    <span
+                                        *ngIf="molimTraziSe.errors?.required">"Molim, Traži se" je obvezno za unos!</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                                <td>
+                                    <label
+                                        class="label_prva_skupina"
+                                        for="napomena">Napomena liječnika:</label>
+                            </td>
+                            <td colspan="3">
+                                <textarea
+                                    rows="2"
+                                    class="form-control"
+                                    formControlName="napomena"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button
+                                    type="submit"
+                                    [disabled]="!forma.valid"
+                                    class="btn btn-info button_izdaj">Izdaj uputnicu</button>
+                            </td>
+                            <td colspan="2">
+                                <h4
+                                    *ngIf="forma.valid">Uputnica je spremna za unos!</h4>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

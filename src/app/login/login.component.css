@@ -5,3 +5,18 @@ input.ng-invalid {
     border-left: 5px solid #a94442; /* red */
 }
 
+label{
+    font-family: Verdana, sans-serif;
+}
+
+mat-error{
+    display: block;
+}
+
+h4{
+    color:#006600;
+    font-family: Verdana, sans-serif;
+    font-weight: bold;
+    float:right;
+}
+

@@ -8,141 +8,85 @@
                         <tr
                             class="table-success">
                             <td>
-                                <h4
-                                    style="font-family: Verdana, sans-serif;
-                                        font-weight: bold;text-align: center;">Dijagnoza</h4>
+                                <h4>Dijagnoza</h4>
                             </td>
                         </tr>
                         <tr formGroupName="dijagnoze">
                             <td>
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;">Primarna dijagnoza: </p>
+                                <p>Primarna dijagnoza: </p>
                                 <input
                                     type="text"
                                     formControlName="primarnaDijagnoza"
                                     class="form-control"
-                                    readonly
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;
-                                        background-color: white;
-                                        border-color:#5cb85c;">
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;margin-top:10px;"
+                                    readonly>
+                                <p  class="p_ostalo"
                                     *ngIf="!isSekundarne">Nema sekundarnih dijagnoza!</p>
                                 <ng-container *ngIf="isSekundarne">
-                                    <p
-                                        style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;margin-top:10px;">Sekundarne dijagnoze: </p>
+                                    <p class="p_ostalo">Sekundarne dijagnoze: </p>
                                     <textarea
                                         rows="3"
                                         formControlName="sekundarneDijagnoze"
-                                        class="form-control"
-                                        readonly
-                                        style="width:100%;
-                                            font-family: Verdana, sans-serif;
-                                            background-color: white;
-                                            border-color:#5cb85c;resize:none"></textarea>
+                                        class="form-control text-area"
+                                        readonly></textarea>
                                 </ng-container>
                             </td>
                         </tr>
                         <tr
                             class="table-success">
                             <td>
-                                <h4
-                                    style="font-family: Verdana, sans-serif;
-                                        font-weight: bold;text-align: center;">Podatci ustanove</h4>
+                                <h4>Podatci ustanove</h4>
                             </td>
                         </tr>
                         <tr formGroupName="ustanova">
                             <td>
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;">Zdravstvena ustanova: </p>
+                                <p>Zdravstvena ustanova: </p>
                                 <input
                                     rows="2"
                                     formControlName="nazivID"
                                     class="form-control"
-                                    readonly
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;
-                                        background-color: white;
-                                        border-color:#5cb85c;">
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;margin-top:5px;">Adresa: </p>
+                                    readonly>
+                                <p class="p_ostalo">Adresa: </p>
                                 <input
                                     type="text"
                                     formControlName="adresaPbr"
                                     class="form-control"
-                                    readonly
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;border-color:#5cb85c;
-                                        background-color: white; ">
+                                    readonly>
                             </td>
                         </tr>
                         <tr
                             class="table-success">
                             <td>
-                                <h4
-                                    style="font-family: Verdana, sans-serif;
-                                        font-weight: bold;text-align: center;">
-                                    Podatci {{nalaz.misljenjeSpecijalist ? 'specijalista' : 'laboranta'}}</h4>
+                                <h4>Podatci {{nalaz.misljenjeSpecijalist ? 'specijalista' : 'laboranta'}}</h4>
                             </td>
                         </tr>
                         <tr formGroupName="zdravstvenaOsoba">
                             <td>
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;">Datum slanja nalaza: </p>
+                                <p>Datum slanja nalaza: </p>
                                 <input
                                     type="text"
                                     formControlName="datumNalaz"
                                     class="form-control"
-                                    readonly
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;
-                                        background-color: white;
-                                        border-color:#5cb85c;">
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;margin-top:5px;">
+                                    readonly>
+                                <p class="p_ostalo">
                                         {{nalaz.misljenjeSpecijalist ? 'Specijalist:' : 'Laborant'}}</p>
                                 <input
                                     type="text"
                                     formControlName="imePrezime"
                                     class="form-control"
-                                    readonly
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;
-                                        background-color: white;
-                                        border-color:#5cb85c;margin-top:5px;">
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;margin-top:5px;">Zdravstvena djelatnost: </p>
+                                    readonly>
+                                <p class="p_ostalo">Zdravstvena djelatnost: </p>
                                 <input
                                     type="text"
                                     formControlName="zdravstvenaDjelatnost"
                                     class="form-control"
-                                    readonly
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;
-                                        background-color: white;
-                                        border-color:#5cb85c;margin-top:5px;">
-                                <p
-                                    style="font-family: Verdana, sans-serif;
-                                        color:#337ab7;font-weight: bold;margin-top:5px;">
+                                    readonly>
+                                <p class="p_ostalo">
                                     {{nalaz.misljenjeSpecijalist ? 'Mišljenje specijalista:' : 'Komentar uz nalaz:'}}</p>
                                 <textarea
                                     readonly
                                     rows="3"
                                     formControlName="misljenjeKomentar"
-                                    class="form-control"
-                                    style="width:100%;
-                                        font-family: Verdana, sans-serif;
-                                        background-color: white; border-color:#5cb85c;
-                                        resize:none;margin-top:5px;"></textarea>
+                                    class="form-control text-area"></textarea>
                             </td>
                         </tr>
                     </tbody>
@@ -151,6 +95,8 @@
         </form>
     </div>
     <div class="alert-box-actions">
-        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+        <button
+            class="btn btn-primary"
+            (click)="onClose()">Izađi</button>
     </div>
 </div>

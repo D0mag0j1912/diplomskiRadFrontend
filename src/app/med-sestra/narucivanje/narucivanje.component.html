@@ -7,20 +7,19 @@
             (azuriranje)="onAzuriranjeNarudzba()"
             (narucivanje)="onNarucivanjePacijenta()"
             (otkazivanje)="onOtkazivanjeNarudzba()"
-            (zatvaranje)="onCloseNarudzba()"></app-narudzba>
+            (zatvaranje)="onCloseNarudzba()"
+            [primljenaNarudzba]="narudzba"></app-narudzba>
         <div class="col-xs-12 col-md-12">
             <form
                 [formGroup]="forma"
                 *ngIf="forma">
                 <div class="form-group">
                     <label
-                        for="datum"
-                        style="font-family: Verdana, sans-serif;margin-top:5px;">Datum</label>
+                        for="datum">Datum:</label>
                     <input
                         type="date"
                         class="form-control"
                         formControlName="datum"
-                        style="width:270px;"
                         placeholder="Unesite datum početka naručivanja...">
                     <mat-error
                         *ngIf="datum.errors?.pattern">Neispravan format datuma!</mat-error>
@@ -56,8 +55,7 @@
                                         type="text"
                                         [formControlName]="i"
                                         [value]="ctrl.value"
-                                        readonly
-                                        style="border: 0;text-align: center;">
+                                        readonly>
                                 </th>
                             </tr>
                         </thead>
@@ -68,61 +66,51 @@
                                         type="text"
                                         formControlName="vrijeme"
                                         readonly
-                                        style="border: 0;text-align: center;font-weight: bold;">
+                                        class="input_vrijeme">
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.ponedjeljak.idNarudzba,ctrl.value.ponedjeljak.vrijeme,ctrl.value.ponedjeljak.danUTjednu)"
-                                    style="cursor: pointer;"
                                     formGroupName="ponedjeljak"
                                     [ngStyle]="{'background-color':ctrl.value.ponedjeljak.bojaPregled}">
                                     <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.ponedjeljak.bojaPregled}"></textarea>
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.utorak.idNarudzba,ctrl.value.utorak.vrijeme,ctrl.value.utorak.danUTjednu)"
-                                    style="cursor: pointer;"
                                     formGroupName="utorak"
                                     [ngStyle]="{'background-color':ctrl.value.utorak.bojaPregled}">
                                     <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.utorak.bojaPregled}"></textarea>
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.srijeda.idNarudzba,ctrl.value.srijeda.vrijeme,ctrl.value.srijeda.danUTjednu)"
-                                    style="cursor: pointer;"
                                     formGroupName="srijeda"
                                     [ngStyle]="{'background-color':ctrl.value.srijeda.bojaPregled}">
                                     <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.srijeda.bojaPregled}"></textarea>
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.cetvrtak.idNarudzba,ctrl.value.cetvrtak.vrijeme,ctrl.value.cetvrtak.danUTjednu)"
-                                    style="cursor: pointer;"
                                     formGroupName="cetvrtak"
                                     [ngStyle]="{'background-color':ctrl.value.cetvrtak.bojaPregled}">
                                     <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.cetvrtak.bojaPregled}"></textarea>
                                 </td>
                                 <td (click)="onCellClick(ctrl.value.petak.idNarudzba,ctrl.value.petak.vrijeme,ctrl.value.petak.danUTjednu)"
-                                    style="cursor: pointer;"
                                     formGroupName="petak"
                                     [ngStyle]="{'background-color':ctrl.value.petak.bojaPregled}">
                                     <textarea
                                         type="text"
                                         formControlName="imePrezimeMBO"
                                         readonly
-                                        style="border: 0;text-align: center;"
                                         [ngStyle]="{'background-color':ctrl.value.petak.bojaPregled}"></textarea>
                                 </td>
                             </tr>

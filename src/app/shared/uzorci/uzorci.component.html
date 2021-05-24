@@ -5,7 +5,10 @@
               text-align: center;color:#337ab7">
         {{oznaka === 'sekundarni' ? 'Kompletna krvna slika' : 'Rezultati pretraga'}}
     </h3>
-    <form [formGroup]="forma" (ngSubmit)="onSubmit()">
+    <form
+        [formGroup]="forma"
+        (ngSubmit)="onSubmit()"
+        *ngIf="forma">
         <div
             style="display:flex"
             *ngIf="oznaka === 'nalazi'">

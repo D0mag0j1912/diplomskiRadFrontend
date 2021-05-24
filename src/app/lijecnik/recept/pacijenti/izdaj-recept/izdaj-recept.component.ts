@@ -699,7 +699,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         }),
                         //Ulazim u još jedan concatMap da predam dostatnost u danima metodi koja vraća DATUM vrijediDo
                         concatMap(value => {
-                            console.log(value);
                             //Ako server nije vratio null za dostatnost
                             if(value[0] !== null){
                                 //Postavi dostatnost u polje unosa dostatnosti

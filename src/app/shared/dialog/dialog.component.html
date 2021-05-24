@@ -65,11 +65,11 @@
     mat-dialog-actions>
     <button
         mat-raised-button
-        [mat-dialog-close]="false"
-        type="button">Izađi</button>
-    <button
-        mat-raised-button
         [mat-dialog-close]="true"
         type="button"
         *ngIf="data.brisanje">Obriši</button>
+    <button
+        mat-raised-button
+        [mat-dialog-close]="false"
+        type="button">Izađi</button>
 </div>

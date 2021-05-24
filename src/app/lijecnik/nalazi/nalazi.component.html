@@ -2,17 +2,14 @@
 <div class="row">
     <div class="col-xs-12">
       <h4
-          *ngIf="!isAktivan"
-          style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nije aktivan u obradi!</h4>
+          *ngIf="!isAktivan">Pacijent nije aktivan u obradi!</h4>
         <form [formGroup]="forma" *ngIf="forma && isAktivan">
             <div class="col-xs-4">
                 <label
-                    for="filter"
-                    style="font-family: Verdana, sans-serif;">Filtriraj prema:</label>
+                    for="filter">Filtriraj prema:</label>
                 <select
                     formControlName="filter"
                     class="form-control"
-                    style="width:200px;display:inline;margin-left:5px;"
                     (change)="onChangeFilter($event)">
                     <option value="datum">Datum</option>
                     <option value="pretraga">Pretraga</option>
@@ -21,28 +18,23 @@
             <div class="col-xs-6">
                 <ng-container *ngIf="isDatum">
                     <label
-                        for="datum"
-                        style="font-family: Verdana, sans-serif;">Datum:</label>
+                        for="datum">Datum:</label>
                     <input
                         type="date"
                         class="form-control"
-                        formControlName="datum"
-                        style="width:200px;display: inline;margin-left:5px;">
+                        formControlName="datum">
                 </ng-container>
                 <ng-container *ngIf="!isDatum">
                     <label
-                        for="pretraga"
-                        style="font-family: Verdana, sans-serif;">Pretraga:</label>
+                        for="pretraga">Pretraga:</label>
                     <input
                         type="text"
-                        class="form-control"
+                        class="form-control pretraga"
                         formControlName="pretraga"
-                        style="width:300px;display: inline;margin-left:5px;"
                         placeholder="Unesite parametar pretrage...">
                 </ng-container>
                 <mat-error
-                    *ngIf="(datum.touched || datum.dirty) && datum.invalid"
-                    style="display:block;font-weight: bold;">
+                    *ngIf="(datum.touched || datum.dirty) && datum.invalid">
                     <mat-error *ngIf="datum.errors?.pattern">Neispravan format datuma!</mat-error>
                 </mat-error>
             </div>
@@ -56,9 +48,7 @@
     </div>
 </div>
 <div *ngIf="nemaNalaza && isAktivan">
-    <h4
-        style="font-family: Verdana, sans-serif;
-            color:#a94442;text-align: center;">{{nemaNalaza}}</h4>
+    <h4>{{nemaNalaza}}</h4>
 </div>
 <div
     class="row"

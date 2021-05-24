@@ -4,3 +4,27 @@ th {
 td {
   font-family: Verdana, sans-serif;
 }
+
+h2{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+    text-align: center;
+}
+
+button{
+    float:right;
+}
+
+input{
+    width:300px;
+}
+
+h3{
+    font-family: Verdana, sans-serif;
+    text-align: center;
+    color:#a94442;
+}
+
+#div_tablica {
+    margin-top:20px;
+}

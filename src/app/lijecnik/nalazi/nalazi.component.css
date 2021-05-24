@@ -1,0 +1,23 @@
+h4 {
+    font-family: Verdana, sans-serif;
+    color:#a94442;
+    text-align: center;
+}
+
+label {
+    font-family: Verdana, sans-serif;
+}
+
+select, input {
+    width:200px;
+    display: inline;
+    margin-left:5px;
+}
+
+.pretraga {
+    width: 300px;
+}
+
+mat-error{
+    display:block;
+}

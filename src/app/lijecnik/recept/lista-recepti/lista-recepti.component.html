@@ -1,127 +1,109 @@
-<app-prikaz-recept [primljeniRecept]="poslaniRecept" (close)="onClosePrikaz()" *ngIf="prikaz"></app-prikaz-recept>
-<h3 style="text-align: center;font-family: Verdana, sans-serif;">Lista recepata</h3>
-<form [formGroup]="formaPretraga">
+<app-prikaz-recept
+    [primljeniRecept]="poslaniRecept"
+    (close)="onClosePrikaz()"
+    *ngIf="prikaz"></app-prikaz-recept>
+<h3 class="h3_naslov">Lista recepata</h3>
+<form
+    [formGroup]="formaPretraga"
+    *ngIf="formaPretraga">
     <div class="col-md-offset-1">
-        <p style="font-family: Verdana, sans-serif;"><strong>Pretraži:</strong></p>
-        <input 
-            type="text" 
-            class="form-control" 
-            formControlName="pretraga" 
-            placeholder="Pretražite recept..." 
-            style="width:300px;left:80px;position: relative;margin-top:-35px;">
-        <span 
-            class="help-block" 
-            *ngIf="!isPretraga && porukaPretraga && !nemaNitkoRecept && 
-                !inicijalnoAktivniNemaRezultata && !inicijalnoNemaPacijenata && 
-                !nemaRecepata && !nemaNitkoRecept" 
-            style="font-weight: bold;
-                color:#337ab7;
-                font-size:20px;">{{porukaPretraga}}</span> 
+        <p><strong>Pretraži:</strong></p>
+        <input
+            type="text"
+            class="form-control input_pretraga"
+            formControlName="pretraga"
+            placeholder="Pretražite recept...">
+        <span
+            class="help-block"
+            *ngIf="!isPretraga && porukaPretraga && !nemaNitkoRecept &&
+                !inicijalnoAktivniNemaRezultata && !inicijalnoNemaPacijenata &&
+                !nemaRecepata && !nemaNitkoRecept">{{porukaPretraga}}</span>
     </div>
 </form>
-<div 
-    class="row" 
-    *ngIf="nemaNitkoRecept && 
-        !inicijalnoAktivniNemaRezultata && 
-        !inicijalnoNemaPacijenata && 
-        !nemaRecepata" 
-    style="margin-top:10px;">
-    <h3 style="color:#337ab7;left:130px;position: relative;">{{nemaNitkoRecept}}</h3>
+<div
+    class="row div_poruka"
+    *ngIf="nemaNitkoRecept &&
+        !inicijalnoAktivniNemaRezultata &&
+        !inicijalnoNemaPacijenata &&
+        !nemaRecepata">
+    <h3 id="h3_poruka2">{{nemaNitkoRecept}}</h3>
 </div>
-<div 
-    class="row" 
-    *ngIf="nemaRecepata && 
-        !inicijalnoAktivniNemaRezultata && 
-        !inicijalnoNemaPacijenata && 
-        !nemaNitkoRecept" 
-    style="margin-top:10px;">
-    <h3 style="color:#337ab7;left:40px;position: relative;">{{nemaRecepata}}</h3>
+<div
+    class="row div_poruka"
+    *ngIf="nemaRecepata &&
+        !inicijalnoAktivniNemaRezultata &&
+        !inicijalnoNemaPacijenata &&
+        !nemaNitkoRecept">
+    <h3 class="h3_poruka">{{nemaRecepata}}</h3>
 </div>
-<div 
-    class="row" 
-    *ngIf="inicijalnoNemaPacijenata && 
-        !inicijalnoAktivniNemaRezultata && 
-        !nemaRecepata && 
-        !nemaNitkoRecept" 
-    style="margin-top:10px;">
-    <h3 style="color:#337ab7;left:40px;position: relative;">{{inicijalnoNemaPacijenata}}</h3>
+<div
+    class="row div_poruka"
+    *ngIf="inicijalnoNemaPacijenata &&
+        !inicijalnoAktivniNemaRezultata &&
+        !nemaRecepata &&
+        !nemaNitkoRecept">
+    <h3 class="h3_poruka">{{inicijalnoNemaPacijenata}}</h3>
 </div>
-<div 
-    class="row" 
-    *ngIf="inicijalnoAktivniNemaRezultata && 
-        !inicijalnoNemaPacijenata && 
-        !nemaRecepata && 
-        !nemaNitkoRecept" 
-    style="margin-top:10px;">
-    <h3 style="color:#337ab7;left:40px;position: relative;">{{inicijalnoAktivniNemaRezultata}}</h3>
+<div
+    class="row div_poruka"
+    *ngIf="inicijalnoAktivniNemaRezultata &&
+        !inicijalnoNemaPacijenata &&
+        !nemaRecepata &&
+        !nemaNitkoRecept">
+    <h3 class="h3_poruka">{{inicijalnoAktivniNemaRezultata}}</h3>
 </div>
-<ng-container 
-    *ngIf="isPretraga && 
-    !inicijalnoNemaPacijenata && 
-    !inicijalnoAktivniNemaRezultata && 
-    !porukaPretraga && 
-    !nemaRecepata && 
+<ng-container
+    *ngIf="isPretraga &&
+    !inicijalnoNemaPacijenata &&
+    !inicijalnoAktivniNemaRezultata &&
+    !porukaPretraga &&
+    !nemaRecepata &&
     !nemaNitkoRecept">
     <!--Za svakog pacijenta koji sudjeluje u receptima, kreiraj jedan div sa plavim rubovima-->
-    <div class="row" style="border:2px solid #337ab7; 
-                        border-radius: 10px;margin-top:10px;" *ngFor="let pacijent of pacijenti">
+    <div
+        class="row div_tablica_recepata"
+        *ngFor="let pacijent of pacijenti">
         <div class="col-xs-12">
-            <input 
-                type="text" 
-                class="form-control col-xs-offset-2" 
+            <input
+                type="text"
+                class="form-control col-xs-offset-2 input_ime_prezime"
                 readonly
-                style="width:350px;height:30px; 
-                    font-family: Verdana, sans-serif;
-                    background-color: white; 
-                    border:0;margin-top:5px;text-align: center; 
-                    font-weight: bold;color:#337ab7;font-size: 18px;" 
-                [value]="(pacijent.ime) + ' ' + (pacijent.prezime)"> 
+                [value]="(pacijent.ime) + ' ' + (pacijent.prezime)">
             <div class="table-responsive-sm" style="margin-top:5px;">
                 <table class="table table-striped table-bordered tablica">
                     <thead>
-                        <th scope="col" style="width:25%;font-family: Verdana, sans-serif;text-align: center;">Akcija</th>
-                        <th scope="col" style="width:25%;font-family: Verdana, sans-serif;text-align: center;">Datum</th>
-                        <th scope="col" style="width:15%;font-family: Verdana, sans-serif;text-align: center;">MKB</th>
-                        <th scope="col" style="width:30%;font-family: Verdana, sans-serif;text-align: center;">Lijek/Mag.pripravak</th>
-                        <th scope="col" style="width:5%;font-family: Verdana, sans-serif;text-align: center;">Dostatnost</th>
+                        <th scope="col" style="width:25%;">Akcija</th>
+                        <th scope="col" style="width:25%;">Datum</th>
+                        <th scope="col" style="width:15%;">MKB</th>
+                        <th scope="col" style="width:30%;">Lijek/Mag.pripravak</th>
+                        <th scope="col" style="width:5%;">Dostatnost</th>
                     </thead>
                     <tbody>
                         <ng-container *ngFor="let recept of recepti">
                             <!--Prikaži samo recepte koji pripadaju pacijentu poviše tablice-->
                             <tr *ngIf="recept.idPacijent === pacijent.id">
-                                <td 
+                                <td
                                     style="padding:2px;">
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-info btn-sm" 
-                                        (click)="podiNaPrikaz(recept)" 
-                                        style="margin-left:2px;">Prikaži recept</button> 
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-warning btn-sm" 
-                                        style="margin-top:2px;" 
-                                        (click)="azurirajRecept(recept)">Ažuriraj recept</button>    
+                                    <button
+                                        type="button"
+                                        class="btn btn-info btn-sm"
+                                        (click)="podiNaPrikaz(recept)"
+                                        style="margin-left:2px;">Prikaži recept</button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-warning btn-sm"
+                                        style="margin-top:2px;"
+                                        (click)="azurirajRecept(recept)">Ažuriraj recept</button>
                                 </td>
-                                <td 
-                                    style="padding:2px;text-align: center;
-                                    font-family: Verdana, sans-serif;">{{recept.datumRecept}}</td>
-                                <td 
-                                    style="padding:2px;text-align: center;
-                                    font-family: Verdana, sans-serif;">{{recept.mkbSifraPrimarna}}</td>
-                                <td 
-                                    style="white-space:pre-wrap; 
-                                    word-wrap:break-word;padding:2px;
-                                    text-align: center; 
-                                    font-family: Verdana, sans-serif;">{{recept.proizvod}}</td>
-                                <td 
-                                    style="padding:2px;
-                                    text-align: center; 
-                                    font-family: Verdana, sans-serif;">{{recept.dostatnost}}</td>
+                                <td class="td_datum_mkb_dostatnost">{{recept.datumRecept}}</td>
+                                <td class="td_datum_mkb_dostatnost">{{recept.mkbSifraPrimarna}}</td>
+                                <td class="td_proizvod">{{recept.proizvod}}</td>
+                                <td class="td_datum_mkb_dostatnost">{{recept.dostatnost}}</td>
                             </tr>
                         </ng-container>
                     </tbody>
                 </table>
             </div>
-        </div> 
-    </div>    
+        </div>
+    </div>
 </ng-container>

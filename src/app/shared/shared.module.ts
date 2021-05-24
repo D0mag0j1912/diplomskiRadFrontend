@@ -44,8 +44,7 @@ import { PovezaniPovijestBolestiComponent } from '../lijecnik/povezani-povijest-
         IzdaneUputniceComponent,
         UzorciComponent,
         PrikaziPovijestBolestiComponent,
-        PovezaniPovijestBolestiComponent,
-        DialogComponent
+        PovezaniPovijestBolestiComponent
     ],
     entryComponents: [DialogComponent]
 })

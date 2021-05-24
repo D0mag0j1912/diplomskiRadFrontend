@@ -24,6 +24,7 @@
             <form
                 (ngSubmit)="onPretragaPacijenti()"
                 [formGroup]="forma"
+                *ngIf="forma"
                 class="form-inline">
                 <div class="form-group">
                     <input

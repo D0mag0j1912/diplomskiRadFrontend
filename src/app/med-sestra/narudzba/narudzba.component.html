@@ -28,7 +28,7 @@
                                     style="font-family: Verdana, sans-serif">Vrsta pregleda</label>
                                 <select class="form-control" style="width:300px;" formControlName="vrstaPregleda">
                                     <option [value]="null" [disabled]="true">Odaberite vrstu pregleda</option>
-                                    <option *ngFor="let vrsta of razliciteVrstePregleda" [value]="vrsta.nazivVrstaPregled">{{vrsta.nazivVrstaPregled}}</option>
+                                    <option *ngFor="let vrsta of razliciteVrstePregleda" [value]="vrsta">{{vrsta}}</option>
                                 </select>
                                 <mat-error
                                     *ngIf="(vrstaPregleda.touched || vrstaPregleda.dirty) && !vrstaPregleda.valid">
@@ -53,9 +53,12 @@
                         <tr>
                             <td></td>
                             <td>
-                                <select class="form-control" style="width:300px;" formControlName="pacijenti">
+                                <select
+                                    class="form-control"
+                                    style="width:300px;"
+                                    formControlName="pacijenti">
                                     <option [value]="null" [disabled]="true">Odaberite pacijenta</option>
-                                    <option *ngFor="let pacijent of pacijenti" [value]="pacijent.Pacijent">{{pacijent.Pacijent}}</option>
+                                    <option *ngFor="let pacijent of pacijenti" [value]="pacijent">{{pacijent}}</option>
                                 </select>
                                 <mat-error
                                     *ngIf="(pacijentiForm.touched || pacijentiForm.dirty) && !pacijentiForm.valid">

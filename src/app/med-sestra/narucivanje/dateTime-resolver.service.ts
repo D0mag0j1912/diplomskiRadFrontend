@@ -33,7 +33,7 @@ export class DateTimeResolverService implements Resolve<any | any[]>{
                     pacijenti: result[2],
                     razliciteVrstePregleda: result[3],
                     danasnjiDatum: result[4]
-                };    
+                };
             })
         );
     }

@@ -25,3 +25,35 @@
 .alert-box-actions{
     text-align:right;
 }
+
+h4{
+    font-family: Verdana, sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+p{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+    font-weight: bold;
+}
+
+.p_ostalo {
+    margin-top:10px;
+}
+
+[readonly] {
+    width:100%;
+    font-family: Verdana, sans-serif;
+    background-color: white;
+    border-color:#5cb85c;
+}
+
+.text-area{
+    resize: none;
+}
+
+button {
+    margin-right:20px;
+}
+
