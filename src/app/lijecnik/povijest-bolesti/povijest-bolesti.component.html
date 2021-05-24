@@ -114,26 +114,22 @@
                                             <mat-error
                                                 *ngIf="dijagnozaCtrl.errors?.requiredMKB">MKB šifra je obvezna za unos!</mat-error>
                                             <mat-error
-                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB"
-                                                style="display: block;">Neispravan unos MKB šifre!</mat-error>
+                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.neispravanMKB">Neispravan unos MKB šifre!</mat-error>
                                             <mat-error
-                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna"
-                                                style="display: block;">Naziv sekundarne dijagnoze je obvezan za unos!</mat-error>
+                                                *ngIf="!dijagnozaCtrl.errors?.requiredMKB && dijagnozaCtrl.errors?.requiredNazivSekundarna">Naziv sekundarne dijagnoze je obvezan za unos!</mat-error>
                                         </mat-error>
                                         <mat-error
                                             *ngIf="!sekundarnaDijagnoza.valid">
                                             <!--Prikaži samo ako se pojavio error i PRIKAŽI SAMO NA ZADNJEM FORM CONTROLU-->
                                             <mat-error
-                                                *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza"
-                                                style="display: block;">Duplikati nisu dozvoljeni!</mat-error>
+                                                *ngIf="sekundarnaDijagnoza.errors?.duplikat && dijagnozaCtrl.value.nazivSekundarna === sekDijagnoza">Duplikati nisu dozvoljeni!</mat-error>
                                         </mat-error>
                                         <mat-error
                                             *ngIf="((dijagnozaCtrl.touched || dijagnozaCtrl.dirty) ||
                                                 (primarnaDijagnoza.touched || primarnaDijagnoza.dirty) ||
                                                 (mkbPrimarnaDijagnoza.touched || mkbPrimarnaDijagnoza.dirty)) && !forma.valid">
                                             <mat-error
-                                                *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza"
-                                                style="display:block;">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</mat-error>
+                                                *ngIf="forma.errors?.primarnaJeIstaKaoSekundarna && dijagnozaCtrl.value.nazivSekundarna === dijagnoza">Ovu dijagnozu ste unijeli kao primarnu dijagnozu!</mat-error>
                                         </mat-error>
                                     </td>
                                     <td>
@@ -155,7 +151,7 @@
                         <tr>
                             <!--BUTTON JE DISABLED AKO DIJAGNOZE NISU ISPRAVNE-->
                             <td colspan="4">
-                            <div style="left:250px;position: relative;">
+                            <div class="div_dodaj_sekundarnu">
                                 <button
                                     type="button"
                                     class="btn btn-info"

@@ -2,6 +2,15 @@ input {
     float:right;
 }
 
+.input_cijena{
+    width:100px;
+    float:left;
+    background-color:#f8f9fa;
+    margin-top:5px;
+    border:0;
+    font-family: Verdana, sans-serif;
+}
+
 .navbar {
     padding: 0;
 }
@@ -13,4 +22,15 @@ a{
 
 ul li a{
     color: #333;
+}
+
+h4{
+    font-family: Verdana, sans-serif;
+    margin-right:5px;
+}
+
+.button_posalji_uzorke{
+    right:10px;
+    position: relative;
+    margin-top:5px;
 }

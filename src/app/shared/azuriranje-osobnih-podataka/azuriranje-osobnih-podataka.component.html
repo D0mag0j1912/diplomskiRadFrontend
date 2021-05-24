@@ -1,16 +1,14 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12 col-md-6 col-md-offset-3">
-            <h3
-                style="font-family: Verdana, sans-serif;color:#337ab7">Ažuriraj osobne podatke</h3>
-            <p style="font-family: Verdana, sans-serif">
+            <h3>Ažuriraj osobne podatke</h3>
+            <p>
                 Datum registracije profila: <strong>{{osobniPodatci.datKreir}}</strong>
             </p>
             <form [formGroup]="forma" (ngSubmit)="onSubmit()" *ngIf="forma">
                 <div class="form-group">
                     <label
-                        for="ime"
-                        style="font-family: Verdana, sans-serif">Ime</label>
+                        for="ime">Ime</label>
                     <input
                         type="text"
                         class="form-control"
@@ -18,8 +16,7 @@
                 </div>
                 <div class="form-group">
                     <label
-                        for="prezime"
-                        style="font-family: Verdana, sans-serif">Prezime</label>
+                        for="prezime">Prezime</label>
                     <input
                         type="text"
                         formControlName="prezime"
@@ -27,8 +24,7 @@
                 </div>
                 <div class="form-group">
                     <label
-                        for="email"
-                        style="font-family: Verdana, sans-serif">Email</label>
+                        for="email">Email</label>
                     <input
                         type="email"
                         formControlName="email"
@@ -36,8 +32,7 @@
                 </div>
                 <div class="form-group">
                     <label
-                        for="adresa"
-                        style="font-family: Verdana, sans-serif">Adresa</label>
+                        for="adresa">Adresa</label>
                     <input
                         type="text"
                         formControlName="adresa"
@@ -45,8 +40,7 @@
                 </div>
                 <div class="form-group">
                     <label
-                        for="specijalizacija"
-                        style="font-family: Verdana, sans-serif">Specijalizacija</label>
+                        for="specijalizacija">Specijalizacija</label>
                     <select
                         formControlName="specijalizacija"
                         class="form-control">

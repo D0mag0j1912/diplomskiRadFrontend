@@ -1,43 +1,38 @@
 <div class="row">
     <div class="col-xs-12">
         <ul class="list-group">
-            <li 
-                style="cursor:pointer;border-radius: 5px; 
-                    margin-top:5px;" 
+            <li
                 [ngStyle]="{'border': '3px solid ' + pregled.bojaPregled}"
-                *ngFor="let pregled of pregledi" 
+                *ngFor="let pregled of pregledi"
                 [routerLink]="[pregled.idPregled]"
                 class="list-group-item clearfix"
-                routerLinkActive="active" 
+                routerLinkActive="active"
                 (click)="onClickPregled(pregled)">
                 <div class="pull-left">
-                    <h5 
-                        style="font-family: Verdana, sans-serif;">Datum: 
+                    <h5>Datum:
                         {{pregled.datum}}</h5>
-                    <h5 
-                        style="font-family: Verdana, sans-serif;">Tip slučaja: 
+                    <h5>Tip slučaja:
                         {{pregled.tipSlucaj === 'noviSlucaj' ? 'Novi slučaj' : 'Povezan slučaj'}}</h5>
-                    <h5 
-                        style="font-family: Verdana, sans-serif;">Vrijeme: 
+                    <h5>Vrijeme:
                         {{pregled.vrijeme}}
                     </h5>
                 </div>
                 <div class="pull-right">
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         class="btn btn-warning btn-sm"
-                        (click)="idiNaSljedeciPregled(pregled.sljedeciPregled,$event)" 
+                        (click)="idiNaSljedeciPregled(pregled.sljedeciPregled,$event)"
                         *ngIf="pregled.sljedeciPregled">Sljedeći pregled</button>
                     <br><br>
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         class="btn btn-warning btn-sm"
-                        (click)="idiNaPrethodniNoviPregled(pregled.prethodniNoviSlucaj,$event)" 
+                        (click)="idiNaPrethodniNoviPregled(pregled.prethodniNoviSlucaj,$event)"
                         *ngIf="pregled.prethodniNoviSlucaj">Novi slučaj</button>
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         class="btn btn-warning btn-sm"
-                        (click)="idiNaPrethodniPovezanPregled(pregled.prethodniPovezanSlucaj,$event)" 
+                        (click)="idiNaPrethodniPovezanPregled(pregled.prethodniPovezanSlucaj,$event)"
                         *ngIf="pregled.prethodniPovezanSlucaj">Prethodni pregled</button>
                 </div>
             </li>

@@ -1,0 +1,41 @@
+h4{
+    font-family: Verdana, sans-serif;
+    color:#a94442;
+    text-align: center;
+}
+
+select{
+    width:200px;
+    display:inline;
+    margin-left:5px;
+}
+
+label{
+    font-family: Verdana, sans-serif;
+}
+
+.input_datum{
+    width:200px;
+    display: inline;
+    margin-left:5px;
+}
+
+.input_pretraga{
+    width:300px;
+    display: inline;
+    margin-left:5px;
+}
+
+span{
+    color:#a94442;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+}
+
+mat-error{
+    display:block;
+}
+
+.div_pregledi{
+    margin-top:20px;
+}

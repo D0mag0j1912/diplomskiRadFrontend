@@ -1,18 +1,15 @@
 <div class="row">
     <div class="col-xs-12">
         <h4
-            *ngIf="!isAktivan"
-            style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nije aktivan u obradi!</h4>
+            *ngIf="!isAktivan">Pacijent nije aktivan u obradi!</h4>
         <form [formGroup]="forma" *ngIf="isAktivan && forma">
             <div class="row">
                 <div class="col-xs-4">
                     <label
-                        for="filter"
-                        style="font-family: Verdana, sans-serif;">Filtriraj po:</label>
+                        for="filter">Filtriraj po:</label>
                     <select
                         formControlName="filter"
                         class="form-control"
-                        style="width:200px;display:inline;margin-left:5px;"
                         (change)="onChangeFilter($event)">
                         <option value="datum">Datum</option>
                         <option value="pretraga">Pretraga</option>
@@ -21,44 +18,36 @@
                 <div class="col-xs-8">
                     <ng-container *ngIf="isDatum">
                         <label
-                            for="datum"
-                            style="font-family: Verdana, sans-serif;">Datum:</label>
+                            for="datum">Datum:</label>
                         <input
                             type="date"
-                            class="form-control"
-                            formControlName="datum"
-                            style="width:200px;display: inline;margin-left:5px;">
+                            class="form-control input_datum"
+                            formControlName="datum">
                         <mat-error
-                            *ngIf="datum.errors?.pattern"
-                            style="display:block;">Neispravan format datuma!</mat-error>
+                            *ngIf="datum.errors?.pattern">Neispravan format datuma!</mat-error>
                     </ng-container>
                     <ng-container *ngIf="!isDatum">
                         <label
-                            for="pretraga"
-                            style="font-family: Verdana, sans-serif;">Pretraga:</label>
+                            for="pretraga">Pretraga:</label>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control input_pretraga"
                             formControlName="pretraga"
-                            style="width:300px;display: inline;margin-left:5px;"
                             placeholder="Unesite parametar pretrage...">
                         <span
                             class="help-block"
-                            *ngIf="isAktivan && !imaLiPregleda && porukaNemaRezultata"
-                            style="color:#a94442;font-weight: bold;font-family: Verdana, sans-serif;">{{porukaNemaRezultata}}</span>
+                            *ngIf="isAktivan && !imaLiPregleda && porukaNemaRezultata">{{porukaNemaRezultata}}</span>
                     </ng-container>
                 </div>
             </div>
         </form>
         <h4
-            *ngIf="isAktivan && !imaLiPregleda && !porukaNemaRezultata"
-            style="font-family: Verdana, sans-serif;color:#a94442;text-align: center;">Pacijent nema evidentiranih pregleda!</h4>
+            *ngIf="isAktivan && !imaLiPregleda && !porukaNemaRezultata">Pacijent nema evidentiranih pregleda!</h4>
     </div>
 </div>
 <ng-container *ngIf="isAktivan && imaLiPregleda && !porukaNemaRezultata">
     <div
-        class="row"
-        style="margin-top:20px;">
+        class="row div_pregledi">
         <div class="col-xs-4">
             <app-pregledi-list
                 [pregledi]="pregledi"

@@ -71,23 +71,17 @@
             <li *ngIf="isAktivan && isMedSestra">
               <button
                   type="button"
-                  class="btn btn-primary"
-                  style="right:10px;position: relative;margin-top:5px;"
+                  class="btn btn-primary button_posalji_uzorke"
                   (click)="onPosaljiUzorke()">Pošalji uzorke</button>
             </li>
             <li *ngIf="isAktivan">
-              <h4
-                  style="font-family: Verdana, sans-serif;
-                        margin-right:5px;">Iznos pregleda:</h4>
+              <h4>Iznos pregleda:</h4>
             </li>
             <li *ngIf="isAktivan">
                 <form [formGroup]="forma">
                     <input
                         type="text"
-                        class="form-control"
-                        style="width:100px;float:left;
-                            background-color:#f8f9fa;margin-top:5px;
-                            border:0;font-family: Verdana, sans-serif"
+                        class="form-control input_cijena"
                         formControlName="cijena"
                         readonly>
                 </form>

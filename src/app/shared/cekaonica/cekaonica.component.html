@@ -17,10 +17,7 @@
     </div>
     <div class="row">
         <div class="col-xs-12 col-md-6 center_div">
-            <h2
-                style="text-align: center;
-                    font-family:Verdana, sans-serif;
-                    color:#337ab7;">Popis pacijenata u čekaonici</h2>
+            <h2 class="h2_naslov">Popis pacijenata u čekaonici</h2>
             <form
                 (ngSubmit)="onPretragaPacijenti()"
                 [formGroup]="forma"
@@ -32,7 +29,6 @@
                         name="ime"
                         placeholder="Unesite ime..."
                         class="form-control"
-                        style="width:200px;"
                         formControlName="ime">
                 </div>
                 <div class="form-group">
@@ -40,16 +36,13 @@
                         type="text"
                         name="prezime"
                         placeholder="Unesite prezime..."
-                        class="form-control"
-                        style="width:200px;margin-left:7px;"
+                        class="form-control input_prezime"
                         formControlName="prezime">
                 </div>
                 <div class="form-group">
                     <button
                         type="submit"
-                        class="btn btn-info"
-                        style="cursor: pointer;"
-                        style="width:100px;height:34px;margin-left:7px;"
+                        class="btn btn-info button_pretrazi"
                         [disabled]="!forma.valid">Pretraži</button>
                 </div>
                 <mat-error *ngIf="(forma.touched || forma.dirty) && !forma.valid">
@@ -59,22 +52,26 @@
         </div>
     </div>
     <div
-        class="row"
-        style="margin-top:20px;">
+        class="row div_tablica">
         <div class="col-xs-12 col-md-12" *ngIf="!isPrazna">
             <div class="text-center">
                 <div class="form-check form-check-inline" *ngFor="let control of getControlsStatusi(); let i = index">
-                    <input type="checkbox"  class="form-check-input" [formControl]="control" id="inlineCheckBox{{i}}" (change)="getSelectedStatusValues()">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [formControl]="control"
+                        id="inlineCheckBox{{i}}"
+                        (change)="getSelectedStatusValues()">
                     <label
                         class="form-check-label"
-                        for="inlineCheckBox{{i}}"
-                        style="font-family: Verdana, sans-serif;">{{statusi[i]}}</label>
+                        for="inlineCheckBox{{i}}">{{statusi[i]}}</label>
                 </div>
             </div>
-            <h4
-                style="font-family:Verdana, sans-serif;
-                    color:#337ab7;">Tablica pacijenata</h4>
-            <button type="button" class="btn btn-info" style="float: right;margin-top:-30px;" (click)="prikazi10zadnjih()">Prikaži 10 zadnjih</button>
+            <h4>Tablica pacijenata</h4>
+            <button
+                type="button"
+                class="btn btn-info button_10_zadnjih"
+                (click)="prikazi10zadnjih()">Prikaži 10 zadnjih</button>
             <div class="table-responsive-sm">
                 <table class="table table-striped">
                     <thead>
@@ -124,15 +121,14 @@
                                                     pacijent.datumDodavanja,
                                                     pacijent.vrijemeDodavanja,
                                                     pacijent.status,
-                                                    pacijent.tipKorisnik)"
-                                        >Izbriši iz čekaonice</button>
+                                                    pacijent.tipKorisnik)">Izbriši iz čekaonice</button>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
         <div class="col-xs-12 col-md-12" *ngIf="isPrazna">
-            <h2 style="text-align: center;color:#a94442">Čekaonica je prazna!</h2>
+            <h2 class="h2_prazna">Čekaonica je prazna!</h2>
         </div>
     </div>
 </div>

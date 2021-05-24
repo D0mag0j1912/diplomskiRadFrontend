@@ -22,9 +22,18 @@
 .alert-box-actions{
   text-align:right;
 }
+
 h4{
   text-align: right;
   clear: both;
   float:left;
   margin-right:15px;
+}
+
+strong{
+    color:#337ab7;
+}
+
+h5{
+    font-family: Verdana, sans-serif;
 }

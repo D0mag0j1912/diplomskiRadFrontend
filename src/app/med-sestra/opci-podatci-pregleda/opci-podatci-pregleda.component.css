@@ -1,3 +1,86 @@
+h4{
+    font-family: Verdana, sans-serif;
+}
+
+label{
+    font-family: Verdana, sans-serif;
+}
+
+.label_primarna{
+    margin-top:8px;
+}
+
+.label_sekundarna{
+    margin-top:6px;
+}
+
+.label_slucaj{
+    margin-left:2px;
+}
+
+mat-error{
+    display:block;
+}
+
+.error_nacin_placanja{
+    margin-left:-250px;
+}
+
+.select_nacin_placanja{
+    width:200px;
+    height:35px;
+    margin-left:-250px;
+}
+
+.select_zdr_podatci{
+    width:250px;
+    height:35px;
+}
+
+.select_dijagnoze{
+    width:350px;
+    height:35px;
+}
+
+.input_nacin_placanja{
+    width:50px;
+    margin-top:-35px;
+    margin-left:-40px;
+}
+
+.input_poduzece{
+    width:200px;
+    margin-left:-250px;
+}
+
+.input_oznaka{
+    width:50px;
+    margin-left:255px;
+    margin-top:-35px;
+    height:35px;
+}
+
+.input_zdr_podatci{
+    width:250px;
+}
+
+.input_mkb{
+    width:100px;
+    height:35px;
+}
+
+#a_otvoreni_slucaj,
+#a_povezani_slucaj{
+    color:#337ab7;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+}
+
+.button_potvrdi{
+    margin:auto;
+    display:block;
+}
 
 .ng-invalid:not(form)  {
     border-left: 5px solid #a94442; /* red */

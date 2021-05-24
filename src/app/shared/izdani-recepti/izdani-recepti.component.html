@@ -2,52 +2,43 @@
 <div class="alert-box">
     <div class="row">
         <div class="col-xs-12">
-            <h5
-                style="font-family: Verdana, sans-serif;">Naziv proizvoda:
-                <strong style="color:#337ab7">
+            <h5>Naziv proizvoda:
+                <strong>
                     {{recept.oblikJacinaPakiranjeLijek ? recept.proizvod + ' ' + recept.oblikJacinaPakiranjeLijek : recept.proizvod}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Količina:
-                <strong style="color:#337ab7">
+            <h5>Količina:
+                <strong>
                     {{recept.kolicina}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Doziranje:
-                <strong style="color:#337ab7">
+            <h5>Doziranje:
+                <strong>
                     {{recept.doziranje}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Dostatnost:
-                <strong style="color:#337ab7">
+            <h5>Dostatnost:
+                <strong>
                     {{recept.dostatnost + ' dana'}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Hitnost:
-                <strong style="color:#337ab7">
+            <h5>Hitnost:
+                <strong>
                     {{recept.hitnost === 'hitno' ? 'Da' : 'Ne'}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Tip recepta:
-                <strong style="color:#337ab7">
+            <h5>Tip recepta:
+                <strong>
                     {{recept.ponovljivost === 'obican' ? 'Običan recept' : 'Ponovljiv recept'}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="recept.brojPonavljanja">Broj ponavljanja:
-                <strong style="color:#337ab7">
+                <strong>
                     {{recept.brojPonavljanja +  ' ponavljanja'}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="recept.cijeliSpecijalist">Specijalist koji je preporučio izdavanje recepta:
-                <strong style="color:#337ab7">
+                <strong>
                     {{recept.cijeliSpecijalist}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="recept.iznosRecept">Iznos recepta:
-                <strong style="color:#337ab7">
+                <strong>
                     {{oznaka ? recept.iznosRecept + ' kn' : recept.iznosRecept}}</strong>
             </h5>
         </div>

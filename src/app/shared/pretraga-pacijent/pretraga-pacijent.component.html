@@ -25,18 +25,16 @@
         </table>
         <!--Prethodna se prikazuje samo ako je broj trenutne stranice veći od 1-->
         <a
-            class="btn btn-info"
+            class="btn btn-info a_klasa"
             *ngIf="stranica > 1"
-            (click)="setPage(stranica-1)"
-            style="margin-right:5px;">Prethodna</a>
+            (click)="setPage(stranica-1)">Prethodna</a>
         <div
             *ngFor="let item of fakeArray; let i = index;"
-            style="display: inline-block;">
+            id="div_glavni">
             <!--Prikazuju se brojevi stranica-->
             <a
-                class="btn btn-primary"
-                (click)="setPage(i+1)"
-                style="margin-right:5px;">{{i+1}}</a>
+                class="btn btn-primary a_klasa"
+                (click)="setPage(i+1)">{{i+1}}</a>
         </div>
         <!--Sljedeća se prikazuje ako je i+1 > stranica-->
         <a

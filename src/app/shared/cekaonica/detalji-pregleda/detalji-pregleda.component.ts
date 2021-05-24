@@ -23,7 +23,10 @@ export class DetaljiPregledaComponent implements OnInit,OnDestroy {
     //Primam tip korisnika od "CekaonicaComponent"
     @Input() primljeniTipKorisnik: string;
     //Primam maksimalni datum (datum kada je dodan zadnji pregled ovog završenog pregleda)
-    @Input() maxDatum: {obicni: Date, uredeni: string};
+    @Input() maxDatum: {
+        obicni: Date,
+        uredeni: string
+    };
     //Primam sve podatke povijesti bolesti od "CekaonicaComponent"
     @Input() povijestiBolesti: PovijestBolesti[];
     //Primam sve opće podatke pregleda od "CekaonicaComponent"

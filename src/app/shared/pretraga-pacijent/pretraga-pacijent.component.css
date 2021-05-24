@@ -28,3 +28,11 @@ th {
 td{
     font-family: Verdana, sans-serif;
 }
+
+.a_klasa{
+    margin-right:5px;
+}
+
+#div_glavni{
+    display: inline-block;
+}

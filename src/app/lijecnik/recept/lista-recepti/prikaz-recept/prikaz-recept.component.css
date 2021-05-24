@@ -82,3 +82,7 @@ textarea[readonly]{
     border:0;
     resize:none;
 }
+
+.tr_klasa{
+    border-bottom: 1px solid #ddd;
+}

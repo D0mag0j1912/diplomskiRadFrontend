@@ -547,12 +547,19 @@ export class PrikaziPovijestBolestiComponent implements OnInit,OnDestroy {
         //Resetiram i čistim polja dijagnoza
         //Dok ne ostane jedna sekundarna dijagnoza u arrayu
         while(this.getControlsSekundarna().length !== 1){
-          //Briši mu prvi element
-          (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+            //Briši mu prvi element
+            (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
         }
         //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
         this.sekundarnaDijagnoza.reset();
         this.sekundarnaDijagnoza.disable({emitEvent: false});
+        this.razlogDolaska.patchValue(null,{emitEvent: false});
+        this.anamneza.patchValue(null, {emitEvent: false});
+        this.status.patchValue(null,{emitEvent: false});
+        this.nalaz.patchValue(null, {emitEvent: false});
+        this.terapija.patchValue(null, {emitEvent: false});
+        this.preporukaLijecnik.patchValue(null, {emitEvent: false});
+        this.napomena.patchValue(null, {emitEvent: false});
         this.primarnaDijagnoza.patchValue(null,{emitEvent: false});
         this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
         //Skrivam button "Poništi povezani slučaj"

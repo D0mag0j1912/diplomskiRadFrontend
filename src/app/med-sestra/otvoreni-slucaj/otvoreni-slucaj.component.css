@@ -27,3 +27,29 @@
 th, td {
     font-family: Verdana, sans-serif;
 }
+
+th{
+    color:#337ab7;
+}
+
+h3{
+    text-align: center;
+    color: #337ab7;
+    font-weight: bold;
+}
+
+p{
+    display:inline;
+}
+
+.nema_sek{
+    color:#a94442;
+}
+
+input{
+    width:350px;
+}
+
+.button_povezi{
+    float:right;
+}

@@ -42,3 +42,109 @@ textarea{
 .border_top {
     border-top: 2px solid #337ab7;
 }
+
+h3{
+    text-align: center;
+    color:#337ab7;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+}
+
+.strong_tier1{
+    font-family: Verdana, sans-serif;
+}
+
+.strong_tier2{
+    font-family: Verdana, sans-serif;
+    color:#a94442;
+}
+
+.strong_tier3{
+    font-family: Verdana, sans-serif;
+    color:#a94442;
+    margin-left:40px;
+}
+
+.input_osnovni_podatci{
+    border:0;
+    width:60%;
+    height:30px;
+    font-family: Verdana, sans-serif;
+}
+
+.input_vrijeme{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+    font-weight: bold;
+    border:0;
+    width:300px;
+    height:35px;
+    float:left;
+}
+
+.input_drugi_pacijent_opci{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+    font-weight: bold;
+    border:0;
+    width:500px;
+    height:35px;
+}
+
+.input_drugi_pacijent_povijest{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+    font-weight: bold;
+    border:0;
+    width:300px;
+    height:35px;
+}
+
+.input_nacin_placanja{
+    border:0;
+    width:60%;
+    height:30px;
+    font-family: Verdana, sans-serif;
+}
+
+.input_nema_sek{
+    border:0;
+    width:40%;
+    margin-left:270px;
+}
+
+.textarea_primarna{
+    border:0;
+    width:100%;
+    font-family: Verdana, sans-serif;
+}
+
+.textarea_sekundarne_opci{
+    width:60%;
+    margin-left:200px;
+    margin-top:-20px;
+    overflow-x:hidden;
+}
+
+.textarea_sekundarne_povijest{
+    width:60%;
+    margin-left:200px;
+    margin-top:-20px;
+}
+
+.textarea_ostalo{
+    width:100%;
+}
+
+.button_recept_uputnica{
+    float:right;
+}
+
+.button_izadi{
+    right:10px;
+    position: relative;
+}
+
+p{
+    font-family: Verdana, sans-serif;
+}

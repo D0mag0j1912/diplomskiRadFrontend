@@ -1,8 +1,6 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <h3 style="text-align: center;
-            color:#337ab7;
-            font-weight: bold;font-family: Verdana, sans-serif">Detalji pregleda</h3>
+    <h3>Detalji pregleda</h3>
     <app-izdani-recepti
         *ngIf="isIzdaniRecept"
         [recept]="recept"
@@ -12,63 +10,61 @@
         [uputnica]="uputnica"
         (close)="onCloseIzdanaUputnica()"></app-izdane-uputnice>
     <div class="col-xs-12 col-md-12">
-        <form [formGroup]="forma" *ngIf="forma">
+        <form
+            [formGroup]="forma"
+            *ngIf="forma">
             <div class="table-responsive-sm">
                 <table class="table">
                     <tbody>
                         <tr>
                             <td colspan="3">
-                                <strong style="font-family: Verdana, sans-serif;">Aktivni pacijent: </strong>
+                                <strong class="strong_tier1">Aktivni pacijent: </strong>
                                 <input
                                     type="text"
                                     formControlName="imePrezime"
-                                    style="border:0;width:60%;height:30px;
-                                    font-family: Verdana, sans-serif;"
+                                    class="input_osnovni_podatci"
                                     readonly>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="3">
-                                <strong style="font-family: Verdana, sans-serif;">Pregled obavljen: </strong>
+                                <strong class="strong_tier1">Pregled obavljen: </strong>
                                 <input
                                     type="text"
                                     formControlName="datumPregled"
-                                    style="border:0;width:60%;height:30px;
-                                    font-family: Verdana, sans-serif;"
+                                    class="input_osnovni_podatci"
                                     readonly>
                             </td>
                         </tr>
                         <tr>
                             <td colspan="3">
-                              <strong style="font-family: Verdana, sans-serif;">Ukupni iznos pregleda: </strong>
+                              <strong class="strong_tier1">Ukupni iznos pregleda: </strong>
                               <input
                                   type="text"
                                   formControlName="ukupnaCijenaPregled"
-                                  style="border:0;width:50%;height:30px;
-                                  font-family: Verdana, sans-serif;"
+                                  class="input_osnovni_podatci"
                                   readonly>
                             </td>
                         </tr>
                         <tr *ngIf="isDodanBMI">
                             <td colspan="3">
-                              <strong style="font-family: Verdana, sans-serif;">BMI: </strong>
+                              <strong class="strong_tier1">BMI: </strong>
                               <input
                                   type="text"
                                   formControlName="bmi"
-                                  style="border:0;width:60%;height:30px;
-                                  font-family: Verdana, sans-serif;"
+                                  class="input_osnovni_podatci"
                                   readonly>
                             </td>
                         </tr>
                         <tr *ngIf="pregledi.length === 0 && primljeniTipKorisnik === 'sestra'">
                             <td colspan="3">
-                                <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranih općih podataka na pregledu!</strong></h4>
+                                <h4><strong class="strong_tier2">Pacijent nema evidentiranih općih podataka na pregledu!</strong></h4>
                             </td>
                         </tr>
                         <ng-container *ngIf="primljeniTipKorisnik === 'sestra' && pregledi.length > 0">
                             <tr>
                                 <td colspan="3">
-                                    <h4><strong style="font-family: Verdana, sans-serif;">Opći podatci pregleda</strong></h4>
+                                    <h4><strong class="strong_tier1">Opći podatci pregleda</strong></h4>
                                 </td>
                             </tr>
                             <ng-container formArrayName="opciPodatci" *ngFor="let control of getControlsOpciPodatci();let i = index">
@@ -76,29 +72,23 @@
                                     <tr [ngClass]="(i === 0) ? 'border_top' : ''">
                                        <td colspan="3">
                                             <input
-                                                style="font-family: Verdana, sans-serif;
-                                                    color:#337ab7;font-weight: bold;
-                                                    border:0;width:300px;height:35px;
-                                                    float:left;"
+                                                class="input_vrijeme"
                                                 formControlName="vrijemePregled"
                                                 readonly>
                                             <input
                                                 *ngIf="control.value.mboAktivniPacijent !== control.value.pacijent.mboPacijent"
-                                                style="font-family: Verdana, sans-serif;
-                                                    color:#337ab7;font-weight: bold;
-                                                    border:0;width:500px;height:35px;"
+                                                class="input_drugi_pacijent_opci"
                                                 formControlName="pacijentTemplate"
                                                 readonly>
                                        </td>
                                     </tr>
                                     <tr>
                                         <td colspan="3">
-                                            <strong style="font-family: Verdana, sans-serif;">Način plaćanja: </strong>
+                                            <strong class="strong_tier1">Način plaćanja: </strong>
                                             <input
                                                 type="text"
                                                 formControlName="nacinPlacanja"
-                                                style="border:0;width:60%;height:30px;
-                                                font-family: Verdana, sans-serif;"
+                                                class="input_nacin_placanja"
                                                 readonly>
                                         </td>
                                     </tr>
@@ -106,37 +96,34 @@
                                         class="border_bottom"
                                         *ngIf="control.value.primarnaDijagnoza">
                                         <td>
-                                            <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
+                                            <strong class="strong_tier1">Primarna dijagnoza: </strong>
                                             <textarea
-                                                type="text"
                                                 rows="2"
                                                 formControlName="primarnaDijagnoza"
-                                                style="border:0;width:100%;
-                                                font-family: Verdana, sans-serif;"
+                                                class="textarea_primarna"
                                                 readonly></textarea>
                                         </td>
                                         <td *ngIf="control.value.sekundarneDijagnoze">
-                                            <strong style="font-family: Verdana, sans-serif;">Sekundarne dijagnoze: </strong>
+                                            <strong class="strong_tier1">Sekundarne dijagnoze: </strong>
                                             <textarea
-                                                type="text"
                                                 readonly
                                                 formControlName="sekundarneDijagnoze"
                                                 rows="4"
-                                                style="width:60%;margin-left:200px;margin-top:-20px;overflow-x:hidden"></textarea>
+                                                class="textarea_sekundarne_opci"></textarea>
                                         </td>
                                         <td *ngIf="!control.value.sekundarneDijagnoze">
-                                            <strong style="font-family: Verdana, sans-serif;color:#a94442;margin-left:40px;">Nema sekundarnih dijagnoza!</strong>
+                                            <strong class="strong_tier3">Nema sekundarnih dijagnoza!</strong>
                                             <input
                                                 type="text"
                                                 readonly
-                                                style="border:0;width:40%;margin-left:270px;">
+                                                class="input_nema_sek">
                                         </td>
                                     </tr>
                                     <tr
                                         class="border_bottom"
                                         *ngIf="!control.value.primarnaDijagnoza">
                                         <td colspan="3">
-                                            <strong style="font-family: Verdana, sans-serif;color:#a94442;">Primarna dijagnoza nije unesena!</strong>
+                                            <strong class="strong_tier2">Primarna dijagnoza nije unesena!</strong>
                                         </td>
                                     </tr>
                                 </ng-container>
@@ -144,19 +131,19 @@
                         </ng-container>
                         <tr *ngIf="povijestiBolesti.length === 0 && primljeniTipKorisnik === 'lijecnik'">
                             <td colspan="3">
-                                <h4><strong style="font-family: Verdana, sans-serif;color:#a94442;">Pacijent nema evidentiranu povijest bolesti na pregledu!</strong></h4>
+                                <h4><strong class="strong_tier2">Pacijent nema evidentiranu povijest bolesti na pregledu!</strong></h4>
                             </td>
                         </tr>
                         <ng-container *ngIf="primljeniTipKorisnik === 'lijecnik' && povijestiBolesti.length > 0">
                             <tr>
                                 <td colspan="3">
                                     <h4>
-                                        <strong style="font-family: Verdana, sans-serif;">Povijest bolesti</strong></h4>
+                                        <strong class="strong_tier1">Povijest bolesti</strong></h4>
                                 </td>
                             </tr>
                             <tr *ngIf="povijestiBolesti.length === 0">
                                 <td colspan="3">
-                                    <strong style="font-family: Verdana, sans-serif;color:#a94442;">Nema evidentiranih povijesti bolesti!</strong>
+                                    <strong class="strong_tier2">Nema evidentiranih povijesti bolesti!</strong>
                                 </td>
                             </tr>
                             <ng-container formArrayName="povijestBolesti" *ngFor="let control of getControlsPovijestBolesti();let j = index">
@@ -165,83 +152,74 @@
                                         <td
                                             colspan="3">
                                             <input
-                                                style="font-family: Verdana, sans-serif;
-                                                    color:#337ab7;font-weight: bold;
-                                                    border:0;width:300px;height:35px;float:left;"
+                                                class="input_vrijeme"
                                                 formControlName="vrijeme"
                                                 readonly>
                                             <input
                                                 *ngIf="control.value.mboAktivniPacijent !== control.value.pacijent.mboPacijent"
-                                                style="font-family: Verdana, sans-serif;
-                                                    color:#337ab7;font-weight: bold;
-                                                    border:0;width:300px;height:35px;"
+                                                class="input_drugi_pacijent_povijest"
                                                 formControlName="pacijentTemplate"
                                                 readonly>
                                             <button
                                                 type="button"
-                                                class="btn btn-warning btn-sm"
-                                                style="float:right;"
+                                                class="btn btn-warning btn-sm button_recept_uputnica"
                                                 *ngIf="control.value.recept.proizvod"
                                                 (click)="onIzdaniRecept(control.value.recept)">Izdani recept</button>
                                             <button
                                                 *ngIf="control.value.uputnica.zdravstvenaDjelatnost"
                                                 type="button"
-                                                class="btn btn-success btn-sm"
-                                                style="float:right;"
+                                                class="btn btn-success btn-sm button_recept_uputnica"
                                                 [ngStyle]="{'margin-right': control.value.recept.proizvod ? '5px' : '0px'}"
                                                 (click)="onIzdanaUputnica(control.value.uputnica)">Izdana uputnica</button>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong style="font-family: Verdana, sans-serif;">Primarna dijagnoza: </strong>
+                                            <strong class="strong_tier1">Primarna dijagnoza: </strong>
                                             <textarea
-                                                type="text"
                                                 rows="2"
                                                 formControlName="primarnaDijagnoza"
-                                                style="border:0;width:100%;
-                                                font-family: Verdana, sans-serif;"
+                                                class="textarea_primarna"
                                                 readonly></textarea>
                                         </td>
                                         <td>
                                             <strong
-                                                style="font-family: Verdana, sans-serif;"
+                                                class="strong_tier1"
                                                 *ngIf="control.value.sekundarneDijagnoze">Sekundarne dijagnoze: </strong>
                                             <textarea
                                                 *ngIf="control.value.sekundarneDijagnoze"
-                                                type="text"
                                                 readonly
                                                 formControlName="sekundarneDijagnoze"
                                                 rows="4"
-                                                style="width:60%;margin-left:200px;margin-top:-20px;"></textarea>
+                                                class="textarea_sekundarne_povijest"></textarea>
                                             <strong
-                                                style="font-family: Verdana, sans-serif;color:#a94442;"
+                                                class="strong_tier2"
                                                 *ngIf="!control.value.sekundarneDijagnoze">Nema sekundarnih dijagnoza!</strong>
                                             <input
                                                 *ngIf="!control.value.sekundarneDijagnoze"
                                                 type="text"
                                                 readonly
-                                                style="border:0;width:40%;margin-left:270px;">
+                                                class="input_nema_sek">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td colspan="3">
-                                            <p style="font-family: Verdana, sans-serif;"><strong>Razlog dolaska: </strong></p>
+                                            <p><strong>Razlog dolaska: </strong></p>
                                             <textarea
                                                 formControlName="razlogDolaska"
                                                 readonly
                                                 rows="3"
-                                                style="width:100%;"></textarea>
+                                                class="textarea_ostalo"></textarea>
                                         </td>
                                     </tr>
                                     <tr class="border_bottom">
                                         <td colspan="3">
-                                            <p style="font-family: Verdana, sans-serif;"><strong>Anamneza: </strong></p>
+                                            <p><strong>Anamneza: </strong></p>
                                             <textarea
                                                 formControlName="anamneza"
                                                 readonly
                                                 rows="3"
-                                                style="width:100%;"></textarea>
+                                                class="textarea_ostalo"></textarea>
                                         </td>
                                     </tr>
                                 </ng-container>
@@ -254,8 +232,7 @@
     </div>
     <div class="alert-box-actions">
         <button
-            class="btn btn-primary"
-            (click)="onClose()"
-            style="right:10px;position: relative;">Izađi</button>
+            class="btn btn-primary button_izadi"
+            (click)="onClose()">Izađi</button>
     </div>
 </div>

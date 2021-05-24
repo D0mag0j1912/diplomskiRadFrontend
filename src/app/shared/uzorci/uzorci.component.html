@@ -1,8 +1,6 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box">
-    <h3
-        style="font-family: Verdana, sans-serif;
-              text-align: center;color:#337ab7">
+    <h3 class="h3_naslov">
         {{oznaka === 'sekundarni' ? 'Kompletna krvna slika' : 'Rezultati pretraga'}}
     </h3>
     <form
@@ -10,33 +8,33 @@
         (ngSubmit)="onSubmit()"
         *ngIf="forma">
         <div
-            style="display:flex"
+            class="div_glavni"
             *ngIf="oznaka === 'nalazi'">
             <mat-card
                 *ngFor="let p of pom"
-                style="width:24%;margin-left:5px;">
+                class="div_glavni__mat-card_rezultati">
                 <ng-container *ngFor="let naziv of nazivi; let i = index">
                     <ng-container
                     *ngFor="let ref of referentneVrijednosti; let j = index">
                         <mat-form-field
                             *ngIf="p === 0 && i > 0 && i <= 9 && j % 18 === 0"
-                            style="display:block;">
+                            class="div_glavni__mat-form-field">
                             <input
                                 matInput
                                 type="text"
                                 [formControlName]="naziv"
                                 [placeholder]="naziv"
-                                style="font-weight: bold;"
+                                class="input_rezultati"
                                 readonly>
                         </mat-form-field>
                         <mat-form-field
                             *ngIf="p === 1 && j >= 0 && j < 9 && naziv === ref.atribut"
-                            style="display:block;">
+                            class="div_glavni__mat-form-field">
                             <input
                                 matInput
                                 type="text"
                                 [value]="ref.min + ' - ' + ref.max"
-                                style="font-weight: bold;text-align: center;"
+                                class="input_rezultati input_rezultati_dodatno"
                                 [ngStyle]="{'color' :
                                         (+forma.get(naziv).value.substring(0, forma.get(naziv).value.indexOf(' ')) >= ref.min
                                         && +forma.get(naziv).value.substring(0, forma.get(naziv).value.indexOf(' ')) <= ref.max)
@@ -45,23 +43,23 @@
                         </mat-form-field>
                         <mat-form-field
                             *ngIf="p === 2 && i > 9 && i <= 18 && j % 18 === 0"
-                            style="display:block;">
+                            class="div_glavni__mat-form-field">
                             <input
                                 matInput
                                 type="text"
                                 [formControlName]="naziv"
                                 [placeholder]="naziv"
-                                style="font-weight: bold;"
+                                class="input_rezultati"
                                 readonly>
                         </mat-form-field>
                         <mat-form-field
                             *ngIf="p === 3 && j >= 9 && j < 18 && naziv === ref.atribut"
-                            style="display:block;">
+                            class="div_glavni__mat-form-field">
                             <input
                                 matInput
                                 type="text"
                                 [value]="ref.min + ' - ' + ref.max"
-                                style="font-weight: bold;text-align: center;"
+                                class="input_rezultati input_rezultati_dodatno"
                                 [ngStyle]="{'color' :
                                         (+forma.get(naziv).value.substring(0, forma.get(naziv).value.indexOf(' ')) >= ref.min
                                         && +forma.get(naziv).value.substring(0, forma.get(naziv).value.indexOf(' ')) <= ref.max)
@@ -73,10 +71,10 @@
             </mat-card>
         </div>
         <div
-            style="display:flex;"
+            class="div_glavni"
             *ngIf="oznaka === 'sekundarni'">
             <mat-card
-                style="flex: 1 1 auto;max-width: 50%;">
+                class="div_glavni__mat-card_slanje">
                 <mat-form-field
                     class="ustanovaField">
                     <mat-label>Odaberite ustanovu</mat-label>
@@ -115,10 +113,9 @@
                 </ng-container>
             </mat-card>
             <mat-card
-                style="flex: 1 1 auto;">
+                class="mat-card__podatci_uputnice">
                 <h3
-                    class="mat-title"
-                    style="text-align: center;">Podatci uputnice</h3>
+                    class="mat-title h3_podatci_uputnice">Podatci uputnice</h3>
                 <mat-card-header>
                     <mat-card-title>Zdravstvena djelatnost</mat-card-title>
                     <mat-card-subtitle>{{podatciUputnice.nazivDjel}}</mat-card-subtitle>
@@ -154,8 +151,7 @@
         <div class="alert-box-actions">
             <button
                 type="submit"
-                class="btn btn-primary"
-                style="float:left;"
+                class="btn btn-primary button_spremi"
                 *ngIf="oznaka === 'sekundarni'">Spremi</button>
             <button
                 type="button"

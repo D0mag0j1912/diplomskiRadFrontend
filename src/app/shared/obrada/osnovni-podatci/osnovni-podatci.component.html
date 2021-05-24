@@ -10,30 +10,26 @@
                         <tr>
                             <td>
                                 <label
-                                    for="ime"
-                                    style="font-family: Verdana, sans-serif;">Ime</label>
+                                    for="ime">Ime</label>
                                 <input
                                     type="text"
                                     class="form-control"
                                     formControlName="ime"
-                                    style="width:270px;"
                                     placeholder="Unesite ime...">
                                 <mat-error
                                     *ngIf="(ime.touched || ime.dirty) && !ime.valid"
-                                    style="margin-left:40px;">
+                                    class="error_ime">
                                     <mat-error *ngIf="ime.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="ime.errors?.neispravanZnak">Samo slova su dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
                                 <label
-                                    for="mobitel"
-                                    style="font-family: Verdana, sans-serif;">Mobitel</label>
+                                    for="mobitel">Mobitel</label>
                                 <input
                                     type="text"
                                     class="form-control"
                                     formControlName="mobitel"
-                                    style="width:300px;"
                                     placeholder="Unesite broj mobitela (+385...)">
                                 <mat-error
                                     *ngIf="(mobitel.touched || mobitel.dirty) && !mobitel.valid">
@@ -45,36 +41,32 @@
                         <tr>
                             <td>
                                 <label
-                                    for="prezime"
-                                    style="font-family: Verdana, sans-serif;">Prezime</label>
+                                    for="prezime">Prezime</label>
                                 <input
                                     type="text"
                                     class="form-control"
                                     formControlName="prezime"
-                                    style="width:240px;"
                                     placeholder="Unesite prezime...">
                                 <mat-error
                                     *ngIf="(prezime.touched || prezime.dirty) && !prezime.valid"
-                                    style="margin-left:70px;">
+                                    class="error_prezime">
                                     <mat-error *ngIf="prezime.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="prezime.errors?.neispravanZnak">Samo slova su dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
                                 <label
-                                    for="bracnoStanje"
-                                    style="font-family: Verdana, sans-serif;">Bračno stanje</label>
+                                    for="bracnoStanje">Bračno stanje</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="bracnoStanje"
-                                    style="width:256px;height:35px;">
+                                    formControlName="bracnoStanje">
                                     <option [disabled]="true" [ngValue]="null">Odaberite bračno stanje</option>
                                     <option *ngFor="let stanje of bracnaStanja" value="{{stanje.nazivBracnoStanje}}">{{stanje.nazivBracnoStanje}}</option>
                                 </select>
                                 <mat-error
                                     *ngIf="(bracnoStanje.touched || bracnoStanje.dirty) && !bracnoStanje.valid"
-                                    style="margin-left:110px;">
+                                    class="error_bracno_stanje">
                                     <mat-error *ngIf="bracnoStanje.errors['bracnaStanjaIsForbidden']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -82,35 +74,31 @@
                         <tr>
                             <td>
                                 <label
-                                    for="datRod"
-                                    style="font-family: Verdana, sans-serif;">Datum rođenja</label>
+                                    for="datRod">Datum rođenja</label>
                                 <input
                                     type="date"
                                     class="form-control"
-                                    formControlName="datRod"
-                                    style="width:195px;">
+                                    formControlName="datRod">
                                 <mat-error
                                     *ngIf="(datRod.touched || datRod.dirty) && !datRod.valid"
-                                    style="margin-left:100px;">
+                                    class="error_dat_rod">
                                     <mat-error *ngIf="datRod.errors['pattern']">Morate unijeti ispravan format datuma!</mat-error>
                                     <mat-error *ngIf="datRod.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
                                 <label
-                                    for="radniStatus"
-                                    style="font-family: Verdana, sans-serif;">Radni status</label>
+                                    for="radniStatus">Radni status</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="radniStatus"
-                                    style="width:265px;height:35px;">
+                                    formControlName="radniStatus">
                                     <option [disabled]="true" [ngValue]="null">Odaberite radni status</option>
                                     <option *ngFor="let status of radniStatusi" value="{{status.nazivRadniStatus}}">{{status.nazivRadniStatus}}</option>
                                 </select>
                                 <mat-error
                                     *ngIf="(radniStatus.touched || radniStatus.dirty) && !radniStatus.valid"
-                                    style="margin-left:110px;">
+                                    class="error_radni_status">
                                     <mat-error *ngIf="radniStatus.errors['radniStatusIsForbidden']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
@@ -118,35 +106,31 @@
                         <tr>
                             <td>
                                 <label
-                                    for="adresa"
-                                    style="font-family: Verdana, sans-serif;">Adresa</label>
+                                    for="adresa">Adresa</label>
                                 <input
                                     type="text"
                                     class="form-control"
                                     formControlName="adresa"
-                                    style="width:245px;"
                                     placeholder="Unesite adresu...">
                                 <mat-error
                                     *ngIf="(adresa.touched || adresa.dirty) && !adresa.valid"
-                                    style="margin-left:70px;">
+                                    class="error_adresa">
                                     <mat-error *ngIf="adresa.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
                                 <label
-                                    for="status"
-                                    style="font-family: Verdana, sans-serif;">Status pacijenta</label>
+                                    for="status">Status pacijenta</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="status"
-                                    style="width:245px;height:35px;">
+                                    formControlName="status">
                                     <option [disabled]="true" [ngValue]="null">Odaberite status pacijenta</option>
                                     <option *ngFor="let status of statusiPacijenta" value="{{status.nazivStatusPacijent}}">{{status.nazivStatusPacijent}}</option>
                                 </select>
                                 <mat-error
                                     *ngIf="(status.touched || status.dirty) && !status.valid"
-                                    style="margin-left:120px;">
+                                    class="error_status">
                                     <mat-error *ngIf="status.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="status.errors['statusPacijentIsForbidden']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
@@ -155,34 +139,30 @@
                         <tr>
                             <td>
                                 <label
-                                    for="pbr"
-                                    style="font-family: Verdana, sans-serif;">Poštanski broj</label>
+                                    for="pbr">Poštanski broj</label>
                                 <input
                                     type="text"
-                                    class="form-control"
+                                    class="form-control input_pbr"
                                     formControlName="pbr"
-                                    style="width:195px;"
                                     placeholder="Unesite poštanski broj...">
                                 <mat-error
                                     *ngIf="(pbr.touched || pbr.dirty) && !pbr.valid"
-                                    style="margin-left:100px;">
+                                    class="error_pbr">
                                     <mat-error *ngIf="pbr.errors['pbrIsForbidden'] && !pbr.errors['required']">Unesena vrijednost nije dozvoljena!</mat-error>
                                     <mat-error *ngIf="pbr.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
                                 <label
-                                    for="oib"
-                                    style="font-family: Verdana, sans-serif;">OIB</label>
+                                    for="oib">OIB</label>
                                 <input
                                     type="text"
                                     class="form-control"
                                     formControlName="oib"
-                                    style="width:330px;"
                                     placeholder="Unesite OIB...">
                                 <mat-error
                                     *ngIf="(oib.touched || oib.dirty) && !oib.valid"
-                                    style="margin-left:40px;">
+                                    class="error_oib">
                                     <mat-error *ngIf="oib.errors['pattern']">Morate unijeti ispravan format OIB-a!</mat-error>
                                     <mat-error *ngIf="oib.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
@@ -191,36 +171,32 @@
                         <tr>
                             <td>
                                 <label
-                                    for="mjesto"
-                                    style="font-family: Verdana, sans-serif;">Mjesto</label>
+                                    for="mjesto">Mjesto</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="mjesto"
-                                    style="width:250px;height:35px;">
+                                    formControlName="mjesto">
                                     <option [disabled]="true" [ngValue]="null">Odaberite mjesto stanovanja</option>
                                     <option *ngFor="let mjesto of mjesta" value="{{mjesto.nazivMjesto}}">{{mjesto.nazivMjesto}}</option>
                                 </select>
                                 <mat-error *ngIf="forma.errors?.krivaKombinacija">Kriva kombinacija poštanskog broja i naziva mjesta!</mat-error>
                                 <mat-error
                                     *ngIf="(mjesto.touched || mjesto.dirty) && !mjesto.valid"
-                                    style="margin-left:60px;">
+                                    class="error_mjesto">
                                     <mat-error *ngIf="mjesto.errors['mjestaIsForbidden']">Ova vrijednost nije dozvoljena!</mat-error>
                                 </mat-error>
                             </td>
                             <td>
                                 <label
-                                    for="email"
-                                    style="font-family: Verdana, sans-serif;">Email</label>
+                                    for="email">Email</label>
                                 <input
                                     type="email"
                                     class="form-control"
                                     formControlName="email"
-                                    style="width:316px;"
                                     placeholder="Unesite email...">
                                 <mat-error
                                     *ngIf="(email.touched || email.dirty) && !email.valid"
-                                    style="margin-left:50px;">
+                                    class="error_email">
                                     <mat-error *ngIf="email.errors['email']">Morate unijeti ispravan format email-a!</mat-error>
                                     <mat-error *ngIf="email.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                 </mat-error>
@@ -229,19 +205,16 @@
                         <tr>
                             <td>
                                 <label
-                                    for="spol"
-                                    style="font-family: Verdana, sans-serif;">Spol</label><br>
+                                    for="spol">Spol</label><br>
                                 <label>
                                     <input
                                         type="radio"
                                         value="male"
-                                        formControlName="spol"
-                                        style="font-family: Verdana, sans-serif;">Muško
+                                        formControlName="spol">Muško
                                     <input
                                         type="radio"
                                         value="female"
-                                        formControlName="spol"
-                                        style="font-family: Verdana, sans-serif;">Žensko
+                                        formControlName="spol">Žensko
                                 </label>
                             </td>
                             <td></td>

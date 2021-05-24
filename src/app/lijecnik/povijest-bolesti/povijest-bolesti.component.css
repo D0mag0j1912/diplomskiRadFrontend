@@ -50,3 +50,12 @@ h4{
     position:relative;
 }
 
+mat-error{
+    display: block;
+}
+
+.div_dodaj_sekundarnu{
+    left:250px;
+    position: relative;
+}
+

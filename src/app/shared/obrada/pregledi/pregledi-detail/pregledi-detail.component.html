@@ -10,84 +10,69 @@
             *ngIf="isIzdaneUputnice"
             [uputnica]="poslanaUputnica"
             [oznaka]="'pregledi-detail'"></app-izdane-uputnice>
-        <form [formGroup]="forma" *ngIf="forma">
+        <form
+            [formGroup]="forma"
+            *ngIf="forma">
             <div class="table-responsive-sm">
                 <table class="table table-bordered">
                     <tbody>
                         <ng-container *ngIf="!isPovijestBolesti">
                             <tr>
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Način plaćanja: </h5>
+                                    <h5>Način plaćanja: </h5>
                                     <input
                                         type="text"
                                         class="form-control"
                                         formControlName="nacinPlacanja"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Kategorija osiguranja: </h5>
+                                    <h5>Kategorija osiguranja: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="kategorijaOsiguranja"
-                                        style="font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;width:100%;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Naziv države: </h5>
+                                    <h5>Naziv države: </h5>
                                     <input
                                         type="text"
                                         class="form-control"
                                         formControlName="drzavaOsiguranja"
-                                        style="font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;width:100%;background-color:white;"
                                         readonly>
                                 </td>
                             </tr>
                             <tr *ngIf="pregled.primarnaDijagnoza">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Primarna dijagnoza: </h5>
+                                    <h5>Primarna dijagnoza: </h5>
                                     <input
                                         type="text"
                                         class="form-control"
                                         formControlName="primarnaDijagnoza"
-                                        style="font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;width:100%;background-color:white;"
                                         readonly>
                                 </td>
                             </tr>
                             <tr *ngIf="!pregled.primarnaDijagnoza">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Nema evidentiranih primarnih dijagnoza!</h5>
+                                    <h5>Nema evidentiranih primarnih dijagnoza!</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td *ngIf="isSekundarna">
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Sekundarne dijagnoze: </h5>
+                                    <h5>Sekundarne dijagnoze: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="sekundarneDijagnoze"
-                                        style="font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;width:100%;background-color:white;"
                                         readonly></textarea>
                                 </td>
                                 <td *ngIf="!isSekundarna">
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Nema evidentiranih sekundarnih dijagnoza!</h5>
+                                    <h5>Nema evidentiranih sekundarnih dijagnoza!</h5>
                                 </td>
                             </tr>
                         </ng-container>
@@ -97,177 +82,137 @@
                                     <button
                                         type="button"
                                         class="btn btn-warning btn-sm"
-                                        style="float:right;"
                                         [ngStyle]="{'margin-top': !poslanaUputnica.molimTraziSe ? '-4px' : '0px'}"
                                         (click)="onIzdaniRecepti()"
-                                        *ngIf="poslaniRecept.proizvod"
-                                        >Izdani recept</button>
+                                        *ngIf="poslaniRecept.proizvod">Izdani recept</button>
                                     <button
                                         type="button"
-                                        class="btn btn-success btn-sm"
-                                        style="float:right;margin-right:5px;"
+                                        class="btn btn-success btn-sm button_recept"
                                         [ngStyle]="{'margin-top': !poslaniRecept.proizvod ? '-4px' : '0px'}"
                                         (click)="onIzdaneUputnice()"
-                                        *ngIf="poslanaUputnica.molimTraziSe"
-                                        >Izdana uputnica</button>
+                                        *ngIf="poslanaUputnica.molimTraziSe">Izdana uputnica</button>
                                     <p
                                         *ngIf="!poslaniRecept.proizvod"
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;float:right"
                                         [ngStyle]="{'margin-right': poslanaUputnica.molimTraziSe ? '5px' : '0px'}">&nbsp;Recept nije izdan!</p>
                                     <p
                                         *ngIf="!poslanaUputnica.molimTraziSe"
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;float:right"
                                         [ngStyle]="{'margin-right': poslaniRecept.proizvod ? '5px' : '0px'}">Uputnica nije izdana! <strong
-                                                                                                                                      style="color:black"
                                                                                                                                       *ngIf="!poslanaUputnica.molimTraziSe &&
                                                                                                                                             !poslaniRecept.proizvod">|</strong></p>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7">Razlog dolaska: </h5>
+                                    <h5>Razlog dolaska: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="razlogDolaska"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Anamneza: </h5>
+                                    <h5>Anamneza: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="anamneza"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr *ngIf="povijestBolesti.statusPacijent">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Status pacijenta: </h5>
+                                    <h5>Status pacijenta: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="statusPacijent"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr *ngIf="!povijestBolesti.statusPacijent">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Status pacijenta nije evidentiran!</h5>
+                                    <h5>Status pacijenta nije evidentiran!</h5>
                                 </td>
                             </tr>
                             <tr *ngIf="povijestBolesti.nalaz">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Nalaz: </h5>
+                                    <h5>Nalaz: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="nalaz"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr *ngIf="!povijestBolesti.nalaz">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Nalaz nije evidentiran!</h5>
+                                    <h5>Nalaz nije evidentiran!</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Primarna dijagnoza: </h5>
+                                    <h5>Primarna dijagnoza: </h5>
                                     <input
                                         type="text"
                                         class="form-control"
                                         formControlName="primarnaDijagnoza"
-                                        style="font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;width:100%;background-color:white;"
                                         readonly>
                                 </td>
                             </tr>
                             <tr>
                                 <td *ngIf="isSekundarna">
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Sekundarne dijagnoze: </h5>
+                                    <h5>Sekundarne dijagnoze: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="sekundarneDijagnoze"
-                                        style="font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;width:100%;background-color:white;"
                                         readonly></textarea>
                                 </td>
                                 <td *ngIf="!isSekundarna">
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Nema evidentiranih sekundarnih dijagnoza!</h5>
+                                    <h5>Nema evidentiranih sekundarnih dijagnoza!</h5>
                                 </td>
                             </tr>
                             <tr *ngIf="povijestBolesti.terapija">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Terapija: </h5>
+                                    <h5>Terapija: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="terapija"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr *ngIf="!povijestBolesti.terapija">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Terapija nije evidentirana!</h5>
+                                    <h5>Terapija nije evidentirana!</h5>
                                 </td>
                             </tr>
                             <tr *ngIf="povijestBolesti.preporukaLijecnik">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Preporuka liječnika: </h5>
+                                    <h5>Preporuka liječnika: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="preporukaLijecnik"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr *ngIf="!povijestBolesti.preporukaLijecnik">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Preporuka liječnika nije evidentirana!</h5>
+                                    <h5>Preporuka liječnika nije evidentirana!</h5>
                                 </td>
                             </tr>
                             <tr *ngIf="povijestBolesti.napomena">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Napomena: </h5>
+                                    <h5>Napomena: </h5>
                                     <textarea
                                         rows="3"
                                         class="form-control"
                                         formControlName="napomena"
-                                        style="width:100%;font-family: Verdana, sans-serif;
-                                            border-color:#337ab7;background-color:white;"
                                         readonly></textarea>
                                 </td>
                             </tr>
                             <tr *ngIf="!povijestBolesti.napomena">
                                 <td>
-                                    <h5
-                                        style="font-family: Verdana, sans-serif;color:#337ab7;">Napomena nije evidentirana!</h5>
+                                    <h5>Napomena nije evidentirana!</h5>
                                 </td>
                             </tr>
                         </ng-container>

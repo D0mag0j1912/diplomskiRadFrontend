@@ -1,16 +1,61 @@
-label{
-    text-align: right;
-    clear: both;
-    float:left;
-    margin-right:15px;
-}
+
 input{
     margin-top:-5px;
 }
 select{
     margin-top:-5px;
+    width:250px;
+    height:35px;
 }
 
 input.ng-invalid {
     border-left: 5px solid #a94442; /* red */
+}
+
+td > label{
+    font-family: Verdana, sans-serif;
+    text-align: right;
+    clear: both;
+    float:left;
+    margin-right:15px;
+}
+
+input[type="text"], input[type="email"]{
+    width: 250px;
+}
+
+input[type="date"], .input_pbr{
+    width:195px;
+}
+
+.error_ime, .error_oib{
+    margin-left:40px;
+}
+
+.error_prezime{
+    margin-left:70px;
+}
+
+.error_bracno_stanje, .error_radni_status{
+    margin-left:110px;
+}
+
+.error_dat_rod, .error_pbr{
+    margin-left:100px;
+}
+
+.error_adresa{
+    margin-left:70px;
+}
+
+.error_status{
+    margin-left:120px;
+}
+
+.error_mjesto{
+    margin-left:60px;
+}
+
+.error_email{
+    margin-left:50px;
 }

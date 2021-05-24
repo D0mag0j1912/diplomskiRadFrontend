@@ -1,16 +1,14 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12 col-md-6 col-md-offset-3">
-            <h3
-                style="font-family: Verdana, sans-serif; color:#337ab7">Ažuriraj lozinku</h3>
+            <h3>Ažuriraj lozinku</h3>
             <form
                 [formGroup]="forma"
                 (ngSubmit)="onSubmit()"
                 *ngIf="forma">
                 <div class="form-group">
                     <label
-                        for="trenutna"
-                        style="font-family: Verdana, sans-serif">Trenutna lozinka</label>
+                        for="trenutna">Trenutna lozinka</label>
                     <input
                         type="password"
                         formControlName="trenutnaLozinka"
@@ -19,8 +17,7 @@
                 </div>
                 <div class="form-group">
                     <label
-                        for="nova"
-                        style="font-family: Verdana, sans-serif">Nova lozinka</label>
+                        for="nova">Nova lozinka</label>
                     <input
                         type="password"
                         formControlName="novaLozinka"
@@ -29,8 +26,7 @@
                 </div>
                 <div class="form-group">
                     <label
-                        for="ponovnoNovaLozinka"
-                        style="font-family: Verdana, sans-serif">Potvrda nove lozinke</label>
+                        for="ponovnoNovaLozinka">Potvrda nove lozinke</label>
                     <input
                         type="password"
                         formControlName="ponovnoNovaLozinka"

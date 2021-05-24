@@ -169,7 +169,11 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                         'trajnoParticipacija': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.trajnoParticipacija : null),
                         'participacijaDo': new FormControl(this.isPodatciAktivni ? this.zdrPodatci.participacijaDo : null)
                     }, {validators: this.isPodatciAktivni ? [Handler.bothForbiddenParticipacija()] : null}),
-                }, {validators: this.isPodatciAktivni ? [Handler.atLeastOneRequiredOsnovno(), Handler.mustOslobodenParticipacija(), Handler.bothForbiddenOsnovno()] : null});
+                }, {validators: this.isPodatciAktivni ?
+                        [Handler.atLeastOneRequiredOsnovno(),
+                        Handler.mustOslobodenParticipacija(),
+                        Handler.bothForbiddenOsnovno(),
+                        Handler.atLeastOneRequiredParticipacija()] : null});
                 //Inicijalno onemogućavam unos u polje šifre područnog ureda
                 this.forma.controls["sifUred"].disable({emitEvent: false});
               }
@@ -232,9 +236,8 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                             this.dopunskoOd.updateValueAndValidity({emitEvent: false});
                             this.dopunskoDo.updateValueAndValidity({emitEvent: false});
                             this.datumiDopunsko.updateValueAndValidity({emitEvent: false});
-                            }
                         }
-                    ),
+                    }),
                     takeUntil(this.pretplateSubject)
                 ),
                 this.obradaService.obsZavrsenPregled.pipe(
@@ -347,13 +350,14 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
         }
         //Ako trajno osiguranje nije checked
         else{
-          //Omogućavam unos datuma osnovnog osiguranja
-          this.osnovnoOd.enable({emitEvent: false});
-          this.osnovnoDo.enable({emitEvent: false});
-          //Postavljam validatore na datum početka osnovnog osiguranja
-          this.osnovnoOd.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
-          //Postavljam validatore na datum završetka osnovnog osiguranja
-          this.osnovnoDo.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
+            console.log("tu sam");
+            //Omogućavam unos datuma osnovnog osiguranja
+            this.osnovnoOd.enable({emitEvent: false});
+            this.osnovnoDo.enable({emitEvent: false});
+            //Postavljam validatore na datum početka osnovnog osiguranja
+            this.osnovnoOd.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
+            //Postavljam validatore na datum završetka osnovnog osiguranja
+            this.osnovnoDo.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
         }
         this.osnovnoOd.updateValueAndValidity({emitEvent: false});
         this.osnovnoDo.updateValueAndValidity({emitEvent: false});
@@ -366,8 +370,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
     if(this.isPodatciAktivni){
         //Ako je "Oslobođen participacije" checked
         if(event.target.checked){
-          //Postavljam glavnoj formi validaciju za participaciju
-          this.forma.setValidators(Handler.atLeastOneRequiredParticipacija());
           //Omogućavam unos članka participacije i postavljam mu validatore
           this.clanakParticipacija.enable({emitEvent: false});
           //Postavljam članku validatore
@@ -387,7 +389,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
           this.clanakParticipacija.clearValidators();
           this.trajnoParticipacija.clearValidators();
           this.participacijaDo.clearValidators();
-          this.forma.clearValidators();
       }
 
       this.clanakParticipacija.updateValueAndValidity({emitEvent: false});

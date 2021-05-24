@@ -5,7 +5,7 @@
 
 .table-striped>thead>tr>th, .table-striped>tbody>tr>th, .table-striped>tfoot>tr>th, .table-striped>thead>tr>td, .table-striped>tbody>tr>td, .table-striped>tfoot>tr>td {
     padding: 4px;
-    }
+}
 
 .center_div{
     margin: 0 auto;
@@ -13,4 +13,47 @@
 }
 th, td{
   font-family: Verdana, sans-serif;
+}
+
+.h2_naslov{
+    text-align: center;
+    font-family:Verdana, sans-serif;
+    color:#337ab7;
+}
+
+.h2_prazna{
+    text-align: center;
+    color:#a94442;
+}
+
+label{
+    font-family: Verdana, sans-serif;
+}
+
+input[type="text"]{
+    width:200px;
+}
+
+.input_prezime{
+    margin-left:7px;
+}
+
+.button_pretrazi{
+    width:100px;
+    height:34px;
+    margin-left:7px;
+}
+
+.button_10_zadnjih{
+    float: right;
+    margin-top:-30px;
+}
+
+h4{
+    font-family:Verdana, sans-serif;
+    color:#337ab7;
+}
+
+.div_tablica{
+    margin-top:20px;
 }

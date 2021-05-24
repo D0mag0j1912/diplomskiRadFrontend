@@ -33,4 +33,49 @@ mat-card-header{
     margin-top:5px;
 }
 
+.h3_naslov{
+    font-family: Verdana, sans-serif;
+    text-align: center;
+    color:#337ab7;
+}
+
+.div_glavni{
+    display:flex;
+}
+
+.div_glavni__mat-card_slanje{
+    flex: 1 1 auto;
+    max-width: 50%;
+}
+
+.mat-card__podatci_uputnice{
+    flex: 1 1 auto;
+}
+
+.h3_podatci_uputnice{
+    text-align: center;
+}
+
+.button_spremi{
+    float:left;
+}
+
+.div_glavni__mat-card_rezultati{
+    width:24%;
+    margin-left:5px;
+}
+
+.div_glavni__mat-form-field{
+    display:block;
+}
+
+.input_rezultati{
+    font-weight: bold;
+}
+
+.input_rezultati_dodatno{
+    text-align:center;
+}
+
+
 

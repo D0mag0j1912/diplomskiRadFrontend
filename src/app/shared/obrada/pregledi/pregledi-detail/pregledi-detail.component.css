@@ -4,3 +4,34 @@ textarea{
     border-style: inset;
     border-width: 1px;
 }
+
+h5{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+}
+
+strong{
+    color:black;
+}
+
+p{
+    font-family: Verdana, sans-serif;
+    color:#337ab7;
+    float:right;
+}
+
+input[type="text"], textarea[readonly]{
+    width:100%;
+    font-family: Verdana, sans-serif;
+    border-color:#337ab7;
+    background-color:white;
+}
+
+button{
+    float:right;
+}
+
+.button_recept{
+    margin-right:5px;
+}
+

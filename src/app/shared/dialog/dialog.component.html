@@ -30,7 +30,7 @@
 <div
     mat-dialog-title
     *ngIf="data.detaljiPregleda"
-    style="text-align: center;color:#337ab7">
+    class="div_title">
     <mat-card-title>Detalji pregleda</mat-card-title>
 </div>
 <div
@@ -54,7 +54,7 @@
         <strong>{{data.detaljiPregleda.bmi}}</strong>
     </h4>
     <hr>
-    <h4 style="color:#a94442">
+    <h4 class="nema_podataka">
         {{data.detaljiPregleda.tipKorisnik === 'lijecnik' ?
         'Pacijent nema evidentiranu povijest bolesti na pregledu!' :
         'Pacijent nema evidentiranih općih podataka na pregledu!'}}

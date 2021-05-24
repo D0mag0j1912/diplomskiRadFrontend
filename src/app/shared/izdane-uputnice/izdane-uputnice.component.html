@@ -2,43 +2,36 @@
 <div class="alert-box">
     <div class="row">
         <div class="col-xs-12">
-            <h5
-                style="font-family: Verdana, sans-serif;">Zdravstvena djelatnost:
-                <strong style="color:#337ab7">
+            <h5>Zdravstvena djelatnost:
+                <strong>
                     {{uputnica.zdravstvenaDjelatnost}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="uputnica.zdravstvenaUstanova">Zdravstvena ustanova:
-                <strong style="color:#337ab7">
+                <strong>
                     {{uputnica.zdravstvenaUstanova}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Vrsta pregleda:
-                <strong style="color:#337ab7">
+            <h5>Vrsta pregleda:
+                <strong>
                     {{uputnica.vrstaPregled}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="uputnica.specijalist">Specijalist koji je preporučio izdavanje uputnice:
-                <strong style="color:#337ab7">
+                <strong>
                     {{uputnica.specijalist}}</strong>
             </h5>
-            <h5
-                style="font-family: Verdana, sans-serif;">Molim - Traži se:
-                <strong style="color:#337ab7">
+            <h5>Molim - Traži se:
+                <strong>
                     {{uputnica.molimTraziSe}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="uputnica.napomena">Napomena:
-                <strong style="color:#337ab7">
+                <strong>
                     {{uputnica.napomena}}</strong>
             </h5>
             <h5
-                style="font-family: Verdana, sans-serif;"
                 *ngIf="uputnica.iznosUputnica">Iznos uputnice:
-                <strong style="color:#337ab7">
+                <strong>
                     {{oznaka ? uputnica.iznosUputnica + ' kn' : uputnica.iznosUputnica}}</strong>
             </h5>
         </div>

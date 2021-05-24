@@ -1,6 +1,6 @@
 <div class="backdrop" (click)="onClose()"></div>
 <div class="alert-box" id="alert-box">
-    <h3 style="text-align: center;color: #337ab7;font-weight: bold;">Otvoreni slučajevi</h3>
+    <h3>Otvoreni slučajevi</h3>
     <div class="row">
         <div class="col-xs-12 col-md-6 col-md-offset-4" id="promjenaKlase">
             <form [formGroup]="forma" *ngIf="forma">
@@ -9,8 +9,7 @@
                         type="text"
                         class="form-control"
                         placeholder="Unesite parametar pretrage..."
-                        formControlName="parametar"
-                        style="width:350px;">
+                        formControlName="parametar">
                     <mat-error
                         *ngIf="!isDijagnozaPretraga">{{porukaDijagnozaPretraga}}</mat-error>
                 </div>
@@ -22,11 +21,11 @@
             <thead>
                 <tr>
                     <th class="col-xs-1"></th>
-                    <th class="col-xs-1" style="color:#337ab7">Datum pregleda</th>
-                    <th class="col-xs-1" style="color:#337ab7">Vrijeme pregleda</th>
-                    <th class="col-xs-2" style="color:#337ab7">Tip slučaja</th>
-                    <th class="col-xs-3" style="color:#337ab7">Primarna dijagnoza</th>
-                    <th class="col-xs-4" style="color:#337ab7">Sekundarne dijagnoze</th>
+                    <th class="col-xs-1">Datum pregleda</th>
+                    <th class="col-xs-1">Vrijeme pregleda</th>
+                    <th class="col-xs-2">Tip slučaja</th>
+                    <th class="col-xs-3">Primarna dijagnoza</th>
+                    <th class="col-xs-4">Sekundarne dijagnoze</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,10 +33,12 @@
                     <td>
                         <button
                             type="button"
-                            class="btn btn-success"
-                            style="float:right"
-                            (click)="poveziOtvoreniSlucaj(slucaj.mkbSifraPrimarna,slucaj.datumPregled,
-                                                        slucaj.vrijemePregled, slucaj.tipSlucaj)"
+                            class="btn btn-success button_povezi"
+                            (click)="poveziOtvoreniSlucaj(
+                                        slucaj.mkbSifraPrimarna,
+                                        slucaj.datumPregled,
+                                        slucaj.vrijemePregled,
+                                        slucaj.tipSlucaj)"
                             [disabled]="slucaj.prosliPregled !== 0">Poveži</button>
                     </td>
                     <td>{{slucaj.datumPregled}}</td>
@@ -52,8 +53,7 @@
                                 && dijagnoza.mkbSifraSekundarna
                                 && slucaj.datumPregled === dijagnoza.datumPregled
                                 && slucaj.vrijemePregled === dijagnoza.vrijemePregled
-                                && slucaj.tipSlucaj === dijagnoza.tipSlucaj"
-                                style="display:inline;">
+                                && slucaj.tipSlucaj === dijagnoza.tipSlucaj">
                                 <strong>{{dijagnoza.mkbSifraSekundarna}}</strong> | {{dijagnoza.nazivSekundarna}}
                             </p>
                             <!--Ako je primarna dijagnoza iz prvog polja jednaka primarnoj dijagnozi drugog polja te ako ta primarna dijagnoza nema sekundarnih dijagnoza, ispiši poruku-->
@@ -61,8 +61,8 @@
                                     && !dijagnoza.mkbSifraSekundarna
                                     && slucaj.tipSlucaj === dijagnoza.tipSlucaj
                                     && slucaj.datumPregled === dijagnoza.datumPregled
-                                    && slucaj.vrijemePregled === dijagnoza.vrijemePregled" style="display:inline;">
-                                <strong style="color:#a94442;">Nema sekundarnih dijagnoza!</strong>
+                                    && slucaj.vrijemePregled === dijagnoza.vrijemePregled">
+                                <strong class="nema_sek">Nema sekundarnih dijagnoza!</strong>
                             </p>
                         </div>
                     </td>

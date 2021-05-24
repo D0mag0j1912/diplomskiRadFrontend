@@ -12,16 +12,16 @@
                     <tbody>
                         <tr>
                             <td>
-                                <h4 style="font-family: Verdana, sans-serif">{{!isAktivan ? 'Nema aktivnih pacijenata' : 'Aktivni pacijent: ' + getImePrezime()}}</h4>
+                                <h4>{{!isAktivan ? 'Nema aktivnih pacijenata' : 'Aktivni pacijent: ' + getImePrezime()}}</h4>
                             </td>
                             <td>
-                                <h4 style="font-family: Verdana, sans-serif">{{isSljedeciPacijent ? 'Sljedeći pacijent: ' + sljedeciPacijent : porukaSljedeciPacijent}}</h4>
+                                <h4>{{isSljedeciPacijent ? 'Sljedeći pacijent: ' + sljedeciPacijent : porukaSljedeciPacijent}}</h4>
                             </td>
-                            <td *ngIf="isAktivan"><button
+                            <td *ngIf="isAktivan">
+                                <button
                                     type="button"
-                                    class="btn btn-primary"
-                                    (click)="zavrsiPregled()"
-                                    style="margin-top:5px;font-family: Verdana, sans-serif">Završi pregled</button></td>
+                                    class="btn btn-primary button_zavrsi"
+                                    (click)="zavrsiPregled()">Završi pregled</button></td>
                         </tr>
                     </tbody>
                 </table>
@@ -30,8 +30,7 @@
     </div>
     <div class="row">
         <div class="col-xs-12 col-md-6">
-            <p
-                style="font-family: Verdana, sans-serif"><strong>Dodaj u čekaonicu</strong></p>
+            <p><strong>Dodaj u čekaonicu</strong></p>
             <form
                 (ngSubmit)="onPretragaPacijenti()"
                 [formGroup]="forma"
@@ -42,8 +41,7 @@
                         type="text"
                         name="ime"
                         placeholder="Unesite ime..."
-                        class="form-control"
-                        style="width:200px;"
+                        class="form-control input_ime"
                         formControlName="ime">
                 </div>
                 <div class="form-group">
@@ -51,17 +49,14 @@
                         type="text"
                         name="prezime"
                         placeholder="Unesite prezime..."
-                        class="form-control"
-                        style="width:200px;margin-left:7px;"
+                        class="form-control input_prezime"
                         formControlName="prezime">
                 </div>
                 <div class="form-group">
                     <button
-                            type="submit"
-                            class="btn btn-info"
-                            style="cursor: pointer;"
-                            style="width:100px;height:34px;margin-left:7px;"
-                            [disabled]="!forma.valid">Pretraži</button>
+                        type="submit"
+                        class="btn btn-info button_pretrazi"
+                        [disabled]="!forma.valid">Pretraži</button>
                 </div>
                 <mat-error *ngIf="(forma.touched || forma.dirty) && !forma.valid">
                     <mat-error
@@ -72,83 +67,83 @@
     </div>
     <br>
     <div
-        class="row"
-        *ngIf="isAktivan"
-        style="margin-top:10px;">
+        class="row div_sredisnji"
+        *ngIf="isAktivan">
         <div class="col-xs-12 col-md-12">
-              <div class="table-responsive-sm">
-                  <table class="table table-striped table-hover table-bordered">
-                      <tbody>
-                          <tr>
-                              <td style="width:10%"><img src="../../assets/images/proba.jpg" width="120px" height="120px" class="img-responsive" style="margin-top: 5px;"></td>
-                              <td style="width:40%">
-                                  <h3
-                                      style="font-family: Verdana, sans-serif;
-                                      color:#337ab7;margin-top:-2px;">{{!isAktivan ? '' : getImePrezime()}}</h3>
-                                  <h4 style="font-family: Verdana, sans-serif">{{!isAktivan ? '' :'Datum rođenja: ' + getDatRod()}}</h4>
-                                  <h4 style="font-family: Verdana, sans-serif">{{!isAktivan ? '' :'Adresa: ' + getAdresa()}}</h4>
-                                  <h4 style="font-family: Verdana, sans-serif">{{!isAktivan ? '' :'MBO: ' + getMBO()}}</h4>
-                              </td>
-                              <td style="width:50%">
-                                  <br>
-                                  <h4 style="font-family: Verdana, sans-serif">{{isNarucen ? 'Naručen u: ' + narucenU : porukaNarucen}}</h4>
-                                  <h4 style="font-family: Verdana, sans-serif">
-                                      {{isLijecnik ? isObradenOpciPodatci ? 'Medicinska sestra je obradila pacijenta u ' + vrijemeObradeMedSestra + '!'
-                                      : 'Medicinska sestra nije obradila pacijenta!'
-                                      : isObradenPovijestBolesti ? 'Liječnik je obradio pacijenta u ' + vrijemeObradeLijecnik + '!'
-                                      : 'Liječnik nije obradio pacijenta!'}}</h4>
-                                  <form [formGroup]="formaBMI" *ngIf="isMedSestra && formaBMI">
-                                      <input
-                                          type="text"
-                                          class="form-control"
-                                          placeholder="Visina (npr. 192)"
-                                          formControlName="visina"
-                                          style="width:150px;float:left;">
-                                      <input
-                                          type="text"
-                                          class="form-control"
-                                          placeholder="Težina (npr. 88)"
-                                          formControlName="tezina"
-                                          style="width:150px;float:left;margin-left:5px;">
-                                      <input
-                                          type="text"
-                                          class="form-control"
-                                          placeholder="BMI"
-                                          formControlName="bmi"
-                                          style="width:100px;left:5px;position: relative;">
-                                      <mat-error
-                                          *ngIf="tezina.value">
-                                          <mat-error
-                                              *ngIf="tezina.errors?.pattern">Težina mora biti cjelobrojni pozitivni broj!</mat-error>
-                                          <mat-error
-                                              *ngIf="!tezina.errors?.pattern
-                                              && tezina.errors?.moraBitiPozitivanBroj">Težina mora biti cjelobrojni pozitivni broj!</mat-error>
-                                          <mat-error
-                                              *ngIf="!tezina.errors?.pattern
-                                              && !tezina.errors?.moraBitiPozitivanBroj
-                                              && tezina.errors?.neispravanUnos">Prevelika ili premala kilaža!</mat-error>
-                                      </mat-error>
-                                      <mat-error
-                                          *ngIf="visina.value">
-                                          <mat-error
-                                              *ngIf="visina.errors?.pattern">Visina mora biti cjelobrojni pozitivni broj!</mat-error>
-                                          <mat-error
-                                              *ngIf="!visina.errors?.pattern
-                                              && visina.errors?.moraBitiPozitivanBroj">Visina mora biti cjelobrojni pozitivni broj!</mat-error>
-                                          <mat-error
-                                              *ngIf="!visina.errors?.pattern
-                                              && !visina.errors?.moraBitiPozitivanBroj
-                                              && visina.errors?.neispravanUnos">Premala ili prevelika visina!</mat-error>
-                                      </mat-error>
-                                      <mat-error
-                                          *ngIf="spremioBMI"
-                                          style="color:#42A948;">{{spremioBMI}}</mat-error>
-                                  </form>
-                              </td>
-                          </tr>
-                      </tbody>
-                  </table>
-              </div>
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-hover table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="td_image">
+                                <img
+                                    src="../../assets/images/proba.jpg"
+                                    width="120px"
+                                    height="120px"
+                                    class="img-responsive">
+                            </td>
+                            <td class="td_podatci">
+                                <h3>{{!isAktivan ? '' : getImePrezime()}}</h3>
+                                <h4>{{!isAktivan ? '' :'Datum rođenja: ' + getDatRod()}}</h4>
+                                <h4>{{!isAktivan ? '' :'Adresa: ' + getAdresa()}}</h4>
+                                <h4>{{!isAktivan ? '' :'MBO: ' + getMBO()}}</h4>
+                            </td>
+                            <td class="td_ostalo">
+                                <br>
+                                <h4>{{isNarucen ? 'Naručen u: ' + narucenU : porukaNarucen}}</h4>
+                                <h4>
+                                    {{isLijecnik ? isObradenOpciPodatci ? 'Medicinska sestra je obradila pacijenta u ' + vrijemeObradeMedSestra + '!'
+                                    : 'Medicinska sestra nije obradila pacijenta!'
+                                    : isObradenPovijestBolesti ? 'Liječnik je obradio pacijenta u ' + vrijemeObradeLijecnik + '!'
+                                    : 'Liječnik nije obradio pacijenta!'}}</h4>
+                                <form [formGroup]="formaBMI" *ngIf="isMedSestra && formaBMI">
+                                    <input
+                                        type="text"
+                                        class="form-control input_visina"
+                                        placeholder="Visina (npr. 192)"
+                                        formControlName="visina">
+                                    <input
+                                        type="text"
+                                        class="form-control input_tezina"
+                                        placeholder="Težina (npr. 88)"
+                                        formControlName="tezina">
+                                    <input
+                                        type="text"
+                                        class="form-control input_bmi"
+                                        placeholder="BMI"
+                                        formControlName="bmi">
+                                    <mat-error
+                                        *ngIf="tezina.value">
+                                        <mat-error
+                                            *ngIf="tezina.errors?.pattern">Težina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                        <mat-error
+                                            *ngIf="!tezina.errors?.pattern
+                                            && tezina.errors?.moraBitiPozitivanBroj">Težina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                        <mat-error
+                                            *ngIf="!tezina.errors?.pattern
+                                            && !tezina.errors?.moraBitiPozitivanBroj
+                                            && tezina.errors?.neispravanUnos">Prevelika ili premala kilaža!</mat-error>
+                                    </mat-error>
+                                    <mat-error
+                                        *ngIf="visina.value">
+                                        <mat-error
+                                            *ngIf="visina.errors?.pattern">Visina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                        <mat-error
+                                            *ngIf="!visina.errors?.pattern
+                                            && visina.errors?.moraBitiPozitivanBroj">Visina mora biti cjelobrojni pozitivni broj!</mat-error>
+                                        <mat-error
+                                            *ngIf="!visina.errors?.pattern
+                                            && !visina.errors?.moraBitiPozitivanBroj
+                                            && visina.errors?.neispravanUnos">Premala ili prevelika visina!</mat-error>
+                                    </mat-error>
+                                    <mat-error
+                                        *ngIf="spremioBMI"
+                                        class="spremio_bmi">{{spremioBMI}}</mat-error>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <app-sekundarni-header></app-sekundarni-header>

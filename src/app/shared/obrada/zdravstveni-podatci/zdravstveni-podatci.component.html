@@ -10,14 +10,13 @@
                         <tr>
                             <td colspan="3">
                                 <label
-                                    for="nositeljOsiguranja"
-                                    style="font-family: Verdana, sans-serif;">Nositelj osiguranja</label><br>
+                                    for="nositeljOsiguranja">Nositelj osiguranja</label><br>
                                 <label>
                                     <input
                                         type="radio"
                                         value="nositelj"
                                         formControlName="nositeljOsiguranja">Nositelj osiguranja
-                                    <ng-container style="left:10px;position: relative;">
+                                    <ng-container>
                                         <input
                                             type="radio"
                                             value="clan"
@@ -33,13 +32,11 @@
                         <tr>
                             <td>
                                 <label
-                                    for="drzavaOsiguranja"
-                                    style="font-family: Verdana, sans-serif;">Država osiguranja</label>
+                                    for="drzavaOsiguranja">Država osiguranja</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="drzavaOsiguranja"
-                                    style="width:250px;height:35px;">
+                                    formControlName="drzavaOsiguranja">
                                     <option [disabled]="true" [ngValue]="null">Odaberite državu osiguranja</option>
                                     <option *ngFor="let drzava of drzave" value="{{drzava.nazivDrzave}}">{{drzava.nazivDrzave}}</option>
                                 </select>
@@ -50,13 +47,11 @@
                             </td>
                             <td>
                                 <label
-                                    for="kategorijaOsiguranja"
-                                    style="font-family: Verdana, sans-serif;">Kategorija osiguranja</label>
+                                    for="kategorijaOsiguranja">Kategorija osiguranja</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="kategorijaOsiguranja"
-                                    style="width:250px;height:35px;">
+                                    formControlName="kategorijaOsiguranja">
                                     <option [disabled]="true" [ngValue]="null">Odaberite kategoriju osiguranja</option>
                                     <option *ngFor="let kategorija of katOsiguranja" value="{{kategorija.oznakaOsiguranika}}">{{kategorija.oznakaOsiguranika}}</option>
                                 </select>
@@ -70,21 +65,18 @@
                         <tr>
                             <td>
                                 <label
-                                    for="podrucniUred"
-                                    style="font-family: Verdana, sans-serif;">Područni ured</label>
+                                    for="podrucniUred">Područni ured</label>
                                 <select
                                     type="text"
                                     class="form-control"
-                                    formControlName="podrucniUred"
-                                    style="width:250px;height:35px;">
+                                    formControlName="podrucniUred">
                                     <option [disabled]="true" [ngValue]="null">Odaberite područni ured</option>
                                     <option *ngFor="let ured of podrucniUredi" value="{{ured.nazivSluzbe}}">{{ured.nazivSluzbe}}</option>
                                 </select>
                                 <input
                                     type="text"
                                     formControlName="sifUred"
-                                    class="form-control"
-                                    style="width:50px;margin-left:255px;margin-top:-35px;">
+                                    class="form-control input_podrucni_ured">
                                 <mat-error *ngIf="(podrucniUred.touched || podrucniUred.dirty) && !podrucniUred.valid">
                                     <mat-error *ngIf="podrucniUred.errors['required']">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="podrucniUred.errors['uredIsForbidden'] && !podrucniUred.errors['required']">Ova vrijednost nije dozvoljena!</mat-error>
@@ -96,13 +88,11 @@
                         <tr>
                             <td>
                                 <label
-                                    for="mbo"
-                                    style="font-family: Verdana, sans-serif;">Matični broj pacijenta</label>
+                                    for="mbo">Matični broj pacijenta</label>
                                 <input
                                     type="text"
-                                    class="form-control"
+                                    class="form-control input_mbo"
                                     formControlName="mbo"
-                                    style="width:270px;"
                                     placeholder="Unesite matični broj pacijenta...">
                                 <mat-error *ngIf="(mbo.touched || mbo.dirty) && !mbo.valid">
                                     <mat-error *ngIf="mbo.errors['pattern']">Morate unijeti ispravan format MBO-a!</mat-error>
@@ -110,22 +100,20 @@
                                 </mat-error>
                             </td>
                             <td>
-                                <div style="margin-top:30px;">
+                                <div class="div_checkbox">
                                     <input
                                         type="checkbox"
                                         formControlName="trajnoOsnovno"
                                         value="trajnoOsnovno"
-                                        style="margin-top:5px;"
                                         (change)="onChecked($event)">
                                     <label
                                         for="trajnoOsnovno"
-                                        style="margin-left:5px;font-family: Verdana, sans-serif;">Trajno osnovno osiguranje</label>
+                                        class="label_ostalo">Trajno osnovno osiguranje</label>
                                     <mat-error *ngIf="(trajnoOsnovno.touched || trajnoOsnovno.dirty) && !trajnoOsnovno.valid">
                                         <mat-error *ngIf="trajnoOsnovno.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     </mat-error>
                                     <mat-error
-                                        *ngIf="forma.hasError('baremJedanOsnovno')"
-                                        style="display:block;">Morate unijeti ili trajno osiguranje ili datume osnovnog osiguranja!</mat-error>
+                                        *ngIf="forma.hasError('baremJedanOsnovno')">Morate unijeti ili trajno osiguranje ili datume osnovnog osiguranja!</mat-error>
                                     <mat-error *ngIf="forma.errors?.bothForbiddenOsnovno">Trajno osiguranje ILI datumi osiguranja!</mat-error>
                                 </div>
                             </td>
@@ -134,13 +122,11 @@
                         <tr formGroupName="datumiOsnovno">
                             <td>
                                 <label
-                                    for="osnovnoOd"
-                                    style="font-family: Verdana, sans-serif;">Osnovno osiguranje od</label>
+                                    for="osnovnoOd">Osnovno osiguranje od</label>
                                 <input
                                     type="date"
                                     class="form-control"
-                                    formControlName="osnovnoOd"
-                                    style="width:250px;">
+                                    formControlName="osnovnoOd">
                                 <mat-error *ngIf="(osnovnoOd.touched || osnovnoOd.dirty) && !osnovnoOd.valid">
                                     <mat-error *ngIf="osnovnoOd.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="osnovnoOd.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
@@ -149,13 +135,11 @@
                             </td>
                             <td>
                                 <label
-                                    for="osnovnoDo"
-                                    style="font-family: Verdana, sans-serif;">Osnovno osiguranje do</label>
+                                    for="osnovnoDo">Osnovno osiguranje do</label>
                                 <input
                                     type="date"
                                     class="form-control"
-                                    formControlName="osnovnoDo"
-                                    style="width:250px;">
+                                    formControlName="osnovnoDo">
                                 <mat-error *ngIf="(osnovnoDo.touched || osnovnoDo.dirty) && !osnovnoDo.valid">
                                     <mat-error *ngIf="osnovnoDo.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="osnovnoDo.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
@@ -165,7 +149,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <h4 style="font-family: Verdana, sans-serif;">Dopunsko osiguranje</h4>
+                                <h4>Dopunsko osiguranje</h4>
                             </td>
                             <td></td>
                             <td></td>
@@ -173,13 +157,11 @@
                         <tr>
                             <td>
                                 <label
-                                    for="brIskDopunsko"
-                                    style="font-family: Verdana, sans-serif;">Broj iskaznice dopunskog osiguranja</label>
+                                    for="brIskDopunsko">Broj iskaznice dopunskog osiguranja</label>
                                 <input
                                     type="text"
-                                    class="form-control"
+                                    class="form-control input_dopunsko"
                                     formControlName="brIskDopunsko"
-                                    style="width:320px;"
                                     placeholder="Unesite broj iskaznice dopunskog osiguranja...">
                                 <mat-error *ngIf="(brIskDopunsko.touched || brIskDopunsko.dirty) && !brIskDopunsko.valid">
                                     <mat-error *ngIf="brIskDopunsko.errors['pattern']">Morate unijeti ispravan format broja iskaznice!</mat-error>
@@ -191,13 +173,11 @@
                         <tr formGroupName="datumiDopunsko">
                             <td>
                                 <label
-                                    for="dopunskoOd"
-                                    style="font-family: Verdana, sans-serif;">Dopunsko osiguranje od</label>
+                                    for="dopunskoOd">Dopunsko osiguranje od</label>
                                 <input
                                     type="date"
                                     class="form-control"
-                                    formControlName="dopunskoOd"
-                                    style="width:250px;">
+                                    formControlName="dopunskoOd">
                                 <mat-error *ngIf="(dopunskoOd.touched || dopunskoOd.dirty) && !dopunskoOd.valid">
                                     <mat-error *ngIf="dopunskoOd.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="dopunskoOd.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
@@ -206,13 +186,11 @@
                             </td>
                             <td>
                                 <label
-                                    for="dopunskoDo"
-                                    style="font-family: Verdana, sans-serif;">Dopunsko osiguranje do</label>
+                                    for="dopunskoDo">Dopunsko osiguranje do</label>
                                 <input
                                     type="date"
                                     class="form-control"
-                                    formControlName="dopunskoDo"
-                                    style="width:250px;">
+                                    formControlName="dopunskoDo">
                                 <mat-error *ngIf="(dopunskoDo.touched || dopunskoDo.dirty) && !dopunskoDo.valid">
                                     <mat-error *ngIf="dopunskoDo.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="dopunskoDo.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
@@ -226,11 +204,10 @@
                                     type="checkbox"
                                     formControlName="oslobodenParticipacije"
                                     value="oslobodenParticipacije"
-                                    style="margin-top:5px;"
                                     (change)="onCheckedParticipacija($event)">
                                 <label
                                     for="oslobodenParticipacije"
-                                    style="margin-left:5px;font-family: Verdana, sans-serif;">Oslobođen participacije</label>
+                                    class="label_ostalo">Oslobođen participacije</label>
                                 <mat-error *ngIf="forma.errors?.mustBeCheckedParticipacija">Oslobođen participacije mora biti upisan!</mat-error>
                             </td>
                             <td></td>
@@ -239,13 +216,11 @@
                         <tr formGroupName="participacija">
                            <td>
                                <label
-                                    for="clanakParticipacija"
-                                    style="font-family: Verdana, sans-serif;">Prema članku Zakona</label>
+                                    for="clanakParticipacija">Prema članku Zakona</label>
                                <select
                                     type="text"
                                     class="form-control"
                                     formControlName="clanakParticipacija"
-                                    style="width:250px;height:35px;"
                                     (change)="onSelected($event)">
                                     <option [disabled]="true" [ngValue]="null">Odaberite članak participacije</option>
                                     <option *ngFor="let participacija of participacije" value="{{participacija.razlogParticipacija}}">{{participacija.razlogParticipacija}}</option>
@@ -256,16 +231,15 @@
                                 </mat-error>
                            </td>
                            <td>
-                                <div style="margin-top:30px;">
+                                <div class="div_checkbox">
                                     <input
                                         type="checkbox"
                                         formControlName="trajnoParticipacija"
                                         value="trajnoParticipacija"
-                                        style="margin-top:5px;"
                                         (change)="onCheckedTrajnaParticipacija($event)">
                                     <label
                                         for="trajnoParticipacija"
-                                        style="margin-left:5px;font-family: Verdana, sans-serif;">Trajno participacija</label>
+                                        class="label_ostalo">Trajno participacija</label>
                                 </div>
                                 <mat-error *ngIf="(participacija.touched || participacija.dirty) && !participacija.valid">
                                     <mat-error *ngIf="participacija.errors?.bothForbidden">Samo jedan unos je dozvoljen!</mat-error>
@@ -274,13 +248,11 @@
                            </td>
                            <td>
                                 <label
-                                    for="participacijaDo"
-                                    style="font-family: Verdana, sans-serif;">Participacija do</label>
+                                    for="participacijaDo">Participacija do</label>
                                 <input
                                     type="date"
                                     class="form-control"
-                                    formControlName="participacijaDo"
-                                    style="width:250px;">
+                                    formControlName="participacijaDo">
                                 <mat-error *ngIf="(participacijaDo.touched || participacijaDo.dirty) && !participacijaDo.valid">
                                     <mat-error *ngIf="participacijaDo.errors?.required">Ovo polje je obvezno za unos!</mat-error>
                                     <mat-error *ngIf="participacijaDo.errors?.pattern">Morate unijeti ispravan format datuma!</mat-error>
