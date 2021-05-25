@@ -119,8 +119,8 @@ export class OtvoreniSlucajComponent implements OnInit, OnDestroy {
 
     //Metoda koja se poziva kada korisnik klikne "Izađi"
     onClose(){
-      //Emitiraj event
-      this.close.emit();
+        //Emitiraj event
+        this.close.emit();
     }
 
     //Metoda koja se poziva kada se komponenta uništi

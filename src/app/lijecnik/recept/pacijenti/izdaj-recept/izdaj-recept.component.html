@@ -388,6 +388,9 @@
                                     *ngIf="(doziranjeFrekvencija.touched || doziranjeFrekvencija.dirty) && !doziranjeFrekvencija.valid">
                                     <span
                                         *ngIf="doziranjeFrekvencija.errors?.pattern && !doziranjeFrekvencija.errors?.required">Frekvencija doziranja mora biti cjelobrojna vrijednost!</span>
+                                    <span
+                                        *ngIf="!doziranjeFrekvencija.errors?.pattern && !doziranjeFrekvencija.errors?.required
+                                            && doziranjeFrekvencija.errors?.neispravnoDoziranje">Dopuštene vrijednosti [1-20]!</span>
                                 </span>
                                 <span
                                     class="help-block"
@@ -550,6 +553,8 @@
         </form>
     </div>
     <div class="alert-box-actions" #alertBoxActions>
-        <button class="btn btn-primary" (click)="onClose()">Izađi</button>
+        <button
+            class="btn btn-primary"
+            (click)="onClose()">Izađi</button>
     </div>
 </div>

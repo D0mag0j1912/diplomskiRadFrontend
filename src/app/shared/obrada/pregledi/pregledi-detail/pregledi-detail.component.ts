@@ -168,14 +168,12 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
             }),
             takeUntil(this.pretplate)
         ).subscribe();
+
         //Pretplaćujem se na Observable koji sadrži informaciju je li pregled završio
         this.obradaService.obsZavrsenPregled.pipe(
-            tap((pregled) => {
-                //Ako je pregled završen
-                if(pregled){
-                    //Preusmjeravam se na '/pregledi'
-                    this.router.navigate(['../'],{relativeTo: this.route});
-                }
+            tap(() => {
+                //Preusmjeravam se na '/pregledi'
+                this.router.navigate(['../'],{relativeTo: this.route});
             }),
             takeUntil(this.pretplate)
         ).subscribe();
@@ -209,8 +207,6 @@ export class PreglediDetailComponent implements OnInit, OnDestroy{
     ngOnDestroy(){
         this.pretplate.next(true);
         this.pretplate.complete();
-        //Restartam Subject završenog pregleda
-        this.obradaService.zavrsenPregled.next(false);
         //Restartam Subject dodanog pregleda
         this.preglediService.pregledDodan.next({isDodan: false, tipKorisnik:null});
         //Ažuriram stanje Local Storagea

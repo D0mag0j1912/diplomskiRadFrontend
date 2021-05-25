@@ -99,12 +99,9 @@ export class PreglediComponent implements OnInit, OnDestroy{
             const combined = merge(
                 //Pretplaćujem se na završetak pregleda
                 this.obradaService.obsZavrsenPregled.pipe(
-                    tap((pregled) => {
-                            //Ako je pregled završen
-                            if(pregled){
-                                //Označavam da pacijent više nije aktivan
-                                this.isAktivan = false;
-                            }
+                    tap(() => {
+                        //Označavam da pacijent više nije aktivan
+                        this.isAktivan = false;
                     }),
                     takeUntil(this.pretplate)
                 ),
@@ -280,8 +277,6 @@ export class PreglediComponent implements OnInit, OnDestroy{
     ngOnDestroy(){
         this.pretplate.next(true);
         this.pretplate.complete();
-        //Restartam Subject završenog pregleda
-        this.obradaService.zavrsenPregled.next(false);
         //Restartam Subject dodanog pregleda
         this.preglediService.pregledDodan.next({isDodan: false, tipKorisnik:null});
         //Ažuriram stanje Local Storagea

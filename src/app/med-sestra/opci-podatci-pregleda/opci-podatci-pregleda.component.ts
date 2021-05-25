@@ -170,10 +170,12 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                   'sifUredOzljeda': new FormControl(null),
                   'poduzece': new FormControl(null),
                   'kategorijaOsiguranja': new FormControl(null, this.isAktivan ?
-                        [Validators.required, OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)] : []),
+                        [Validators.required,
+                        OpciPodatciValidations.isValidKategorijaOsiguranja(this.katOsiguranja)] : []),
                   'oznakaOsiguranika': new FormControl(null),
                   'drzavaOsiguranja': new FormControl(null, this.isAktivan ?
-                        [Validators.required, OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)] : []),
+                        [Validators.required,
+                        OpciPodatciValidations.isValidDrzavaOsiguranja(this.drzave)] : []),
                   //Ako je pacijent aktivan u obradi, POSTAVLJAM MU VALIDATOR NA MBO, inače NE POSTAVLJAM
                   'mbrPacijent': new FormControl(null,
                       this.isAktivan ?
@@ -187,7 +189,9 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                       new FormGroup({
                         'nazivSekundarna': new FormControl(null),
                         'mkbSifraSekundarna': new FormControl(null)
-                      },{validators: this.isAktivan ? [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)] : []})
+                      },{validators: this.isAktivan ?
+                        [SharedValidations.requiredMKBSifraSekundarna(),
+                        SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)] : []})
                   ],{validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
                   'tipSlucaj': new FormGroup({
                     'noviSlucaj': new FormControl(null),
@@ -197,6 +201,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             }),
             takeUntil(this.pretplateSubject)
         ).subscribe();
+
         this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});
         //AKO JE PACIJENT AKTIVAN
         if(this.isAktivan){
@@ -221,7 +226,10 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     //Označavam da pacijent ima dopunsko osiguranje
                     this.isDopunskoInicijalno = true;
                     //Postavljam validatore na broj iskaznice dopunskog
-                    this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$"), OpciPodatciValidations.isValidDopunsko(this.pacijent)]);
+                    this.brIskDopunsko.setValidators(
+                        [Validators.required,
+                        Validators.pattern("^\\d{8}$"),
+                        OpciPodatciValidations.isValidDopunsko(this.pacijent)]);
                     this.brIskDopunsko.patchValue(podatci.brojIskazniceDopunsko,{emitEvent: false});
                     this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
                 }
@@ -230,49 +238,55 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
             //Kreiram jedan Observable koji će emitirati jednu vrijednost kada bilo koji form control promjeni svoju vrijednost
             const combined = merge(
                 this.headerService.getIDMedSestra().pipe(
-                  tap((idMedSestra) => {
-                      //Spremam ID med.sestre
-                      this.idMedSestra = +idMedSestra[0].idMedSestra;
-                  }),
-                  takeUntil(this.pretplateSubject)
+                    tap((idMedSestra) => {
+                        //Spremam ID med.sestre
+                        this.idMedSestra = +idMedSestra[0].idMedSestra;
+                    }),
+                    takeUntil(this.pretplateSubject)
                 ),
                 this.obradaService.obsZavrsenPregled.pipe(
-                    tap((response) => {
-                      //Ako je pregled završen
-                      if(response){
-                          //Poništavam povezani slučaj
-                          this.ponistiPovezaniSlucajHandler();
-                          //Postavljam da pacijent više nije aktivan
-                          this.isAktivan = false;
-                          //Resetiram formu osnovnih podataka pacijenta
-                          this.forma.reset();
-                          //Uklanjam validatore sa forme
-                          this.forma.clearValidators();
-                          this.forma.updateValueAndValidity({emitEvent: false});
-                          //Za svaki form control u formi
-                          for(let field in this.forma.controls){
+                    tap(() => {
+                        //Poništavam povezani slučaj
+                        this.ponistiPovezaniSlucajHandler();
+                        //Postavljam da pacijent više nije aktivan
+                        this.isAktivan = false;
+                        //Resetiram formu osnovnih podataka pacijenta
+                        this.forma.reset();
+                        //Uklanjam validatore sa forme
+                        this.forma.clearValidators();
+                        this.forma.updateValueAndValidity({emitEvent: false});
+                        //Za svaki form control u formi
+                        for(let field in this.forma.controls){
                             //Ukloni mu validator i ažuriraj stanje forme
                             this.forma.get(field).clearValidators();
                             this.forma.get(field).updateValueAndValidity({emitEvent: false});
-                          }
-                      }
+                        }
+                        //Uklanjam validatore iz sekundarnih dijagnoza
+                        for(const group of this.getControlsSekundarna()){
+                            //Digni validatore
+                            group.clearValidators();
+                            group.updateValueAndValidity({emitEvent: false});
+                        }
                     }),
                     takeUntil(this.pretplateSubject)
                 ),
                 this.brIskDopunsko.valueChanges.pipe(
                     tap(() => {
-                        //Ako nije inicijalno upisano dopunsko
-                        if(!this.isDopunskoInicijalno){
-                            //Ako je upisana vrijednost u polje dopunskog osiguranja
-                            if(this.brIskDopunsko.value){
-                                //Postavljam validatore na broj iskaznice dopunskog
-                                this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$")]);
-                                this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
-                            }
-                            //Ako nije upisana vrijednost u polje dopunskog osiguranja
-                            else{
-                                this.brIskDopunsko.clearValidators();
-                                this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
+                        //Ako je pacijent aktivan
+                        if(this.isAktivan){
+                            //Ako nije inicijalno upisano dopunsko
+                            if(!this.isDopunskoInicijalno){
+                                //Ako je upisana vrijednost u polje dopunskog osiguranja
+                                if(this.brIskDopunsko.value){
+                                    //Postavljam validatore na broj iskaznice dopunskog
+                                    this.brIskDopunsko.setValidators([Validators.required,Validators.pattern("^\\d{8}$")]);
+                                    this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
+                                }
+                                //Ako nije upisana vrijednost u polje dopunskog osiguranja
+                                else{
+                                    this.brIskDopunsko.clearValidators();
+                                    this.brIskDopunsko.updateValueAndValidity({emitEvent: false});
+                                }
                             }
                         }
                     }),
@@ -352,52 +366,52 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                 ),
                 //Slušam promjene u polju unosa primarne dijagnoze
                 this.primarnaDijagnoza.valueChanges.pipe(
-                  tap(value => {
-                      //Ako je pacijent aktivan
-                      if(this.isAktivan){
-                          //Ako je upisana vrijednost naziva primarne dijagnoze
-                          if(this.primarnaDijagnoza.value){
-                              this.primarnaDijagnoza.setValidators([SharedValidations.provjeriNazivDijagnoza(this.dijagnoze)]);
-                              this.primarnaDijagnoza.updateValueAndValidity({emitEvent: false});
-                          }
-                          //Ako nema naziva primarne dijagnoze
-                          else if(!this.primarnaDijagnoza.value){
-                              this.primarnaDijagnoza.clearValidators();
-                              this.primarnaDijagnoza.updateValueAndValidity({emitEvent: false});
-                          }
-                          //Na početku postavljam da nisam pronašao naziv primarne dijagnoze
-                          let pronasao = false;
-                          //Prolazim kroz sve nazive primarnih dijagnoza
-                          for(const dijagnoza of this.dijagnoze){
-                              //Ako su jednaki
-                              if(value === dijagnoza.imeDijagnoza){
-                                  //Označavam da se poklapaju nazivi
-                                  pronasao = true;
-                              }
-                          }
-                          //Ako je unos primarne dijagnoze ispravan
-                          if(pronasao){
-                              if(this.primarnaDijagnoza.valid){
-                                  //Pozivam metodu da popuni polje MKB šifre te dijagnoze
-                                  SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
-                                  //Omogućavam unos sekundarnih dijagnoza
-                                  this.sekundarnaDijagnoza.enable({emitEvent: false});
-                              }
-                          }
-                          //Ako unos primarne dijagnoze nije ispravan ili je null
-                          if(!pronasao || !this.primarnaDijagnoza.value){
-                              //Resetiraj polje MKB šifre primarne dijagnoze
-                              this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
-                              //Dok ne ostane jedna sekundarna dijagnoza u arrayu
-                              while(this.getControlsSekundarna().length !== 1){
-                                  //Briši mu prvi element
-                                  (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
-                              }
-                              //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
-                              this.sekundarnaDijagnoza.reset();
-                              this.sekundarnaDijagnoza.disable({emitEvent: false});
-                          }
-                      }
+                    tap(value => {
+                        //Ako je pacijent aktivan
+                        if(this.isAktivan){
+                            //Ako je upisana vrijednost naziva primarne dijagnoze
+                            if(this.primarnaDijagnoza.value){
+                                this.primarnaDijagnoza.setValidators([SharedValidations.provjeriNazivDijagnoza(this.dijagnoze)]);
+                                this.primarnaDijagnoza.updateValueAndValidity({emitEvent: false});
+                            }
+                            //Ako nema naziva primarne dijagnoze
+                            else if(!this.primarnaDijagnoza.value){
+                                this.primarnaDijagnoza.clearValidators();
+                                this.primarnaDijagnoza.updateValueAndValidity({emitEvent: false});
+                            }
+                            //Na početku postavljam da nisam pronašao naziv primarne dijagnoze
+                            let pronasao = false;
+                            //Prolazim kroz sve nazive primarnih dijagnoza
+                            for(const dijagnoza of this.dijagnoze){
+                                //Ako su jednaki
+                                if(value === dijagnoza.imeDijagnoza){
+                                    //Označavam da se poklapaju nazivi
+                                    pronasao = true;
+                                }
+                            }
+                            //Ako je unos primarne dijagnoze ispravan
+                            if(pronasao){
+                                if(this.primarnaDijagnoza.valid){
+                                    //Pozivam metodu da popuni polje MKB šifre te dijagnoze
+                                    SharedHandler.nazivToMKB(value,this.dijagnoze,this.forma);
+                                    //Omogućavam unos sekundarnih dijagnoza
+                                    this.sekundarnaDijagnoza.enable({emitEvent: false});
+                                }
+                            }
+                            //Ako unos primarne dijagnoze nije ispravan ili je null
+                            if(!pronasao || !this.primarnaDijagnoza.value){
+                                //Resetiraj polje MKB šifre primarne dijagnoze
+                                this.mkbPrimarnaDijagnoza.patchValue(null,{emitEvent: false});
+                                //Dok ne ostane jedna sekundarna dijagnoza u arrayu
+                                while(this.getControlsSekundarna().length !== 1){
+                                    //Briši mu prvi element
+                                    (<FormArray>this.sekundarnaDijagnoza).removeAt(0);
+                                }
+                                //Kada je ostala jedna vrijednost sek. dijagnoze, resetiraj joj vrijednost i onemogući unos
+                                this.sekundarnaDijagnoza.reset();
+                                this.sekundarnaDijagnoza.disable({emitEvent: false});
+                            }
+                        }
                   }),
                   takeUntil(this.pretplateSubject)
                 ),
@@ -826,7 +840,7 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
                     this.noviSlucaj.reset();
                 })
             ).subscribe();
-      }
+        }
     }
 
     //Metoda koja poništava povezani slučaj
@@ -864,10 +878,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Metoda koja se pokreće kada se komponenta uništi
     ngOnDestroy(){
-      this.pretplateSubject.next(true);
-      this.pretplateSubject.complete();
-      //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
-      this.obradaService.zavrsenPregled.next(false);
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
     //Dohvaća pojedine form controlove unutar polja
     getControlsSekundarna(){
@@ -942,8 +954,8 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Kada se klikne button "Izađi"
     onCloseCase(){
-      //Zatvori prozor sa otvorenim slučajevima
-      this.otvoren = false;
+        //Zatvori prozor sa otvorenim slučajevima
+        this.otvoren = false;
     }
 
     //Kreiram gettere za sva polja u formi

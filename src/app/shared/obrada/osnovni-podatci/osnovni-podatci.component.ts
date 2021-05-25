@@ -62,159 +62,154 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
     //Ova metoda se pokreće kada se komponenta inicijalizira
     ngOnInit(){
 
-      //Dohvaćam podatke od Resolvera te se pretplaćujem na njega
-      this.route.data.pipe(
-        tap(
-            //Dohvaćam podatke
-            (response : {podatci: any, pacijenti: Pacijent | any}) => {
-              //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Bracno stanje"
-              let brStanje;
-              //Prolazim JS objektom bračnih stanja
-              for(const stanje of response.podatci.bracnaStanja){
-                  //Kreiram objekte tipa "BracnoStanje"
-                  brStanje = new BracnoStanje(stanje);
-                  //Dodavam objekte u polje bračnih stanja
-                  this.bracnaStanja.push(brStanje);
-              }
-              //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Mjesto"
-              let objektMjesto;
-              //Prolazim JS objektom mjesta
-              for(const mj of response.podatci.mjesta){
-                  //Kreiram objekte tipa "Mjesto"
-                  objektMjesto = new Mjesto(mj);
-                  //Nadodavam ih u polje
-                  this.mjesta.push(objektMjesto);
-              }
-              //Kreiram praznu varijablu u koju ću spremati objekte tipa "RadniStatus"
-              let objektRadniStatus;
-              for(const status of response.podatci.radniStatusi){
-                  //Za svaki odgovor servera kreiram jedan JS objekt
-                  objektRadniStatus = new RadniStatus(status);
-                  //Nadodavam ih u polje
-                  this.radniStatusi.push(objektRadniStatus);
-              }
-              //Kreiram praznu varijablu u koju ću spremiti objekte tipa "StatusPacijent"
-              let objektStatusPacijent;
-              //Prolazim kroz sve odgovore servera
-              for(const status of response.podatci.statusiPacijent){
-                  //Kreiram objekte tipa "StatusPacijent"
-                  objektStatusPacijent = new StatusPacijent(status);
-                  //Nadodavam ih u polje
-                  this.statusiPacijenta.push(objektStatusPacijent);
-              }
-              //Ako je server uspješno vratio pacijenta, a ne grešku
-              if(response.pacijenti["success"] !== "false"){
-                  //Označavam da su podatci aktivni
-                  this.isPodatciAktivni = true;
-                  //Podatke iz Resolvera za pacijenta spremam u svoje polje za podatke pacijenta
-                  this.pacijent = new Pacijent(response.pacijenti[0]);
-                  this.pacijentMjesto = new Mjesto(response.pacijenti[0]);
-                  //Spremam ID pacijenta
-                  this.idPacijent = this.pacijent.id;
-              }
-              //Kreiram svoju formu:
-              this.forma = new FormGroup({
-                'ime': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.ime : null,
-                    this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
-                'prezime': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.prezime : null,
-                    this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
-                'datRod': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.datRod: null,
-                    this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
-                'adresa': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.adresa: null,
-                    this.isPodatciAktivni ? [Validators.required] : []),
-                'oib': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.oib: null,
-                    this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
-                'email': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.email: null,
-                    this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
-                'spol': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.spol: null,
-                    this.isPodatciAktivni ? [Validators.required] : []),
-                'pbr': new FormControl(
-                    this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null,
-                    this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.mjesta)] : []),
-                'mjesto': new FormControl(
-                    this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null,
-                    this.isPodatciAktivni ? [Handler.isValidMjesto(this.mjesta)] : []),
-                'mobitel': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.mobitel: null,
-                    this.isPodatciAktivni ? [Validators.pattern(/^[0-9\s\+]*$/)] : []),
-                'bracnoStanje': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.bracnoStanje: null,
-                    this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.bracnaStanja) : null),
-                'radniStatus': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.radniStatus: null,
-                    this.isPodatciAktivni ? Handler.isValidRadniStatus(this.radniStatusi) : null),
-                'status': new FormControl(
-                    this.isPodatciAktivni ? this.pacijent.status: null,
-                    this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.statusiPacijenta)] : null)
-              }, {validators: this.isPodatciAktivni ? Handler.isValidKombinacija(this.mjesta) : null});
-          }),
-          takeUntil(this.pretplateSubject)
-      ).subscribe();
+        //Dohvaćam podatke od Resolvera te se pretplaćujem na njega
+        this.route.data.pipe(
+            tap(
+                //Dohvaćam podatke
+                (response : {podatci: any, pacijenti: Pacijent | any}) => {
+                //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Bracno stanje"
+                let brStanje;
+                //Prolazim JS objektom bračnih stanja
+                for(const stanje of response.podatci.bracnaStanja){
+                    //Kreiram objekte tipa "BracnoStanje"
+                    brStanje = new BracnoStanje(stanje);
+                    //Dodavam objekte u polje bračnih stanja
+                    this.bracnaStanja.push(brStanje);
+                }
+                //Inicijaliziram praznu varijablu koja služi za pohranu objekata tipa "Mjesto"
+                let objektMjesto;
+                //Prolazim JS objektom mjesta
+                for(const mj of response.podatci.mjesta){
+                    //Kreiram objekte tipa "Mjesto"
+                    objektMjesto = new Mjesto(mj);
+                    //Nadodavam ih u polje
+                    this.mjesta.push(objektMjesto);
+                }
+                //Kreiram praznu varijablu u koju ću spremati objekte tipa "RadniStatus"
+                let objektRadniStatus;
+                for(const status of response.podatci.radniStatusi){
+                    //Za svaki odgovor servera kreiram jedan JS objekt
+                    objektRadniStatus = new RadniStatus(status);
+                    //Nadodavam ih u polje
+                    this.radniStatusi.push(objektRadniStatus);
+                }
+                //Kreiram praznu varijablu u koju ću spremiti objekte tipa "StatusPacijent"
+                let objektStatusPacijent;
+                //Prolazim kroz sve odgovore servera
+                for(const status of response.podatci.statusiPacijent){
+                    //Kreiram objekte tipa "StatusPacijent"
+                    objektStatusPacijent = new StatusPacijent(status);
+                    //Nadodavam ih u polje
+                    this.statusiPacijenta.push(objektStatusPacijent);
+                }
+                //Ako je server uspješno vratio pacijenta, a ne grešku
+                if(response.pacijenti["success"] !== "false"){
+                    //Označavam da su podatci aktivni
+                    this.isPodatciAktivni = true;
+                    //Podatke iz Resolvera za pacijenta spremam u svoje polje za podatke pacijenta
+                    this.pacijent = new Pacijent(response.pacijenti[0]);
+                    this.pacijentMjesto = new Mjesto(response.pacijenti[0]);
+                    //Spremam ID pacijenta
+                    this.idPacijent = this.pacijent.id;
+                }
+                //Kreiram svoju formu:
+                this.forma = new FormGroup({
+                    'ime': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.ime : null,
+                        this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
+                    'prezime': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.prezime : null,
+                        this.isPodatciAktivni ? [Validators.required,Handler.validacijaImePrezime(this.abeceda)] : []),
+                    'datRod': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.datRod: null,
+                        this.isPodatciAktivni ? [Validators.required,Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)] : []),
+                    'adresa': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.adresa: null,
+                        this.isPodatciAktivni ? [Validators.required] : []),
+                    'oib': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.oib: null,
+                        this.isPodatciAktivni ? [Validators.required, Validators.pattern("^\\d{11}$")] : []),
+                    'email': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.email: null,
+                        this.isPodatciAktivni ? [Validators.required, Validators.email] : []),
+                    'spol': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.spol: null,
+                        this.isPodatciAktivni ? [Validators.required] : []),
+                    'pbr': new FormControl(
+                        this.isPodatciAktivni ? this.pacijentMjesto.pbrMjesto: null,
+                        this.isPodatciAktivni ? [Validators.required, Handler.isValidPostanskiBroj(this.mjesta)] : []),
+                    'mjesto': new FormControl(
+                        this.isPodatciAktivni ? this.pacijentMjesto.nazivMjesto: null,
+                        this.isPodatciAktivni ? [Handler.isValidMjesto(this.mjesta)] : []),
+                    'mobitel': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.mobitel: null,
+                        this.isPodatciAktivni ? [Validators.pattern(/^[0-9\s\+]*$/)] : []),
+                    'bracnoStanje': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.bracnoStanje: null,
+                        this.isPodatciAktivni ? Handler.isValidBracnoStanje(this.bracnaStanja) : null),
+                    'radniStatus': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.radniStatus: null,
+                        this.isPodatciAktivni ? Handler.isValidRadniStatus(this.radniStatusi) : null),
+                    'status': new FormControl(
+                        this.isPodatciAktivni ? this.pacijent.status: null,
+                        this.isPodatciAktivni ? [Validators.required, Handler.isValidStatusPacijent(this.statusiPacijenta)] : null)
+                }, {validators: this.isPodatciAktivni ? Handler.isValidKombinacija(this.mjesta) : null});
+            }),
+            takeUntil(this.pretplateSubject)
+        ).subscribe();
 
 
-      //Ako je pacijent aktivan
-      if(this.isPodatciAktivni){
+        //Ako je pacijent aktivan
+        if(this.isPodatciAktivni){
 
-          const combined = merge(
-              //Pretplaćivam se na promjene u poštanskom broju
-              this.pbr.valueChanges.pipe(
-                  tap(
-                      (value: number) => {
-                          //Ako je form control ispravan
-                          if(this.forma.get('pbr').valid){
-                              //Pozivam metodu
-                              Handler.pbrToNazivMjesto(value, this.mjesta, this.forma);
-                          }
-                          //Ako nije ispravan
-                          else{
-                            //Treba pisati "Odaberite mjesto stanovanja"
-                            this.forma.get('mjesto').patchValue(null,{emitEvent: false});
-                          }
-                      }
-                  ),
-                  takeUntil(this.pretplateSubject)
-              ),
-              //Pretplaćivam se na promjene u nazivu mjesta
-              this.mjesto.valueChanges.pipe(
-                  tap(value => {
-                      if(this.mjesto.valid){
-                          Handler.nazivMjestoToPbr(this.forma,this.mjesta,value);
-                      }
-                  }),
-                  takeUntil(this.pretplateSubject)
-              ),
-              //Pretplaćivam se na završetak pregleda
-              this.obradaService.obsZavrsenPregled.pipe(
-                  tap(
-                      (podatci) => {
-                        //Ako je pregled završen
-                        if(podatci){
-                          //Označavam da pacijent više nije aktivan
-                          this.isPodatciAktivni = false;
-                          //Resetiram formu osnovnih podataka pacijenta
-                          this.forma.reset();
-                          //Uklanjam validatore sa forme
-                          this.forma.clearValidators();
-                          this.forma.updateValueAndValidity({emitEvent: false});
-                          //Za svaki form control u formi
-                          for(let field in this.forma.controls){
+            const combined = merge(
+                //Pretplaćivam se na promjene u poštanskom broju
+                this.pbr.valueChanges.pipe(
+                    tap(
+                        (value: number) => {
+                            //Ako je form control ispravan
+                            if(this.forma.get('pbr').valid){
+                                //Pozivam metodu
+                                Handler.pbrToNazivMjesto(value, this.mjesta, this.forma);
+                            }
+                            //Ako nije ispravan
+                            else{
+                                //Treba pisati "Odaberite mjesto stanovanja"
+                                this.forma.get('mjesto').patchValue(null,{emitEvent: false});
+                            }
+                        }
+                    ),
+                    takeUntil(this.pretplateSubject)
+                ),
+                //Pretplaćivam se na promjene u nazivu mjesta
+                this.mjesto.valueChanges.pipe(
+                    tap(value => {
+                        if(this.mjesto.valid){
+                            Handler.nazivMjestoToPbr(this.forma,this.mjesta,value);
+                        }
+                    }),
+                    takeUntil(this.pretplateSubject)
+                ),
+                //Pretplaćivam se na završetak pregleda
+                this.obradaService.obsZavrsenPregled.pipe(
+                    tap(() => {
+                        //Označavam da pacijent više nije aktivan
+                        this.isPodatciAktivni = false;
+                        //Resetiram formu osnovnih podataka pacijenta
+                        this.forma.reset();
+                        //Uklanjam validatore sa forme
+                        this.forma.clearValidators();
+                        this.forma.updateValueAndValidity({emitEvent: false});
+                        //Za svaki form control u formi
+                        for(let field in this.forma.controls){
                             //Ukloni mu validator i ažuriraj stanje forme
                             this.forma.get(field).clearValidators();
                             this.forma.get(field).updateValueAndValidity({emitEvent: false});
-                          }
                         }
-                      }
-                  ),
-                  takeUntil(this.pretplateSubject)
-              )
-          ).subscribe();
+                    }),
+                    takeUntil(this.pretplateSubject)
+                )
+            ).subscribe();
         }
 
     }
@@ -255,10 +250,8 @@ export class OsnovniPodatciComponent implements OnInit, OnDestroy {
 
     //Metoda se poziva kada se komponenta uništi
     ngOnDestroy(){
-      this.pretplateSubject.next(true);
-      this.pretplateSubject.complete();
-      //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
-      this.obradaService.zavrsenPregled.next(false);
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
     }
 
     //Definiram gettere za pojedine form controlove

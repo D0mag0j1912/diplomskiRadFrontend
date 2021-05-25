@@ -39,7 +39,6 @@ export class NalaziDetailComponent implements OnInit, OnDestroy{
                     //Spremam podatke u svoj objekt
                     this.nalaz = new Nalaz(n);
                 }
-                console.log(this.nalaz);
                 //Ako ima dohvaćenih sek. dijagnoza
                 if(nalaz.nalaz[1] !== null){
                     //Prolazim kroz sve dohvaćene sekundarne dijagnoze te ih spremam u svoj model

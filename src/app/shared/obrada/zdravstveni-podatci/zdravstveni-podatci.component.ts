@@ -241,44 +241,39 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
                     takeUntil(this.pretplateSubject)
                 ),
                 this.obradaService.obsZavrsenPregled.pipe(
-                    tap(
-                      (podatci) => {
+                    tap(() => {
                         //Ako su podatci aktivni
                         if(this.isPodatciAktivni){
-                          //Ako je pregled završen
-                          if(podatci){
-                              //Označavam da pacijent više nije aktivan
-                              this.isPodatciAktivni = false;
-                              //Resetiram formu zdravstvenih podataka pacijenta
-                              this.forma.reset();
-                              //Uklanjam validatore sa forme
-                              this.forma.clearValidators();
-                              this.forma.updateValueAndValidity({emitEvent: false});
-                              //Za svaki form control u formi
-                              for(let field in this.forma.controls){
-                                  //Ukloni mu validator i ažuriraj stanje forme
-                                  this.forma.get(field).clearValidators();
-                                  this.forma.get(field).updateValueAndValidity({emitEvent: false});
-                              }
-                              //Uklanjam validatore da ostalih formcontrolova
-                              this.osnovnoOd.clearValidators();
-                              this.osnovnoDo.clearValidators();
-                              this.dopunskoOd.clearValidators();
-                              this.dopunskoDo.clearValidators();
-                              this.clanakParticipacija.clearValidators();
-                              this.trajnoParticipacija.clearValidators();
-                              this.participacijaDo.clearValidators();
-                              this.osnovnoOd.updateValueAndValidity({emitEvent: false});
-                              this.osnovnoDo.updateValueAndValidity({emitEvent: false});
-                              this.dopunskoOd.updateValueAndValidity({emitEvent: false});
-                              this.dopunskoDo.updateValueAndValidity({emitEvent: false});
-                              this.clanakParticipacija.updateValueAndValidity({emitEvent: false});
-                              this.trajnoParticipacija.updateValueAndValidity({emitEvent: false});
-                              this.participacijaDo.updateValueAndValidity({emitEvent: false});
-                          }
+                            //Označavam da pacijent više nije aktivan
+                            this.isPodatciAktivni = false;
+                            //Resetiram formu zdravstvenih podataka pacijenta
+                            this.forma.reset();
+                            //Uklanjam validatore sa forme
+                            this.forma.clearValidators();
+                            this.forma.updateValueAndValidity({emitEvent: false});
+                            //Za svaki form control u formi
+                            for(let field in this.forma.controls){
+                                //Ukloni mu validator i ažuriraj stanje forme
+                                this.forma.get(field).clearValidators();
+                                this.forma.get(field).updateValueAndValidity({emitEvent: false});
+                            }
+                            //Uklanjam validatore da ostalih formcontrolova
+                            this.osnovnoOd.clearValidators();
+                            this.osnovnoDo.clearValidators();
+                            this.dopunskoOd.clearValidators();
+                            this.dopunskoDo.clearValidators();
+                            this.clanakParticipacija.clearValidators();
+                            this.trajnoParticipacija.clearValidators();
+                            this.participacijaDo.clearValidators();
+                            this.osnovnoOd.updateValueAndValidity({emitEvent: false});
+                            this.osnovnoDo.updateValueAndValidity({emitEvent: false});
+                            this.dopunskoOd.updateValueAndValidity({emitEvent: false});
+                            this.dopunskoDo.updateValueAndValidity({emitEvent: false});
+                            this.clanakParticipacija.updateValueAndValidity({emitEvent: false});
+                            this.trajnoParticipacija.updateValueAndValidity({emitEvent: false});
+                            this.participacijaDo.updateValueAndValidity({emitEvent: false});
                         }
-                      }
-                    ),
+                    }),
                     takeUntil(this.pretplateSubject)
                 )
             ).subscribe();
@@ -450,8 +445,6 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         this.pretplateSubject.next(true);
         this.pretplateSubject.complete();
-        //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
-        this.obradaService.zavrsenPregled.next(false);
     }
 
     //Definiram gettere za pojedine form controlove

@@ -246,12 +246,9 @@ export class SekundarniHeaderComponent implements OnInit, OnDestroy {
             ),
             //Pretplaćujem se na informaciju je li završio pregled
             this.obradaService.obsZavrsenPregled.pipe(
-                tap((pregled) => {
-                    //Ako je pregled završen
-                    if(pregled){
-                        //Označavam da pacijent više nije aktivan
-                        this.isAktivan = false;
-                    }
+                tap(() => {
+                    //Označavam da pacijent više nije aktivan
+                    this.isAktivan = false;
                 }),
                 takeUntil(this.pretplateSubject)
             ),

@@ -263,7 +263,10 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         'kolicinaLatinski': new FormControl()
                     }),
                     'doziranje': new FormGroup({
-                        'doziranjeFrekvencija': new FormControl(null,[Validators.pattern("^[0-9]*$"),Validators.required]),
+                        'doziranjeFrekvencija': new FormControl(null,
+                            [Validators.pattern("^[0-9]*$"),
+                            Validators.required,
+                            Validacija.provjeriDoziranje()]),
                         'doziranjePeriod': new FormControl("dnevno"),
                         'dddLijek': new FormControl(null)
                     }),
@@ -607,7 +610,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Slušam promjene u polju unosa lijeka sa osnovne liste pomoću dropdowna
             this.osnovnaListaLijekDropdown.valueChanges.pipe(
                 tap(value => {
-                    console.log("u dropdownu OSNOVNE LISTE LIJEKOVA sam!");
                     //Ako se unesena vrijednost NALAZI u polju OSNOVNE LISTE LIJEKOVA
                     if(this.lijekoviOsnovnaListaOJP.indexOf(value) !== -1){
                         this.izabraniProizvod = value;
@@ -716,8 +718,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     tap(() => {
                                         //Ponovno postavljam trajanje terapije na 30 dana
                                         this.trajanjeTerapije = 30;
-                                        //Ako je postavljen broj ponavljanja
-                                        if(this.brojPonavljanja.value){
+                                        //Ako je recept označen kao ponovljiv trenutno
+                                        if(this.isPonovljiv){
                                             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                                         }
                                         //Postavi dostatnost inicijalno na 30 dana
@@ -858,8 +860,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                                     tap(() => {
                                         //Ponovno postavljam trajanje terapije na 30 dana
                                         this.trajanjeTerapije = 30;
-                                        //Ako je postavljen broj ponavljanja
-                                        if(this.brojPonavljanja.value){
+                                        //Ako je recept označen kao ponovljiv trenutno
+                                        if(this.isPonovljiv){
                                             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                                         }
                                         //Postavi dostatnost inicijalno na 30 dana
@@ -884,7 +886,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Slušam promjene u polju unosa mag. pripravka sa osnovne liste pomoću dropdowna
             this.osnovnaListaMagPripravakDropdown.valueChanges.pipe(
                 tap(value => {
-                    console.log("u dropdownu OSNOVNE LISTE MAG. PRIPRAVAKA SAM!");
                     //Ako se unesena vrijednost NALAZI u polju MAGISTRALNIH PRIPRAVAKA OSNOVNE LISTE
                     if(this.magPripravciOsnovnaLista.indexOf(value) !== -1){
                         //Spremam izabrani proizvod
@@ -908,8 +909,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         }
                         //Postavi inicijalno trajanje terapije na 30 dana
                         this.trajanjeTerapije = 30 * +this.kolicinaDropdown.value;
-                        //Ako je postavljen broj ponavljanja
-                        if(this.brojPonavljanja.value){
+                        //Ako je recept trenutno označen kao ponovljiv
+                        if(this.isPonovljiv){
                             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                         }
                         //U polje dostatnosti postavi 30 dana
@@ -976,7 +977,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             //Slušam promjene u polju unosa mag. pripravka sa dopunske liste pomoću dropdowna
             this.dopunskaListaMagPripravakDropdown.valueChanges.pipe(
                 tap(value => {
-                    console.log("u dropdownu DOPUNSKE LISTE MAG. PRIPRAVAKA SAM!");
                     //Ako se unesena vrijednost NALAZI u polju MAGISTRALNIH PRIPRAVAKA DOPUNSKE LISTE
                     if(this.magPripravciDopunskaLista.indexOf(value) !== -1){
                         //Spremam izabrani proizvod
@@ -1000,8 +1000,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                         }
                         //Postavi inicijalno trajanje terapije na 30 dana
                         this.trajanjeTerapije = 30 * +this.kolicinaDropdown.value;
-                        //Ako je postavljen broj ponavljanja
-                        if(this.brojPonavljanja.value){
+                        //Ako je recept trenutno označen kao ponovljiv
+                        if(this.isPonovljiv){
                             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                         }
                         //U polje dostatnosti postavi 30 dana
@@ -1169,7 +1169,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
             ),
             //Pretplaćivam se na promjene u polju BROJA PONAVLJANJA
             this.brojPonavljanja.valueChanges.pipe(
-                tap(() => console.log("U promjenama sam broja ponavljanja!")),
                 switchMap(() => {
                     return forkJoin([
                         receptHandler.azuriranjeDostatnostiHandler(
@@ -1223,7 +1222,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 debounceTime(100),
                 distinctUntilChanged(),
                 tap(() => {
-                    console.log("U osnovnoj listi lijekova texta sam!");
                     //Označavam da je liječnik počeo pretraživati LIJEKOVE OSNOVNE liste
                     this.isPretragaLijekOsnovnaLista = true;
                     //Označavam da je liječnik prestao pretraživati ostale proizvode
@@ -1310,7 +1308,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 debounceTime(100),
                 distinctUntilChanged(),
                 tap(() => {
-                    console.log("U dopunskoj listi lijekova texta sam!");
                     //Označavam da je liječnik počeo pretraživati LIJEKOVE DOPUNSKE liste
                     this.isPretragaLijekDopunskaLista = true;
                     //Označavam da je liječnik prestao pretraživati ostale proizvode
@@ -1402,7 +1399,6 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 debounceTime(100),
                 distinctUntilChanged(),
                 tap(() => {
-                    console.log("U osnovnoj listi mag. pripravaka sam!");
                     //Označavam da je liječnik počeo pretraživati MAGISTRALNE PRIPRAVKE sa OSNOVNE LISTE
                     this.isPretragaMagPripravakOsnovnaLista = true;
                     //Označavam da je liječnik prestao pretraživati ostale proizvode
@@ -1684,8 +1680,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 else if(value[1] === null){
                     //Ponovno postavljam trajanje terapije na 30 dana
                     this.trajanjeTerapije = 30;
-                    //Ako je postavljen broj ponavljanja
-                    if(this.brojPonavljanja.value){
+                    //Ako je recept označen kao ponovljiv trenutno
+                    if(this.isPonovljiv){
                         this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                     }
                     //Nastavi stream
@@ -1818,8 +1814,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
                 else if(odgovor[2] === null){
                     //Ponovno postavljam trajanje terapije na 30 dana
                     this.trajanjeTerapije = 30;
-                    //Ako je postavljen broj ponavljanja
-                    if(this.brojPonavljanja.value){
+                    //Ako je recept označen kao ponovljiv trenutno
+                    if(this.isPonovljiv){
                         this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
                     }
                     //Nastavi stream
@@ -1859,8 +1855,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         this.osnovnaListaMagPripravakDropdown.patchValue(null,{emitEvent: false});
         //Ponovno postavljam trajanje terapije na 30 dana
         this.trajanjeTerapije = 30 * +this.kolicinaDropdown.value;
-        //Ako je postavljen broj ponavljanja
-        if(this.brojPonavljanja.value){
+        //Ako je recept trenutno označen kao ponovljiv
+        if(this.isPonovljiv){
             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
         }
         //Postavi dane dostatnosti inicijalno na 30 dana
@@ -1937,8 +1933,8 @@ export class IzdajReceptComponent implements OnInit, OnDestroy{
         this.dopunskaListaMagPripravakDropdown.patchValue(null,{emitEvent: false});
         //Ponovno postavljam trajanje terapije na 30 dana
         this.trajanjeTerapije = 30 * +this.kolicinaDropdown.value;
-        //Ako je postavljen broj ponavljanja
-        if(this.brojPonavljanja.value){
+        //Ako je recept trenutno označen kao ponovljiv
+        if(this.isPonovljiv){
             this.trajanjeTerapije = this.trajanjeTerapije * (+this.brojPonavljanja.value + 1);
         }
         //Postavi dostatnost inicijalno na 30 dana

@@ -401,7 +401,7 @@ export class ObradaComponent implements OnInit, OnDestroy {
                 //Označavam da pacijent više nije aktivan
                 this.isAktivan = false;
                 //Stavljam vrijednost u Subject da je završen pregled
-                this.obradaService.zavrsenPregled.next(true);
+                this.obradaService.zavrsenPregled.next();
             }
         );
     }

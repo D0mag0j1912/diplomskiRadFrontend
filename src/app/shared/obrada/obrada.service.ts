@@ -17,8 +17,9 @@ export class ObradaService{
         prezime: string,
         stranica: number}>({ime:null,prezime:null,stranica:1});
     //Kreiram Subject kojim ću obavjestiti komponentu obrade da je pregled završio
-    zavrsenPregled = new Subject<boolean>();
+    zavrsenPregled = new Subject<void>();
     obsZavrsenPregled = this.zavrsenPregled.asObservable();
+
     //Kreiram Subject kojim ću prenijeti trenutni ID obrade u komponentu "PrikaziPovijestBolestiComponent"
     podatciObrada = new BehaviorSubject<number>(null);
     podatciObradaObs = this.podatciObrada.asObservable();

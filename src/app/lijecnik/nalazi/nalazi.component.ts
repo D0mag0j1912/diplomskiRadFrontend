@@ -77,14 +77,11 @@ export class NalaziComponent implements OnInit, OnDestroy{
             const combined = merge(
               //Pretplaćujem se na završetak pregleda
               this.obradaService.obsZavrsenPregled.pipe(
-                  tap((pregled) => {
-                          //Ako je pregled završen
-                          if(pregled){
-                              //Označavam da pacijent više nije aktivan
-                              this.isAktivan = false;
-                          }
-                  }),
-                  takeUntil(this.pretplata)
+                    tap(() => {
+                        //Označavam da pacijent više nije aktivan
+                        this.isAktivan = false;
+                    }),
+                    takeUntil(this.pretplata)
               ),
               this.datum.valueChanges.pipe(
                   switchMap(datum => {
@@ -189,7 +186,6 @@ export class NalaziComponent implements OnInit, OnDestroy{
             //Jednog po jednog spremam u polje
             this.nalazi.push(objektNalazList);
         }
-        console.log(this.nalazi);
     }
 
     //Metoda koja se pokreće kada se promijeni vrijednost filtera

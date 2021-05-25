@@ -213,3 +213,22 @@ export function kolicinaPrijeProizvod(): ValidatorFn{
         return null;
     }
 }
+
+//Funkcija koja provjerava je li ispravno unesen broj doziranja
+export function provjeriDoziranje(): ValidatorFn{
+    return (control: FormControl): {[key: string]: boolean} | null => {
+        //Oznaka je li petlja pronašla uneseno doziranje
+        let isPronasao: boolean = false;
+        for(let i = 1; i <= 20; i++){
+            if(+control.value === i){
+                //Pronašao ga je
+                isPronasao = true;
+            }
+        }
+        //Ako ga nije pronašao
+        if(!isPronasao){
+            return {'neispravnoDoziranje': true};
+        }
+        return null;
+    }
+}
