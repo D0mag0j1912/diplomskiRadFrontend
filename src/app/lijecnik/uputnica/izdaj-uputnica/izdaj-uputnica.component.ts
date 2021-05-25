@@ -193,7 +193,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             //Slušam promjene u polju unosa primarne dijagnoze
             this.primarnaDijagnoza.valueChanges.pipe(
                 tap(value => {
-                    console.log("U promjenama primarne dijagnoze sam!");
                     //Ako je taj unos ispravan
                     if(this.primarnaDijagnoza.valid){
                         //Pozivam metodu da popuni polje MKB šifre te dijagnoze
@@ -220,7 +219,6 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             //Slušam promjene u polju unosa MKB šifre primarne dijagnoze
             this.mkbPrimarnaDijagnoza.valueChanges.pipe(
                 tap(value => {
-                    console.log("u promjenama mkb šifre dijagnoze sam!");
                     //Ako je MKB ispravno unesen (ako je prošao validaciju)
                     if(this.mkbPrimarnaDijagnoza.valid){
                         //Prolazim kroz sve MKB šifre
@@ -849,14 +847,46 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
         }
         //Ako liječnik NIJE POTVRDIO povijest bolesti
         else{
-            //Popuni lab. dijagnostiku
-            this.popuniLabDijagnostika();
-            //Samo zatvori prozor povijesti bolesti
-            this.isPovijestBolesti = false;
-            //Onemogućavam unos dijagnoza
-            this.primarnaDijagnoza.disable({emitEvent: false});
-            this.mkbPrimarnaDijagnoza.disable({emitEvent: false});
-            this.sekundarnaDijagnoza.disable({emitEvent: false});
+            //Ako je pacijent AKTIVAN u obradi
+            if(this.aktivniPacijent){
+                //Dohvaćam MBO aktivnog pacijenta
+                const polje = this.aktivniPacijent.split(" ");
+                //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
+                this.izdajUputnicaService.getInicijalneDijagnoze(
+                    +JSON.parse(localStorage.getItem("idObrada")),
+                    polje[2]).pipe(
+                    tap(podatci => {
+                        //Ako pacijent ima zapisanu povijest bolesti u ovoj sesiji obrade
+                        if(podatci){
+                            //Restartam polje inicijalnih dijagnoza
+                            this.inicijalneDijagnoze = [];
+                            //Definiram praznu varijablu
+                            let obj;
+                            //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
+                            for(const dijagnoza of podatci){
+                                //Kreiram svoj objekt
+                                obj = new InicijalneDijagnoze(dijagnoza);
+                                //Spremam ga u svoje polje
+                                this.inicijalneDijagnoze.push(obj);
+                            }
+                            this.dohvatiInicijalneDijagnoze(this.inicijalneDijagnoze);
+                            //Popuni lab. dijagnostiku
+                            this.popuniLabDijagnostika();
+                            //Polje pacijenta popunjavam vrijednosti [ime prezime MBO] aktivnog pacijenta
+                            this.pacijent.patchValue(this.aktivniPacijent, {emitEvent: false});
+                            //Stavljam false u slučaju da je bilo true
+                            this.isPovijestBolesti = false;
+                        }
+                    })
+                ).subscribe();
+            }
+            //Ako pacijent NIJE AKTIVAN u obradi
+            else{
+                //Postavljam vrijednost izabranog pacijenta na null
+                this.pacijent.patchValue(null, {emitEvent: false});
+                //Samo zatvori prozor povijesti bolesti
+                this.isPovijestBolesti = false;
+            }
         }
     }
 

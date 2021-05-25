@@ -331,177 +331,185 @@ export class ZdravstveniPodatciComponent implements OnInit, OnDestroy {
         }
     }
 
-  //Metoda se poziva kada je trajno osiguranje promijeni svoju vrijednost
-  onChecked(event){
-    //Ako je pacijent aktivan
-    if(this.isPodatciAktivni){
-        //Ako je trajno osiguranje checked
-        if(event.target.checked){
-          //Dižem validatore za datum početka osnovnog osiguranja
-          this.osnovnoOd.clearValidators();
-          //Dižem validatore za datum završetka osnovnog osiguranja
-          this.osnovnoDo.clearValidators();
-          //Resetiram polja datuma početka i datuma završetka osnovnog osiguranja
-          this.osnovnoOd.reset();
-          this.osnovnoDo.reset();
-          //Onemogućavam unos datuma osnovnog osiguranja
-          this.osnovnoOd.disable({emitEvent: false});
-          this.osnovnoDo.disable({emitEvent: false});
-        }
-        //Ako trajno osiguranje nije checked
-        else{
-            console.log("tu sam");
-            //Omogućavam unos datuma osnovnog osiguranja
-            this.osnovnoOd.enable({emitEvent: false});
-            this.osnovnoDo.enable({emitEvent: false});
-            //Postavljam validatore na datum početka osnovnog osiguranja
-            this.osnovnoOd.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
-            //Postavljam validatore na datum završetka osnovnog osiguranja
-            this.osnovnoDo.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
-        }
-        this.osnovnoOd.updateValueAndValidity({emitEvent: false});
-        this.osnovnoDo.updateValueAndValidity({emitEvent: false});
-    }
-  }
-
-  //Metoda se poziva kada je "Oslobođen participacije" checked
-  onCheckedParticipacija(event){
-    //Ako je pacijent aktivan
-    if(this.isPodatciAktivni){
-        //Ako je "Oslobođen participacije" checked
-        if(event.target.checked){
-          //Omogućavam unos članka participacije i postavljam mu validatore
-          this.clanakParticipacija.enable({emitEvent: false});
-          //Postavljam članku validatore
-          this.clanakParticipacija.setValidators([Validators.required, Handler.isValidParticipacija(this.participacije)]);
-      }
-      //Ako "Oslobođen participacije" nije checked":
-      else{
-          //Resetiram polja participacija
-          this.clanakParticipacija.reset();
-          this.trajnoParticipacija.reset();
-          this.participacijaDo.reset();
-          //Onemogućavam unos svim poljima koja se tiču participacije
-          this.clanakParticipacija.disable({emitEvent: false});
-          this.trajnoParticipacija.disable({emitEvent: false});
-          this.participacijaDo.disable({emitEvent: false});
-          //Dižem im validatore
-          this.clanakParticipacija.clearValidators();
-          this.trajnoParticipacija.clearValidators();
-          this.participacijaDo.clearValidators();
-      }
-
-      this.clanakParticipacija.updateValueAndValidity({emitEvent: false});
-      this.trajnoParticipacija.updateValueAndValidity({emitEvent: false});
-      this.participacijaDo.updateValueAndValidity({emitEvent: false});
-      this.forma.updateValueAndValidity({emitEvent: false});
-    }
-  }
-  //Metoda se poziva kada korisnik izabere jedan od ponuđenih članaka
-  onSelected(event){
-    //Ako je pacijent aktivan
-    if(this.isPodatciAktivni){
-        //Ako je korisnik izabrao neku vrijednost iz dropdowna
-        if(event.target.value){
-          //Omogući unos trajne participacije i datuma participacije
-          this.trajnoParticipacija.enable({emitEvent: false});
-          this.participacijaDo.enable({emitEvent: false});
+    //Metoda se poziva kada je trajno osiguranje promijeni svoju vrijednost
+    onChecked(event){
+        //Ako je pacijent aktivan
+        if(this.isPodatciAktivni){
+            //Ako je trajno osiguranje checked
+            if(event.target.checked){
+            //Dižem validatore za datum početka osnovnog osiguranja
+            this.osnovnoOd.clearValidators();
+            //Dižem validatore za datum završetka osnovnog osiguranja
+            this.osnovnoDo.clearValidators();
+            //Resetiram polja datuma početka i datuma završetka osnovnog osiguranja
+            this.osnovnoOd.reset();
+            this.osnovnoDo.reset();
+            //Onemogućavam unos datuma osnovnog osiguranja
+            this.osnovnoOd.disable({emitEvent: false});
+            this.osnovnoDo.disable({emitEvent: false});
+            }
+            //Ako trajno osiguranje nije checked
+            else{
+                //Omogućavam unos datuma osnovnog osiguranja
+                this.osnovnoOd.enable({emitEvent: false});
+                this.osnovnoDo.enable({emitEvent: false});
+                //Postavljam validatore na datum početka osnovnog osiguranja
+                this.osnovnoOd.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
+                //Postavljam validatore na datum završetka osnovnog osiguranja
+                this.osnovnoDo.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
+            }
+            this.osnovnoOd.updateValueAndValidity({emitEvent: false});
+            this.osnovnoDo.updateValueAndValidity({emitEvent: false});
         }
     }
-  }
 
-  //Metoda koja se poziva kada je "trajnoParticipacija" checked
-  onCheckedTrajnaParticipacija(event){
-    //Ako je pacijent aktivan
-    if(this.isPodatciAktivni){
-        //Ako je trajna participacija checked
-        if(event.target.checked){
-          //Resetiram polje datuma participacije
-          this.participacijaDo.reset();
-          //Onemogući unos datuma participacije
-          this.participacijaDo.disable({emitEvent: false});
-          //Dižem validatore za datum participacije
-          this.participacijaDo.clearValidators();
+    //Metoda se poziva kada je "Oslobođen participacije" checked
+    onCheckedParticipacija(event){
+        //Ako je pacijent aktivan
+        if(this.isPodatciAktivni){
+            //Ako je "Oslobođen participacije" checked
+            if(event.target.checked){
+                //Omogućavam unos članka participacije i postavljam mu validatore
+                this.clanakParticipacija.enable({emitEvent: false});
+                //Postavljam članku validatore
+                this.clanakParticipacija.setValidators([Validators.required, Handler.isValidParticipacija(this.participacije)]);
+                //Postavljam validatore u cijelu formu
+                this.forma.setValidators([Handler.atLeastOneRequiredOsnovno(),
+                    Handler.mustOslobodenParticipacija(),
+                    Handler.bothForbiddenOsnovno(),
+                    Handler.atLeastOneRequiredParticipacija()]);
+            }
+            //Ako "Oslobođen participacije" nije checked":
+            else{
+                //Postavljam validatore u cijelu formu
+                this.forma.setValidators([Handler.atLeastOneRequiredOsnovno(),
+                    Handler.mustOslobodenParticipacija(),
+                    Handler.bothForbiddenOsnovno()]);
+                //Resetiram polja participacija
+                this.clanakParticipacija.reset();
+                this.trajnoParticipacija.reset();
+                this.participacijaDo.reset();
+                //Onemogućavam unos svim poljima koja se tiču participacije
+                this.clanakParticipacija.disable({emitEvent: false});
+                this.trajnoParticipacija.disable({emitEvent: false});
+                this.participacijaDo.disable({emitEvent: false});
+                //Dižem im validatore
+                this.clanakParticipacija.clearValidators();
+                this.trajnoParticipacija.clearValidators();
+                this.participacijaDo.clearValidators();
+            }
+
+            this.clanakParticipacija.updateValueAndValidity({emitEvent: false});
+            this.trajnoParticipacija.updateValueAndValidity({emitEvent: false});
+            this.participacijaDo.updateValueAndValidity({emitEvent: false});
+            this.forma.updateValueAndValidity({emitEvent: false});
         }
-        //Ako trajna participacija nije checked
-        else{
-          //Ako je "oslobodenParticipacije" checked
-          if(this.oslobodenParticipacije.value){
-              //Omogući unos datuma participacije
-              this.participacijaDo.enable({emitEvent: false});
-              //Postavljam validatore na datum participacije
-              this.participacijaDo.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
-          }
-        }
-        //Primjeni ove promjene
-        this.participacijaDo.updateValueAndValidity({emitEvent:false});
     }
-  }
+    //Metoda se poziva kada korisnik izabere jedan od ponuđenih članaka
+    onSelected(event){
+        //Ako je pacijent aktivan
+        if(this.isPodatciAktivni){
+            //Ako je korisnik izabrao neku vrijednost iz dropdowna
+            if(event.target.value){
+            //Omogući unos trajne participacije i datuma participacije
+            this.trajnoParticipacija.enable({emitEvent: false});
+            this.participacijaDo.enable({emitEvent: false});
+            }
+        }
+    }
 
-  //Ova metoda se poziva kada se komponenta uništi
-  ngOnDestroy(){
-    this.pretplateSubject.next(true);
-    this.pretplateSubject.complete();
-    //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
-    this.obradaService.zavrsenPregled.next(false);
-  }
+    //Metoda koja se poziva kada je "trajnoParticipacija" checked
+    onCheckedTrajnaParticipacija(event){
+        //Ako je pacijent aktivan
+        if(this.isPodatciAktivni){
+            //Ako je trajna participacija checked
+            if(event.target.checked){
+            //Resetiram polje datuma participacije
+            this.participacijaDo.reset();
+            //Onemogući unos datuma participacije
+            this.participacijaDo.disable({emitEvent: false});
+            //Dižem validatore za datum participacije
+            this.participacijaDo.clearValidators();
+            }
+            //Ako trajna participacija nije checked
+            else{
+            //Ako je "oslobodenParticipacije" checked
+            if(this.oslobodenParticipacije.value){
+                //Omogući unos datuma participacije
+                this.participacijaDo.enable({emitEvent: false});
+                //Postavljam validatore na datum participacije
+                this.participacijaDo.setValidators([Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]);
+            }
+            }
+            //Primjeni ove promjene
+            this.participacijaDo.updateValueAndValidity({emitEvent:false});
+        }
+    }
 
-  //Definiram gettere za pojedine form controlove
-  get nositeljOsiguranja(): FormControl{
-    return this.forma.get('nositeljOsiguranja') as FormControl;
-  }
-  get drzavaOsiguranja(): FormControl{
-    return this.forma.get('drzavaOsiguranja') as FormControl;
-  }
-  get kategorijaOsiguranja(): FormControl{
-    return this.forma.get('kategorijaOsiguranja') as FormControl;
-  }
-  get podrucniUred(): FormControl{
-    return this.forma.get('podrucniUred') as FormControl;
-  }
-  get sifUred(): FormControl{
-    return this.forma.get('sifUred') as FormControl;
-  }
-  get mbo(): FormControl{
-    return this.forma.get('mbo') as FormControl;
-  }
-  get trajnoOsnovno(): FormControl{
-    return this.forma.get('trajnoOsnovno') as FormControl;
-  }
-  get datumiOsnovno(): FormGroup{
-    return this.forma.get('datumiOsnovno') as FormGroup;
-  }
-  get osnovnoOd(): FormControl{
-    return this.forma.get('datumiOsnovno.osnovnoOd') as FormControl;
-  }
-  get osnovnoDo(): FormControl{
-    return this.forma.get('datumiOsnovno.osnovnoDo') as FormControl;
-  }
-  get brIskDopunsko(): FormControl{
-    return this.forma.get('brIskDopunsko') as FormControl;
-  }
-  get datumiDopunsko(): FormGroup{
-    return this.forma.get('datumiDopunsko') as FormGroup;
-  }
-  get dopunskoOd(): FormControl{
-    return this.forma.get('datumiDopunsko.dopunskoOd') as FormControl;
-  }
-  get dopunskoDo(): FormControl{
-    return this.forma.get('datumiDopunsko.dopunskoDo') as FormControl;
-  }
-  get oslobodenParticipacije(): FormControl{
-    return this.forma.get('oslobodenParticipacije') as FormControl;
-  }
-  get participacija(): FormGroup{
-    return this.forma.get('participacija') as FormGroup;
-  }
-  get clanakParticipacija(): FormControl{
-    return this.forma.get('participacija.clanakParticipacija') as FormControl;
-  }
-  get trajnoParticipacija(): FormControl{
-    return this.forma.get('participacija.trajnoParticipacija') as FormControl;
-  }
-  get participacijaDo(): FormControl{
-    return this.forma.get('participacija.participacijaDo') as FormControl;
-  }
+    //Ova metoda se poziva kada se komponenta uništi
+    ngOnDestroy(){
+        this.pretplateSubject.next(true);
+        this.pretplateSubject.complete();
+        //Praznim Subject da mi se ulazi u Subscription i dobiva informaciju da je pregled završen iako nije
+        this.obradaService.zavrsenPregled.next(false);
+    }
+
+    //Definiram gettere za pojedine form controlove
+    get nositeljOsiguranja(): FormControl{
+        return this.forma.get('nositeljOsiguranja') as FormControl;
+    }
+    get drzavaOsiguranja(): FormControl{
+        return this.forma.get('drzavaOsiguranja') as FormControl;
+    }
+    get kategorijaOsiguranja(): FormControl{
+        return this.forma.get('kategorijaOsiguranja') as FormControl;
+    }
+    get podrucniUred(): FormControl{
+        return this.forma.get('podrucniUred') as FormControl;
+    }
+    get sifUred(): FormControl{
+        return this.forma.get('sifUred') as FormControl;
+    }
+    get mbo(): FormControl{
+        return this.forma.get('mbo') as FormControl;
+    }
+    get trajnoOsnovno(): FormControl{
+        return this.forma.get('trajnoOsnovno') as FormControl;
+    }
+    get datumiOsnovno(): FormGroup{
+        return this.forma.get('datumiOsnovno') as FormGroup;
+    }
+    get osnovnoOd(): FormControl{
+        return this.forma.get('datumiOsnovno.osnovnoOd') as FormControl;
+    }
+    get osnovnoDo(): FormControl{
+        return this.forma.get('datumiOsnovno.osnovnoDo') as FormControl;
+    }
+    get brIskDopunsko(): FormControl{
+        return this.forma.get('brIskDopunsko') as FormControl;
+    }
+    get datumiDopunsko(): FormGroup{
+        return this.forma.get('datumiDopunsko') as FormGroup;
+    }
+    get dopunskoOd(): FormControl{
+        return this.forma.get('datumiDopunsko.dopunskoOd') as FormControl;
+    }
+    get dopunskoDo(): FormControl{
+        return this.forma.get('datumiDopunsko.dopunskoDo') as FormControl;
+    }
+    get oslobodenParticipacije(): FormControl{
+        return this.forma.get('oslobodenParticipacije') as FormControl;
+    }
+    get participacija(): FormGroup{
+        return this.forma.get('participacija') as FormGroup;
+    }
+    get clanakParticipacija(): FormControl{
+        return this.forma.get('participacija.clanakParticipacija') as FormControl;
+    }
+    get trajnoParticipacija(): FormControl{
+        return this.forma.get('participacija.trajnoParticipacija') as FormControl;
+    }
+    get participacijaDo(): FormControl{
+        return this.forma.get('participacija.participacijaDo') as FormControl;
+    }
 }
