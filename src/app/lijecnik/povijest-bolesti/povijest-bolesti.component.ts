@@ -107,26 +107,26 @@ export class PovijestBolestiComponent implements OnInit, OnDestroy {
                         }
 
                         this.forma = new FormGroup({
-                        'brziUnos': new FormControl(true),
-                        'razlogDolaska': new FormControl(null, this.isAktivan ? [Validators.required] : []),
-                        'anamneza': new FormControl(null, this.isAktivan ? [Validators.required] : []),
-                        'status': new FormControl(null),
-                        'primarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required, SharedValidations.provjeriNazivDijagnoza(this.dijagnoze)] : []),
-                        'mkbPrimarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required,SharedValidations.provjeriMKB(this.mkbSifre)] : []),
-                        'sekundarnaDijagnoza': new FormArray([
-                            new FormGroup({
-                                'nazivSekundarna': new FormControl(null),
-                                'mkbSifraSekundarna': new FormControl(null)
-                            },{validators: this.isAktivan ? [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)] : []})
-                        ],{validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
-                        'nalaz': new FormControl(null),
-                        'terapija': new FormControl(null),
-                        'preporukaLijecnik': new FormControl(null),
-                        'napomena': new FormControl(null),
-                        'tipSlucaj': new FormGroup({
-                            'noviSlucaj': new FormControl(null),
-                            'povezanSlucaj': new FormControl(null)
-                        }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null})
+                            'brziUnos': new FormControl(true),
+                            'razlogDolaska': new FormControl(null, this.isAktivan ? [Validators.required] : []),
+                            'anamneza': new FormControl(null, this.isAktivan ? [Validators.required] : []),
+                            'status': new FormControl(null),
+                            'primarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required, SharedValidations.provjeriNazivDijagnoza(this.dijagnoze)] : []),
+                            'mkbPrimarnaDijagnoza': new FormControl(null,this.isAktivan ? [Validators.required,SharedValidations.provjeriMKB(this.mkbSifre)] : []),
+                            'sekundarnaDijagnoza': new FormArray([
+                                new FormGroup({
+                                    'nazivSekundarna': new FormControl(null),
+                                    'mkbSifraSekundarna': new FormControl(null)
+                                },{validators: this.isAktivan ? [SharedValidations.requiredMKBSifraSekundarna(),SharedValidations.provjeriMKBSifraSekundarna(this.mkbSifre)] : []})
+                            ],{validators: this.isAktivan ? this.isValidSekundarnaDijagnoza.bind(this) : null}),
+                            'nalaz': new FormControl(null),
+                            'terapija': new FormControl(null),
+                            'preporukaLijecnik': new FormControl(null),
+                            'napomena': new FormControl(null),
+                            'tipSlucaj': new FormGroup({
+                                'noviSlucaj': new FormControl(null),
+                                'povezanSlucaj': new FormControl(null)
+                            }, {validators: this.isAktivan ? this.atLeastOneRequiredTipSlucaj : null})
                         }, {validators: this.isAktivan ? this.isValidDijagnoze.bind(this) : null});
                         //Na početku onemogućavam unos sekundarne dijagnoze
                         this.forma.get('sekundarnaDijagnoza').disable({emitEvent: false});

@@ -595,14 +595,19 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                         //Ako ovaj pacijent IMA upisanu povijest bolesti za ovu sesiju
                         else{
                             //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                            return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), polje[2]).pipe(
-                                tap(dijagnoze => {
+                            return forkJoin([
+                                this.izdajUputnicaService.getInicijalneDijagnoze(
+                                    +JSON.parse(localStorage.getItem("idObrada")),
+                                    polje[2]),
+                                this.importService.getIDPacijent(polje[2])
+                            ]).pipe(
+                                tap(podatci => {
                                     //Restartam polje inicijalnih dijagnoza
                                     this.inicijalneDijagnoze = [];
                                     //Definiram praznu varijablu
                                     let obj;
                                     //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
-                                    for(const dijagnoza of dijagnoze){
+                                    for(const dijagnoza of podatci[0]){
                                         //Kreiram svoj objekt
                                         obj = new InicijalneDijagnoze(dijagnoza);
                                         //Spremam ga u svoje polje
@@ -615,6 +620,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                                     this.primarnaDijagnoza.enable({emitEvent: false});
                                     this.mkbPrimarnaDijagnoza.enable({emitEvent: false});
                                     this.sekundarnaDijagnoza.enable({emitEvent: false});
+                                    //Ažuriram ID pacijenta na ID pacijenta koji je kliknut u izborniku
+                                    this.idPacijent = +podatci[1];
                                 })
                             );
                         }
