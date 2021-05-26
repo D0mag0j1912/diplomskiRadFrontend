@@ -204,6 +204,8 @@ export class UzorciComponent implements OnInit, OnDestroy{
         //Označavam da je forma submittana
         this.isSubmitted = true;
         if(this.forma.invalid){
+            //Otvaram prozor u kojemu se prikaziva odgovarajuća poruka
+            this.dialog.open(DialogComponent, {data: {message: 'Polja nisu ispravno unesena!'}});
             return;
         }
         this.uzorciService.spremiUzorke(

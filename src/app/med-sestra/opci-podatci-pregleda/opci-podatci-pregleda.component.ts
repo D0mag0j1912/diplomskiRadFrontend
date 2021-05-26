@@ -639,10 +639,13 @@ export class OpciPodatciPregledaComponent implements OnInit,OnDestroy{
 
     //Kada korisnik klikne "Potvrdi opće podatke"
     onSubmit(){
+        //Označavam da je forma submittana
         this.isSubmitted = true;
         //Ako forma nije ispravna
         if(!this.forma.valid){
-          return;
+            //Prikazivam prozor sa odgovarajućom porukom
+            this.dialog.open(DialogComponent, {data: {message: 'Morate unijeti sva obvezna polja!'}});
+            return;
         }
         //Pomoćno polje u koje spremam samo MKB šifre sek. dijagnoza
         let mkbPolje: string[] = [];
