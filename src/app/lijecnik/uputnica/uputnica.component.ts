@@ -217,7 +217,9 @@ export class UputnicaComponent implements OnInit, OnDestroy{
                         }
                     }
                     //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                    return this.izdajUputnicaService.getInicijalneDijagnoze(+JSON.parse(localStorage.getItem("idObrada")), podatci[0].mboPacijent).pipe(
+                    return this.izdajUputnicaService.getInicijalneDijagnoze(
+                        +JSON.parse(localStorage.getItem("idObrada")),
+                        podatci[0].mboPacijent).pipe(
                         switchMap(dijagnoze => {
                             //Ako pacijent ima zapisanu povijest bolesti u ovoj sesiji obrade
                             if(dijagnoze){

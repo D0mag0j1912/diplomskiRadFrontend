@@ -851,19 +851,22 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
             if(this.aktivniPacijent){
                 //Dohvaćam MBO aktivnog pacijenta
                 const polje = this.aktivniPacijent.split(" ");
-                //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade
-                this.izdajUputnicaService.getInicijalneDijagnoze(
-                    +JSON.parse(localStorage.getItem("idObrada")),
-                    polje[2]).pipe(
+                //Dohvaćam zadnje postavljene dijagnoze povijesti bolesti ove sesije obrade te ID aktivnog pacijenta
+                const combined = forkJoin([
+                    this.izdajUputnicaService.getInicijalneDijagnoze(
+                        +JSON.parse(localStorage.getItem("idObrada")),
+                        polje[2]),
+                    this.importService.getIDPacijent(polje[2])
+                ]).pipe(
                     tap(podatci => {
                         //Ako pacijent ima zapisanu povijest bolesti u ovoj sesiji obrade
-                        if(podatci){
+                        if(podatci[0]){
                             //Restartam polje inicijalnih dijagnoza
                             this.inicijalneDijagnoze = [];
                             //Definiram praznu varijablu
                             let obj;
                             //Prolazim kroz sve inicijalne dijagnoze aktivnog pacijenta koje je poslao server
-                            for(const dijagnoza of podatci){
+                            for(const dijagnoza of podatci[0]){
                                 //Kreiram svoj objekt
                                 obj = new InicijalneDijagnoze(dijagnoza);
                                 //Spremam ga u svoje polje
@@ -877,6 +880,8 @@ export class IzdajUputnicaComponent implements OnInit, OnDestroy{
                             //Stavljam false u slučaju da je bilo true
                             this.isPovijestBolesti = false;
                         }
+                        //Ažuriram ID pacijenta na ID aktivnog pacijenta
+                        this.idPacijent = +podatci[1];
                     })
                 ).subscribe();
             }
