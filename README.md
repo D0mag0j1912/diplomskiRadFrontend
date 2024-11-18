@@ -10,11 +10,11 @@ Aplikacija ordinacije OM je Web aplikacija koja predstavlja uvid u informatički
 Glavne uloge (korisnici) ove aplikacije su liječnik (specijalist obiteljske medicine) te medicinska sestra.
 Aplikacija je sastavljena na način da se korisnicima omogući pregledno korisničko sučelje, brz dolazak do željenih informacija te pristup najnovijim verzijama šifrarnika HZZO-a.
 
-### Korištene tehnologije
-* Angular
-* TypeScript
-* PHP
-* MySQL
+## Korištene tehnologije
+- [![Angular](https://img.shields.io/badge/angular-%23DD0031.svg?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
+- [![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+- [![PHP](https://img.shields.io/badge/PHP-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+- [![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 
 ### Glavne funkcionalnosti
 1. Obrada pacijenta
